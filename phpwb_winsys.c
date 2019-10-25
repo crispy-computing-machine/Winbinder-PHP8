@@ -541,13 +541,13 @@ ZEND_FUNCTION(wb_wait)
 
 ZEND_FUNCTION(wb_is_obj)
 {
-	zend_long pwbo = 0;
+	zend_long pwbo;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "l", &pwbo) == FAILURE)
 		return;
 
-	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
+	RETURN_BOOL(wbIsWBObj((PWBOBJ)pwbo, FALSE));
 }
 
 //------------------------------------------------------------------ END OF FILE
