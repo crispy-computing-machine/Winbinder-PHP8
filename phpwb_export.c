@@ -21,6 +21,21 @@
 
 #define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
 
+
+// ---------------------------------------------------------- INI SETTINGS
+//declares the zend_winbinder_globals structure
+ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+    zend_ulong debug_level;
+ZEND_END_MODULE_GLOBALS(winbinder)
+
+// declares a winbinder_globals symbol of such a type
+ZEND_DECLARE_MODULE_GLOBALS(winbinder)
+
+// OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
+// Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
+PHP_INI_BEGIN()
+    STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLongGEZero, debug_level, zend_winbinder_globals, winbinder_globals)
+PHP_INI_END()
 //----------------------------------------------- PROTOTYPES FOR THE ZEND ENGINE
 
 ZEND_MINIT_FUNCTION(winbinder);
@@ -56,6 +71,7 @@ ZEND_FUNCTION(wb_set_registry_key);
 ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
+ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wbtemp_set_accel_table);
 
 // PHPWB_CONTROL.C
@@ -207,8 +223,11 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_set_registry_key, NULL)
 	ZEND_FE(wb_create_timer, NULL)
 	ZEND_FE(wb_wait, NULL)
+	ZEND_FE(wb_is_obj, NULL)
 	ZEND_FE(wb_destroy_timer, NULL)
 	ZEND_FE(wbtemp_set_accel_table, NULL)
+
+
 
 	// PHPWB_BITMAP.C
 
@@ -339,6 +358,8 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wbtemp_sys_dlg_open, NULL)
 	ZEND_FE(wbtemp_sys_dlg_save, NULL)
 
+
+
 	// The line below must be the last one
 
 	{NULL, NULL, NULL}
@@ -366,6 +387,10 @@ zend_module_entry winbinder_module_entry = {
 
 ZEND_MINIT_FUNCTION(winbinder)
 {
+
+    // INI SETUP
+    REGISTER_INI_ENTRIES();
+
 	// Module initialization procedure
 
 	wbInit();
@@ -575,14 +600,18 @@ ZEND_MINFO_FUNCTION(winbinder)
 	php_info_print_table_row(2, "WinBinder", "enabled");
 	php_info_print_table_row(2, "Version", WINBINDER_VERSION);
 	php_info_print_table_end();
+
+	DISPLAY_INI_ENTRIES();
 }
 
 /* Module shutdown function required by PHP */
 
 ZEND_MSHUTDOWN_FUNCTION(winbinder)
 {
-	// End procedure
 
+    UNREGISTER_INI_ENTRIES();
+
+	// End procedure
 	wbEnd();
 	return SUCCESS;
 }
