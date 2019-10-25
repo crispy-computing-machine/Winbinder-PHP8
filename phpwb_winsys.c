@@ -539,6 +539,7 @@ ZEND_FUNCTION(wb_wait)
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
 
+/*
 ZEND_FUNCTION(wb_is_obj)
 {
 	zend_long pwbo;
@@ -549,5 +550,6 @@ ZEND_FUNCTION(wb_is_obj)
 
 	RETURN_BOOL(wbIsWBObj((PWBOBJ)pwbo, FALSE));
 }
+*/
 
 //------------------------------------------------------------------ END OF FILE
