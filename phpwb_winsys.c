@@ -539,4 +539,15 @@ ZEND_FUNCTION(wb_wait)
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
 
+ZEND_FUNCTION(wb_is_obj)
+{
+	zend_long pwbo = 0;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	 "l", &pwbo) == FAILURE)
+		return;
+
+	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
+}
+
 //------------------------------------------------------------------ END OF FILE
