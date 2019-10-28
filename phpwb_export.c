@@ -22,13 +22,6 @@
 #define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
 
 
-// ---------------------------------------------------------- INI SETTINGS
-// OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
-// Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
-PHP_INI_BEGIN()
-    PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, NULL)
-PHP_INI_END()
-
 //----------------------------------------------- PROTOTYPES FOR THE ZEND ENGINE
 
 ZEND_MINIT_FUNCTION(winbinder);
@@ -381,15 +374,23 @@ zend_module_entry winbinder_module_entry = {
 ZEND_MINIT_FUNCTION(winbinder)
 {
 
-    // INI SETUP
+    ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+        zend_ulong debug_level;
+    ZEND_END_MODULE_GLOBALS(winbinder)
+
+    // ---------------------------------------------------------- INI SETTINGS
+    // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
+    // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
+    PHP_INI_BEGIN()
+        STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLongGEZero, debug_level, zend_winbinder_globals, winbinder_globals)
+    PHP_INI_END()
+
     REGISTER_INI_ENTRIES();
 
 	// Module initialization procedure
-
 	wbInit();
 
 	// Window classes
-
 	WB_ZEND_CONST(LONG, "AppWindow", 		AppWindow)
 	WB_ZEND_CONST(LONG, "ModalDialog",		ModalDialog)
 	WB_ZEND_CONST(LONG, "ModelessDialog", 	ModelessDialog)
