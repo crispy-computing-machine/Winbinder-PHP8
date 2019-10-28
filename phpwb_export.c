@@ -71,7 +71,7 @@ ZEND_FUNCTION(wb_set_registry_key);
 ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
-//ZEND_FUNCTION(wb_is_obj);
+ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wbtemp_set_accel_table);
 
 // PHPWB_CONTROL.C
@@ -223,7 +223,7 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_set_registry_key, NULL)
 	ZEND_FE(wb_create_timer, NULL)
 	ZEND_FE(wb_wait, NULL)
-	//ZEND_FE(wb_is_obj, NULL)
+	ZEND_FE(wb_is_obj, NULL)
 	ZEND_FE(wb_destroy_timer, NULL)
 	ZEND_FE(wbtemp_set_accel_table, NULL)
 
