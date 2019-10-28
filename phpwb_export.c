@@ -32,7 +32,7 @@ ZEND_DECLARE_MODULE_GLOBALS(winbinder)
 // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
 // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLongGEZero, debug_level, zend_winbinder_globals, winbinder_globals)
+    STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLong, debug_level, zend_winbinder_globals, winbinder_globals)
 PHP_INI_END()
 
 ZEND_MINIT_FUNCTION(winbinder);
