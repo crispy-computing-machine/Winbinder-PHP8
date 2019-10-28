@@ -313,6 +313,11 @@ enum {
 #define M_nMMTimerId		(pwbo->lparams[5])
 #define M_ToolTipWnd		(pwbo->lparams[6])
 
+
+#ifdef ZTS
+#include "TSRM.h"
+#endif
+
 // For storing ini settings
 #ifdef ZTS
 #define WINBINDER_G(v) TSRMG(winbinder_globals_id, zend_winbinder_globals *, v)
