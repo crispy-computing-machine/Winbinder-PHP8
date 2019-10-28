@@ -134,6 +134,18 @@
 #define WBWM_ENUM				(WM_APP + 7)
 #define WBWM_HOOK				(WM_APP + 8)
 
+ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+    zend_ulong debug_level;
+ZEND_END_MODULE_GLOBALS(winbinder)
+
+// For storing ini settings
+#ifdef ZTS
+#define WINBINDER_G(v) TSRMG(winbinder_globals_id, zend_winbinder_globals *, v)
+#else
+#define WINBINDER_G(v) (winbinder_globals.v)
+#endif
+
+
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
 // WinBinder window and control classes
