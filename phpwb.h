@@ -38,12 +38,6 @@
 
 #define PHP_REGEX_H			// Skip php_regex.h: '_off_t' not defined anywhere
 
-#ifdef ZTS
-#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
-#else
-#define WINBINDER_G(v) (winbinder_globals.v)
-#endif
-
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb/wb.h"
