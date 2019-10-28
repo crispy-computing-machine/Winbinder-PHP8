@@ -29,7 +29,7 @@ ZEND_END_MODULE_GLOBALS(winbinder)
 
 // For storing ini settings
 #ifdef ZTS
-#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
+#define WINBINDER_G(v) TSRMG(winbinder_globals_id, zend_winbinder_globals *, v)
 #else
 #define WINBINDER_G(v) (winbinder_globals.v)
 #endif
