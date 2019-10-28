@@ -391,8 +391,11 @@ ZEND_FUNCTION(wb_set_handler)
 
 	// Error checking 
 	if(!zend_is_callable(zparam, 0, &fname)) {
-		zend_error(E_WARNING, "%s(): '%s' is not a function or cannot be called",
-		  get_active_function_name(TSRMLS_C), fname);
+
+		//zend_error(E_WARNING, "%s(): '%s' is not a function or cannot be called", get_active_function_name(TSRMLS_C), fname);
+
+		wbError(get_active_function_name(TSRMLS_C), E_WARNING, "%s(): '%s' is not a function or cannot be called", fname);
+
 		RETURN_NULL();
 	} else {
 		

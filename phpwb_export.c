@@ -23,16 +23,16 @@
 
 
 //----------------------------------------------- PROTOTYPES FOR THE ZEND ENGINE
-// @todo debug why this doesnt appear to work :(
-//ZEND_BEGIN_MODULE_GLOBALS(winbinder)
-//    zend_ulong debug_level;
-//ZEND_END_MODULE_GLOBALS(winbinder)
-//ZEND_DECLARE_MODULE_GLOBALS(winbinder)
-//PHP_INI_BEGIN()
-    // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
-    // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
-    // STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLong, debug_level, zend_winbinder_globals, winbinder_globals)
-//PHP_INI_END()
+// @todo debug why all this doesnt appear to work :(
+    //ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+    //    zend_ulong debug_level;
+    //ZEND_END_MODULE_GLOBALS(winbinder)
+    //ZEND_DECLARE_MODULE_GLOBALS(winbinder)
+    //PHP_INI_BEGIN()
+        // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
+        // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
+        // STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLong, debug_level, zend_winbinder_globals, winbinder_globals)
+    //PHP_INI_END()
 
 // ---------------------------------------------------------- INI SETTINGS
 PHP_INI_BEGIN()
