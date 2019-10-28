@@ -547,7 +547,7 @@ ZEND_FUNCTION(wb_is_obj)
 	 "l", &pwbo) == FAILURE)
 		return;
 
-	RETURN_BOOL(wbIsWBObj((PWBOBJ)pwbo, FALSE));
+	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
 }
 
 //------------------------------------------------------------------ END OF FILE
