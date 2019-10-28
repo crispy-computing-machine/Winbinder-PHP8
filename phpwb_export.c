@@ -27,6 +27,15 @@ ZEND_BEGIN_MODULE_GLOBALS(winbinder)
     zend_ulong debug_level;
 ZEND_END_MODULE_GLOBALS(winbinder)
 
+// For storing ini settings
+#ifdef ZTS
+#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
+#else
+#define WINBINDER_G(v) (winbinder_globals.v)
+#endif
+
+ZEND_DECLARE_MODULE_GLOBALS(winbinder)
+
 // ---------------------------------------------------------- INI SETTINGS
 // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
 // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().

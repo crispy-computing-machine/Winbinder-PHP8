@@ -134,13 +134,6 @@
 #define WBWM_ENUM				(WM_APP + 7)
 #define WBWM_HOOK				(WM_APP + 8)
 
-// For storing ini settings
-#ifdef ZTS
-#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
-#else
-#define WINBINDER_G(v) (winbinder_globals.v)
-#endif
-
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
 // WinBinder window and control classes
