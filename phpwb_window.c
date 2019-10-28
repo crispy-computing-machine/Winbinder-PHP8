@@ -394,7 +394,7 @@ ZEND_FUNCTION(wb_set_handler)
 
 		//zend_error(E_WARNING, "%s(): '%s' is not a function or cannot be called", get_active_function_name(TSRMLS_C), fname);
 
-		wbError(TEXT("wb_set_handler"), E_WARNING, TEXT("'%s' is not a function or cannot be called"), TEXT(fname));
+		wbError(TEXT("wb_set_handler"), E_WARNING, "'%s' is not a function or cannot be called", fname);
 
 		RETURN_NULL();
 	} else {
