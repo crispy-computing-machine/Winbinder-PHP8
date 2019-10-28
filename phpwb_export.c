@@ -23,7 +23,9 @@
 
 
 //----------------------------------------------- PROTOTYPES FOR THE ZEND ENGINE
-
+ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+    zend_ulong debug_level;
+ZEND_END_MODULE_GLOBALS(winbinder)
 ZEND_DECLARE_MODULE_GLOBALS(winbinder)
 
 // ---------------------------------------------------------- INI SETTINGS

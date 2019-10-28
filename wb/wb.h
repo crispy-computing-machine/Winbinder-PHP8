@@ -313,11 +313,6 @@ enum {
 #define M_nMMTimerId		(pwbo->lparams[5])
 #define M_ToolTipWnd		(pwbo->lparams[6])
 
-
-ZEND_BEGIN_MODULE_GLOBALS(winbinder)
-    zend_ulong debug_level;
-ZEND_END_MODULE_GLOBALS(winbinder)
-
 // For storing ini settings
 #ifdef ZTS
 #define WINBINDER_G(v) TSRMG(winbinder_globals_id, zend_winbinder_globals *, v)
