@@ -89,7 +89,6 @@ typedef struct {
 HINSTANCE hAppInstance = NULL;
 HBRUSH hbrTabs = NULL;
 COLORREF clrTabs = NOCOLOR;
-HFONT hFont = NULL;
 
 // Static
 
@@ -1253,8 +1252,8 @@ MOUSE1:
 			}
 
 			if(pwbobj->uClass == Label){
-			    hFont = (HFONT)SendMessage(hCtrl, WM_GETFONT, 0, 0);
-			    SetTextColor((HDC)wParam, hFont->color);
+			    hFont = SendMessage(hCtrl, WM_GETFONT, 0, 0);
+			    SetTextColor((HDC)wParam, pFonts[hFont]->color);
 			}
 
 			break;
