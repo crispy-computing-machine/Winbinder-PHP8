@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_set_size)
 					break;
 
 				default:
-				    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in array in function"), i);
+				    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in array in function"));
 					RETURN_NULL();
 			}
 
@@ -267,7 +267,7 @@ ZEND_FUNCTION(wb_set_size)
 	} else {
 
 		if(Z_TYPE_P(zparm) != IS_LONG) {
-		    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in width in function"), i);
+		    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in width in function"));
 			RETURN_NULL();
 		}
 
@@ -343,7 +343,7 @@ ZEND_FUNCTION(wb_set_area)
 		case 3:
 		case 4:
 		case 5:
-		    wbError(TEXT("wb_set_area"), MB_ICONWARNING, TEXT("Invalid number of parameters passed to function"), i);
+		    wbError(TEXT("wb_set_area"), MB_ICONWARNING, TEXT("Invalid number of parameters passed to function"));
 			RETURN_NULL();
 	}
 
