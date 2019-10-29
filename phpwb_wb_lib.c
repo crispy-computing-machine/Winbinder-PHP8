@@ -59,7 +59,10 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 			break;
 	}
 	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
-	zend_error(nType, str);
+
+	// zend_error(nType, str);
+	php_error_docref(NULL TSRMLS_CC, nType, str);
+
 	return FALSE;
 }
 
