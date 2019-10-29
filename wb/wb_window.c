@@ -1232,12 +1232,13 @@ MOUSE1:
 		case WM_CTLCOLORSTATIC:			// For static controls and others
 		case WM_CTLCOLORBTN:			// For pushbuttons
 
-			if(hbrTabs) {				// Not for versions under Windows XP
-				HWND hCtrl;
-				PWBOBJ pwbobj;
+            HWND hCtrl;
+            PWBOBJ pwbobj;
 
-				hCtrl = (HWND)lParam;
-				pwbobj = wbGetWBObj(hCtrl);
+            hCtrl = (HWND)lParam;
+            pwbobj = wbGetWBObj(hCtrl);
+
+			if(hbrTabs) {				// Not for versions under Windows XP
 
 				if(!pwbobj || !pwbobj->parent)
 					break;
