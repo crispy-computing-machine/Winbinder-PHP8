@@ -391,7 +391,7 @@ ZEND_FUNCTION(wb_set_handler)
 
 	// Error checking 
 	if(!zend_is_callable(zparam, 0, &fname)) {
-		wbError(TEXT(get_active_function_name(TSRMLS_C)), E_WARNING, TEXT("handler is not a function or cannot be called"));
+		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("handler is not a function or cannot be called"));
 		RETURN_NULL();
 	} else {
 		
