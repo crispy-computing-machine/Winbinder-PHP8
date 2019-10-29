@@ -56,8 +56,7 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 		for(i = 0; i < nelem; i++) {
 			if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-				zend_error(E_WARNING, "Could not retrieve element %d from array in function %s()",
-				  i, get_active_function_name(TSRMLS_C));
+                wbError(TEXT("wbtemp_create_menu"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				efree(pitem);
 				RETURN_NULL();
 			}

@@ -38,8 +38,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 	newitem = wbCreateListViewItem((PWBOBJ)pwbo, nitem, nimage, wcs);
 
 	if(newitem == -1) {
-		zend_error(E_WARNING, "Cannot insert item #%ld ('%s') in ListView in function %s()",
-		  nitem, s, get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wbtemp_create_listview_item"), MB_ICONWARNING, TEXT("Cannot insert item #%ld ('%s') in ListView in function"), nitem, s);
 		RETURN_LONG(-1);
 		return;
 	} else

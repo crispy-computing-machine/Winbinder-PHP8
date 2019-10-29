@@ -68,16 +68,13 @@ int parse_array(zval *array, const char *fmt, ...)
 					break;
 
 				default:
-					zend_error(E_WARNING, "Invalid format character '%c' in function %s()",
-					  fmt[i], __FUNCTION__);
+				    wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format character '%c' in function"), fmt[i]);
 					continue;
 			}
 			continue;
 
 		} else if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-
-			zend_error(E_WARNING, "Could not retrieve element %d from array in function %s()",
-			  i, __FUNCTION__);
+            wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 			continue;
 
 		} else {
@@ -111,8 +108,7 @@ int parse_array(zval *array, const char *fmt, ...)
 					break;
 
 				default:
-					zend_error(E_WARNING, "Invalid format string '%s' in function %s()",
-					  fmt, __FUNCTION__);
+				    wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format string '%s' in function"),fmt);
 					continue;
 
 			} // switch
@@ -188,8 +184,7 @@ zval *process_array(zval *zitems)
 	// Get zval data
 
 	if((entry = zend_hash_get_current_data(target_hash)) == NULL)
-		zend_error(E_WARNING, "Could not retrieve element %d from array in function %s()",
-		  nelem, get_active_function_name());
+	    wbError(TEXT("process_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"));
 
 	return entry;
 }

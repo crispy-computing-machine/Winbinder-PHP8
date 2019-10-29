@@ -424,15 +424,12 @@ ZEND_FUNCTION(wb_set_image)
 			wbFree(wcs);
 
 			if (!hImage) {
-				zend_error(E_WARNING, "Invalid image file %s or image index %d",
-					Z_STRVAL_P(source), index);
+                wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid image file %s or image index %d", Z_STRVAL_P(source), index));
 				RETURN_NULL();
 			}
 
 		} else {
-
-			zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-				get_active_function_name(TSRMLS_C));
+            wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function");
 			RETURN_NULL();
 
 		}
@@ -473,8 +470,7 @@ ZEND_FUNCTION(wb_set_item_image)
 			index1 = Z_LVAL_P(zindex);
 
 			if(zindextype != IS_NULL && zindextype != IS_LONG) {
-				zend_error(E_WARNING, "Parameter 2 expected to be an integer or NULL in function %s()",
-					get_active_function_name(TSRMLS_C));
+                wbError(TEXT("wb_set_item_image"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an integer or NULL in function"));
 				RETURN_BOOL(FALSE);
 			} else if(zindextype == IS_NULL || (zindextype == IS_LONG && Z_LVAL_P(zindex) < 0)) {
 				RETURN_BOOL(wbSetListViewItemImage((PWBOBJ)pwbo, item, subitem, -1));
@@ -498,8 +494,7 @@ ZEND_FUNCTION(wb_set_item_image)
 		case ComboBox:
 			// Future implementation goes here
 		default:
-			zend_error(E_WARNING, "Function %s() is not implemented for class #%d",
-				get_active_function_name(TSRMLS_C), nclass);
+		    wbError(TEXT("wb_set_item_image"), MB_ICONWARNING, TEXT("Function is not implemented for class #%d"), nclass);
 	}
 }
 
@@ -620,8 +615,7 @@ ZEND_FUNCTION(wb_delete_items)
 
 			RETURN_BOOL(bRet);
 		default:
-			zend_error(E_WARNING, "Parameter 2 expected to be an integer or array in function %s()",
-				get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wb_delete_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an integer or array in function"));
 			RETURN_NULL();
 	}
 }
@@ -809,8 +803,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 			RETURN_BOOL(bRet);
 
 		default:
-			zend_error(E_WARNING, "Parameter 2 expected to be an array in function %s()",
-				get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wbtemp_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in function"));
 			RETURN_NULL();
 	}
 }
