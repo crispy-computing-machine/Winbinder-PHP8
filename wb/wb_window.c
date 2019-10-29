@@ -1251,8 +1251,8 @@ MOUSE1:
 			}
 
 			if(pwbobj->uClass == Label){
-			    hFont = (HFONT)SendMessage(pwbobj, WM_GETFONT, 0, 0);
-			    SetTextColor(hdc, hFont->color);
+			    hFont = (HFONT)SendMessage(hCtrl, WM_GETFONT, 0, 0);
+			    SetTextColor((HDC)wParam, hFont->color);
 			}
 
 
