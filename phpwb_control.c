@@ -429,7 +429,7 @@ ZEND_FUNCTION(wb_set_image)
 			}
 
 		} else {
-            wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function");
+            wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 			RETURN_NULL();
 
 		}
