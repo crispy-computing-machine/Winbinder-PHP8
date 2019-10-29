@@ -107,16 +107,6 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 		nLastFont = nFont;
 	}
 
-/*
-	// Doesn't work, should intercept WM_CTLCOLOR messages
-	{
-		HDC hdc;
-	    hdc =  GetWindowDC(pwbo->hwnd);
-		SetTextColor(hdc, pFonts[nFont]->color);
-//		printf("%d %d %08X\n", hdc, pwbo->hwnd, pFonts[nFont]->color);
-	    ReleaseDC(pwbo->hwnd, hdc);
-	}
-*/
 	return TRUE;
 }
 

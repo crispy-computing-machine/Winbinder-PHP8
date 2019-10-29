@@ -60,14 +60,14 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 			break;
 	}
 
+	// Normal error with stack trace
+	php_error_docref(NULL TSRMLS_CC, nType, str);
+
     // if not debug mode show friendly error box
     if(INI_INT("winbinder.debug_level") == 0)
     {
-	    MessageBox(NULL, szString, TEXT("Error"), MB_OK | MB_ICONWARNING);
+	    MessageBox(NULL, str, TEXT("Error"), MB_OK | MB_ICONWARNING);
     }
-
-	// zend_error(nType, str);
-	php_error_docref(NULL TSRMLS_CC, nType, str);
 
 	return FALSE;
 }

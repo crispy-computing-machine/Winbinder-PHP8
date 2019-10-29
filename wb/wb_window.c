@@ -1249,6 +1249,14 @@ MOUSE1:
 				if(pwbobj->parent->uClass == TabControl)	// Only for controls on tabs
 					return (LRESULT)hbrTabs;				// Paint the background with the tab page color
 			}
+
+			if(pwbobj->uClass == Label){
+			    hFont = (HFONT)SendMessage(pwbobj, WM_GETFONT, 0, 0);
+			    SetTextColor(hdc, hFont->color);
+			}
+
+
+
 			break;
 
 		case WM_TIMER:
