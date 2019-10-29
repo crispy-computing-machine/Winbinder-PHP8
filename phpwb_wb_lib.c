@@ -60,8 +60,11 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 			break;
 	}
 
-    // if not debug show freindly error box
-	MessageBox(NULL, szString, TEXT("Error"), MB_OK | MB_ICONWARNING);
+    // if not debug mode show friendly error box
+    if(INI_INT("winbinder.debug_level") == 0)
+    {
+	    MessageBox(NULL, szString, TEXT("Error"), MB_OK | MB_ICONWARNING);
+    }
 
 	// zend_error(nType, str);
 	php_error_docref(NULL TSRMLS_CC, nType, str);
