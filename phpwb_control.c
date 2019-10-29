@@ -424,7 +424,7 @@ ZEND_FUNCTION(wb_set_image)
 			wbFree(wcs);
 
 			if (!hImage) {
-                wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid image file %s or image index %d", Z_STRVAL_P(source), index));
+                wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid image file %s or image index %d"), Z_STRVAL_P(source), index);
 				RETURN_NULL();
 			}
 
