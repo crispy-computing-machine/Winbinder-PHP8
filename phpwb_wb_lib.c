@@ -41,6 +41,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	wcscpy(szString, szFunction);
 	wcscat(szString, TEXT(": "));
 	wcscat(szString, szAux);
+	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 
 	switch(nType) {
 		case MB_OK:
@@ -60,9 +61,8 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	}
 
     // if not debug show freindly error box
-	//MessageBox(NULL, (LPCTSTR)lpMsgBuf, pszCaption, MB_OK | MB_ICONINFORMATION);
+	MessageBox(NULL, szString, TEXT("Error"), MB_OK | MB_ICONWARNING);
 
-	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 	// zend_error(nType, str);
 	php_error_docref(NULL TSRMLS_CC, nType, str);
 
