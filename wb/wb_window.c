@@ -89,6 +89,7 @@ typedef struct {
 HINSTANCE hAppInstance = NULL;
 HBRUSH hbrTabs = NULL;
 COLORREF clrTabs = NOCOLOR;
+HFONT hFont = NULL;
 
 // Static
 
@@ -1255,8 +1256,6 @@ MOUSE1:
 			    hFont = (HFONT)SendMessage(hCtrl, WM_GETFONT, 0, 0);
 			    SetTextColor((HDC)wParam, hFont->color);
 			}
-
-
 
 			break;
 
