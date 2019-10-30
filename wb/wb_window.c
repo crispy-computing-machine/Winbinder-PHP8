@@ -1234,7 +1234,7 @@ MOUSE1:
 
             HWND hCtrl;
             PWBOBJ pwbobj;
-
+            int hFont;
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
 
@@ -1251,10 +1251,18 @@ MOUSE1:
 					return (LRESULT)hbrTabs;				// Paint the background with the tab page color
 			}
 
+            /*
 			if(pwbobj->uClass == Label){
 			    hFont = SendMessage(hCtrl, WM_GETFONT, 0, 0);
-			    SetTextColor((HDC)wParam, pFonts[hFont]->color);
+			    if(hFont != NULL){
+			        SetTextColor((HDC)wParam, pFonts[hFont]->color);
+			    }
+
 			}
+			*/
+			SetTextColor((HDC)wParam, RGB(109, 194, 222));
+            SetBkColor((HDC)wParam, RGB(0, 0, 0));
+            return (INT_PTR)CreateSolidBrush(RGB(0, 0, 0));
 
 			break;
 
