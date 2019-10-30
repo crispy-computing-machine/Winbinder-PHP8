@@ -105,7 +105,7 @@
 #define MAX_IMAGELIST_IMAGES	128		// Maximum images inside a ImageList
 #define REPEAT_TIMER			901		// Timer identifier for ImageButtons
 #define NOCOLOR					CLR_INVALID
-#define WINCOLOUR				RGB(212,208,200) // https://stackoverflow.com/questions/9108323/whats-the-rgb-color-for-the-windows-color-window-or-color-background
+#define WINCOLOUR				RGB(240,240,240) // https://stackoverflow.com/questions/9108323/whats-the-rgb-color-for-the-windows-color-window-or-color-background
 #define MAX_PATH_BUFFER			1024	// Maximum size for selected files
 
 // Strings

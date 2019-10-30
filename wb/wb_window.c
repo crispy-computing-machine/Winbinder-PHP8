@@ -1246,11 +1246,10 @@ MOUSE1:
 				if(pwbobj->uClass == EditBox)				// Not for edit controls
 					break;
 
-				SetBkColor((HDC)wParam, WINCOLOUR);			// Static controls need this
+				SetBkColor((HDC)wParam, clrTabs);			// Static controls need this
 				if(pwbobj->parent->uClass == TabControl){
                     // Only for controls on tabs
-                    //return (LRESULT)hbrTabs;				// Paint the background with the tab page color
-                    return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
+                    return (LRESULT)hbrTabs;				// Paint the background with the tab page color
 				}
 			}
 

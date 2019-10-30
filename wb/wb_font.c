@@ -107,9 +107,9 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 		nLastFont = nFont;
 	}
 
-    // if its set store the colour -  use M_FontColour 'macro'??
-    pwbo->lparams[7] = nFont;
-
+    // if its set store the colour -  use M_FontColour 'alias'??
+    //pwbo->lparams[7] = nFont;
+    M_FontColour = nFont;
 	return TRUE;
 }
 
