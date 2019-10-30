@@ -1266,7 +1266,7 @@ MOUSE1:
 
                 SetTextColor((HDC)wParam, RGB(109, 194, 222));
                 SetBkMode((HDC)wParam,TRANSPARENT);
-                return (INT_PTR)CreateSolidBrush(RGB(0, 0, 0));
+                 return (LRESULT)hbrTabs; // transparent
             }
 			break;
 
