@@ -313,7 +313,6 @@ enum {
 #define M_nTimerId			(pwbo->lparams[4])
 #define M_nMMTimerId		(pwbo->lparams[5])
 #define M_ToolTipWnd		(pwbo->lparams[6])
-#define M_FontColour		(pwbo->lparams[7])
 
 
 // For storing ini settings
