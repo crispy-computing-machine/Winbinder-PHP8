@@ -1271,7 +1271,7 @@ MOUSE1:
                 //SetTextColor((HDC)wParam, RGB(109, 194, 222));
 
                 // Access font ID from control?
-                pFont = wbGetFont(pwbo->lparams[7]);
+                pFont = wbGetFont(pwbobj->lparams[7]);
                 SetTextColor((HDC)wParam, pFont->color);
 
                 SetBkMode((HDC)wParam,TRANSPARENT);
