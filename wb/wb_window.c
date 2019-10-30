@@ -1260,10 +1260,14 @@ MOUSE1:
 
 			}
 			*/
-			SetTextColor((HDC)wParam, RGB(109, 194, 222));
-            SetBkColor((HDC)wParam, RGB(0, 0, 0));
-            return (INT_PTR)CreateSolidBrush(RGB(0, 0, 0));
+			if(pwbobj->uClass == Label){
 
+			    // wbGetFont
+
+                SetTextColor((HDC)wParam, RGB(109, 194, 222));
+                SetBkMode((HDC)wParam,TRANSPARENT);
+                return (INT_PTR)CreateSolidBrush(RGB(0, 0, 0));
+            }
 			break;
 
 		case WM_TIMER:
