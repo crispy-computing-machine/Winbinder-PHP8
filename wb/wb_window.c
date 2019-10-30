@@ -88,7 +88,7 @@ typedef struct {
 
 HINSTANCE hAppInstance = NULL;
 HBRUSH hbrTabs = NULL;
-COLORREF clrTabs = NOCOLOR;
+COLORREF clrTabs = WINCOLOUR;
 
 // Static
 
