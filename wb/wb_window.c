@@ -1236,6 +1236,7 @@ MOUSE1:
             PWBOBJ pwbobj;
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
+            PFONT pFont;
 
 			if(hbrTabs) {				// Not for versions under Windows XP
 
@@ -1250,7 +1251,7 @@ MOUSE1:
                     // Only for controls on tabs
                     //return (LRESULT)hbrTabs;				// Paint the background with the tab page color
                     return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
-				}	
+				}
 			}
 
             /*
@@ -1266,7 +1267,12 @@ MOUSE1:
 
 			    // wbGetFont
 
-                SetTextColor((HDC)wParam, RGB(109, 194, 222));
+                // test blue
+                //SetTextColor((HDC)wParam, RGB(109, 194, 222));
+
+                // Access font ID from control?
+                pFont = wbGetFont(pwbo->lparams[7]);
+                SetTextColor((HDC)wParam, pFont->color);
 
                 SetBkMode((HDC)wParam,TRANSPARENT);
                 SetBkColor((HDC)wParam,WINCOLOUR);
