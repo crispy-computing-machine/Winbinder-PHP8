@@ -107,8 +107,6 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 		nLastFont = nFont;
 	}
 
-    // if its set store the colour
-    pwbo->lparams[7] = (LONG)nFont;
 	return TRUE;
 }
 

@@ -1255,21 +1255,8 @@ MOUSE1:
 
             /*
 			if(pwbobj->uClass == Label){
-			    hFont = SendMessage(hCtrl, WM_GETFONT, 0, 0);
-			    if(hFont != NULL){
-			        SetTextColor((HDC)wParam, pFonts[hFont]->color);
-			    }
 
-			}
-			*/
-			if(pwbobj->uClass == Label){
-
-			    // wbGetFont
-
-                // test blue
-                //SetTextColor((HDC)wParam, RGB(109, 194, 222));
-
-                // Access font ID from control?
+                // Access font ID from control? hFont = SendMessage(hCtrl, WM_GETFONT, 0, 0);
                 pFont = wbGetFont(pwbobj->lparams[7]);
                 if(pFont != NULL){
                     SetTextColor((HDC)wParam, pFont->color);
@@ -1279,6 +1266,7 @@ MOUSE1:
                 SetBkColor((HDC)wParam,WINCOLOUR);
                 return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
             }
+            */
 			break;
 
 		case WM_TIMER:
