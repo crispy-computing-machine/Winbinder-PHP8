@@ -318,7 +318,7 @@ enum {
 
 // For storing ini settings
 #ifdef ZTS
-#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(pib, v)
+#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
 #else
 #define WINBINDER_G(v) (winbinder_globals.v)
 #endif
