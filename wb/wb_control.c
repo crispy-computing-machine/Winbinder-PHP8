@@ -105,7 +105,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	pwbo->pszCallBackObj = NULL;
 	pwbo->lparam = lParam;
 	ZeroMemory(pwbo->lparams, sizeof(LONG) * 8);
-	pwbobj->lparams[7] = 0; // default font
+	pwbo->lparams[7] = 0; // default font
 	ZeroMemory(&pwbo->rcTitle, sizeof(RECT) + 2 * sizeof(AREA));
 	pwbo->pbuffer = NULL;
 
