@@ -1234,7 +1234,6 @@ MOUSE1:
 
             HWND hCtrl;
             PWBOBJ pwbobj;
-            int hFont;
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
 
@@ -1246,10 +1245,12 @@ MOUSE1:
 				if(pwbobj->uClass == EditBox)				// Not for edit controls
 					break;
 
-				SetBkColor((HDC)wParam, clrTabs);			// Static controls need this
-				if(pwbobj->parent->uClass == TabControl)	// Only for controls on tabs
-					//return (LRESULT)hbrTabs;				// Paint the background with the tab page color
-					return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
+				SetBkColor((HDC)wParam, WINCOLOUR);			// Static controls need this
+				if(pwbobj->parent->uClass == TabControl){
+                    // Only for controls on tabs
+                    //return (LRESULT)hbrTabs;				// Paint the background with the tab page color
+                    return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
+				}	
 			}
 
             /*
@@ -1268,7 +1269,7 @@ MOUSE1:
                 SetTextColor((HDC)wParam, RGB(109, 194, 222));
 
                 SetBkMode((HDC)wParam,TRANSPARENT);
-                SetBkColor((HDC)wParam,clrTabs);
+                SetBkColor((HDC)wParam,WINCOLOUR);
                 return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
             }
 			break;
