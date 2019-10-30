@@ -1248,7 +1248,8 @@ MOUSE1:
 
 				SetBkColor((HDC)wParam, clrTabs);			// Static controls need this
 				if(pwbobj->parent->uClass == TabControl)	// Only for controls on tabs
-					return (LRESULT)hbrTabs;				// Paint the background with the tab page color
+					//return (LRESULT)hbrTabs;				// Paint the background with the tab page color
+					return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
 			}
 
             /*
@@ -1265,8 +1266,10 @@ MOUSE1:
 			    // wbGetFont
 
                 SetTextColor((HDC)wParam, RGB(109, 194, 222));
+
                 SetBkMode((HDC)wParam,TRANSPARENT);
-                 return (LRESULT)hbrTabs; // transparent
+                SetBkColor((HDC)wParam,clrTabs);
+                return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
             }
 			break;
 
