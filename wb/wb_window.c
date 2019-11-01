@@ -724,21 +724,22 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 				UINT  uNumFiles;
                 TCHAR szNextFile [MAX_PATH];
+                HDROP hDrop = (HDROP)wParam;
 
-                    // Get the # of files being dropped.
-                    uNumFiles = DragQueryFile ( hdrop, -1, NULL, 0 );
+                // Get the # of files being dropped.
+                uNumFiles = DragQueryFile ( hdrop, -1, NULL, 0 );
 
-                    for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
+                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
+                {
+                    // Get the next filename from the HDROP info.
+                    if ( DragQueryFile ( hdrop, uFile, szNextFile, MAX_PATH ) > 0 )
                     {
-                        // Get the next filename from the HDROP info.
-                        if ( DragQueryFile ( hdrop, uFile, szNextFile, MAX_PATH ) > 0 )
-                        {
-                            // ***
-                            // Do whatever you want with the filename in szNextFile.
-                            // ***
-                            MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
-                        }
+                        // ***
+                        // Do whatever you want with the filename in szNextFile.
+                        // ***
+                        MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
                     }
+                }
 
 			}
 			break;
