@@ -421,7 +421,8 @@ ZEND_FUNCTION(wb_get_item_list)
 
 ZEND_FUNCTION(wb_set_drag_drop)
 {
-	zend_long pwbo, state;
+	PWBOBJ pwbo;
+	BOOL state;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll", &pwbo, &state) == FAILURE)
