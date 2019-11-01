@@ -423,6 +423,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 {
 	PWBOBJ pwbo;
 	BOOL state;
+	IDropTarget pDropTarget;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll", &pwbo, &state) == FAILURE)
@@ -433,6 +434,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 	}
 
 	DragAcceptFiles((HWND)pwbo->hwnd, state);
+	RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
     RETURN_BOOL(TRUE);
 }
 
