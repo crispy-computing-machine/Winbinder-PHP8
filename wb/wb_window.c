@@ -722,29 +722,23 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		case WM_DROPFILES:			// Custom WinBinder message
 			{
 
-				TCHAR lpszFile[MAX_PATH] = {0};
-                UINT uFile = 0;
-                HDROP hDrop = (HDROP)wParam;
+				UINT  uNumFiles;
+                TCHAR szNextFile [MAX_PATH];
 
-                uFile = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
-                if (uFile != 1){
-                    MessageBox(NULL, TEXT("Dropping multiple files is not supported."), NULL, MB_ICONERROR);
-                    DragFinish(hDrop);
-                    break;
-                }
-                lpszFile[0] = '\0';
-                if (DragQueryFile(hDrop, 0, lpszFile, MAX_PATH))
-                {
-                    MessageBox(NULL, lpszFile, NULL, MB_ICONINFORMATION);
-                    // @todo pass filename in as param1/2/3
-                    // WBC_DROPFILES as event
+                    // Get the # of files being dropped.
+                    uNumFiles = DragQueryFile ( hdrop, -1, NULL, 0 );
 
-                }
-
-                MessageBox(NULL, TEXT("File dropped..."), NULL, MB_ICONINFORMATION);
-
-
-                DragFinish(hDrop);
+                    for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
+                    {
+                        // Get the next filename from the HDROP info.
+                        if ( DragQueryFile ( hdrop, uFile, szNextFile, MAX_PATH ) > 0 )
+                        {
+                            // ***
+                            // Do whatever you want with the filename in szNextFile.
+                            // ***
+                            MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
+                        }
+                    }
 
 			}
 			break;
