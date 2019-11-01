@@ -2188,14 +2188,4 @@ static DWORD GetUniqueStringId(LPCTSTR szStr)
 	}
 	return dwSum;
 }
-
-// enable drag and drop
-static BOOL EnableDragDrop(HWND hwnd, BOOL bModify)
-{
-	if(!hwnd)
-		return FALSE;
-
-    DragAcceptFiles(hwnd, bModify);
-	return TRUE;
-}
 //------------------------------------------------------------------ END OF FILE

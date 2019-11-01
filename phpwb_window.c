@@ -427,10 +427,12 @@ ZEND_FUNCTION(wb_set_drag_drop)
 	 "ll", &pwbo, &state) == FAILURE)
 		return;
 
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-	else
-		RETURN_BOOL(EnableDragDrop(pwbo));
+	if(!wbIsWBObj((void *)pwbo, TRUE)){
+	    RETURN_NULL();
+	}
+
+	DragAcceptFiles(pwbo->hwnd, bModify);
+    RETURN_BOOL(TRUE);
 }
 
 //------------------------------------------------------------------ END OF FILE
