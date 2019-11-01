@@ -434,7 +434,11 @@ ZEND_FUNCTION(wb_set_drag_drop)
 	}
 
 	DragAcceptFiles((HWND)pwbo->hwnd, state);
+
+	// @todo debug why this isnt working... :(
 	RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
+
+	// always return true?
     RETURN_BOOL(TRUE);
 }
 
