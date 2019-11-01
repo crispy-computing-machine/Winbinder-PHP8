@@ -431,7 +431,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 	    RETURN_NULL();
 	}
 
-	DragAcceptFiles(pwbo->hwnd, bModify);
+	DragAcceptFiles((PWBOBJ)pwbo->hwnd, state);
     RETURN_BOOL(TRUE);
 }
 
