@@ -2195,7 +2195,7 @@ static BOOL EnableDragDrop(HWND hwnd, BOOL bModify)
 	if(!hwnd)
 		return FALSE;
 
-    set = DragAcceptFiles(hwnd, bModify);
-	return set == ;
+    DragAcceptFiles(hwnd, bModify);
+	return TRUE;
 }
 //------------------------------------------------------------------ END OF FILE
