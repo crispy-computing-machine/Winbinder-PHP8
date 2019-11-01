@@ -741,6 +741,9 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
                 }
 
+                MessageBox(NULL, TEXT("File dropped..."), NULL, MB_ICONINFORMATION);
+
+
                 DragFinish(hDrop);
 
 			}
