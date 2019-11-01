@@ -2019,11 +2019,10 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 			if(pwbo->style & WBC_AUTOREPEAT) {
 
 				// Sets the timer for the first delay
-
 				if(pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn) {
-					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
-					wParam, lParam, 0);
+					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id, wParam, lParam, 0);
 				}
+
 				M_bRepeatOn = FALSE;
 				SetTimer(hwnd, REPEAT_TIMER, 400, NULL);
 			}

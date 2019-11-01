@@ -231,6 +231,7 @@ enum {
 #define WBC_RESIZE				0x00002000
 #define WBC_REDRAW				0x00004000
 #define WBC_HEADERSEL			0x00008000
+#define WBC_DROPFILES			0x00000233
 
 // Additional notification message flags
 

@@ -61,6 +61,7 @@ static void CALLBACK TimeProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWOR
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
+static BOOL EnableDragDrop(HWND hwnd, BOOL bModify);
 
 // Procedures for WinBinder classes
 
@@ -718,6 +719,33 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 		//------------------------------- Notification messages
 
+		case WM_DROPFILES:			// Custom WinBinder message
+			{
+
+				TCHAR lpszFile[MAX_PATH] = {0};
+                UINT uFile = 0;
+                HDROP hDrop = (HDROP)wParam;
+
+                uFile = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
+                if (uFile != 1){
+                    MessageBox(NULL, TEXT("Dropping multiple files is not supported."), NULL, MB_ICONERROR);
+                    DragFinish(hDrop);
+                    break;
+                }
+                lpszFile[0] = '\0';
+                if (DragQueryFile(hDrop, 0, lpszFile, MAX_PATH))
+                {
+                    MessageBox(NULL, lpszFile, NULL, MB_ICONINFORMATION);
+                    // @todo pass filename in as param1/2/3
+                    // WBC_DROPFILES as event
+
+                }
+
+                DragFinish(hDrop);
+
+			}
+			break;
+
 		case WBWM_KEYDOWN:			// Custom WinBinder message
 			{
 				PWBOBJ pwbobj;
@@ -1174,8 +1202,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
 
 					if(pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-						wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-						WBC_MOUSEDOWN | wParam | dwAlt, lParam, 0);
+						wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEDOWN | wParam | dwAlt, lParam, 0);
 				}
 			}
 			break;
@@ -2162,4 +2189,13 @@ static DWORD GetUniqueStringId(LPCTSTR szStr)
 	return dwSum;
 }
 
+// enable drag and drop
+static BOOL EnableDragDrop(HWND hwnd, BOOL bModify)
+{
+	if(!hwnd)
+		return FALSE;
+
+    set = DragAcceptFiles(hwnd, bModify);
+	return set == ;
+}
 //------------------------------------------------------------------ END OF FILE

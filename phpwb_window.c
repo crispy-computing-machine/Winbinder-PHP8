@@ -419,4 +419,18 @@ ZEND_FUNCTION(wb_get_item_list)
 	}
 }
 
+ZEND_FUNCTION(wb_set_drag_drop)
+{
+	zend_long pwbo, state;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	 "ll", &pwbo, &state) == FAILURE)
+		return;
+
+	if(!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_NULL()
+	else
+		RETURN_BOOL(EnableDragDrop(pwbo));
+}
+
 //------------------------------------------------------------------ END OF FILE
