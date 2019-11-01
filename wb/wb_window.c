@@ -718,32 +718,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	switch(msg) {
 
 		//------------------------------- Notification messages
-
-		case WM_DROPFILES:			// Custom WinBinder message
-			{
-
-				UINT  uNumFiles;
-                TCHAR szNextFile [MAX_PATH];
-                HDROP hDrop = (HDROP)wParam;
-
-                // Get the # of files being dropped.
-                uNumFiles = DragQueryFile ( hDrop, -1, NULL, 0 );
-
-                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
-                {
-                    // Get the next filename from the HDROP info.
-                    if ( DragQueryFile ( hDrop, uFile, szNextFile, MAX_PATH ) > 0 )
-                    {
-                        // ***
-                        // Do whatever you want with the filename in szNextFile.
-                        // ***
-                        MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
-                    }
-                }
-
-			}
-			break;
-
 		case WBWM_KEYDOWN:			// Custom WinBinder message
 			{
 				PWBOBJ pwbobj;
@@ -1383,6 +1357,30 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	switch(msg) {
 
 		//------------------------- Custom messages
+		case WM_DROPFILES:			// Custom WinBinder message
+			{
+
+				UINT  uNumFiles;
+                TCHAR szNextFile [MAX_PATH];
+                HDROP hDrop = (HDROP)wParam;
+
+                // Get the # of files being dropped.
+                uNumFiles = DragQueryFile ( hDrop, -1, NULL, 0 );
+
+                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
+                {
+                    // Get the next filename from the HDROP info.
+                    if ( DragQueryFile ( hDrop, uFile, szNextFile, MAX_PATH ) > 0 )
+                    {
+                        // ***
+                        // Do whatever you want with the filename in szNextFile.
+                        // ***
+                        MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
+                    }
+                }
+
+			}
+			break;
 
 		case WBWM_NOTIFYICON:
 			{
