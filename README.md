@@ -1,15 +1,11 @@
 WinBinder
 =========
-
-[![Join the chat at https://gitter.im/stefan-loewe/WinBinder](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/stefan-loewe/WinBinder?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 WinBinder - The native Windows binding for PHP
 
 What is WinBinder?
 ==================
 
-WinBinder is a PHP extension written in C, that allows you to build native 
-client-side applications for the Windows Platform in pure PHP.
+WinBinder is an open source extension to PHP, the script programming language. It allows PHP programmers to easily build native Windows applications, producing quick and rewarding results with minimum effort. Even short scripts with a few dozen lines can generate a useful program, thanks to the power and flexibility of PHP.
 
 What is needed to start building WinBinder applications?
 ========================================================
@@ -19,9 +15,6 @@ You will need the source code of PHP plus the WinBinder source code.
 On which PHP versions has it been tested on?
   - PHP 7.0 
   - PHP 7.2
-
-How to compile the WinBinder extension?
-=======================================
 
 Prerequisites:
 --------------
@@ -38,9 +31,13 @@ Prerequisites:
 Where to get further information?
 =================================
 
-See the docs!
+See the [wiki](https://github.com/crispy-computing-machine/Winbinder/wiki)
 
 Reporting Bugs
 ========================
 
-Report them via github issues.
+Report them via github [issues](https://github.com/crispy-computing-machine/Winbinder/issues).
+
+About
+========================
+Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
