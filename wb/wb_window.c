@@ -718,6 +718,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	switch(msg) {
 		case WM_DROPFILES:			// Custom WinBinder message
 			{
+                MessageBox(NULL, szNextFile, TEXT("Dropped DefaultWBProc"), MB_OK | MB_ICONWARNING);
 
 				UINT  uNumFiles;
                 TCHAR szNextFile [MAX_PATH];
@@ -1383,6 +1384,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 		case WM_DROPFILES:			// Custom WinBinder message
 			{
 
+                MessageBox(NULL, szNextFile, TEXT("Dropped MainWndProc"), MB_OK | MB_ICONWARNING);
 				UINT  uNumFiles;
                 TCHAR szNextFile [MAX_PATH];
                 HDROP hDrop = (HDROP)wParam;
