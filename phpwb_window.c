@@ -423,7 +423,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 {
 	PWBOBJ pwbo;
 	BOOL state;
-	pDropTarget = CLASS "CDropTarget"
+	CDropTarget pDropTarget;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll", &pwbo, &state) == FAILURE)
@@ -436,7 +436,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 	DragAcceptFiles((HWND)pwbo->hwnd, state);
 
 	// @todo debug why this isnt working... :(
-	RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
+	// RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
 
 	// always return true?
     RETURN_BOOL(TRUE);

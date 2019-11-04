@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Window creation and manipulation functions
@@ -716,7 +716,30 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	static HWND hTBWnd = NULL;			// Handle of toolbar window
 
 	switch(msg) {
+		case WM_DROPFILES:			// Custom WinBinder message
+			{
 
+				UINT  uNumFiles;
+                TCHAR szNextFile [MAX_PATH];
+                HDROP hDrop = (HDROP)wParam;
+
+                // Get the # of files being dropped.
+                uNumFiles = DragQueryFile ( hDrop, -1, NULL, 0 );
+
+                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
+                {
+                    // Get the next filename from the HDROP info.
+                    if ( DragQueryFile ( hDrop, uFile, szNextFile, MAX_PATH ) > 0 )
+                    {
+                        // ***
+                        // Do whatever you want with the filename in szNextFile.
+                        // ***
+                        MessageBox(NULL, szNextFile, TEXT("Dropped DefaultWBProc"), MB_OK | MB_ICONWARNING);
+                    }
+                }
+
+			}
+			break;
 		//------------------------------- Notification messages
 		case WBWM_KEYDOWN:			// Custom WinBinder message
 			{
@@ -1375,7 +1398,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
                         // ***
                         // Do whatever you want with the filename in szNextFile.
                         // ***
-                        MessageBox(NULL, szNextFile, TEXT("Dropped"), MB_OK | MB_ICONWARNING);
+                        MessageBox(NULL, szNextFile, TEXT("Dropped MainWndProc"), MB_OK | MB_ICONWARNING);
                     }
                 }
 
