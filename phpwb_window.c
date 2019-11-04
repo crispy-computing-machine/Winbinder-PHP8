@@ -423,7 +423,7 @@ ZEND_FUNCTION(wb_set_drag_drop)
 {
 	PWBOBJ pwbo;
 	BOOL state;
-	CDropTarget pDropTarget;
+	//CDropTarget pDropTarget;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll", &pwbo, &state) == FAILURE)
