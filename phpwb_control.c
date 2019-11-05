@@ -931,7 +931,6 @@ ZEND_FUNCTION(wbtemp_get_text)
 
 	char *str = 0;
 	int str_len = 0;
-	char *ptr; // tmp to trim end of line chars
 
 	// NOTE: I don't quite understand why do I need all these
 	// len + 1 and len - 1 stuff below, but it works
@@ -964,11 +963,6 @@ ZEND_FUNCTION(wbtemp_get_text)
 			if(*ptext) {
 				str = WideChar2Utf8(ptext, &str_len);
 				efree(ptext);
-
-                // remove end of line char from return value?
-                if( (ptr = strchr(str, '\r\n')) != NULL)
-                    *ptr = '\0';
-
 				RETURN_STRINGL(str, max(0, str_len))
 			}
 			else {

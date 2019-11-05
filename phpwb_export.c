@@ -37,6 +37,7 @@
 // ---------------------------------------------------------- INI SETTINGS
 PHP_INI_BEGIN()
 PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, NULL)
+PHP_INI_ENTRY("winbinder.low_level_functions", "0", PHP_INI_ALL, NULL)
 PHP_INI_END()
 
 ZEND_MINIT_FUNCTION(winbinder);

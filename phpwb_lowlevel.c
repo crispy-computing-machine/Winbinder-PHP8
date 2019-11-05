@@ -25,6 +25,13 @@ ZEND_FUNCTION(wb_send_message)
 	zend_long msg, w, l;
 	zend_long pwbo;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_send_message"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
+
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
 		return;
@@ -38,6 +45,13 @@ ZEND_FUNCTION(wb_peek)
 {
 	zend_long address, bytes = 0;
 	char *ptr;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l|l", &address, &bytes) == FAILURE)
@@ -67,6 +81,13 @@ ZEND_FUNCTION(wb_poke)
 	char *contents;
 	int contents_len;
 	void *ptr;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
@@ -110,6 +131,13 @@ ZEND_FUNCTION(wb_get_address)
 {
     zval *source;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_get_address"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
+
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "z/", &source) == FAILURE)
 		return;
@@ -134,9 +162,15 @@ ZEND_FUNCTION(wb_load_library)
 	char *lib;
 	int lib_len;
 	LONG hlib;
-	
-	//TCHAR *wcs = 0; // not sure if this is needed
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
+
+	//TCHAR *wcs = 0; // not sure if this is needed
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "s", &lib, &lib_len) == FAILURE)
 		return;
@@ -155,6 +189,13 @@ ZEND_FUNCTION(wb_load_library)
 ZEND_FUNCTION(wb_release_library)
 {
 	zend_long hlib;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_release_library"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l", &hlib) == FAILURE)
@@ -175,6 +216,13 @@ ZEND_FUNCTION(wb_get_function_address)
 	char *fun;
 	int fun_len;
 	zend_long addr, hlib = (LONG)NULL;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "s|l", &fun, &fun_len, &hlib) == FAILURE)
@@ -205,6 +253,13 @@ ZEND_FUNCTION(wb_call_function)
 	zval *array = NULL, *entry = NULL;
 	int i, nelem = 0;
 	HashTable *target_hash;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_call_function"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
 
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l|a!", &addr, &array) == FAILURE)
