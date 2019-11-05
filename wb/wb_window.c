@@ -227,7 +227,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 		SetWindowPos(pwbo->hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 
-    DragAcceptFiles((HWND)pwbo->hwnd, state);
+    DragAcceptFiles((HWND)pwbo->hwnd, TRUE);
 
 	return pwbo;
 }
