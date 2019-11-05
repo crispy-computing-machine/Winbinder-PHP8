@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Functions for Windows controls
@@ -972,6 +972,11 @@ BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT nMaxChars, int nIndex)
 				}
 
 				bRet = SendMessage(pwbo->hwnd, CB_GETLBTEXT, nIndex, (LPARAM)(LPTSTR)pszText);
+
+                // remove end of line char from return value?
+				if( (ptr = strchr(pszText, '\r\n')) != NULL)
+                    *ptr = '\0';
+
 				return (bRet != CB_ERR);
 			}
 

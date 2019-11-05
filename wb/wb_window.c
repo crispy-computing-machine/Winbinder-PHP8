@@ -61,7 +61,6 @@ static void CALLBACK TimeProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWOR
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
-static BOOL EnableDragDrop(HWND hwnd, BOOL bModify);
 
 // Procedures for WinBinder classes
 

@@ -813,13 +813,14 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 			TCHAR szTitle[MAX_PATH + 1];
 
 			// Determine console mode according to the calling program
-
 			if(!GetConsoleTitle(szTitle, MAX_PATH)) {
 				*wcsstr(szApp, TEXT(".exe")) = '\0';
 				*wcscat(szApp, TEXT("-win.exe"));				// PHP-specific
 			}
 		}
 
+        // Shell execute
+        // If the function succeeds, it returns a value greater than 32.
 		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
 			szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
 
@@ -827,7 +828,7 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 Execute:
 		// Shell execute
-
+        // If the function succeeds, it returns a value greater than 32.
 		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
 			pszPgm, pszParm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
 	}
