@@ -803,7 +803,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 			RETURN_BOOL(bRet);
 
 		default:
-		    wbError("wbtemp_create_statusbar_items", MB_ICONWARNING, "Parameter 2 expected to be an array in function");
+		    wbError(TEXT("wbtemp_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in function"));
 			RETURN_NULL();
 	}
 }

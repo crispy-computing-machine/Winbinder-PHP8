@@ -63,7 +63,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
     // if not debug mode show friendly error box
     if(INI_INT("winbinder.debug_level") == 0)
     {
-	    MessageBox(NULL, str, TEXT("Error"), MB_OK | MB_ICONWARNING);
+	    MessageBox(NULL, TEXT(str), TEXT("Error"), MB_OK | MB_ICONWARNING);
     }
 
 	return FALSE;
