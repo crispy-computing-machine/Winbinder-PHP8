@@ -19,10 +19,7 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-/*
-	TODO: optionally use a message box to display errors and/or log errors to a file
-*/
-
+// Chinese chars from phpwb_* files for some reason?????
 BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 {
 	TCHAR szString[MAX_ERR_MESSAGE];
