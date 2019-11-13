@@ -26,7 +26,10 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	TCHAR szAux[MAX_ERR_MESSAGE];
 	char str[MAX_ERR_MESSAGE];
 
-	int messageType, str_len = 0, title_len = 0;
+	int messageType;
+
+	TCHAR *szMsg = 0;
+	TCHAR *szTitle = 0;
 
 	// Build the string
 
@@ -68,7 +71,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
         szMsg = Utf82WideChar(str, 0);
         szTitle = Utf82WideChar(TEXT("wbError"), 0);
-	    wbMessageBox((PWBOBJ)pwbo, szMsg, szTitle, nType);
+	    wbMessageBox(NULL, szMsg, szTitle, nType);
     }
 
 	return FALSE;
