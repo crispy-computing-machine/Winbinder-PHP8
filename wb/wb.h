@@ -105,6 +105,7 @@
 #define MAX_IMAGELIST_IMAGES	128		// Maximum images inside a ImageList
 #define REPEAT_TIMER			901		// Timer identifier for ImageButtons
 #define NOCOLOR					CLR_INVALID
+#define WINCOLOUR				RGB(240,240,240) // https://stackoverflow.com/questions/9108323/whats-the-rgb-color-for-the-windows-color-window-or-color-background
 #define MAX_PATH_BUFFER			1024	// Maximum size for selected files
 
 // Strings
@@ -133,6 +134,7 @@
 #define WBWM_MIDI				(WM_APP + 6)
 #define WBWM_ENUM				(WM_APP + 7)
 #define WBWM_HOOK				(WM_APP + 8)
+
 
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
@@ -229,6 +231,7 @@ enum {
 #define WBC_RESIZE				0x00002000
 #define WBC_REDRAW				0x00004000
 #define WBC_HEADERSEL			0x00008000
+#define WBC_DROPFILES			0x00000233
 
 // Additional notification message flags
 
@@ -311,6 +314,14 @@ enum {
 #define M_nTimerId			(pwbo->lparams[4])
 #define M_nMMTimerId		(pwbo->lparams[5])
 #define M_ToolTipWnd		(pwbo->lparams[6])
+
+
+// For storing ini settings
+#ifdef ZTS
+#define WINBINDER_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(winbinder, v)
+#else
+#define WINBINDER_G(v) (winbinder_globals.v)
+#endif
 
 //------------------------------------------------------------------- STRUCTURES
 

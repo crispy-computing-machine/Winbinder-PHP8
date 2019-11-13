@@ -19,15 +19,17 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-/*
-	TODO: optionally use a message box to display errors and/or log errors to a file
-*/
-
+// Chinese chars from phpwb_* files for some reason?????
 BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 {
 	TCHAR szString[MAX_ERR_MESSAGE];
 	TCHAR szAux[MAX_ERR_MESSAGE];
 	char str[MAX_ERR_MESSAGE];
+
+	int messageType;
+
+	TCHAR *szMsg = 0;
+	TCHAR *szTitle = 0;
 
 	// Build the string
 
@@ -41,25 +43,38 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	wcscpy(szString, szFunction);
 	wcscat(szString, TEXT(": "));
 	wcscat(szString, szAux);
+    WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 
 	switch(nType) {
 		case MB_OK:
 		case MB_ICONINFORMATION:
-			nType = E_NOTICE;
+			messageType = E_NOTICE;
 			break;
 
 		case MB_ICONWARNING:
-			nType = E_WARNING;
+			messageType = E_WARNING;
 			break;
 
 		case MB_ICONSTOP:
 		case MB_ICONQUESTION:
 		default:
-			nType = E_ERROR;
+			messageType = E_ERROR;
 			break;
 	}
-	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
-	zend_error(nType, str);
+
+	// Normal error with stack trace
+	php_error_docref(NULL TSRMLS_CC, messageType, str);
+
+    // if not debug mode show friendly error box
+    if(INI_INT("winbinder.debug_level") == 0)
+    {
+	    //MessageBox(NULL, str, TEXT("wbError"), MB_OK | MB_ICONWARNING);
+
+        szMsg = Utf82WideChar(str, 0);
+        szTitle = Utf82WideChar("wbError", 0);
+	    wbMessageBox(NULL, szMsg, szTitle, nType);
+    }
+
 	return FALSE;
 }
 
@@ -93,11 +108,9 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 
 		if(GetWindowText(pwboParent->hwnd, szTitle, 256)) {
 			WideCharCopy(szTitle, title, 256);
-			zend_error(E_WARNING, "%s(): No callback function assigned to window '%s'",
-			  get_active_function_name(TSRMLS_C), title);
+			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window '%s'"), title);
 		} else
-			zend_error(E_WARNING, "%s(): No callback function assigned to window #%ld",
-			  get_active_function_name(TSRMLS_C), (LONG)pwboParent);
+		    wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG)pwboParent);
 		return FALSE;
 	}
 
@@ -151,8 +164,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		);
 
 	if(bRet != SUCCESS) {
-    	zend_error(E_WARNING, "%s(): User function call failed",
-    	  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed"));
 	}
 
 	// Free everything we can

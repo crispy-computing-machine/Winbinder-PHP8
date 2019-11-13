@@ -63,8 +63,7 @@ ZEND_FUNCTION(wb_create_window)
 	pwbo = (LONG)wbCreateWindow((PWBOBJ)pwboparent, wbclass, wcsCaption, wcsTooltip, x, y, w, h, 0, style, lparam);
 
 	if(!pwbo) {
-		zend_error(E_ERROR, "%s(): Error creating window",
-		  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wb_create_window"), MB_ICONWARNING, TEXT("Error creating window"));
 		RETURN_NULL();
 	}
 
@@ -181,8 +180,7 @@ ZEND_FUNCTION(wb_get_size)
 		}
 
 	} else {
-		zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-		  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wb_get_size"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 		RETURN_NULL();
 	}
 
@@ -236,8 +234,7 @@ ZEND_FUNCTION(wb_set_size)
 
 		for(i = 0; i < nelem; i++) {
 			if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-				zend_error(E_WARNING, "%s(): Could not retrieve element %d from zparm",
-				  get_active_function_name(TSRMLS_C), i);
+			    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Could not retrieve element %d from zparm"), i);
 				RETURN_NULL();
 			}
 			switch(Z_TYPE_P(entry)) {
@@ -258,8 +255,7 @@ ZEND_FUNCTION(wb_set_size)
 					break;
 
 				default:
-					zend_error(E_WARNING, "Wrong data type in array in function %s()",
-					  get_active_function_name(TSRMLS_C));
+				    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in array in function"));
 					RETURN_NULL();
 			}
 
@@ -271,8 +267,7 @@ ZEND_FUNCTION(wb_set_size)
 	} else {
 
 		if(Z_TYPE_P(zparm) != IS_LONG) {
-			zend_error(E_WARNING, "Wrong data type in width in function %s()",
-			  get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in width in function"));
 			RETURN_NULL();
 		}
 
@@ -348,8 +343,7 @@ ZEND_FUNCTION(wb_set_area)
 		case 3:
 		case 4:
 		case 5:
-			zend_error(E_WARNING, "Invalid number of parameters passed to function %s()",
-			  get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wb_set_area"), MB_ICONWARNING, TEXT("Invalid number of parameters passed to function"));
 			RETURN_NULL();
 	}
 
@@ -384,15 +378,13 @@ ZEND_FUNCTION(wb_set_handler)
 			handler = Z_STRVAL_P(zparam);
 			break;
 		default:
-			zend_error(E_WARNING, "Wrong data type in function %s()",
-			  get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Wrong data type in function"));
 			RETURN_NULL();
 	}
 
 	// Error checking 
 	if(!zend_is_callable(zparam, 0, &fname)) {
-		zend_error(E_WARNING, "%s(): '%s' is not a function or cannot be called",
-		  get_active_function_name(TSRMLS_C), fname);
+		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("handler is not a function or cannot be called"));
 		RETURN_NULL();
 	} else {
 		
@@ -425,6 +417,29 @@ ZEND_FUNCTION(wb_get_item_list)
 			add_next_index_long(return_value, (LONG)plist[i]);
 		efree(plist);
 	}
+}
+
+ZEND_FUNCTION(wb_set_drag_drop)
+{
+	PWBOBJ pwbo;
+	BOOL state;
+	//CDropTarget pDropTarget;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	 "ll", &pwbo, &state) == FAILURE)
+		return;
+
+	if(!wbIsWBObj((void *)pwbo, TRUE)){
+	    RETURN_NULL();
+	}
+
+	DragAcceptFiles((HWND)pwbo->hwnd, state);
+
+	// @todo debug why this isnt working... :(
+	// RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
+
+	// always return true?
+    RETURN_BOOL(TRUE);
 }
 
 //------------------------------------------------------------------ END OF FILE

@@ -63,8 +63,7 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 
 		for(i = 0; i < nelem; i++) {
 			if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-				zend_error(E_WARNING, "Could not retrieve element %d from array in function %s()",
-				  i, get_active_function_name(TSRMLS_C));
+			    wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				RETURN_NULL();
 			}
 
@@ -82,8 +81,7 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 					break;
 
 				default:
-					zend_error(E_WARNING, "%s(): Accelerator table must be an array of arrays with two elements",
-					  get_active_function_name(TSRMLS_C));
+				    wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
 					RETURN_NULL();
 					break;
 			}
@@ -130,9 +128,7 @@ ZEND_FUNCTION(wb_set_cursor)
 		pszCursorName = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
 
 	} else {
-
-		zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-		  get_active_function_name(TSRMLS_C));
+        wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 		RETURN_NULL();
 
 	}
@@ -203,8 +199,7 @@ ZEND_FUNCTION(wb_play_sound)
 			MakeWinPath(szPath);
 			if(!EXISTFILE(szPath)) {
 				wbFree(szPath);
-				zend_error(E_WARNING, "Could not open media file %s in function %s()",
-					Z_STRVAL_P(source), get_active_function_name(TSRMLS_C));
+				wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Could not open media file %s in function"), Z_STRVAL_P(source));
 				RETURN_BOOL(FALSE);
 				return;
 			}
@@ -217,14 +212,12 @@ ZEND_FUNCTION(wb_play_sound)
 		if(ret) {
 			RETURN_BOOL(TRUE);
 		} else {
-			zend_error(E_WARNING, "Unknown command '%s' in function %s()",
-			  cmd, get_active_function_name(TSRMLS_C));
+		    wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Unknown command '%s' in function"), cmd);
 			RETURN_BOOL(FALSE);
 		}
 
 	} else {
-		zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-		  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"), cmd);
 		RETURN_BOOL(FALSE);
 	}
 }
@@ -489,8 +482,7 @@ ZEND_FUNCTION(wb_set_registry_key)
 
 		RETURN_BOOL(ret);
 	} else {
-		zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-		  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 		RETURN_NULL();
 	}
 }
@@ -538,5 +530,133 @@ ZEND_FUNCTION(wb_wait)
 
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
+
+ZEND_FUNCTION(wb_is_obj)
+{
+	zend_long pwbo;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	 "l", &pwbo) == FAILURE)
+		return;
+
+	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
+}
+
+ZEND_FUNCTION(wb_get_clipboard) {
+	char tcopy[4096];
+	//char *wText;
+	char *wGlobal;
+	HANDLE hdata;
+	SIZE_T blen;
+
+	BOOL success = FALSE;
+
+	//printf("BREAK 1\n");
+	if(OpenClipboard(NULL)){
+		//printf("BREAK 2\n");
+		hdata = GetClipboardData(CF_TEXT);
+		//printf("BREAK 3\n");
+		if(hdata){
+			//printf("BREAK 4\n");
+			wGlobal = (wchar_t*)GlobalLock(hdata);
+			//printf("BREAK 5\n");
+			if(wGlobal != NULL){
+				//printf("BREAK 6\n");
+				blen = GlobalSize(hdata);
+				//printf("SIZE: %d\n",blen);
+				if(blen > 4095) blen = 4095;
+				memcpy(tcopy,wGlobal,blen);
+				GlobalUnlock(hdata);
+				tcopy[blen] = 0;
+				success = TRUE;
+			}
+		}
+		/*GlobalUnlock(hdata);*/
+	}
+	CloseClipboard();
+	if(!success) RETURN_NULL();
+	RETURN_STRING(tcopy,TRUE);
+}
+
+
+ZEND_FUNCTION(wb_set_clipboard) {
+	char *clip;
+	WCHAR *wclip;
+	int size;
+	BOOL success = FALSE;
+
+	HGLOBAL hdata;
+	HGLOBAL hwdata;
+	LPTSTR clipcopy;
+	LPTSTR wclipcopy;
+
+	//printf("BREAK 1\n");
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+	 "s", &clip, &size) == FAILURE)
+	    RETURN_BOOL(0);
+
+	//printf("BREAK 2\n");
+	if(OpenClipboard(NULL)){
+		//printf("BREAK 3\n");
+		hdata = GlobalAlloc(GMEM_MOVEABLE, size+1);
+		//printf("BREAK 5\n");
+		clipcopy = (LPTSTR)GlobalLock(hdata);
+		//printf("BREAK 5\n");
+		memcpy(clipcopy, clip, size);
+
+		//printf("BREAK 6\n");
+		if(SetClipboardData(CF_TEXT,hdata)){
+			GlobalUnlock(hdata);
+			GlobalFree(hdata);
+			//printf("BREAK 7\n");
+			size = size * 2;
+			wclip = (WCHAR *)emalloc(size+1);
+			//printf("BREAK 8\n");
+			if(!UTF8ToUnicode16(clip,wclip,size+2)) printf("Conversion failed\n");
+			//printf("BREAK 9\n");
+			hwdata = GlobalAlloc(GMEM_MOVEABLE, size+2);
+			//printf("BREAK 10\n");
+			wclipcopy = (LPTSTR)GlobalLock(hwdata);
+
+			//printf("BREAK 11\n");
+			memcpy(wclipcopy, wclip, size);
+
+			//printf("BREAK 12\n");
+
+			//printf("BREAK 13\n");
+			SetClipboardData(CF_UNICODETEXT,hwdata);
+			//printf("BREAK 14\n");
+			GlobalUnlock(hwdata);
+			GlobalFree(hwdata);
+			//printf("BREAK 15\n");
+			efree(wclip);
+			//printf("BREAK 16\n");
+			success = TRUE;
+		}else{
+			GlobalUnlock(hdata);
+			GlobalFree(hdata);
+		}
+		//printf("BREAK 17\n");
+
+		//printf("BREAK 18\n");
+
+	}
+	//printf("BREAK 19\n");
+	CloseClipboard();
+	//printf("BREAK 20\n");
+	RETURN_BOOL(success);
+}
+
+
+ZEND_FUNCTION(wb_empty_clipboard) {
+	BOOL success = FALSE;
+	if(OpenClipboard(NULL)){
+		if(EmptyClipboard())
+			success = TRUE;
+		CloseClipboard();
+	}
+	RETURN_BOOL(success);
+}
+
 
 //------------------------------------------------------------------ END OF FILE

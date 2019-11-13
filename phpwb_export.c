@@ -21,7 +21,24 @@
 
 #define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
 
+
 //----------------------------------------------- PROTOTYPES FOR THE ZEND ENGINE
+// @todo debug why all this doesnt appear to work :(
+    //ZEND_BEGIN_MODULE_GLOBALS(winbinder)
+    //    zend_ulong debug_level;
+    //ZEND_END_MODULE_GLOBALS(winbinder)
+    //ZEND_DECLARE_MODULE_GLOBALS(winbinder)
+    //PHP_INI_BEGIN()
+        // Default validators from PHP are OnUpdateLongGEZero(), OnUpdateLong(), OnUpdateBool(), OnUpdateReal(), OnUpdateString(), and OnUpdateStringUnempty().
+        // OnUpdateLongGEZero: default validator that exists in PHP and validates the value against a long greater than or equal to zero
+        // STD_PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, OnUpdateLong, debug_level, zend_winbinder_globals, winbinder_globals)
+    //PHP_INI_END()
+
+// ---------------------------------------------------------- INI SETTINGS
+PHP_INI_BEGIN()
+PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, NULL)
+PHP_INI_ENTRY("winbinder.low_level_functions", "0", PHP_INI_ALL, NULL)
+PHP_INI_END()
 
 ZEND_MINIT_FUNCTION(winbinder);
 ZEND_MSHUTDOWN_FUNCTION(winbinder);
@@ -56,7 +73,13 @@ ZEND_FUNCTION(wb_set_registry_key);
 ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
+ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wbtemp_set_accel_table);
+
+ZEND_FUNCTION(wb_get_clipboard);
+ZEND_FUNCTION(wb_set_clipboard);
+ZEND_FUNCTION(wb_empty_clipboard);
+
 
 // PHPWB_CONTROL.C
 
@@ -180,6 +203,7 @@ ZEND_FUNCTION(wb_create_window);
 ZEND_FUNCTION(wb_get_item_list);
 ZEND_FUNCTION(wb_get_instance);
 ZEND_FUNCTION(wb_set_area);
+ZEND_FUNCTION(wb_set_drag_drop);
 
 // PHPWB_SYSDLG.C
 
@@ -207,8 +231,14 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_set_registry_key, NULL)
 	ZEND_FE(wb_create_timer, NULL)
 	ZEND_FE(wb_wait, NULL)
+	ZEND_FE(wb_is_obj, NULL)
 	ZEND_FE(wb_destroy_timer, NULL)
 	ZEND_FE(wbtemp_set_accel_table, NULL)
+
+
+    ZEND_FE(wb_get_clipboard, NULL)
+    ZEND_FE(wb_set_clipboard, NULL)
+    ZEND_FE(wb_empty_clipboard, NULL)
 
 	// PHPWB_BITMAP.C
 
@@ -320,6 +350,7 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_get_midi_callback, NULL)
 	ZEND_FE(wb_get_enum_callback, NULL)
 	ZEND_FE(wb_get_hook_callback, NULL)
+
 	// PHPWB_WINDOW.C
 
     ZEND_FE(wb_destroy_window, NULL)
@@ -331,6 +362,7 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_get_instance, NULL)
 	ZEND_FE(wb_get_item_list, NULL)
 	ZEND_FE(wb_set_area, NULL)
+	ZEND_FE(wb_set_drag_drop, NULL)
 
 	// PHPWB_SYSDLG.C
 
@@ -338,6 +370,8 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_sys_dlg_color, NULL)
 	ZEND_FE(wbtemp_sys_dlg_open, NULL)
 	ZEND_FE(wbtemp_sys_dlg_save, NULL)
+
+
 
 	// The line below must be the last one
 
@@ -366,12 +400,13 @@ zend_module_entry winbinder_module_entry = {
 
 ZEND_MINIT_FUNCTION(winbinder)
 {
-	// Module initialization procedure
 
+    REGISTER_INI_ENTRIES();
+
+	// Module initialization procedure
 	wbInit();
 
 	// Window classes
-
 	WB_ZEND_CONST(LONG, "AppWindow", 		AppWindow)
 	WB_ZEND_CONST(LONG, "ModalDialog",		ModalDialog)
 	WB_ZEND_CONST(LONG, "ModelessDialog", 	ModelessDialog)
@@ -458,6 +493,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_RESIZE",		WBC_RESIZE)
 	WB_ZEND_CONST(LONG, "WBC_REDRAW",		WBC_REDRAW)
 	WB_ZEND_CONST(LONG, "WBC_HEADERSEL",	WBC_HEADERSEL)
+	WB_ZEND_CONST(LONG, "WBC_DROPFILES",	WBC_DROPFILES)
 
 	// Additional notification message flags
 
@@ -533,6 +569,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WHITE",			RGB(255,255,255))
 	WB_ZEND_CONST(LONG, "YELLOW",			RGB(255,255,  0))
 	WB_ZEND_CONST(LONG, "NOCOLOR",			NOCOLOR)
+	WB_ZEND_CONST(LONG, "WINCOLOUR",		WINCOLOUR)
 
 	// BGR standard colors
 
@@ -553,6 +590,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "bgrWHITE",			RGB(255,255,255))
 	WB_ZEND_CONST(LONG, "bgrYELLOW",		RGB(  0,255,255))
 	WB_ZEND_CONST(LONG, "bgrNOCOLOR",		NOCOLOR)
+	WB_ZEND_CONST(LONG, "bgrWINCOLOUR",		WINCOLOUR)
 
 	// Listview custom color state
 	WB_ZEND_CONST(LONG, "WBC_LV_NONE",		WBC_LV_NONE);
@@ -575,14 +613,18 @@ ZEND_MINFO_FUNCTION(winbinder)
 	php_info_print_table_row(2, "WinBinder", "enabled");
 	php_info_print_table_row(2, "Version", WINBINDER_VERSION);
 	php_info_print_table_end();
+
+	DISPLAY_INI_ENTRIES();
 }
 
 /* Module shutdown function required by PHP */
 
 ZEND_MSHUTDOWN_FUNCTION(winbinder)
 {
-	// End procedure
 
+    UNREGISTER_INI_ENTRIES();
+
+	// End procedure
 	wbEnd();
 	return SUCCESS;
 }

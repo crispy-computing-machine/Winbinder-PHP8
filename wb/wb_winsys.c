@@ -813,13 +813,14 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 			TCHAR szTitle[MAX_PATH + 1];
 
 			// Determine console mode according to the calling program
-
 			if(!GetConsoleTitle(szTitle, MAX_PATH)) {
 				*wcsstr(szApp, TEXT(".exe")) = '\0';
 				*wcscat(szApp, TEXT("-win.exe"));				// PHP-specific
 			}
 		}
 
+        // Shell execute
+        // If the function succeeds, it returns a value greater than 32.
 		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
 			szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
 
@@ -827,7 +828,7 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 Execute:
 		// Shell execute
-
+        // If the function succeeds, it returns a value greater than 32.
 		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
 			pszPgm, pszParm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
 	}
@@ -1720,4 +1721,16 @@ static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTo
 	return GetTokenExt(pszBuffer, nToken, WHITESPACES, '\"', TRUE, pszToken, nTokLen);
 }
 
+BOOL UTF8ToUnicode16(CHAR *in_Src, WCHAR *out_Dst, INT in_MaxLen){
+	INT lv_Len;
+
+	if (in_MaxLen <= 0) return FALSE;
+	lv_Len = MultiByteToWideChar(CP_UTF8, 0, in_Src, -1, out_Dst, in_MaxLen);
+	if (lv_Len < 0) lv_Len = 0;
+
+	if (lv_Len < in_MaxLen) out_Dst[lv_Len] = 0;
+	else if (out_Dst[in_MaxLen-1]) out_Dst[0] = 0;
+
+	return TRUE;
+}
 //------------------------------------------------------------------ END OF FILE

@@ -18,7 +18,7 @@ environment:
       PHP_BUILD_CRT: vc15
       PHP_REL: 7.2
       ARCHITECTURES: x86
-      ZTS_STATES: enable disable
+      ZTS_STATES: enable
 
 install:
   - appveyor\install.cmd
@@ -28,5 +28,5 @@ build_script:
 
 artifacts:
   - path: artifacts
-    name: php_winbinder.dll
+    name: winbinder-%APPVEYOR_REPO_TAG_NAME%-%PHP_REL%
     type: zip

@@ -84,8 +84,7 @@ ZEND_FUNCTION(wb_create_image)
 		return;
 
 	if(nargs == 3) {
-		zend_error(E_WARNING, "Invalid parameter type passed to function %s()",
-		  get_active_function_name(TSRMLS_C));
+		wbError(TEXT("wb_create_image"), MB_ICONWARNING, TEXT("Invalid parameter count passed to function"));
 		RETURN_LONG(0);
 	}
 

@@ -25,6 +25,13 @@ ZEND_FUNCTION(wb_send_message)
 	zend_long msg, w, l;
 	zend_long pwbo;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_send_message"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
+
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	 "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
 		return;
@@ -38,6 +45,13 @@ ZEND_FUNCTION(wb_peek)
 {
 	zend_long address, bytes = 0;
 	char *ptr;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l|l", &address, &bytes) == FAILURE)
@@ -55,8 +69,7 @@ ZEND_FUNCTION(wb_peek)
 		if(!IsBadReadPtr(ptr, bytes))
 			RETURN_STRINGL(ptr, bytes, TRUE)
 	}
-	zend_error(E_WARNING, "%s(): Cannot read from location %d",
-	  get_active_function_name(TSRMLS_C), (int)ptr);
+	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
 	RETURN_NULL();
 }
 
@@ -69,19 +82,24 @@ ZEND_FUNCTION(wb_poke)
 	int contents_len;
 	void *ptr;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
+
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
 		return;
 
 	if(!address) {
-		zend_error(E_WARNING, "%s(): Invalid address",
-		  get_active_function_name(TSRMLS_C));
+	    wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Invalid address"));
 		RETURN_NULL();
 	}
 
 	if(!contents_len) {
-		zend_error(E_WARNING, "%s(): Zero length contents",
-		  get_active_function_name(TSRMLS_C));
+        wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Zero length contents"));
 		RETURN_NULL();
 	}
 
@@ -91,8 +109,7 @@ ZEND_FUNCTION(wb_poke)
 	ptr = (void *)address;
 
 	if(IsBadWritePtr(ptr, bytes)) {
-		zend_error(E_WARNING, "%s(): Cannot write to location %d",
-		  get_active_function_name(TSRMLS_C), (int)ptr);
+	    wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (int)ptr);
 		RETURN_NULL();
 	}
 
@@ -113,6 +130,13 @@ Get the address of a string, double or integer
 ZEND_FUNCTION(wb_get_address)
 {
     zval *source;
+
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+	    wbError(TEXT("wb_get_address"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+	    return;
+    }
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "z/", &source) == FAILURE)
@@ -138,9 +162,15 @@ ZEND_FUNCTION(wb_load_library)
 	char *lib;
 	int lib_len;
 	LONG hlib;
-	
-	//TCHAR *wcs = 0; // not sure if this is needed
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
+
+	//TCHAR *wcs = 0; // not sure if this is needed
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "s", &lib, &lib_len) == FAILURE)
 		return;
@@ -151,8 +181,7 @@ ZEND_FUNCTION(wb_load_library)
 	if(hlib)
 		RETURN_LONG(hlib)
 	else {
-		zend_error(E_WARNING, "%s(): Unable to locate library %s",
-		  get_active_function_name(TSRMLS_C), lib);
+	    wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
 		RETURN_NULL();
 	}
 }
@@ -161,6 +190,13 @@ ZEND_FUNCTION(wb_release_library)
 {
 	zend_long hlib;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_release_library"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
+
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l", &hlib) == FAILURE)
 		return;
@@ -168,8 +204,7 @@ ZEND_FUNCTION(wb_release_library)
 	// Is the library handle valid?
 
 	if(IsBadCodePtr((FARPROC)hlib)) {
-		zend_error(E_WARNING, "%s(): Invalid library address %d",
-		  get_active_function_name(TSRMLS_C), hlib);
+	    wbError(TEXT("wb_release_library"), MB_ICONWARNING, TEXT("Invalid library address %d"), hlib);
 		RETURN_NULL();
 	}
 
@@ -182,6 +217,13 @@ ZEND_FUNCTION(wb_get_function_address)
 	int fun_len;
 	zend_long addr, hlib = (LONG)NULL;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
+
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "s|l", &fun, &fun_len, &hlib) == FAILURE)
 		return;
@@ -189,8 +231,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	// Is the library handle valid?
 
 	if(IsBadCodePtr((FARPROC)hlib)) {
-		zend_error(E_WARNING, "%s(): Invalid library address %d",
-		  get_active_function_name(TSRMLS_C), hlib);
+	    wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Invalid library address %d"), hlib);
 		RETURN_NULL();
 	}
 
@@ -199,8 +240,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	if(addr)
 		RETURN_LONG(addr)
 	else {
-		zend_error(E_WARNING, "%s(): Unable to locate function %s() in library",
-		  get_active_function_name(TSRMLS_C), fun);
+	    wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Unable to locate function %s() in library"), fun);
 		RETURN_NULL();
 	}
 }
@@ -214,6 +254,13 @@ ZEND_FUNCTION(wb_call_function)
 	int i, nelem = 0;
 	HashTable *target_hash;
 
+    // low level functions disabled?
+    if(INI_INT("winbinder.low_level_functions") == 0)
+    {
+        wbError(TEXT("wb_call_function"), MB_ICONWARNING, TEXT("Low level functions disabled via ini configuration"));
+        return;
+    }
+
 	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "l|a!", &addr, &array) == FAILURE)
 		return;
@@ -221,8 +268,7 @@ ZEND_FUNCTION(wb_call_function)
 	// Is the address valid?
 
 	if(IsBadCodePtr((FARPROC)addr)) {
-		zend_error(E_WARNING, "%s(): Invalid address %d",
-		  get_active_function_name(TSRMLS_C), addr);
+	    wbError(TEXT("wb_call_function"), MB_ICONWARNING, TEXT("Invalid address %d"), addr);
 		RETURN_NULL();
 	}
 
@@ -244,8 +290,7 @@ ZEND_FUNCTION(wb_call_function)
 
 			for(i = 0; i < nelem; i++) {
 				if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-					zend_error(E_WARNING, "%s(): Could not retrieve element %d from array",
-					  get_active_function_name(TSRMLS_C), i);
+				    wbError(TEXT("wb_call_function"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array"), i);
 					RETURN_NULL();
 				}
 				switch(Z_TYPE_P(entry)) {
@@ -309,8 +354,7 @@ ZEND_FUNCTION(wb_call_function)
 		case 20: retval = ((FARPROC)addr)(param09, param[10], param[11], param[12], param[13], param[14], param[15], param[16], param[17], param[18], param[19]); break;
 		default:
 			retval = ((FARPROC)addr)(param09, param[10], param[11], param[12], param[13], param[14], param[15], param[16], param[17], param[18], param[19]);
-			zend_error(E_WARNING, "Foreign function: maximum allowed is 20 parameters, some arguments ignored in function %s()",
-			  get_active_function_name(TSRMLS_C));
+			wbError(TEXT("wb_call_function"), MB_ICONWARNING, TEXT("Foreign function: maximum allowed is 20 parameters, some arguments ignored in function"));
 			break;
 	}
 
