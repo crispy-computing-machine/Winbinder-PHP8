@@ -26,6 +26,8 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	TCHAR szAux[MAX_ERR_MESSAGE];
 	char str[MAX_ERR_MESSAGE];
 
+	int messageType, str_len = 0, title_len = 0;
+
 	// Build the string
 
 	va_list args;
@@ -42,27 +44,31 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	switch(nType) {
 		case MB_OK:
 		case MB_ICONINFORMATION:
-			nType = E_NOTICE;
+			messageType = E_NOTICE;
 			break;
 
 		case MB_ICONWARNING:
-			nType = E_WARNING;
+			messageType = E_WARNING;
 			break;
 
 		case MB_ICONSTOP:
 		case MB_ICONQUESTION:
 		default:
-			nType = E_ERROR;
+			messageType = E_ERROR;
 			break;
 	}
 
 	// Normal error with stack trace
-	php_error_docref(NULL TSRMLS_CC, nType, str);
+	php_error_docref(NULL TSRMLS_CC, messageType, str);
 
     // if not debug mode show friendly error box
     if(INI_INT("winbinder.debug_level") == 0)
     {
-	    MessageBox(NULL, Utf82WideChar(str, strlen(str)), "wbError", MB_OK | MB_ICONWARNING);
+	    //MessageBox(NULL, str, TEXT("wbError"), MB_OK | MB_ICONWARNING);
+
+        szMsg = Utf82WideChar(str, 0);
+        szTitle = Utf82WideChar(TEXT("wbError"), 0);
+	    wbMessageBox((PWBOBJ)pwbo, szMsg, szTitle, nType);
     }
 
 	return FALSE;
