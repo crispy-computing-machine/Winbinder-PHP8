@@ -40,6 +40,8 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	wcscat(szString, szAux);
 	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 
+    str = Utf82WideChar(str, strlen(str));
+
 	switch(nType) {
 		case MB_OK:
 		case MB_ICONINFORMATION:
@@ -63,7 +65,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
     // if not debug mode show friendly error box
     if(INI_INT("winbinder.debug_level") == 0)
     {
-	    MessageBox(NULL, TEXT(str), TEXT("Error"), MB_OK | MB_ICONWARNING);
+	    MessageBox(NULL, str, "wbError", MB_OK | MB_ICONWARNING);
     }
 
 	return FALSE;
