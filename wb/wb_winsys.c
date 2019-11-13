@@ -1721,4 +1721,16 @@ static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTo
 	return GetTokenExt(pszBuffer, nToken, WHITESPACES, '\"', TRUE, pszToken, nTokLen);
 }
 
+BOOL UTF8ToUnicode16(CHAR *in_Src, WCHAR *out_Dst, INT in_MaxLen){
+	INT lv_Len;
+
+	if (in_MaxLen <= 0) return FALSE;
+	lv_Len = MultiByteToWideChar(CP_UTF8, 0, in_Src, -1, out_Dst, in_MaxLen);
+	if (lv_Len < 0) lv_Len = 0;
+
+	if (lv_Len < in_MaxLen) out_Dst[lv_Len] = 0;
+	else if (out_Dst[in_MaxLen-1]) out_Dst[0] = 0;
+
+	return TRUE;
+}
 //------------------------------------------------------------------ END OF FILE

@@ -71,7 +71,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	    //MessageBox(NULL, str, TEXT("wbError"), MB_OK | MB_ICONWARNING);
 
         szMsg = Utf82WideChar(str, 0);
-        szTitle = Utf82WideChar(TEXT("wbError"), 0);
+        szTitle = Utf82WideChar("wbError", 0);
 	    wbMessageBox(NULL, szMsg, szTitle, nType);
     }
 
