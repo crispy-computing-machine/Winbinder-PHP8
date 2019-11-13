@@ -43,6 +43,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	wcscpy(szString, szFunction);
 	wcscat(szString, TEXT(": "));
 	wcscat(szString, szAux);
+    WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 
 	switch(nType) {
 		case MB_OK:
