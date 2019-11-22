@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for Windows system functions
@@ -543,7 +543,7 @@ ZEND_FUNCTION(wb_is_obj)
 }
 
 ZEND_FUNCTION(wb_get_clipboard) {
-	char tcopy[4096];
+	char tcopy[];
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
@@ -564,7 +564,7 @@ ZEND_FUNCTION(wb_get_clipboard) {
 				//printf("BREAK 6\n");
 				blen = GlobalSize(hdata);
 				//printf("SIZE: %d\n",blen);
-				if(blen > 4095) blen = 4095;
+				//if(blen > 4095) blen = 4095;
 				memcpy(tcopy,wGlobal,blen);
 				GlobalUnlock(hdata);
 				tcopy[blen] = 0;
