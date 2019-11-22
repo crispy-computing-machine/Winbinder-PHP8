@@ -543,7 +543,7 @@ ZEND_FUNCTION(wb_is_obj)
 }
 
 ZEND_FUNCTION(wb_get_clipboard) {
-	char tcopy[];
+	char tcopy;
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
