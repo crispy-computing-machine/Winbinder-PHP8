@@ -544,11 +544,11 @@ ZEND_FUNCTION(wb_is_obj)
 
 //
 ZEND_FUNCTION(wb_get_clipboard) {
-	char tcopy[];
+	char tcopy[65535];
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
-	LONG blen;
+	SIZE_T blen;
 
 	BOOL success = FALSE;
 
@@ -565,8 +565,8 @@ ZEND_FUNCTION(wb_get_clipboard) {
 				//printf("BREAK 6\n");
 				blen = GlobalSize(hdata);
 				//printf("SIZE: %d\n",blen);
-				//if(blen > 4095) blen = 4095;
-				memcpy(tcopy,wGlobal, strlen(wGlobal) + 1);
+				if(blen > 65534) blen = 65534;
+				memcpy(tcopy,wGlobal, blen);
 				GlobalUnlock(hdata);
 				tcopy[blen] = 0;
 				success = TRUE;
