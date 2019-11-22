@@ -566,7 +566,7 @@ ZEND_FUNCTION(wb_get_clipboard) {
 				blen = GlobalSize(hdata);
 				//printf("SIZE: %d\n",blen);
 				//if(blen > 4095) blen = 4095;
-				memcpy(tcopy,wGlobal,blen);
+				memcpy(tcopy,wGlobal,blen + 1);
 				GlobalUnlock(hdata);
 				//tcopy[blen] = 0;
 				success = TRUE;
