@@ -542,12 +542,13 @@ ZEND_FUNCTION(wb_is_obj)
 	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
 }
 
+//
 ZEND_FUNCTION(wb_get_clipboard) {
 	char tcopy;
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
-	SIZE_T blen;
+	LONG blen;
 
 	BOOL success = FALSE;
 
