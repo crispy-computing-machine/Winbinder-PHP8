@@ -371,6 +371,7 @@ zend_function_entry winbinder_functions[] =
 	ZEND_FE(wb_sys_dlg_color, NULL)
 	ZEND_FE(wbtemp_sys_dlg_open, NULL)
 	ZEND_FE(wbtemp_sys_dlg_save, NULL)
+	ZEND_FE(wb_sys_dlg_font, NULL)
 
 
 
