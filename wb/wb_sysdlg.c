@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Functions for common dialog boxes
@@ -212,7 +212,7 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
   TODO: pszTitle is not being used
   TODO: not implemented
 */
-/*
+
 PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 {
 	CHOOSEFONT cf;
@@ -241,7 +241,6 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 
 	return NULL;
 }
-*/
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 

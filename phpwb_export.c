@@ -211,6 +211,7 @@ ZEND_FUNCTION(wb_sys_dlg_path);
 ZEND_FUNCTION(wb_sys_dlg_color);
 ZEND_FUNCTION(wbtemp_sys_dlg_open);
 ZEND_FUNCTION(wbtemp_sys_dlg_save);
+ZEND_FUNCTION(wb_sys_dlg_font);
 
 //-------------------------------------------------------------------- VARIABLES
 
