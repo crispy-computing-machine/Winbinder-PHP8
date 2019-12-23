@@ -183,7 +183,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	  "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
 		return;
 
-	if(pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	if(pwbparent && !wbIsWBObj((void *)pwbparent, TRUE))
 		RETURN_NULL()
 
 	font.pszName = name;
