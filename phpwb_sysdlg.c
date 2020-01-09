@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for common dialog boxes
@@ -169,7 +169,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	RETURN_LONG(wbSysDlgColor((PWBOBJ)pwboParent, szTitle, (COLORREF)color));
 }
 
-/*
+
 ZEND_FUNCTION(wb_sys_dlg_font)
 {
     long pwbparent = (long)NULL;
@@ -183,7 +183,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	  "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
 		return;
 
-	if(pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	if(pwbparent && !wbIsWBObj((void *)pwbparent, TRUE))
 		RETURN_NULL()
 
 	font.pszName = name;
@@ -192,6 +192,5 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	font.dwFlags = flags;
 	RETURN_LONG(wbSysDlgFont((PWBOBJ)pwbparent, title, &font));
 }
-*/
 
 //------------------------------------------------------------------ END OF FILE

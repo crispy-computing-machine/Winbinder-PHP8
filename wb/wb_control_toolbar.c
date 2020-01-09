@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Toolbar control
@@ -96,7 +96,7 @@ static HWND CreateToolbar(HWND hwndParent, int nButtons, int nBtnWidth, int nBtn
 		nButtons = MAX(1, MIN(nButtons, MIN(nBtnWidth, MAX_IMAGELIST_IMAGES)));
 
 		imageList = ImageList_Create(nBtnWidth, nBtnHeight, ILC_COLORDDB | ILC_MASK, nButtons, 0);
-		ImageList_AddMasked(imageList, hbm, RGB(0, 255, 0));
+		ImageList_AddMasked(imageList, hbm, RGB(0, 255, 0)); // hardcoded to green....
 		DeleteObject(hbm);
 		SendMessage(hTBWnd, TB_SETIMAGELIST, 0, (LPARAM)imageList);
 	}
