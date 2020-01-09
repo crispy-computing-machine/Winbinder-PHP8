@@ -482,8 +482,9 @@ ZEND_FUNCTION(wb_set_item_image)
 		case TabControl:
 
             index1 = zindex->value.lval;
-
-			RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, (TC_ITEM)item, index1));
+            TC_ITEM tabItemToUpdate;
+            TabCtrl_GetItem((PWBOBJ)pwbo,item,tabItemToUpdate);
+			RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, (TC_ITEM)tabItemToUpdate, index1));
 			break;
 
 		case TreeView:

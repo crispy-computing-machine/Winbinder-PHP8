@@ -188,6 +188,8 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex)
     tci.mask = TCIF_TEXT;
 	if(nImageIndex >= 0)
 		tci.mask |= TCIF_IMAGE;
+		tci.mask |= TCS_FIXEDWIDTH;
+		tci.mask |= TCS_FORCEICONLEFT;
 
 	tci.iImage = nImageIndex;
 
