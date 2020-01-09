@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for window controls
@@ -477,6 +477,13 @@ ZEND_FUNCTION(wb_set_item_image)
 			} else {
 				RETURN_BOOL(wbSetListViewItemImage((PWBOBJ)pwbo, item, subitem, index1));
 			}
+			break;
+
+		case TabControl:
+
+            index1 = zindex->value.lval;
+
+			RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, (TC_ITEM)item, index1));
 			break;
 
 		case TreeView:

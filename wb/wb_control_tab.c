@@ -137,6 +137,63 @@ BOOL wbSelectTab(PWBOBJ pwboTab, int nItem)
 	return TRUE;
 }
 
+/* Sets an image list for tab control */
+BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent)
+{
+	HBITMAP hbmMask;
+	static HIMAGELIST hi;
+	BITMAP bm;
+
+	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+		return FALSE;
+
+	if(hbmImage && nImages) {
+
+		GetObject(hbmImage, sizeof(BITMAP), (LPSTR) &bm);
+		if((bm.bmWidth == 0) | (bm.bmHeight == 0))
+			return FALSE;
+
+		nImages = MAX(1, MIN(nImages, MIN(bm.bmWidth, MAX_IMAGELIST_IMAGES)));
+
+		if(clTransparent != NOCOLOR) {
+			hbmMask = wbCreateMask(hbmImage, clTransparent);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
+			ImageList_Add(hi, hbmImage, hbmMask);
+			TabCtrl_SetImageList(pwbo->hwnd, hi);
+			DeleteObject(hbmMask);
+		} else {
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
+			ImageList_Add(hi, hbmImage, NULL);
+			TabCtrl_SetImageList(pwbo->hwnd, hi);
+		}
+	} else {
+		TabCtrl_SetImageList(pwbo->hwnd, NULL);
+		ImageList_Destroy(hi);
+	}
+	return TRUE;
+}
+
+/* Change the two images of the specified node */
+
+BOOL wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex)
+{
+	TC_ITEM tci;
+
+	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+		return FALSE;
+
+	if(!hItem)
+		return FALSE;
+
+    tci.mask = TCIF_TEXT;
+	if(nImageIndex >= 0)
+		tci.mask |= TCIF_IMAGE;
+
+	tci.iImage = nImageIndex;
+
+	return TreeView_SetItem(pwbo->hwnd, &tci);
+}
+
 /*LRESULT CALLBACK TabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) {
