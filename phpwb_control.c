@@ -482,8 +482,8 @@ ZEND_FUNCTION(wb_set_item_image)
 		case TabControl:
 
             index1 = zindex->value.lval;
-            TC_ITEM tabItemToUpdate;
-            TabCtrl_GetItem((PWBOBJ)pwbo,item,tabItemToUpdate);
+            TC_ITEM* tabItemToUpdate;
+            TabCtrl_GetItem(pwbo->hwnd, item, tabItemToUpdate);
 			RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, tabItemToUpdate, index1));
 			break;
 
