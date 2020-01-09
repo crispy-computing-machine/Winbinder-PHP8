@@ -193,7 +193,7 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 
 	tabItemToUpdate.iImage = nImageIndex; // image index
 
-	TreeView_SetItem(pwbo->hwnd, &tabItemToUpdate);
+	TabCtrl_SetItem(pwbo->hwnd, &tabItemToUpdate);
 
 	return TRUE;
 }
