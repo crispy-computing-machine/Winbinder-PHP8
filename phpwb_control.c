@@ -484,9 +484,9 @@ ZEND_FUNCTION(wb_set_item_image)
             //https://stackoverflow.com/questions/20081032/tabctrl-getitem-macro-not-working-as-expected
             index1 = zindex->value.lval;
 
-            TC_ITEM tabItemToUpdate;
+            TC_ITEM tabItemToUpdate = {0};
             tabItemToUpdate.mask = TCIF_IMAGE;
-            TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, tabItemToUpdate);
+            TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
 
 			RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, tabItemToUpdate, index1));
 			break;
