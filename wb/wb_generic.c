@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  General-purpose functions
@@ -70,9 +70,6 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 
 	return FALSE;
 }
-
-
-/* TODO: Return PWBOBJ from menus */
 
 PWBOBJ wbGetWBObj(HANDLE hwnd)
 {

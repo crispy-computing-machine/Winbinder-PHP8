@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Window system functions
@@ -1344,11 +1344,8 @@ static int _GetUserObjects(void)
 		return 0; */
 }
 
-/* Counts GDI objects.
-
-  Windows 95/98: Adapted from Leaks.exe source code (MS)
-  // ******* TODO: test under Win98
-
+/*
+Counts GDI objects.
 */
 
 static int _GetGDIObjects(void)

@@ -139,8 +139,6 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	return bRet;
 }
 
-/* TODO: pszTitle does not change the dialog title, but a label instead */
-
 BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR pszSelPath)
 {
 	BROWSEINFO bi;
@@ -182,8 +180,6 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 	return TRUE;
 }
 
-/* TODO: pszTitle is not used */
-
 COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 {
 	static COLORREF clrCustomColors[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -207,11 +203,6 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 	else
 		return NOCOLOR;
 }
-
-/* Select an installed font
-  TODO: pszTitle is not being used
-  TODO: not implemented
-*/
 
 PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 {

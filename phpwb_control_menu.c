@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for menu functions
@@ -14,8 +14,6 @@
 #include "phpwb.h"
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
-
-// TODO: allocate accel[] dynamically like pitem
 
 ZEND_FUNCTION(wbtemp_create_menu)
 {

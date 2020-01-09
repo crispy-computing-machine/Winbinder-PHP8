@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for drawing functions
@@ -18,7 +18,6 @@
 /*
 source can be a WinBinder object, a bitmap handle, a window handle or a DC.
 Returns NOCOLOR (0xFFFFFFFF) if error
-TODO: handle could also be a bitmap file?
 */
 
 ZEND_FUNCTION(wb_get_pixel)
@@ -51,8 +50,6 @@ ZEND_FUNCTION(wb_get_pixel)
 
 /*
 source can be a WinBinder object, a bitmap handle, a window handle or a DC.
-TODO: allow separate R,G,B values
-TODO: handle could also be a bitmap file??
 */
 
 ZEND_FUNCTION(wb_draw_point)

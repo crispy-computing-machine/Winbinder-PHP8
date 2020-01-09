@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for low-level functions
@@ -123,8 +123,6 @@ ZEND_FUNCTION(wb_poke)
 The parameter must by reference for php 7
 
 Get the address of a string, double or integer
-// TODO: get the address of other objects
-
 */
 
 ZEND_FUNCTION(wb_get_address)

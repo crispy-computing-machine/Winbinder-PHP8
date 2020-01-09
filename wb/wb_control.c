@@ -67,11 +67,6 @@ extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT message, WPARAM wParam, LP
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-/*
-	TODO: Call wbCreateToolbar() if wbclass is a toolbar
-	TODO: Call wbCreateMenu() if wbclass is a menu
-*/
-
 PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
   int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, long lParam, int nTab)
 {
@@ -565,12 +560,6 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	return DestroyWindow(pwbo->hwnd);
 }
 
-
-/*
-	TODO: Process treeview items?
-	TODO: Must validate toolbar item first
-*/
-
 PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 {
 	PWBOBJ pwbo = NULL;
@@ -861,21 +850,6 @@ UINT wbGetTextLength(PWBOBJ pwbo, int nIndex)
 			}
 
 		default:
-			/*
-				TODO: Trying to fix control text length
-
-				According to WinHelp for GetWindowTextLength, "To obtain the exact length of
-				the text, use (...) the GetWindowText function." This makes no practical difference
-				when allocating memory for strings, but may return incorrect results in wb_get_size().
-			{
-				char *pszText;
-				int nLen;
-
-				pszText = wbMalloc(32767);
-				nLen = GetWindowText(pwbo->hwnd, pszText, 32767);
-				wbFree(pszText);
-				return nLen;
-			}*/
 			return GetWindowTextLength(pwbo->hwnd);
 	}
 }

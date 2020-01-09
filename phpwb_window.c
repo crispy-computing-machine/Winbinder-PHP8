@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ZEND wrapper for window creation and manipulation functions
@@ -417,29 +417,6 @@ ZEND_FUNCTION(wb_get_item_list)
 			add_next_index_long(return_value, (LONG)plist[i]);
 		efree(plist);
 	}
-}
-
-ZEND_FUNCTION(wb_set_drag_drop)
-{
-	PWBOBJ pwbo;
-	BOOL state;
-	//CDropTarget pDropTarget;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "ll", &pwbo, &state) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE)){
-	    RETURN_NULL();
-	}
-
-	DragAcceptFiles((HWND)pwbo->hwnd, state);
-
-	// @todo debug why this isnt working... :(
-	// RegisterDragDrop((HWND)pwbo->hwnd, pDropTarget);
-
-	// always return true?
-    RETURN_BOOL(TRUE);
 }
 
 //------------------------------------------------------------------ END OF FILE

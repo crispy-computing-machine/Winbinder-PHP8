@@ -226,9 +226,6 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 	if(BITTEST(dwWBStyle, WBC_TOP))
 		SetWindowPos(pwbo->hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-
-    DragAcceptFiles((HWND)pwbo->hwnd, TRUE);
-
 	return pwbo;
 }
 
@@ -334,10 +331,6 @@ BOOL wbDestroyWindow(PWBOBJ pwbo)
 	return bRet;
 }
 
-/*
-	TODO: Center horizontally only or vertically only according to xPos, yPos
-*/
-
 BOOL wbSetWindowPosition(PWBOBJ pwbo, int xPos, int yPos, PWBOBJ pwboParent)
 {
 	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
@@ -354,10 +347,6 @@ BOOL wbSetWindowPosition(PWBOBJ pwbo, int xPos, int yPos, PWBOBJ pwboParent)
 		return SetWindowPos(pwbo->hwnd, 0, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 	}
 }
-
-/*
-	TODO: Use pwboParent as the reference
-*/
 
 DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 {
@@ -708,8 +697,8 @@ BOOL RegisterClasses(void)
 /*
 	The all-important common processing routine for all parent windows
 
-	TODO: Filter user commands. Try: (LPNMHDR)lParam)->code == NM_CLICK, etc.
-	TODO: Use the return value as a flag to know whether the calling function should continue default processing or not
+	Filter user commands. Try: (LPNMHDR)lParam)->code == NM_CLICK, etc.
+	Use the return value as a flag to know whether the calling function should continue default processing or not
 
 */
 
@@ -719,29 +708,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 	switch(msg) {
 		case WM_DROPFILES:			// Custom WinBinder message
-			{
-                MessageBox(NULL, TEXT("Dropped DefaultWBProc"), TEXT("Dropped DefaultWBProc"), MB_OK | MB_ICONWARNING);
-
-				UINT  uNumFiles;
-                TCHAR szNextFile [MAX_PATH];
-                HDROP hDrop = (HDROP)wParam;
-
-                // Get the # of files being dropped.
-                uNumFiles = DragQueryFile ( hDrop, -1, NULL, 0 );
-
-                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
-                {
-                    // Get the next filename from the HDROP info.
-                    if ( DragQueryFile ( hDrop, uFile, szNextFile, MAX_PATH ) > 0 )
-                    {
-                        // ***
-                        // Do whatever you want with the filename in szNextFile.
-                        // ***
-                        MessageBox(NULL, szNextFile, TEXT("Dropped DefaultWBProc"), MB_OK | MB_ICONWARNING);
-                    }
-                }
-
-			}
 			break;
 		//------------------------------- Notification messages
 		case WBWM_KEYDOWN:			// Custom WinBinder message
@@ -1385,27 +1351,6 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 		//------------------------- Custom messages
 		case WM_DROPFILES:			// Custom WinBinder message
 			{
-
-                MessageBox(NULL, TEXT("Dropped MainWndProc"), TEXT("Dropped MainWndProc"), MB_OK | MB_ICONWARNING);
-				UINT  uNumFiles;
-                TCHAR szNextFile [MAX_PATH];
-                HDROP hDrop = (HDROP)wParam;
-
-                // Get the # of files being dropped.
-                uNumFiles = DragQueryFile ( hDrop, -1, NULL, 0 );
-
-                for ( UINT uFile = 0; uFile < uNumFiles; uFile++ )
-                {
-                    // Get the next filename from the HDROP info.
-                    if ( DragQueryFile ( hDrop, uFile, szNextFile, MAX_PATH ) > 0 )
-                    {
-                        // ***
-                        // Do whatever you want with the filename in szNextFile.
-                        // ***
-                        MessageBox(NULL, szNextFile, TEXT("Dropped MainWndProc"), MB_OK | MB_ICONWARNING);
-                    }
-                }
-
 			}
 			break;
 

@@ -299,10 +299,6 @@ ZEND_FUNCTION(wb_exec)
 	RETURN_BOOL(wbExec(szPgm, szParm, show));
 }
 
-// TODO: without parameters, wb_get_system_info() should return an
-// associative array with all information
-
-
 ZEND_FUNCTION(wb_get_system_info)
 {
 	char *s;
@@ -386,10 +382,7 @@ ZEND_FUNCTION(wb_find_file)
 /*
 
 Reads a registry key as a string. If it is a DWORD, convert to a string
-
-TODO: support binary data and other odd formats
 NOTE: maximum string is 1024 characters
-
 */
 
 ZEND_FUNCTION(wb_get_registry_key)

@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Font functions
@@ -82,7 +82,6 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 	If nFont == 0: Resets the font to the system font.
 	If nFont  < 0: Uses last font used.
 
-  TODO: change text color
 */
 
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)

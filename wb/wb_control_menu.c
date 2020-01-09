@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Menu functions
@@ -17,8 +17,7 @@
 
 /*
  Receive an array of WBITEM items
-
- TODO: Allow any bitmap or icon. Today it shows only the "checked" image,
+ Today it shows only the "checked" image,
  with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
  Solution: use owner-drawn menus
 */
@@ -154,7 +153,7 @@ BOOL wbSetMenuItemSelected(PWBOBJ pwbo)
 
 /* Insert an image on a menu
 
- TODO: Allow any bitmap or icon. Today it shows only the "checked" image,
+ Today it shows only the "checked" image,
  with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
  Solution: use owner-drawn menus
 */

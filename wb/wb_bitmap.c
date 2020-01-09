@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Bitmap functions
@@ -97,8 +97,6 @@ HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDI
 /* Create a transparent mask from a bitmap, pbm. clTransparent is the transparent color. Return a
   handle to the new mask.
   Must be followed by a call to wbDestroyBitmap().
-
-  // TODO: perform a non-destructive mask creation
 
 */
 
@@ -198,8 +196,6 @@ BOOL wbCopyPartialBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget,
 	DeleteDC(hdcMem);
 	return bRet;
 }
-
-// TODO: Use MaskBlt() instead -- see wbDrawBitmap()
 
 BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, int yTarget,
   int nWidth, int nHeight, int xSource, int ySource)
