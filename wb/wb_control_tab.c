@@ -175,15 +175,16 @@ BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COL
 
 /* Change the two images of the specified node */
 
-BOOL wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex)
+BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 {
 	TC_ITEM tci;
 
 	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	//if(!hItem)
-	//	return FALSE;
+    //TC_ITEM tabItemToUpdate = {0};
+    //tabItemToUpdate.mask = TCIF_IMAGE;
+    //TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
 
     tci.mask = TCIF_TEXT;
 	if(nImageIndex >= 0)
@@ -191,9 +192,12 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex)
 		tci.mask |= TCS_FIXEDWIDTH;
 		tci.mask |= TCS_FORCEICONLEFT;
 
-	tci.iImage = nImageIndex;
+	tci.iItem = item; // tab index
+	tci.iImage = nImageIndex; // image index
 
-	return TreeView_SetItem(pwbo->hwnd, &tci);
+	TreeView_SetItem(pwbo->hwnd, &tci);
+
+	return TRUE;
 }
 
 /*LRESULT CALLBACK TabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

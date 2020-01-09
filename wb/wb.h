@@ -535,7 +535,7 @@ BOOL		wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText);
 BOOL		wbCreateTabItem(PWBOBJ pwbo, LPCTSTR pszItem);
 BOOL		wbSelectTab(PWBOBJ pwboTab, int nItem);
 BOOL		wbCreateTabControlImageList(PWBOBJ pwboTab, int nItem);
-BOOL		wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex);
+BOOL		wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex);
 
 // WB_DRAW.C
 
