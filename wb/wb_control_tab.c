@@ -182,9 +182,8 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-    tabItemToUpdate.mask = TCIF_IMAGE;
     TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
-    tabItemToUpdate.mask = TCIF_TEXT;
+    tabItemToUpdate.mask = TCIF_IMAGE;
 
 	if(nImageIndex >= 0){
 		tabItemToUpdate.mask |= TCIF_IMAGE;
