@@ -184,16 +184,17 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 
     tabItemToUpdate.mask = TCIF_IMAGE;
     TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
-
     tabItemToUpdate.mask = TCIF_TEXT;
-	if(nImageIndex >= 0)
+
+	if(nImageIndex >= 0){
 		tabItemToUpdate.mask |= TCIF_IMAGE;
 		tabItemToUpdate.mask |= TCS_FIXEDWIDTH;
 		tabItemToUpdate.mask |= TCS_FORCEICONLEFT;
+	}
 
 	tabItemToUpdate.iImage = nImageIndex; // image index
 
-	TabCtrl_SetItem(pwbo->hwnd, &tabItemToUpdate);
+	TabCtrl_SetItem(pwbo->hwnd, item, &tabItemToUpdate);
 
 	return TRUE;
 }
