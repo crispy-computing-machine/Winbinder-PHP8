@@ -182,8 +182,8 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, TC_ITEM hItem, int nImageIndex)
 	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
-		return FALSE;
+	//if(!hItem)
+	//	return FALSE;
 
     tci.mask = TCIF_TEXT;
 	if(nImageIndex >= 0)
