@@ -42,12 +42,17 @@ LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		HDC hdc;
 		PAINTSTRUCT ps;
 		PWBOBJ pwbobj = wbGetWBObj(hwnd);
+        PFONT pfont;
 
 		if (!pwbobj)
 			break;
+
 		hdc = BeginPaint(hwnd, &ps);
-		DrawHyperLink(hdc, hwnd, &ps.rcPaint,
-					  pwbobj->lparam == NOCOLOR ? COLOR_HYPERLINK : pwbobj->lparam);
+
+        // Get font colour
+        pfont = wbGetFont(pwbobj->lparam);
+
+		DrawHyperLink(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_HYPERLINK : pfont->color);
 		EndPaint(hwnd, &ps);
 	}
 		return 0;

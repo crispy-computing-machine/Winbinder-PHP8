@@ -37,65 +37,70 @@ LRESULT CALLBACK LabelProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 
-	case WM_PAINT:
-	{
-		HDC hdc;
-		PAINTSTRUCT ps;
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
+        case WM_PAINT:
+        {
+            HDC hdc;
+            PAINTSTRUCT ps;
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
+            PFONT pfont;
 
-		if (!pwbobj)
-			break;
-		hdc = BeginPaint(hwnd, &ps);
-		DrawLabel(hdc, hwnd, &ps.rcPaint,
-					  pwbobj->lparam == NOCOLOR ? COLOR_LABEL : pwbobj->lparam);
-		EndPaint(hwnd, &ps);
-	}
-		return 0;
+            if (!pwbobj)
+                break;
 
-	case WM_MOUSEMOVE:
+            hdc = BeginPaint(hwnd, &ps);
 
-		if (GetCapture() != hwnd)
-		{
-			bUnderline = TRUE;
-			InvalidateRect(hwnd, NULL, FALSE);
-			SetCapture(hwnd);
-		}
-		else
-		{
-			RECT rect;
-			POINT pt;
+            // Get font colour
+            pfont = wbGetFont(pwbobj->lparam);
 
-			GetWindowRect(hwnd, &rect);
-			pt.x = LOWORD(lParam);
-			pt.y = HIWORD(lParam);
-			ClientToScreen(hwnd, &pt);
+            DrawLabel(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_LABEL : pfont->color);
+            EndPaint(hwnd, &ps);
+        }
+            return 0;
 
-			if (!PtInRect(&rect, pt))
-			{
-				bUnderline = FALSE;
-				InvalidateRect(hwnd, NULL, FALSE);
-				ReleaseCapture();
-			}
-		}
-		break;
+        case WM_MOUSEMOVE:
 
-	case WM_SETCURSOR:
-	{
-		PWBOBJ pwbo = wbGetWBObj(hwnd);
-		if (!pwbo)
-			break;
+            if (GetCapture() != hwnd)
+            {
+                bUnderline = TRUE;
+                InvalidateRect(hwnd, NULL, FALSE);
+                SetCapture(hwnd);
+            }
+            else
+            {
+                RECT rect;
+                POINT pt;
 
-		if (M_nMouseCursor != 0)
-		{
-			SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
-			return TRUE; // Must return here, not break
-		}
-		else
-		{
-			break; // Normal behavior
-		}
-	}
-	break;
+                GetWindowRect(hwnd, &rect);
+                pt.x = LOWORD(lParam);
+                pt.y = HIWORD(lParam);
+                ClientToScreen(hwnd, &pt);
+
+                if (!PtInRect(&rect, pt))
+                {
+                    bUnderline = FALSE;
+                    InvalidateRect(hwnd, NULL, FALSE);
+                    ReleaseCapture();
+                }
+            }
+            break;
+
+        case WM_SETCURSOR:
+        {
+            PWBOBJ pwbo = wbGetWBObj(hwnd);
+            if (!pwbo)
+                break;
+
+            if (M_nMouseCursor != 0)
+            {
+                SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
+                return TRUE; // Must return here, not break
+            }
+            else
+            {
+                break; // Normal behavior
+            }
+        }
+        break;
 	}
 
 	return CallWindowProc(lpfnLabelProcOld, hwnd, msg, wParam, lParam);
@@ -134,8 +139,7 @@ static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 
 	hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	hbrOld = SelectObject(hdc, hbr);
-	PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top,
-		   PATCOPY);
+	PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top, PATCOPY);
 	SelectObject(hdc, hbrOld);
 	DeleteObject(hbr);
 
