@@ -12,7 +12,7 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
-#include "php_ini.h"			// for cfg_get_string()
+#include "php_ini.h" // for cfg_get_string()
 
 //-------------------------------------------------------------------- VARIABLES
 
@@ -41,19 +41,20 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 	char *str_accel;
 	ACCEL accel[MAX_ACCELS];
 	DWORD dwacc;
-	int naccel= 0;
+	int naccel = 0;
 	zend_long pwbo;
 
 	// Get function parameters
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "lz!", &pwbo, &zarray) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "lz!", &pwbo, &zarray) == FAILURE)
 		return;
 
-	if(Z_TYPE_P(zarray) == IS_ARRAY) {
+	if (Z_TYPE_P(zarray) == IS_ARRAY)
+	{
 
 		target_hash = HASH_OF(zarray);
-		if(!target_hash)
+		if (!target_hash)
 			RETURN_NULL();
 
 		nelem = zend_hash_num_elements(target_hash);
@@ -61,40 +62,45 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 
 		// Loop to read array items
 
-		for(i = 0; i < nelem; i++) {
-			if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-			    wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+		for (i = 0; i < nelem; i++)
+		{
+			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
+			{
+				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				RETURN_NULL();
 			}
 
-			switch(Z_TYPE_P(entry)) {
+			switch (Z_TYPE_P(entry))
+			{
 
-				case IS_ARRAY:				// An accelerator item is an array inside an array
-					parse_array(entry, "ls", &accel[naccel].cmd, &str_accel);
-					if(str_accel && *str_accel && naccel < MAX_ACCELS) {
-						dwacc = wbMakeAccelFromString(str_accel);
-						accel[naccel].key = LOWORD(dwacc);
-						accel[naccel].fVirt = (BYTE)HIWORD(dwacc);
-//						printf("> %d %d %d %s\n", accel[naccel].key, accel[naccel].fVirt, accel[naccel].cmd, str_accel);
-						naccel++;
-					}
-					break;
+			case IS_ARRAY: // An accelerator item is an array inside an array
+				parse_array(entry, "ls", &accel[naccel].cmd, &str_accel);
+				if (str_accel && *str_accel && naccel < MAX_ACCELS)
+				{
+					dwacc = wbMakeAccelFromString(str_accel);
+					accel[naccel].key = LOWORD(dwacc);
+					accel[naccel].fVirt = (BYTE)HIWORD(dwacc);
+					//						printf("> %d %d %d %s\n", accel[naccel].key, accel[naccel].fVirt, accel[naccel].cmd, str_accel);
+					naccel++;
+				}
+				break;
 
-				default:
-				    wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
-					RETURN_NULL();
-					break;
+			default:
+				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
+				RETURN_NULL();
+				break;
 			}
 
-			if(i < nelem - 1)
+			if (i < nelem - 1)
 				zend_hash_move_forward(target_hash);
 		}
 
 		// Create accelerator table
 
 		RETURN_BOOL(wbSetAccelerators((PWBOBJ)pwbo, accel, naccel));
-
-	} else {
+	}
+	else
+	{
 		RETURN_BOOL(wbSetAccelerators((PWBOBJ)pwbo, NULL, 0));
 	}
 }
@@ -106,31 +112,34 @@ ZEND_FUNCTION(wb_set_cursor)
 	HANDLE hCursor;
 	LPTSTR pszCursorName;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "lz!", &pwbo, &source) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "lz!", &pwbo, &source) == FAILURE)
 		return;
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 
-	if(!source) {
+	if (!source)
+	{
 
 		hCursor = NULL;
 		pszCursorName = NULL;
-
-	} else if(sourcetype == IS_LONG) {
+	}
+	else if (sourcetype == IS_LONG)
+	{
 
 		hCursor = (HANDLE)source->value.lval;
 		pszCursorName = NULL;
-
-	} else if(sourcetype == IS_STRING) {
+	}
+	else if (sourcetype == IS_STRING)
+	{
 
 		hCursor = NULL;
 		pszCursorName = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
-
-	} else {
-        wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
+	}
+	else
+	{
+		wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 		RETURN_NULL();
-
 	}
 
 	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor))
@@ -170,34 +179,37 @@ ZEND_FUNCTION(wb_destroy_media)
 }
 */
 
-
 ZEND_FUNCTION(wb_play_sound)
 {
 	int cmd_len;
 	char *cmd = "";
-    zval *source;
+	zval *source;
 
-    TCHAR *szPath = 0;
-    TCHAR *szCmd = 0;
-    BOOL ret;
+	TCHAR *szPath = 0;
+	TCHAR *szCmd = 0;
+	BOOL ret;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "z|s", &source, &cmd, &cmd_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "z|s", &source, &cmd, &cmd_len) == FAILURE)
 		return;
 
-	if(!source)
+	if (!source)
 		RETURN_NULL();
 
-	if(Z_TYPE_P(source) == IS_LONG) {			// It's an integer: Play system sound
+	if (Z_TYPE_P(source) == IS_LONG)
+	{ // It's an integer: Play system sound
 
 		RETURN_BOOL(wbPlaySystemSound(source->value.lval));
+	}
+	else if (Z_TYPE_P(source) == IS_STRING)
+	{ // It's an empty string or filename
 
-	} else if(Z_TYPE_P(source) == IS_STRING) {	// It's an empty string or filename
-
-		if(*Z_STRVAL_P(source)) {
+		if (*Z_STRVAL_P(source))
+		{
 			szPath = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
 			MakeWinPath(szPath);
-			if(!EXISTFILE(szPath)) {
+			if (!EXISTFILE(szPath))
+			{
 				wbFree(szPath);
 				wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Could not open media file %s in function"), Z_STRVAL_P(source));
 				RETURN_BOOL(FALSE);
@@ -209,15 +221,19 @@ ZEND_FUNCTION(wb_play_sound)
 
 		ret = wbPlaySound(szPath, szCmd);
 
-		if(ret) {
+		if (ret)
+		{
 			RETURN_BOOL(TRUE);
-		} else {
-		    wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Unknown command '%s' in function"), cmd);
+		}
+		else
+		{
+			wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Unknown command '%s' in function"), cmd);
 			RETURN_BOOL(FALSE);
 		}
-
-	} else {
-	    wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"), cmd);
+	}
+	else
+	{
+		wbError(TEXT("wb_play_sound"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"), cmd);
 		RETURN_BOOL(FALSE);
 	}
 }
@@ -229,14 +245,13 @@ ZEND_FUNCTION(wb_stop_sound)
 
 	TCHAR *wcs = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "|s", &cmd, &cmd_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "|s", &cmd, &cmd_len) == FAILURE)
 		return;
 
-    wcs = Utf82WideChar(cmd, cmd_len);
+	wcs = Utf82WideChar(cmd, cmd_len);
 	RETURN_BOOL(wbStopSound(wcs));
 }
-
 
 ZEND_FUNCTION(wb_message_box)
 {
@@ -249,14 +264,15 @@ ZEND_FUNCTION(wb_message_box)
 
 	style = MB_OK;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
 		return;
 
-	if(pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
 
-	if(!title || !*title) {
+	if (!title || !*title)
+	{
 		title = szAppName;
 		title_len = strlen(szAppName);
 	}
@@ -265,19 +281,20 @@ ZEND_FUNCTION(wb_message_box)
 	szTitle = Utf82WideChar(title, title_len);
 	ret = wbMessageBox((PWBOBJ)pwbo, szMsg, szTitle, style);
 
-	switch(ret) {
-		case -2:				// Error
-			RETURN_NULL();
-			break;
-		case -1:				// IDNO
-			RETURN_LONG(0);
-			break;
-		case 0:					// Cancel, etc.
-			RETURN_BOOL(FALSE);
-			break;
-		case 1:					// OK, etc.
-			RETURN_BOOL(TRUE);
-			break;
+	switch (ret)
+	{
+	case -2: // Error
+		RETURN_NULL();
+		break;
+	case -1: // IDNO
+		RETURN_LONG(0);
+		break;
+	case 0: // Cancel, etc.
+		RETURN_BOOL(FALSE);
+		break;
+	case 1: // OK, etc.
+		RETURN_BOOL(TRUE);
+		break;
 	}
 }
 
@@ -290,12 +307,12 @@ ZEND_FUNCTION(wb_exec)
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 		return;
 
-    szPgm = Utf82WideChar(pgm, pgm_len);
-    szParm = Utf82WideChar(parm, parm_len);
+	szPgm = Utf82WideChar(pgm, pgm_len);
+	szParm = Utf82WideChar(parm, parm_len);
 	RETURN_BOOL(wbExec(szPgm, szParm, show));
 }
 
@@ -310,18 +327,19 @@ ZEND_FUNCTION(wb_get_system_info)
 	TCHAR szVal[1024];
 	TCHAR *wcs = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "s", &s, &s_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "s", &s, &s_len) == FAILURE)
 		return;
 
-	if(!stricmp(s, "extensionpath")) {
+	if (!stricmp(s, "extensionpath"))
+	{
 
 		// Calls Zend function cfg_get_string()
 
 		char *value;
 		TCHAR *szValue = 0;
 
-		if(cfg_get_string("extension_dir", &value) == FAILURE)
+		if (cfg_get_string("extension_dir", &value) == FAILURE)
 			RETURN_BOOL(FALSE);
 		szValue = Utf82WideChar(value, strlen(value));
 
@@ -333,21 +351,28 @@ ZEND_FUNCTION(wb_get_system_info)
 
 		WideCharCopy(szVal, strval, 1024);
 		isstr = TRUE;
-
-	} else {
+	}
+	else
+	{
 		wcs = Utf82WideChar(s, s_len);
 		// Calls the API (low-level) WinBinder layer
 		res = wbGetSystemInfo(wcs, &isstr, szVal, 1023);
 		WideCharCopy(szVal, strval, 1024);
 	}
 
-	if(isstr) {
-		if(!*strval && (res == -1)) {		// Unrecognized parameter
+	if (isstr)
+	{
+		if (!*strval && (res == -1))
+		{ // Unrecognized parameter
 			RETURN_NULL();
-		} else {
+		}
+		else
+		{
 			RETURN_STRING(strval);
 		}
-	} else {
+	}
+	else
+	{
 		RETURN_LONG(res);
 	}
 }
@@ -367,10 +392,9 @@ ZEND_FUNCTION(wb_find_file)
 
 	TCHAR *szPath = 0;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "s", &s, &s_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "s", &s, &s_len) == FAILURE)
 		return;
-
 
 	szPath = Utf82WideChar(s, s_len);
 	wbFindFile(szPath, MAX_PATH * 4);
@@ -398,8 +422,8 @@ ZEND_FUNCTION(wb_get_registry_key)
 	TCHAR *szEntry = 0;
 	BOOL ret;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ss|s", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ss|s", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len) == FAILURE)
 		return;
 
 	szKey = Utf82WideChar(key, key_len);
@@ -408,13 +432,18 @@ ZEND_FUNCTION(wb_get_registry_key)
 
 	ret = wbReadRegistryKey(szKey, szSubKey, szEntry, szVal, &buflen);
 
-	if(ret) {
-		if(*szVal) {
+	if (ret)
+	{
+		if (*szVal)
+		{
 			WideCharCopy(szVal, sval, buflen);
 			RETURN_STRING(sval)
-		} else
+		}
+		else
 			RETURN_STRING("")
-	} else {
+	}
+	else
+	{
 		RETURN_NULL();
 	}
 }
@@ -423,7 +452,7 @@ ZEND_FUNCTION(wb_set_registry_key)
 {
 	char *key, *subkey, *entry;
 	int key_len, subkey_len, entry_len;
-    zval *source = NULL;
+	zval *source = NULL;
 
 	TCHAR *szKey = 0;
 	TCHAR *szSubKey = 0;
@@ -431,13 +460,14 @@ ZEND_FUNCTION(wb_set_registry_key)
 	TCHAR *szVal = 0;
 	BOOL ret;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ss|sz!", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len, &source) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ss|sz!", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len, &source) == FAILURE)
 		return;
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 
-	if(!source) {
+	if (!source)
+	{
 		szKey = Utf82WideChar(key, key_len);
 		szSubKey = Utf82WideChar(subkey, subkey_len);
 		szEntry = Utf82WideChar(entry, entry_len);
@@ -445,8 +475,10 @@ ZEND_FUNCTION(wb_set_registry_key)
 		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, 0, TRUE);
 
 		RETURN_BOOL(ret);
-	// 2016_08_12 - Jared Allard: no more IS_BOOL, use IS_TRUE/IS_FALSE
-	} else if(sourcetype == IS_LONG || ( sourcetype == IS_FALSE || sourcetype == IS_TRUE)) {
+		// 2016_08_12 - Jared Allard: no more IS_BOOL, use IS_TRUE/IS_FALSE
+	}
+	else if (sourcetype == IS_LONG || (sourcetype == IS_FALSE || sourcetype == IS_TRUE))
+	{
 		szKey = Utf82WideChar(key, key_len);
 		szSubKey = Utf82WideChar(subkey, subkey_len);
 		szEntry = Utf82WideChar(entry, entry_len);
@@ -454,7 +486,9 @@ ZEND_FUNCTION(wb_set_registry_key)
 		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
 
 		RETURN_BOOL(ret);
-	} else if(sourcetype == IS_DOUBLE) {
+	}
+	else if (sourcetype == IS_DOUBLE)
+	{
 		TCHAR szAux[50];
 		wsprintf(szAux, TEXT("%20.20f"), source->value.dval);
 
@@ -465,7 +499,9 @@ ZEND_FUNCTION(wb_set_registry_key)
 		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szAux, 0, TRUE);
 
 		RETURN_BOOL(ret);
-	} else if(sourcetype == IS_STRING) {
+	}
+	else if (sourcetype == IS_STRING)
+	{
 		szKey = Utf82WideChar(key, key_len);
 		szSubKey = Utf82WideChar(subkey, subkey_len);
 		szEntry = Utf82WideChar(entry, entry_len);
@@ -474,8 +510,10 @@ ZEND_FUNCTION(wb_set_registry_key)
 		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szVal, 0, TRUE);
 
 		RETURN_BOOL(ret);
-	} else {
-	    wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
+	}
+	else
+	{
+		wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
 		RETURN_NULL();
 	}
 }
@@ -485,11 +523,11 @@ ZEND_FUNCTION(wb_create_timer)
 	zend_long pwbo;
 	zend_long id, ms;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "lll", &pwbo, &id, &ms) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "lll", &pwbo, &id, &ms) == FAILURE)
 		return;
 
-	if(!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
 
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, MAX(1, ms)));
@@ -500,11 +538,11 @@ ZEND_FUNCTION(wb_destroy_timer)
 	zend_long pwbo;
 	zend_long id;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "ll", &pwbo, &id) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ll", &pwbo, &id) == FAILURE)
 		return;
 
-	if(!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
 
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, 0));
@@ -514,11 +552,11 @@ ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "|lll", &pwbo, &pause, &flags) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "|lll", &pwbo, &pause, &flags) == FAILURE)
 		return;
 
-	if(pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE))
+	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
 
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
@@ -528,15 +566,16 @@ ZEND_FUNCTION(wb_is_obj)
 {
 	zend_long pwbo;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "l", &pwbo) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "l", &pwbo) == FAILURE)
 		return;
 
 	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
 }
 
 //
-ZEND_FUNCTION(wb_get_clipboard) {
+ZEND_FUNCTION(wb_get_clipboard)
+{
 	char tcopy[4096];
 	//char *wText;
 	char *wGlobal;
@@ -546,20 +585,24 @@ ZEND_FUNCTION(wb_get_clipboard) {
 	BOOL success = FALSE;
 
 	//printf("BREAK 1\n");
-	if(OpenClipboard(NULL)){
+	if (OpenClipboard(NULL))
+	{
 		//printf("BREAK 2\n");
 		hdata = GetClipboardData(CF_TEXT);
 		//printf("BREAK 3\n");
-		if(hdata){
+		if (hdata)
+		{
 			//printf("BREAK 4\n");
-			wGlobal = (wchar_t*)GlobalLock(hdata);
+			wGlobal = (wchar_t *)GlobalLock(hdata);
 			//printf("BREAK 5\n");
-			if(wGlobal != NULL){
+			if (wGlobal != NULL)
+			{
 				//printf("BREAK 6\n");
 				blen = GlobalSize(hdata);
 				//printf("SIZE: %d\n",blen);
-				if(blen > 4095) blen = 4095;
-				memcpy(tcopy,wGlobal,blen);
+				if (blen > 4095)
+					blen = 4095;
+				memcpy(tcopy, wGlobal, blen);
 				GlobalUnlock(hdata);
 				tcopy[blen] = 0;
 				success = TRUE;
@@ -568,13 +611,13 @@ ZEND_FUNCTION(wb_get_clipboard) {
 		/*GlobalUnlock(hdata);*/
 	}
 	CloseClipboard();
-	if(!success) RETURN_NULL();
-	RETURN_STRING(tcopy,TRUE);
-	
+	if (!success)
+		RETURN_NULL();
+	RETURN_STRING(tcopy, TRUE);
 }
 
-
-ZEND_FUNCTION(wb_set_clipboard) {
+ZEND_FUNCTION(wb_set_clipboard)
+{
 	char *clip;
 	WCHAR *wclip;
 	int size;
@@ -586,30 +629,33 @@ ZEND_FUNCTION(wb_set_clipboard) {
 	LPTSTR wclipcopy;
 
 	//printf("BREAK 1\n");
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	 "s", &clip, &size) == FAILURE)
-	    RETURN_BOOL(0);
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "s", &clip, &size) == FAILURE)
+		RETURN_BOOL(0);
 
 	//printf("BREAK 2\n");
-	if(OpenClipboard(NULL)){
+	if (OpenClipboard(NULL))
+	{
 		//printf("BREAK 3\n");
-		hdata = GlobalAlloc(GMEM_MOVEABLE, size+1);
+		hdata = GlobalAlloc(GMEM_MOVEABLE, size + 1);
 		//printf("BREAK 5\n");
 		clipcopy = (LPTSTR)GlobalLock(hdata);
 		//printf("BREAK 5\n");
 		memcpy(clipcopy, clip, size);
 
 		//printf("BREAK 6\n");
-		if(SetClipboardData(CF_TEXT,hdata)){
+		if (SetClipboardData(CF_TEXT, hdata))
+		{
 			GlobalUnlock(hdata);
 			GlobalFree(hdata);
 			//printf("BREAK 7\n");
 			size = size * 2;
-			wclip = (WCHAR *)emalloc(size+1);
+			wclip = (WCHAR *)emalloc(size + 1);
 			//printf("BREAK 8\n");
-			if(!UTF8ToUnicode16(clip,wclip,size+2)) printf("Conversion failed\n");
+			if (!UTF8ToUnicode16(clip, wclip, size + 2))
+				printf("Conversion failed\n");
 			//printf("BREAK 9\n");
-			hwdata = GlobalAlloc(GMEM_MOVEABLE, size+2);
+			hwdata = GlobalAlloc(GMEM_MOVEABLE, size + 2);
 			//printf("BREAK 10\n");
 			wclipcopy = (LPTSTR)GlobalLock(hwdata);
 
@@ -619,7 +665,7 @@ ZEND_FUNCTION(wb_set_clipboard) {
 			//printf("BREAK 12\n");
 
 			//printf("BREAK 13\n");
-			SetClipboardData(CF_UNICODETEXT,hwdata);
+			SetClipboardData(CF_UNICODETEXT, hwdata);
 			//printf("BREAK 14\n");
 			GlobalUnlock(hwdata);
 			GlobalFree(hwdata);
@@ -627,14 +673,15 @@ ZEND_FUNCTION(wb_set_clipboard) {
 			efree(wclip);
 			//printf("BREAK 16\n");
 			success = TRUE;
-		}else{
+		}
+		else
+		{
 			GlobalUnlock(hdata);
 			GlobalFree(hdata);
 		}
 		//printf("BREAK 17\n");
 
 		//printf("BREAK 18\n");
-
 	}
 	//printf("BREAK 19\n");
 	CloseClipboard();
@@ -642,16 +689,16 @@ ZEND_FUNCTION(wb_set_clipboard) {
 	RETURN_BOOL(success);
 }
 
-
-ZEND_FUNCTION(wb_empty_clipboard) {
+ZEND_FUNCTION(wb_empty_clipboard)
+{
 	BOOL success = FALSE;
-	if(OpenClipboard(NULL)){
-		if(EmptyClipboard())
+	if (OpenClipboard(NULL))
+	{
+		if (EmptyClipboard())
 			success = TRUE;
 		CloseClipboard();
 	}
 	RETURN_BOOL(success);
 }
-
 
 //------------------------------------------------------------------ END OF FILE

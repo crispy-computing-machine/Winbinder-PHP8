@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Calendar control
@@ -34,14 +34,14 @@ time_t GetCalendarTime(PWBOBJ pwbo)
 	ptrFileTime = wbMalloc(sizeof(FILETIME));
 
 	SendMessage(pwbo->hwnd, MCM_GETCURSEL, 0, (LPARAM)lpSysTime);
-	if(!lpSysTime)
+	if (!lpSysTime)
 		return FALSE;
 
 	lpSysTime->wHour = 0;
 	lpSysTime->wMinute = 0;
 	lpSysTime->wSecond = 0;
 	lpSysTime->wMilliseconds = 0;
-	SystemTimeToFileTime(lpSysTime,ptrFileTime);
+	SystemTimeToFileTime(lpSysTime, ptrFileTime);
 	UnixTime = FileTimeToUnixTime(ptrFileTime);
 	UnixTime += 60 * GetCorrectUtcUnixTime();
 	return UnixTime;
@@ -56,11 +56,10 @@ BOOL SetCalendarTime(PWBOBJ pwbo, time_t UnixTime)
 
 	UnixTime -= 60 * GetCorrectUtcUnixTime();
 	fileTime = UnixTimeToFileTime(UnixTime);
-	FileTimeToSystemTime(&fileTime,ptrSystemTime);
+	FileTimeToSystemTime(&fileTime, ptrSystemTime);
 	SendMessage(pwbo->hwnd, MCM_SETCURSEL, 0, (LPARAM)ptrSystemTime);
 	return TRUE;
 }
-
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
@@ -79,8 +78,8 @@ static LONG GetCorrectUtcUnixTime(void)
 
 	ptrTimeZoneInfo = wbMalloc(sizeof(TIME_ZONE_INFORMATION));
 	InfoTimeResult = GetTimeZoneInformation(ptrTimeZoneInfo);
-	lBias = ptrTimeZoneInfo->Bias ;
-	if(InfoTimeResult == TIME_ZONE_ID_DAYLIGHT)
+	lBias = ptrTimeZoneInfo->Bias;
+	if (InfoTimeResult == TIME_ZONE_ID_DAYLIGHT)
 		lBias += ptrTimeZoneInfo->DaylightBias;
 
 	return lBias;
@@ -98,9 +97,9 @@ static DWORD FileTimeToUnixTime(FILETIME *pfiletime)
 	long long int t;
 
 	t = pfiletime->dwHighDateTime;
-    t <<= 32;
-    t += (unsigned long)pfiletime->dwLowDateTime;
-    t -= 116444736000000000LL;
+	t <<= 32;
+	t += (unsigned long)pfiletime->dwLowDateTime;
+	t -= 116444736000000000LL;
 
 	return (DWORD)(t / 10000000);
 }

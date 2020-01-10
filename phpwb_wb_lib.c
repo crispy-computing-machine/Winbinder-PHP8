@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Library of ZEND-specific functions for the WinBinder extension
@@ -15,7 +15,7 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define CALLBACK_ARGS	6	// Number of arguments of the callback function
+#define CALLBACK_ARGS 6 // Number of arguments of the callback function
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -43,37 +43,38 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	wcscpy(szString, szFunction);
 	wcscat(szString, TEXT(": "));
 	wcscat(szString, szAux);
-    WideCharCopy(szString, str, MAX_ERR_MESSAGE);
+	WideCharCopy(szString, str, MAX_ERR_MESSAGE);
 
-	switch(nType) {
-		case MB_OK:
-		case MB_ICONINFORMATION:
-			messageType = E_NOTICE;
-			break;
+	switch (nType)
+	{
+	case MB_OK:
+	case MB_ICONINFORMATION:
+		messageType = E_NOTICE;
+		break;
 
-		case MB_ICONWARNING:
-			messageType = E_WARNING;
-			break;
+	case MB_ICONWARNING:
+		messageType = E_WARNING;
+		break;
 
-		case MB_ICONSTOP:
-		case MB_ICONQUESTION:
-		default:
-			messageType = E_ERROR;
-			break;
+	case MB_ICONSTOP:
+	case MB_ICONQUESTION:
+	default:
+		messageType = E_ERROR;
+		break;
 	}
 
 	// Normal error with stack trace
 	php_error_docref(NULL TSRMLS_CC, messageType, str);
 
-    // if not debug mode show friendly error box
-    if(INI_INT("winbinder.debug_level") == 0)
-    {
-	    //MessageBox(NULL, str, TEXT("wbError"), MB_OK | MB_ICONWARNING);
+	// if not debug mode show friendly error box
+	if (INI_INT("winbinder.debug_level") == 0)
+	{
+		//MessageBox(NULL, str, TEXT("wbError"), MB_OK | MB_ICONWARNING);
 
-        szMsg = Utf82WideChar(str, 0);
-        szTitle = Utf82WideChar("wbError", 0);
-	    wbMessageBox(NULL, szMsg, szTitle, nType);
-    }
+		szMsg = Utf82WideChar(str, 0);
+		szTitle = Utf82WideChar("wbError", 0);
+		wbMessageBox(NULL, szMsg, szTitle, nType);
+	}
 
 	return FALSE;
 }
@@ -82,8 +83,8 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
 UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
-	zval fname = { 0 };
-	zval return_value = { 0 };
+	zval fname = {0};
+	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
 	UINT ret = 0;
@@ -102,19 +103,21 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	// Is there a callback function assigned to the window?
 
 	pszFName = WideChar2Utf8(pszFunctionName, &name_len);
-	if(!pszFName || !*pszFName) {
+	if (!pszFName || !*pszFName)
+	{
 		TCHAR szTitle[256];
 		char title[256];
 
-		if(GetWindowText(pwboParent->hwnd, szTitle, 256)) {
+		if (GetWindowText(pwboParent->hwnd, szTitle, 256))
+		{
 			WideCharCopy(szTitle, title, 256);
 			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window '%s'"), title);
-		} else
-		    wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG)pwboParent);
+		}
+		else
+			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG)pwboParent);
 		return FALSE;
 	}
 
-	
 	ZVAL_STRING(&fname, pszFName);
 
 	/* why we test again ??? GYW
@@ -130,18 +133,17 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	// In case of an object
 	//if(pszObjectName && *pszObjectName) {
 	//	ZVAL_STRING(&oname, pszObjectName);
-	//} 
-
+	//}
 
 	// PWBOBJ pointer
 	ZVAL_LONG(&parms[0], (LONG)pwboParent);
-	
+
 	// id
 	ZVAL_LONG(&parms[1], (LONG)id);
-	
+
 	// control handle
 	ZVAL_LONG(&parms[2], (LONG)pctrl);
-	
+
 	// lparam1
 	ZVAL_LONG(&parms[3], (LONG)lParam1);
 
@@ -153,27 +155,29 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 
 	// Call the user function
 	bRet = call_user_function_ex(
-		CG(function_table),			// Hash value for the function table
-		&pszObject,						// Pointer to an object (may be NULL)
-		&fname,						// Function name
-		&return_value,				// Return value
-		CALLBACK_ARGS,				// Parameter count
-		parms,						// Parameter array
-		0,							// No separation flag (always 0)
-		NULL TSRMLS_CC
-		);
+		CG(function_table), // Hash value for the function table
+		&pszObject,			// Pointer to an object (may be NULL)
+		&fname,				// Function name
+		&return_value,		// Return value
+		CALLBACK_ARGS,		// Parameter count
+		parms,				// Parameter array
+		0,					// No separation flag (always 0)
+		NULL TSRMLS_CC);
 
-	if(bRet != SUCCESS) {
-	    wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed"));
+	if (bRet != SUCCESS)
+	{
+		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed"));
 	}
 
 	// Free everything we can
 	//if (funName) efree(funName);
 	switch (Z_TYPE(return_value))
 	{
-		case IS_LONG:				
-		case IS_TRUE:
-		case IS_FALSE: ret = Z_LVAL(return_value); break;
+	case IS_LONG:
+	case IS_TRUE:
+	case IS_FALSE:
+		ret = Z_LVAL(return_value);
+		break;
 	}
 	return ret;
 }
@@ -207,7 +211,7 @@ char *wbStrnDup(const char *string, size_t size)
 
 BOOL wbFree(void *ptr)
 {
-	if(ptr)
+	if (ptr)
 		efree(ptr);
 	return TRUE;
 }

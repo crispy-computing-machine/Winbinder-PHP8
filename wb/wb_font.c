@@ -15,15 +15,15 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define MAX_FONTS			256
+#define MAX_FONTS 256
 
 //-------------------------------------------------------------------- VARIABLES
 
 // Local
 
-static PFONT pFonts[MAX_FONTS];			// Font cache -- font index zero is the system font
+static PFONT pFonts[MAX_FONTS]; // Font cache -- font index zero is the system font
 static int nInstalledFonts = 0;
-static int nLastFont = 0;				// Zero means no font
+static int nLastFont = 0; // Zero means no font
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -35,42 +35,44 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 	HFONT hFont;
 	HDC hdc;
 
-	if(nInstalledFonts >= (MAX_FONTS - 1))
+	if (nInstalledFonts >= (MAX_FONTS - 1))
 		return 0;
 
 	// Convert points to pixels
 
-    hdc = GetDC(NULL);
-    nHeight = -MulDiv(nHeight, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-    ReleaseDC(NULL, hdc);
+	hdc = GetDC(NULL);
+	nHeight = -MulDiv(nHeight, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+	ReleaseDC(NULL, hdc);
 
 	// Create font with attributes
 
 	hFont = CreateFont(nHeight,
-	    0, 0, 0,
-		dwFlags & FTA_BOLD ? FW_BOLD : FW_NORMAL,
-		dwFlags & FTA_ITALIC,
-		dwFlags & FTA_UNDERLINE,
-		0, DEFAULT_CHARSET, 0,0,0,0,
-		pszName);
+					   0, 0, 0,
+					   dwFlags & FTA_BOLD ? FW_BOLD : FW_NORMAL,
+					   dwFlags & FTA_ITALIC,
+					   dwFlags & FTA_UNDERLINE,
+					   0, DEFAULT_CHARSET, 0, 0, 0, 0,
+					   pszName);
 
 	// Store font in cache
 
-	if(hFont) {
+	if (hFont)
+	{
 		nInstalledFonts++;
 		nLastFont = nInstalledFonts;
 		pFonts[nLastFont] = wbMalloc(sizeof(FONT));
-		if(!pFonts[nInstalledFonts])
+		if (!pFonts[nInstalledFonts])
 			return 0;
 		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(pszName) + 1));
-		if(!pFonts[nLastFont]->pszName)
+		if (!pFonts[nLastFont]->pszName)
 			return 0;
 		wcscpy(pFonts[nLastFont]->pszName, pszName);
 		pFonts[nLastFont]->nHeight = nHeight;
 		pFonts[nLastFont]->color = color;
 		pFonts[nLastFont]->dwFlags = dwFlags;
 		pFonts[nLastFont]->hFont = hFont;
-	} else
+	}
+	else
 		return 0;
 
 	return nLastFont;
@@ -86,23 +88,28 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 {
-	if(!wbIsWBObj(pwbo, TRUE))					// Is it a valid control?
+	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
 
-	if(!IsWindow(pwbo->hwnd))
+	if (!IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(nFont > nInstalledFonts)
+	if (nFont > nInstalledFonts)
 		return FALSE;
 
-	if(nFont == 0) {				// Resets control to the system font
+	if (nFont == 0)
+	{ // Resets control to the system font
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, MAKELPARAM(bRedraw, 0));
-	} else if(nFont < 0) {
-		nFont = nLastFont;			// Uses last font
-	} else {
+	}
+	else if (nFont < 0)
+	{
+		nFont = nLastFont; // Uses last font
+	}
+	else
+	{
 		// Set the font indexed by nFont
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont,
-	  	MAKELPARAM(bRedraw, 0));
+					MAKELPARAM(bRedraw, 0));
 		nLastFont = nFont;
 	}
 
@@ -118,21 +125,23 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 
 PFONT wbGetFont(int nFont)
 {
-	if(nFont > nInstalledFonts)
+	if (nFont > nInstalledFonts)
 		nFont = 0;
 
-	if(nFont < 0)
+	if (nFont < 0)
 		nFont = nLastFont;
 	else
 		nLastFont = nFont;
 
-	if(nFont == 0) {
+	if (nFont == 0)
+	{
 
 		// Asks for pFonts[0]: set it to system font on first call
 
 		static BOOL bSysFontSet = FALSE;
 
-		if(!bSysFontSet) {
+		if (!bSysFontSet)
+		{
 			pFonts[0] = wbMalloc(sizeof(FONT));
 			pFonts[0]->hFont = hIconFont;
 			pFonts[0]->color = 0x000000;
@@ -155,35 +164,39 @@ PFONT wbGetFont(int nFont)
 
 BOOL wbDestroyFont(int nFont)
 {
-	if(nFont > nInstalledFonts)
+	if (nFont > nInstalledFonts)
 		return FALSE;
 
-	if(nFont > 0) {
+	if (nFont > 0)
+	{
 
-		if(nFont > nInstalledFonts)
+		if (nFont > nInstalledFonts)
 			return FALSE;
 		wbFree(pFonts[nFont]->pszName);
-		if(!DeleteObject(pFonts[nFont]->hFont))
+		if (!DeleteObject(pFonts[nFont]->hFont))
 			return FALSE;
 		wbFree(pFonts[nFont]);
 		nInstalledFonts--;
 		return TRUE;
-
-	} else if(nFont == 0) {
+	}
+	else if (nFont == 0)
+	{
 
 		// Destroy all fonts
 
 		int i;
 
-		for(i = 1; i < nInstalledFonts; i++) {		// First font is 1, not zero
+		for (i = 1; i < nInstalledFonts; i++)
+		{ // First font is 1, not zero
 			wbFree(pFonts[i]->pszName);
-			if(!DeleteObject(pFonts[i]->hFont))
+			if (!DeleteObject(pFonts[i]->hFont))
 				return FALSE;
 			wbFree(pFonts[i]);
 		}
 		nInstalledFonts = 0;
 		return TRUE;
-	} else
+	}
+	else
 		return FALSE;
 }
 

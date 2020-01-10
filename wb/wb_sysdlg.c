@@ -18,8 +18,8 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define MAXFILTER		1024
-#define MAXEXTENSION	256
+#define MAXFILTER 1024
+#define MAXEXTENSION 256
 
 //----------------------------------------------------------------------- MACROS
 
@@ -43,11 +43,11 @@ static TCHAR szSearchPath[MAX_PATH];
 
 BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD dwWBStyle, DWORD bufSize)
 {
-	OPENFILENAME ofn = { 0 };
+	OPENFILENAME ofn = {0};
 	BOOL bRet;
 	TCHAR *pszCopy;
 
-	if(pszPath && *pszPath)
+	if (pszPath && *pszPath)
 		pszCopy = MakeWinPath(_wcsdup(pszPath));
 	else
 		pszCopy = NULL;
@@ -60,11 +60,11 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.nMaxCustFilter = 0;
 	ofn.nFilterIndex = 0;
 	ofn.lpstrFile = pszFileName;
-	ofn.nMaxFile = bufSize -1;
+	ofn.nMaxFile = bufSize - 1;
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = pszCopy;
-	ofn.lpstrTitle = (pszTitle && * pszTitle) ? pszTitle : NULL;
+	ofn.lpstrTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
 	ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 	ofn.nFileOffset = 0;
 	ofn.nFileExtension = 0;
@@ -76,10 +76,10 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.Flags |= BITTEST(dwWBStyle, WBC_MULTISELECT) ? OFN_ALLOWMULTISELECT | OFN_EXPLORER : 0;
 
 	bRet = GetOpenFileName(&ofn);
-	if(!bRet && pszFileName)
+	if (!bRet && pszFileName)
 		*pszFileName = '\0';
 
-	if(pszCopy)
+	if (pszCopy)
 		free(pszCopy);
 	return bRet;
 }
@@ -90,10 +90,10 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	BOOL bRet;
 	TCHAR *pszCopy;
 
-	if(!pszFileName)
+	if (!pszFileName)
 		return FALSE;
 
-	if(pszPath && *pszPath)
+	if (pszPath && *pszPath)
 		pszCopy = MakeWinPath(_wcsdup(pszPath));
 	else
 		pszCopy = NULL;
@@ -110,7 +110,7 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = MAX_PATH;
 	ofn.lpstrInitialDir = pszCopy;
-	ofn.lpstrTitle = (pszTitle && * pszTitle) ? pszTitle : NULL;
+	ofn.lpstrTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
 	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 	ofn.nFileOffset = 0;
 	ofn.nFileExtension = 0;
@@ -131,10 +131,10 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpTemplateName = NULL;
 
 	bRet = GetSaveFileName(&ofn);
-	if(!bRet && pszFileName)
+	if (!bRet && pszFileName)
 		*pszFileName = '\0';
 
-	if(pszCopy)
+	if (pszCopy)
 		free(pszCopy);
 	return bRet;
 }
@@ -146,12 +146,12 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 	LPMALLOC pMalloc;
 	BOOL bRet;
 
-	if(SHGetMalloc(&pMalloc) != NOERROR)
+	if (SHGetMalloc(&pMalloc) != NOERROR)
 		return FALSE;
 
 	// SearchPath is used on the BrowseCallbackProc() function below
 
-	if(!*pszPath)
+	if (!*pszPath)
 		*szSearchPath = '\0';
 	else
 		wcscpy(szSearchPath, pszPath);
@@ -159,18 +159,20 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 	bi.hwndOwner = pwboParent ? (HWND)pwboParent->hwnd : NULL;
 	bi.pidlRoot = 0;
 	bi.pszDisplayName = pszSelPath;
-	bi.lpszTitle = (pszTitle && * pszTitle) ? pszTitle : NULL;
+	bi.lpszTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS;
 	bi.lpfn = BrowseCallbackProc;
-    bi.lParam = 0;
-    bi.iImage = 0;
-	if(!(pidl = SHBrowseForFolder(&bi))) {
+	bi.lParam = 0;
+	bi.iImage = 0;
+	if (!(pidl = SHBrowseForFolder(&bi)))
+	{
 		pMalloc->lpVtbl->Free(pMalloc, pidl);
 		pMalloc->lpVtbl->Release(pMalloc);
 		return FALSE;
 	}
 	bRet = SHGetPathFromIDList(pidl, pszSelPath);
-	if(!bRet) {
+	if (!bRet)
+	{
 		pMalloc->lpVtbl->Free(pMalloc, pidl);
 		pMalloc->lpVtbl->Release(pMalloc);
 		return FALSE;
@@ -182,7 +184,7 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 
 COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 {
-	static COLORREF clrCustomColors[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	static COLORREF clrCustomColors[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	CHOOSECOLOR cc;
 	BOOL bRet;
 
@@ -198,7 +200,7 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 	cc.lpTemplateName = 0;
 
 	bRet = ChooseColor(&cc);
-	if(bRet)
+	if (bRet)
 		return cc.rgbResult;
 	else
 		return NOCOLOR;
@@ -211,11 +213,12 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 
 	ZeroMemory(&cf, sizeof(CHOOSEFONT));
 	ZeroMemory(&lf, sizeof(LOGFONT));
-	cf.lStructSize = sizeof (CHOOSEFONT);
+	cf.lStructSize = sizeof(CHOOSEFONT);
 	cf.hwndOwner = (HWND)pwboParent->hwnd;
 	cf.lpLogFont = &lf;
 
-	if(pfont) {				// A default font was specified
+	if (pfont)
+	{ // A default font was specified
 		cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
 		cf.rgbColors = pfont->color;
 		lf.lfHeight = pfont->nHeight;
@@ -224,10 +227,11 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 		lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
 		lf.lfCharSet = DEFAULT_CHARSET;
 		strncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE);
-	} else
+	}
+	else
 		cf.Flags = CF_TTONLY;
 
-	if(!ChooseFont(&cf))
+	if (!ChooseFont(&cf))
 		return NULL;
 
 	return NULL;
@@ -239,10 +243,11 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 
 static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
-	switch(uMsg) {
-		case BFFM_INITIALIZED:
-			SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)szSearchPath);
-			break;
+	switch (uMsg)
+	{
+	case BFFM_INITIALIZED:
+		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)szSearchPath);
+		break;
 	}
 	return 0;
 }
@@ -253,9 +258,11 @@ static LPTSTR DeleteChars(LPTSTR pszMain, UINT nPos, UINT nLength)
 {
 	LPTSTR pszInitialPos, pszPos;
 
-	if(pszMain) {
-		if(nPos < wcslen(pszMain)) {
-			for(pszInitialPos = pszPos = pszMain + nPos; *pszPos && nLength; ++pszPos, --nLength)
+	if (pszMain)
+	{
+		if (nPos < wcslen(pszMain))
+		{
+			for (pszInitialPos = pszPos = pszMain + nPos; *pszPos && nLength; ++pszPos, --nLength)
 				;
 			memmove(pszInitialPos, pszPos, sizeof(TCHAR) * (wcslen(pszPos) + 1));
 		}
@@ -269,7 +276,7 @@ static LPTSTR StripPath(LPTSTR pszFileName)
 {
 	LPTSTR szPos;
 
-	if((szPos = wcschr(pszFileName, '\\')) != NULL)
+	if ((szPos = wcschr(pszFileName, '\\')) != NULL)
 		DeleteChars(pszFileName, 0, szPos - pszFileName + 1);
 	return pszFileName;
 }

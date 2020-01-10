@@ -12,20 +12,20 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb.h"
-#include <shellapi.h>		// For ExtractIcon()
+#include <shellapi.h> // For ExtractIcon()
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define MAXWRITE	32767
+#define MAXWRITE 32767
 
 //----------------------------------------------------------------------- MACROS
 
-#define DIBHDRSIZE(pDIB)	(((BITMAPINFOHEADER *)(pDIB))->biSize)
-#define DIBWIDTH(pDIB)		((WORD)((BITMAPINFOHEADER *)(pDIB))->biWidth)
-#define DIBHEIGHT(pDIB)		((WORD)((BITMAPINFOHEADER *)(pDIB))->biHeight)
-#define MAKEEVEN(n)			(ISODD(n) ? (n) + 1 : (n))				// Useful lo line up INTs
-#define ISEVEN(n)			(((n) & 0x01) == 0x00)					// TRUE if n is even
-#define ISODD(n)			(((n) & 0x01) == 0x01)					// TRUE if n is odd
+#define DIBHDRSIZE(pDIB) (((BITMAPINFOHEADER *)(pDIB))->biSize)
+#define DIBWIDTH(pDIB) ((WORD)((BITMAPINFOHEADER *)(pDIB))->biWidth)
+#define DIBHEIGHT(pDIB) ((WORD)((BITMAPINFOHEADER *)(pDIB))->biHeight)
+#define MAKEEVEN(n) (ISODD(n) ? (n) + 1 : (n)) // Useful lo line up INTs
+#define ISEVEN(n) (((n)&0x01) == 0x00)		   // TRUE if n is even
+#define ISODD(n) (((n)&0x01) == 0x01)		   // TRUE if n is odd
 
 //---------------------------------------------------------------- PRIVATE TYPES
 
@@ -35,12 +35,12 @@ typedef BYTE *HBMP;
 
 // Private
 
-static HBMP			ReadBitmap(LPCTSTR szBMPFileName);
-static DWORD		DIBGetColorCount(HBMP lpDIB);
-static void			*DIBGetAddress(HBMP lpDIB);
-static void			*SetBitmap(BITMAPINFO *hbmpData, void *lpDIBBits, int nWidth, int nHeight);
-static PBITMAPINFO	CreateBitmapInfoStruct(HBITMAP hBmp);
-static BOOL			CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC);
+static HBMP ReadBitmap(LPCTSTR szBMPFileName);
+static DWORD DIBGetColorCount(HBMP lpDIB);
+static void *DIBGetAddress(HBMP lpDIB);
+static void *SetBitmap(BITMAPINFO *hbmpData, void *lpDIBBits, int nWidth, int nHeight);
+static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp);
+static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC);
 
 // External
 
@@ -50,45 +50,55 @@ extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
 
 //-------------------------------------------------------------------- VARIABLES
 
-static int pix_cx, pix_cy;				// For low-level bitmap functions
+static int pix_cx, pix_cy; // For low-level bitmap functions
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-/* Create a blank bitmap. nWidth and nHeight are the dimensions. Return a handle to
-  the new bitmap or NULL if failed. Must be followed by a call to wbDestroyBitmap().
-*/
-
+/**
+ * Create a blank bitmap. nWidth and nHeight are the dimensions. Return a handle to
+ * the new bitmap or NULL if failed. Must be followed by a call to wbDestroyBitmap().
+ *
+ * [nWidth description]
+ *
+ * @var int
+ */
 HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDIBBits)
 {
 	HBITMAP hbm;
 	HDC hdc;
 	BITMAP bm;
 
-	hdc = CreateDC(TEXT("DISPLAY"),NULL,NULL,NULL);
-//	hdc = CreateCompatibleDC(NULL);
-	if(!hdc) {
+	hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
+	//	hdc = CreateCompatibleDC(NULL);
+	if (!hdc)
+	{
 		return NULL;
 	}
 
-	if(nWidth && nHeight) {
+	if (nWidth && nHeight)
+	{
 
-		if(hbmpData && lpDIBBits) {	// In case hbmpData and lpDIBBits are supplied
+		if (hbmpData && lpDIBBits)
+		{ // In case hbmpData and lpDIBBits are supplied
 			hbm = SetBitmap(hbmpData, lpDIBBits, nWidth, nHeight);
 			DeleteDC(hdc);
 			return hbm;
 		}
 
 		hbm = CreateCompatibleBitmap(hdc, nWidth, nHeight);
-		if(!hbm) {
+		if (!hbm)
+		{
 			DeleteDC(hdc);
 			return NULL;
 		}
 		bm.bmWidth = nWidth;
 		bm.bmHeight = nHeight;
-		bm.bmBitsPixel = 24;		// ***** Only 24 bpp bitmaps
+		bm.bmBitsPixel = 24; // ***** Only 24 bpp bitmaps
 		DeleteDC(hdc);
 		return hbm;
-	} else {
+	}
+	else
+	{
 		DeleteDC(hdc);
 		return NULL;
 	}
@@ -108,26 +118,28 @@ HBITMAP wbCreateMask(HBITMAP hbm, COLORREF clTransparent)
 
 	// Create the DCs
 
-	if(!hbm)
+	if (!hbm)
 		return NULL;
 	hdc = GetDC(NULL);
-	if(!hdc)
+	if (!hdc)
 		return NULL;
 	cvBits = CreateCompatibleDC(hdc);
-	if(!cvBits)
+	if (!cvBits)
 		return NULL;
 	cvMask = CreateCompatibleDC(hdc);
-	if(!cvMask) {
+	if (!cvMask)
+	{
 		DeleteDC(cvBits);
 		return NULL;
 	}
 	ReleaseDC(NULL, hdc);
-	GetObject(hbm, sizeof(BITMAP), (LPSTR) &bm);
+	GetObject(hbm, sizeof(BITMAP), (LPSTR)&bm);
 
 	// Create the mask
 
 	hbm = SelectObject(cvBits, hbm);
-	if(!hbm) {
+	if (!hbm)
+	{
 		DeleteDC(cvMask);
 		DeleteDC(cvBits);
 	}
@@ -152,7 +164,7 @@ HBITMAP wbCreateMask(HBITMAP hbm, COLORREF clTransparent)
 
 BOOL wbDestroyBitmap(HBITMAP hbm)
 {
-	if(!hbm)
+	if (!hbm)
 		return FALSE;
 	return DeleteObject(hbm);
 }
@@ -165,7 +177,7 @@ BOOL wbCopyBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget)
 	BITMAP bm;
 	BOOL bRet;
 
-	if(!hdc || !hBitmap)
+	if (!hdc || !hBitmap)
 		return FALSE;
 
 	GetObject(hBitmap, sizeof(BITMAP), (LPSTR)&bm);
@@ -182,12 +194,12 @@ BOOL wbCopyBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget)
   the source rectangle. */
 
 BOOL wbCopyPartialBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget,
-  int nWidth, int nHeight, int xSource, int ySource)
+					   int nWidth, int nHeight, int xSource, int ySource)
 {
 	BOOL bRet;
 	HDC hdcMem;
 
-	if(!hdc || !hBitmap)
+	if (!hdc || !hBitmap)
 		return FALSE;
 
 	hdcMem = CreateCompatibleDC(hdc);
@@ -198,15 +210,15 @@ BOOL wbCopyPartialBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget,
 }
 
 BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, int yTarget,
-  int nWidth, int nHeight, int xSource, int ySource)
+					   int nWidth, int nHeight, int xSource, int ySource)
 {
 	BOOL bRet;
 	HDC hdcImage, hdcMask;
 
-	if(!hdc || !hbmImage)
+	if (!hdc || !hbmImage)
 		return FALSE;
 
-	if(!hbmMask)
+	if (!hbmMask)
 		return wbCopyPartialBits(hdc, hbmImage, xTarget, yTarget, nWidth, nHeight, xSource, ySource);
 
 	hdcImage = CreateCompatibleDC(hdc);
@@ -214,7 +226,7 @@ BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, 
 	hdcMask = CreateCompatibleDC(hdc);
 	SelectObject(hdcMask, hbmMask);
 	bRet = BitBlt(hdc, xTarget, yTarget, nWidth, nHeight, hdcMask, xSource, ySource, SRCAND);
-	if(bRet)
+	if (bRet)
 		bRet = BitBlt(hdc, xTarget, yTarget, nWidth, nHeight, hdcImage, xSource, ySource, SRCPAINT);
 	DeleteDC(hdcMask);
 	DeleteDC(hdcImage);
@@ -240,16 +252,18 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 {
 	TCHAR szFile[MAX_PATH];
 
-	if(!pszImageFile || !*pszImageFile)
+	if (!pszImageFile || !*pszImageFile)
 		return NULL;
 
 	wcsncpy(szFile, pszImageFile, MAX_PATH - 1);
 
-	if(!wbFindFile(szFile, MAX_PATH)) {
+	if (!wbFindFile(szFile, MAX_PATH))
+	{
 		return NULL;
 	}
 
-	if(wcsstr(szFile, TEXT(".bmp"))) {								// Load bitmap
+	if (wcsstr(szFile, TEXT(".bmp")))
+	{ // Load bitmap
 
 		int cxDib, cyDib;
 		HBMP hbmpData;
@@ -257,61 +271,77 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 		HBITMAP hbm;
 
 		hbmpData = ReadBitmap(szFile);
-		if(!hbmpData) {
+		if (!hbmpData)
+		{
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid bitmap format in file %s"), szFile);
 			return NULL;
 		}
 
 		// Reject old Windows bitmap format
 
-		if(DIBHDRSIZE(hbmpData) == sizeof(BITMAPCOREHEADER))
+		if (DIBHDRSIZE(hbmpData) == sizeof(BITMAPCOREHEADER))
 			return NULL;
 
 		lpDIBBits = DIBGetAddress(hbmpData);
-		if(lpDIBBits) {
+		if (lpDIBBits)
+		{
 			cxDib = DIBWIDTH(hbmpData);
 			cyDib = DIBHEIGHT(hbmpData);
 			hbm = SetBitmap((BITMAPINFO *)hbmpData, lpDIBBits, cxDib, cyDib);
 			return hbm;
-		} else
+		}
+		else
 			return NULL;
-
-	} else if(wcsstr(szFile, TEXT(".ico")) || wcsstr(szFile, TEXT(".icl")) ||
-	  wcsstr(szFile, TEXT(".dll")) || wcsstr(szFile, TEXT(".exe"))) {	 // Load icon
+	}
+	else if (wcsstr(szFile, TEXT(".ico")) || wcsstr(szFile, TEXT(".icl")) ||
+			 wcsstr(szFile, TEXT(".dll")) || wcsstr(szFile, TEXT(".exe")))
+	{ // Load icon
 
 		HICON hIconBuf[1];
 		HICON hIcon;
 
-		if(lParam == 0) {
-			ExtractIconEx(szFile, nIndex, hIconBuf, NULL, 1);	// Returns a large icon
+		if (lParam == 0)
+		{
+			ExtractIconEx(szFile, nIndex, hIconBuf, NULL, 1); // Returns a large icon
 			hIcon = hIconBuf[0];
-		} else if(lParam == 1) {
-			ExtractIconEx(szFile, nIndex, NULL, hIconBuf, 1);	// Returns a small icon
+		}
+		else if (lParam == 1)
+		{
+			ExtractIconEx(szFile, nIndex, NULL, hIconBuf, 1); // Returns a small icon
 			hIcon = hIconBuf[0];
-		} else if(lParam == -1) {								// Returns the default icon
+		}
+		else if (lParam == -1)
+		{ // Returns the default icon
 			hIcon = ExtractIcon(hAppInstance, szFile, nIndex);
 		}
 
 		// Is it a valid ICO, DLL or EXE?
 
-		if(hIcon == (HICON)1) {
+		if (hIcon == (HICON)1)
+		{
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("File %s does not contain any icons."), szFile);
 			return NULL;
-		} else if(hIcon == NULL) {
-			if(nIndex == 0)
+		}
+		else if (hIcon == NULL)
+		{
+			if (nIndex == 0)
 				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("No icons found in file %s"), szFile);
 			else
 				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Icon index #%d not found in file %s"), nIndex, szFile);
 			return NULL;
-		} else {
+		}
+		else
+		{
 			return hIcon;
 		}
-
-	} else if(wcsstr(szFile, TEXT(".cur")) || wcsstr(szFile, TEXT(".ani"))) {	 // Load cursor
+	}
+	else if (wcsstr(szFile, TEXT(".cur")) || wcsstr(szFile, TEXT(".ani")))
+	{ // Load cursor
 
 		return LoadCursorFromFile(szFile);
-
-	} else {
+	}
+	else
+	{
 		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Unrecognized image format in file %s"), szFile);
 		return NULL;
 	}
@@ -321,10 +351,11 @@ DWORD wbGetImageDimensions(HBITMAP hbm)
 {
 	DWORD dwDim;
 
-	if(!hbm)
+	if (!hbm)
 		return (DWORD)MAKELONG(-1, -1);
 
-	if(IsIcon(hbm)) {		// Retrieves the icon's bitmap
+	if (IsIcon(hbm))
+	{ // Retrieves the icon's bitmap
 		HICON hicon;
 		ICONINFO ii;
 
@@ -333,17 +364,19 @@ DWORD wbGetImageDimensions(HBITMAP hbm)
 		hbm = ii.hbmColor;
 	}
 
-	if(IsBitmap(hbm)) {
+	if (IsBitmap(hbm))
+	{
 
 		PBITMAPINFO pbmi;
 
-		if(!(pbmi = CreateBitmapInfoStruct(hbm)))
+		if (!(pbmi = CreateBitmapInfoStruct(hbm)))
 			return FALSE;
 
 		dwDim = (DWORD)MAKELONG(pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight);
 		wbFree(pbmi);
-
-	} else {
+	}
+	else
+	{
 		return 0;
 	}
 
@@ -357,10 +390,10 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 	hdc = CreateCompatibleDC(NULL);
 
-	if(!(pbmi = CreateBitmapInfoStruct(hbm)))
+	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
 		return FALSE;
 
-	if(!CreateBMPFile(pszFileName, pbmi, hbm, hdc))
+	if (!CreateBMPFile(pszFileName, pbmi, hbm, hdc))
 		return FALSE;
 
 	wbFree(pbmi);
@@ -377,19 +410,20 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	HDC hdc;
 	PBITMAPINFO pbmi;
 
-	if(!hbm)
+	if (!hbm)
 		return 0;
 
-	if(!(pbmi = CreateBitmapInfoStruct(hbm)))
+	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
 		return 0;
 
-    if(!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
+	if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
 		return 0;
 
-	if(!(hdc = CreateDC(TEXT("DISPLAY"),NULL,NULL,NULL)))
+	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
 		return 0;
 
-	if(!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS)) {
+	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
+	{
 		*lpBits = NULL;
 		DeleteDC(hdc);
 		return 0;
@@ -402,19 +436,22 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
 
-	if(bCompress4to3) {
+	if (bCompress4to3)
+	{
 
 		int i, x, nLen = pbmi->bmiHeader.biSizeImage;
 
 		// Remove every fourth byte from the original RGBQUAD data
 
-		for(i = 0, x = 0; i < nLen; i += 4, x += 3) {
-			*((*lpBits) + x    ) = *((*lpBits) + i    );
+		for (i = 0, x = 0; i < nLen; i += 4, x += 3)
+		{
+			*((*lpBits) + x) = *((*lpBits) + i);
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
 		return (nLen / 4) * 3;
-	} else
+	}
+	else
 		return pbmi->bmiHeader.biSizeImage;
 }
 
@@ -423,10 +460,9 @@ COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bComp
 	int i = ((pix_cy - yPos - 1) * pix_cx + xPos) * (bCompress4to3 ? 3 : 4);
 
 	return (COLORREF)(
-		((pixdata[i    ]) << 16) +
+		((pixdata[i]) << 16) +
 		((pixdata[i + 1]) << 8) +
-		( pixdata[i + 2])
-	);
+		(pixdata[i + 2]));
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
@@ -454,7 +490,7 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 {
 	BITMAPFILEHEADER bmfh;
 	HBMP lpDIB;
-	DWORD dwDIBSize, dwOffset, dwHeaderSize ;
+	DWORD dwDIBSize, dwOffset, dwHeaderSize;
 	int hFile;
 	WORD wDibRead;
 
@@ -463,45 +499,52 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 
 	str = WideChar2Utf8(szBMPFileName, &str_len);
 
-	if(-1 == (hFile = _lopen (str, OF_READ | OF_SHARE_DENY_WRITE))) {
+	if (-1 == (hFile = _lopen(str, OF_READ | OF_SHARE_DENY_WRITE)))
+	{
 		wbFree(str);
 		return NULL;
 	}
 	wbFree(str);
 
-	if(_lread (hFile, (LPSTR) &bmfh, sizeof (BITMAPFILEHEADER)) != sizeof (BITMAPFILEHEADER)) {
-		_lclose (hFile);
+	if (_lread(hFile, (LPSTR)&bmfh, sizeof(BITMAPFILEHEADER)) != sizeof(BITMAPFILEHEADER))
+	{
+		_lclose(hFile);
 		return NULL;
 	}
 
-	if(bmfh.bfType != * (WORD *) "BM") {
-		_lclose (hFile);
+	if (bmfh.bfType != *(WORD *)"BM")
+	{
+		_lclose(hFile);
 		return NULL;
 	}
 
-	dwDIBSize = bmfh.bfSize - sizeof (BITMAPFILEHEADER);
+	dwDIBSize = bmfh.bfSize - sizeof(BITMAPFILEHEADER);
 	lpDIB = (HBMP)wbMalloc(dwDIBSize);
-	if(!lpDIB) {
-		_lclose (hFile);
-        return NULL;
+	if (!lpDIB)
+	{
+		_lclose(hFile);
+		return NULL;
 	}
 
-	dwOffset = 0 ;
-	while(dwDIBSize > 0) {
-		wDibRead = (WORD) min(32768, dwDIBSize);
-		if(wDibRead != _lread (hFile, (LPSTR) (lpDIB + dwOffset), wDibRead)) {
-			_lclose (hFile);
+	dwOffset = 0;
+	while (dwDIBSize > 0)
+	{
+		wDibRead = (WORD)min(32768, dwDIBSize);
+		if (wDibRead != _lread(hFile, (LPSTR)(lpDIB + dwOffset), wDibRead))
+		{
+			_lclose(hFile);
 			wbFree(lpDIB);
-            return NULL ;
+			return NULL;
 		}
 		dwDIBSize -= wDibRead;
 		dwOffset += wDibRead;
 	}
 	_lclose(hFile);
 	dwHeaderSize = DIBHDRSIZE(lpDIB);
-	if(dwHeaderSize < 12 || (dwHeaderSize > 12 && dwHeaderSize < 16)) {
+	if (dwHeaderSize < 12 || (dwHeaderSize > 12 && dwHeaderSize < 16))
+	{
 		wbFree(lpDIB);
-        return NULL;
+		return NULL;
 	}
 	return lpDIB;
 }
@@ -523,15 +566,16 @@ static DWORD DIBGetColorCount(HBMP lpDIB)
 	DWORD dwColors;
 	WORD wBitCount;
 
-	wBitCount = ((BITMAPINFOHEADER *) lpDIB)->biBitCount;
+	wBitCount = ((BITMAPINFOHEADER *)lpDIB)->biBitCount;
 
-	if(DIBHDRSIZE (lpDIB) >= 36)
-		dwColors = ((BITMAPINFOHEADER *) lpDIB)->biClrUsed;
+	if (DIBHDRSIZE(lpDIB) >= 36)
+		dwColors = ((BITMAPINFOHEADER *)lpDIB)->biClrUsed;
 	else
 		dwColors = 0;
-	if(dwColors == 0) {
+	if (dwColors == 0)
+	{
 
-		if(wBitCount != 24)
+		if (wBitCount != 24)
 			dwColors = 1L << wBitCount;
 		else
 			dwColors = 0;
@@ -549,14 +593,14 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 
 	// Retrieve the bitmap's color format, width, and height
 
-	if(!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
+	if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
 		return NULL;
 
 	// Convert the color format to a count of bits
 
 	cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
 
-	if(cClrBits == 1)
+	if (cClrBits == 1)
 		cClrBits = 1;
 	else if (cClrBits <= 4)
 		cClrBits = 4;
@@ -573,12 +617,15 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 	// contains a BITMAPINFOHEADER structure and an array of RGBQUAD data
 	// structures
 
-	if(cClrBits != 24) {
-		 pbmi = (PBITMAPINFO)wbMalloc(
-		   sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (2 ^ cClrBits));
-	} else {
+	if (cClrBits != 24)
+	{
+		pbmi = (PBITMAPINFO)wbMalloc(
+			sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (2 ^ cClrBits));
+	}
+	else
+	{
 		// There is no RGBQUAD array for the 24-bit-per-pixel format
-		pbmi = (PBITMAPINFO) wbMalloc(sizeof(BITMAPINFOHEADER));
+		pbmi = (PBITMAPINFO)wbMalloc(sizeof(BITMAPINFOHEADER));
 	}
 
 	// Initialize the fields in the BITMAPINFO structure
@@ -588,7 +635,7 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 	pbmi->bmiHeader.biHeight = bmp.bmHeight;
 	pbmi->bmiHeader.biPlanes = bmp.bmPlanes;
 	pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel;
-	if(cClrBits < 24)
+	if (cClrBits < 24)
 		pbmi->bmiHeader.biClrUsed = 2 ^ cClrBits;
 
 	// If the bitmap is not compressed, set the BI_RGB flag
@@ -598,8 +645,7 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 	// Compute the number of bytes in the array of color
 	// indices and store the result in biSizeImage
 
-	pbmi->bmiHeader.biSizeImage = (pbmi->bmiHeader.biWidth + 7) / 8
-	  * pbmi->bmiHeader.biHeight * cClrBits;
+	pbmi->bmiHeader.biSizeImage = (pbmi->bmiHeader.biWidth + 7) / 8 * pbmi->bmiHeader.biHeight * cClrBits;
 
 	// Set biClrImportant to 0, indicating that all of the
 	// device colors are important
@@ -614,81 +660,80 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 {
 
-	HANDLE hf;				  /* file handle */
-	BITMAPFILEHEADER hdr;	   /* bitmap file-header */
-	PBITMAPINFOHEADER pbih;	 /* bitmap info-header */
-	LPBYTE lpBits;			  /* memory pointer */
-	DWORD cb;				   /* incremental count of bytes */
-	BYTE *hp;				   /* byte pointer */
+	HANDLE hf;				/* file handle */
+	BITMAPFILEHEADER hdr;   /* bitmap file-header */
+	PBITMAPINFOHEADER pbih; /* bitmap info-header */
+	LPBYTE lpBits;			/* memory pointer */
+	DWORD cb;				/* incremental count of bytes */
+	BYTE *hp;				/* byte pointer */
 	DWORD dwTmp;
 
-	pbih = (PBITMAPINFOHEADER) pbi;
-	lpBits = (LPBYTE) wbMalloc(pbih->biSizeImage);
-	if(!lpBits)
-		 return FALSE;
+	pbih = (PBITMAPINFOHEADER)pbi;
+	lpBits = (LPBYTE)wbMalloc(pbih->biSizeImage);
+	if (!lpBits)
+		return FALSE;
 
 	// Retrieve the color table (RGBQUAD array) and the bits
 	// (array of palette indices) from the DIB.
 
-	if (!GetDIBits(hDC, hBMP, 0, (WORD) pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
+	if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
 		return FALSE;
 
 	// Create the .BMP file
 
-	hf = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE, (DWORD) 0,
-	  (LPSECURITY_ATTRIBUTES) NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, (HANDLE) NULL);
+	hf = CreateFile(pszFile, GENERIC_READ | GENERIC_WRITE, (DWORD)0,
+					(LPSECURITY_ATTRIBUTES)NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL);
 
-	if(hf == INVALID_HANDLE_VALUE)
+	if (hf == INVALID_HANDLE_VALUE)
 		return FALSE;
 
-	hdr.bfType = 0x4d42;		// 0x42 = "B" 0x4d = "M"
+	hdr.bfType = 0x4d42; // 0x42 = "B" 0x4d = "M"
 
 	// Compute size of entire file
 
 	hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) +
-	  pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD) + pbih->biSizeImage);
+						 pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD) + pbih->biSizeImage);
 
 	hdr.bfReserved1 = 0;
 	hdr.bfReserved2 = 0;
 
 	// Compute the offset to the array of color indices
 
-	hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) +
-	  pbih->biSize + pbih->biClrUsed * sizeof (RGBQUAD);
+	hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) +
+					pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD);
 
 	// Copy the BITMAPFILEHEADER into the .BMP file
 
-	if(!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), (LPDWORD) &dwTmp,
-	  (LPOVERLAPPED) NULL))
+	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), (LPDWORD)&dwTmp,
+				   (LPOVERLAPPED)NULL))
 		return FALSE;
 
 	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file
 
-	if(!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) +
-	  pbih->biClrUsed * sizeof (RGBQUAD), (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof(RGBQUAD), (LPDWORD)&dwTmp, (LPOVERLAPPED)NULL))
 		return FALSE;
 
 	// Copy the array of color indices into the .BMP file
 
 	cb = pbih->biSizeImage;
 	hp = lpBits;
-	while(cb > MAXWRITE)  {
-		if(!WriteFile(hf, (LPSTR) hp, (int) MAXWRITE, (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+	while (cb > MAXWRITE)
+	{
+		if (!WriteFile(hf, (LPSTR)hp, (int)MAXWRITE, (LPDWORD)&dwTmp, (LPOVERLAPPED)NULL))
 			return FALSE;
 		cb -= MAXWRITE;
 		hp += MAXWRITE;
 	}
 
-	if(!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+	if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, (LPOVERLAPPED)NULL))
 		return FALSE;
 
 	// Close the .BMP file
 
-	if(!CloseHandle(hf))
+	if (!CloseHandle(hf))
 		return FALSE;
 
 	// Free memory
-
 
 	wbFree((HGLOBAL)lpBits);
 	return TRUE;

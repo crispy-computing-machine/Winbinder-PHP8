@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  ListView control
@@ -26,14 +26,14 @@ int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText)
 	int count;
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	count = (int)SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0);
-	if(nItem < 0)
+	if (nItem < 0)
 		nItem = count;
 
-//	lvi.mask = (nImage >= 0 ? (LVIF_TEXT | LVIF_IMAGE | LVIF_PARAM) : (LVIF_TEXT | LVIF_PARAM));
+	//	lvi.mask = (nImage >= 0 ? (LVIF_TEXT | LVIF_IMAGE | LVIF_PARAM) : (LVIF_TEXT | LVIF_PARAM));
 	lvi.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_PARAM;
 	lvi.iItem = nItem;
 	lvi.iSubItem = 0;
@@ -42,7 +42,7 @@ int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText)
 	lvi.pszText = (LPTSTR)((pszText && *pszText) ? pszText : NULL);
 	lvi.cchTextMax = 0;
 	lvi.iImage = ((nImage >= 0) ? nImage : -1);
-	lvi.lParam = nItem;			// For LVM_SORTITEMS / CompareLVItems()
+	lvi.lParam = nItem; // For LVM_SORTITEMS / CompareLVItems()
 
 	return ListView_InsertItem(pwbo->hwnd, &lvi);
 }
@@ -63,33 +63,40 @@ BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 	static HIMAGELIST hi;
 	BITMAP bm;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(hbmImage && nImages) {
+	if (hbmImage && nImages)
+	{
 
-		GetObject(hbmImage, sizeof(BITMAP), (LPSTR) &bm);
+		GetObject(hbmImage, sizeof(BITMAP), (LPSTR)&bm);
 
-		if((bm.bmWidth == 0) | (bm.bmHeight == 0))
+		if ((bm.bmWidth == 0) | (bm.bmHeight == 0))
 			return FALSE;
 
 		nImages = MAX(1, MIN(nImages, MIN(bm.bmWidth, MAX_IMAGELIST_IMAGES)));
 
-		if(clTransparent != NOCOLOR) {
+		if (clTransparent != NOCOLOR)
+		{
 			hbmMask = wbCreateMask(hbmImage, clTransparent);
 
 			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
-			if(hi) {
+			if (hi)
+			{
 				ImageList_Add(hi, hbmImage, hbmMask);
 				ListView_SetImageList(pwbo->hwnd, hi, LVSIL_SMALL);
 			}
 			DeleteObject(hbmMask);
-		} else {
+		}
+		else
+		{
 			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
 			ImageList_Add(hi, hbmImage, NULL);
 			ListView_SetImageList(pwbo->hwnd, hi, LVSIL_SMALL);
 		}
-	} else {
+	}
+	else
+	{
 		ListView_SetImageList(pwbo->hwnd, NULL, LVSIL_SMALL);
 		ImageList_Destroy(hi);
 	}
@@ -98,7 +105,7 @@ BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 
 BOOL wbGetListViewItemChecked(PWBOBJ pwbo, int nItem)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	return (ListView_GetItemState(pwbo->hwnd, nItem, LVIS_STATEIMAGEMASK) & LVIS_CHECKED);
@@ -108,7 +115,7 @@ BOOL wbSetListViewItemChecked(PWBOBJ pwbo, int nItem, BOOL bChecked)
 {
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	lvi.stateMask = LVIS_STATEIMAGEMASK;
@@ -124,21 +131,26 @@ int wbGetListViewCheckedItems(PWBOBJ pwbo, int *pbItems)
 {
 	int i, nCount, nChecked;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	nCount = SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0);
-	if(!nCount)
+	if (!nCount)
 		return 0;
 
-	if(pbItems) {
-		for(i = 0, nChecked = 0; i < nCount; i++) {
-			if(ListView_GetItemState(pwbo->hwnd, i, LVIS_CHECKED))
+	if (pbItems)
+	{
+		for (i = 0, nChecked = 0; i < nCount; i++)
+		{
+			if (ListView_GetItemState(pwbo->hwnd, i, LVIS_CHECKED))
 				pbItems[nChecked++] = i;
 		}
-	} else {
-		for(i = 0, nChecked = 0; i < nCount; i++) {
-			if(ListView_GetItemState(pwbo->hwnd, i, LVIS_CHECKED))
+	}
+	else
+	{
+		for (i = 0, nChecked = 0; i < nCount; i++)
+		{
+			if (ListView_GetItemState(pwbo->hwnd, i, LVIS_CHECKED))
 				nChecked++;
 		}
 	}
@@ -152,19 +164,23 @@ int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems)
 {
 	int i, nCount, nSel;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	nCount = SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0);
-	if(!nCount)
+	if (!nCount)
 		return 0;
 
-	if(pbItems) {
-		for(i = 0, nSel = 0; i < nCount; i++) {
-			if(ListView_GetItemState(pwbo->hwnd, i, LVIS_SELECTED))
+	if (pbItems)
+	{
+		for (i = 0, nSel = 0; i < nCount; i++)
+		{
+			if (ListView_GetItemState(pwbo->hwnd, i, LVIS_SELECTED))
 				pbItems[nSel++] = i;
 		}
-	} else {
+	}
+	else
+	{
 		nSel = SendMessage(pwbo->hwnd, LVM_GETSELECTEDCOUNT, 0, 0);
 	}
 	return nSel;
@@ -175,19 +191,21 @@ int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems)
 
 int wbGetListViewColumnWidths(PWBOBJ pwbo, int *pwidths)
 {
- 	LV_COLUMN lvct;
+	LV_COLUMN lvct;
 	int i;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	for(i = 0; i < MAX_LISTVIEWCOLS; i++) {
+	for (i = 0; i < MAX_LISTVIEWCOLS; i++)
+	{
 		lvct.iSubItem = i - 0;
 		lvct.mask = LVCF_SUBITEM;
-		if(pwidths) {
+		if (pwidths)
+		{
 			*(pwidths + i) = ListView_GetColumnWidth(pwbo->hwnd, i);
 		}
-		if(!ListView_GetColumn(pwbo->hwnd, i, &lvct))
+		if (!ListView_GetColumn(pwbo->hwnd, i, &lvct))
 			break;
 	}
 	return i;
@@ -197,21 +215,22 @@ int wbGetListViewColumnWidths(PWBOBJ pwbo, int *pwidths)
 
 BOOL wbSetListViewColumnWidths(PWBOBJ pwbo, int *pwidths)
 {
- 	LV_COLUMN lvct;
+	LV_COLUMN lvct;
 	int i;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!pwidths)
+	if (!pwidths)
 		return FALSE;
 
-	for(i = 0; i < MAX_LISTVIEWCOLS; i++) {
+	for (i = 0; i < MAX_LISTVIEWCOLS; i++)
+	{
 		lvct.iSubItem = i;
 		lvct.mask = LVCF_SUBITEM;
-		if(!ListView_GetColumn(pwbo->hwnd, i, &lvct))
+		if (!ListView_GetColumn(pwbo->hwnd, i, &lvct))
 			break;
-		if(!wbSetListViewColumnWidth(pwbo, i, pwidths[i]))
+		if (!wbSetListViewColumnWidth(pwbo, i, pwidths[i]))
 			return FALSE;
 	}
 	return TRUE;
@@ -219,7 +238,7 @@ BOOL wbSetListViewColumnWidths(PWBOBJ pwbo, int *pwidths)
 
 int wbGetListViewItemCount(PWBOBJ pwbo)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	return SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0);
@@ -231,7 +250,7 @@ BOOL wbSetListViewItemImage(PWBOBJ pwbo, int nItem, int nCol, int nImage)
 {
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	lvi.mask = LVIF_IMAGE;
@@ -246,14 +265,14 @@ BOOL wbClearListViewColumns(PWBOBJ pwbo)
 {
 	int i, nCols;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	nCols = wbGetListViewColumnWidths(pwbo, NULL) - 1;
 
 	// Must delete in reverse, otherwise it won't work
 
-	for(i = nCols; i >= 0; i--)
+	for (i = nCols; i >= 0; i--)
 		ListView_DeleteColumn(pwbo->hwnd, i);
 	return TRUE;
 }
@@ -267,14 +286,15 @@ BOOL wbCreateListViewColumn(PWBOBJ pwbo, int nCol, LPTSTR lpszItem, int nWidth, 
 
 	LV_COLUMN lvc;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(nWidth < 0) {
+	if (nWidth < 0)
+	{
 		SIZE siz;
 
-		if(wbGetTextSize(&siz, lpszItem, 0))
-			nWidth = siz.cx + 20;	// This number is empirical and arbitrary
+		if (wbGetTextSize(&siz, lpszItem, 0))
+			nWidth = siz.cx + 20; // This number is empirical and arbitrary
 		else
 			nWidth = 20;
 	}
@@ -282,36 +302,36 @@ BOOL wbCreateListViewColumn(PWBOBJ pwbo, int nCol, LPTSTR lpszItem, int nWidth, 
 	// Set up text, width and alignment
 
 	lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_SUBITEM | LVCF_WIDTH;
-	switch(nAlign) {
-		case WBC_LEFT:
-		default:
-			lvc.fmt = LVCFMT_LEFT;
-			break;
-		case WBC_RIGHT:
-			lvc.fmt = LVCFMT_RIGHT;
-			break;
-		case WBC_CENTER:
-			lvc.fmt = LVCFMT_CENTER;
-			break;
+	switch (nAlign)
+	{
+	case WBC_LEFT:
+	default:
+		lvc.fmt = LVCFMT_LEFT;
+		break;
+	case WBC_RIGHT:
+		lvc.fmt = LVCFMT_RIGHT;
+		break;
+	case WBC_CENTER:
+		lvc.fmt = LVCFMT_CENTER;
+		break;
 	}
 	lvc.cx = nWidth;
 
 	nCol = wbGetListViewColumnWidths(pwbo, NULL);
 	lvc.iSubItem = nCol;
-	lvc.pszText  = lpszItem;
+	lvc.pszText = lpszItem;
 	return (ListView_InsertColumn(pwbo->hwnd, nCol, &lvc) != -1);
 
-
-//	bRet = ListView_InsertColumn(pwbo->hwnd, nCol, &lvc);
-//	ListView_SetColumnWidth(pwbo->hwnd, nCol, LVSCW_AUTOSIZE_USEHEADER); // Doesn't work
-//	return (bRet != -1);
+	//	bRet = ListView_InsertColumn(pwbo->hwnd, nCol, &lvc);
+	//	ListView_SetColumnWidth(pwbo->hwnd, nCol, LVSCW_AUTOSIZE_USEHEADER); // Doesn't work
+	//	return (bRet != -1);
 }
 
 BOOL wbSelectListViewItem(PWBOBJ pwbo, int nItem, BOOL bState)
 {
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	lvi.mask = LVIF_STATE;
@@ -334,7 +354,7 @@ BOOL wbSelectAllListViewItems(PWBOBJ pwbo, BOOL bState)
 	int i, count;
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	lvi.mask = LVIF_STATE;
@@ -348,9 +368,10 @@ BOOL wbSelectAllListViewItems(PWBOBJ pwbo, BOOL bState)
 
 	count = ListView_GetItemCount(pwbo->hwnd);
 
-	for(i = 0; i < count; i++) {
+	for (i = 0; i < count; i++)
+	{
 		lvi.iItem = i;
-		if(!SendMessage(pwbo->hwnd, LVM_SETITEMSTATE, i, (LPARAM)&lvi))
+		if (!SendMessage(pwbo->hwnd, LVM_SETITEMSTATE, i, (LPARAM)&lvi))
 			return FALSE;
 	}
 	return TRUE;
@@ -360,13 +381,13 @@ BOOL wbSetListViewItemText(PWBOBJ pwbo, int nItem, int nCol, LPCTSTR pszText)
 {
 	LV_ITEM lvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	lvi.mask = (LVIF_TEXT | LVIF_PARAM);
 	lvi.iSubItem = nCol;
 	lvi.pszText = (LPTSTR)pszText;
-//	lvi.lParam = (LPARAM)pszText;
+	//	lvi.lParam = (LPARAM)pszText;
 
 	return SendMessage(pwbo->hwnd, LVM_SETITEMTEXT, nItem, (LPARAM)&lvi);
 }
@@ -375,14 +396,15 @@ BOOL wbSetListViewItemText(PWBOBJ pwbo, int nItem, int nCol, LPCTSTR pszText)
 
 BOOL wbGetListViewItemText(PWBOBJ pwbo, int nItem, int nCol, LPTSTR pszText, int nChar)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!pszText || !nChar)
+	if (!pszText || !nChar)
 		return FALSE;
 
-	if((nItem + 1 > SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0)) ||
-	   (nCol + 1 > wbGetListViewColumnWidths(pwbo, NULL))) {		// Does the column exist?
+	if ((nItem + 1 > SendMessage(pwbo->hwnd, LVM_GETITEMCOUNT, 0, 0)) ||
+		(nCol + 1 > wbGetListViewColumnWidths(pwbo, NULL)))
+	{ // Does the column exist?
 		nChar = 0;
 		*pszText = '\0';
 		return FALSE;
@@ -399,12 +421,12 @@ BOOL wbGetListViewItemText(PWBOBJ pwbo, int nItem, int nCol, LPTSTR pszText, int
 
 static BOOL wbSetListViewColumnWidth(PWBOBJ pwbo, int nCol, int nWidth)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(nWidth < 0)					// Auto size
+	if (nWidth < 0) // Auto size
 		nWidth = LVSCW_AUTOSIZE;
-	else if(nWidth == 65535)		// Ignore
+	else if (nWidth == 65535) // Ignore
 		return TRUE;
 
 	ListView_SetColumnWidth(pwbo->hwnd, nCol, nWidth);

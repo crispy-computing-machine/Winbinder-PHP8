@@ -22,16 +22,18 @@ Returns NOCOLOR (0xFFFFFFFF) if error
 
 ZEND_FUNCTION(wb_get_pixel)
 {
-	if(ZEND_NUM_ARGS() == 3) {
+	if (ZEND_NUM_ARGS() == 3)
+	{
 		zend_long handle, x, y;
 
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		  "lll", &handle, &x, &y) == FAILURE)
+		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+								  "lll", &handle, &x, &y) == FAILURE)
 			return;
 
 		RETURN_LONG(wbGetPixel((HANDLE)handle, x, y));
-
-	} else {
+	}
+	else
+	{
 
 		// With four parameters: call wbGetPixelDirect() for faster performance (not stable)
 
@@ -40,8 +42,8 @@ ZEND_FUNCTION(wb_get_pixel)
 		int pixdata_len;
 		BOOL compress4to3 = FALSE;
 
-		if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		  "slll", &pixdata, &pixdata_len, &x, &y, &compress4to3) == FAILURE)
+		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+								  "slll", &pixdata, &pixdata_len, &x, &y, &compress4to3) == FAILURE)
 			return;
 
 		RETURN_LONG(wbGetPixelDirect(pixdata, x, y, compress4to3));
@@ -56,20 +58,19 @@ ZEND_FUNCTION(wb_draw_point)
 {
 	zend_long handle, x, y, color;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llll", &handle, &x, &y, &color) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "llll", &handle, &x, &y, &color) == FAILURE)
 		return;
 
 	RETURN_BOOL(wbSetPixel((HANDLE)handle, x, y, color));
 }
 
-
 ZEND_FUNCTION(wb_draw_line)
 {
 	zend_long handle, x0, y0, x1, y1, color, linewidth = 0, linestyle = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llllll|ll", &handle, &x0, &y0, &x1, &y1, &color, &linewidth, &linestyle) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "llllll|ll", &handle, &x0, &y0, &x1, &y1, &color, &linewidth, &linestyle) == FAILURE)
 		return;
 
 	RETURN_BOOL(wbDrawLine((HANDLE)handle, x0, y0, x1, y1, color, linewidth, linestyle));
@@ -79,8 +80,8 @@ ZEND_FUNCTION(wb_draw_rect)
 {
 	zend_long handle, x, y, width, height, color, filled = TRUE, linewidth = 0, linestyle = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
 		return;
 
 	RETURN_BOOL(wbDrawRect((HANDLE)handle, x, y, width, height, color, filled, linewidth, linestyle));
@@ -90,8 +91,8 @@ ZEND_FUNCTION(wb_draw_ellipse)
 {
 	zend_long handle, x, y, width, height, color, filled = TRUE, linewidth = 0, linestyle = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
 		return;
 
 	RETURN_BOOL(wbDrawEllipse((HANDLE)handle, x, y, width, height, color, filled, linewidth, linestyle));
@@ -100,26 +101,27 @@ ZEND_FUNCTION(wb_draw_ellipse)
 ZEND_FUNCTION(wb_draw_text)
 {
 	zend_long handle, x, y, width = 0, height = 0, nfont = -1, flags = 0;
-    char *text;
-    int text_len;
-    int nargs;
+	char *text;
+	int text_len;
+	int nargs;
 
-    TCHAR *wcs = 0;
+	TCHAR *wcs = 0;
 
 	nargs = ZEND_NUM_ARGS();
-    if(zend_parse_parameters(nargs TSRMLS_CC,
-	  "lsll|llll", &handle, &text, &text_len, &x, &y, &width, &height, &nfont, &flags) == FAILURE)
+	if (zend_parse_parameters(nargs TSRMLS_CC,
+							  "lsll|llll", &handle, &text, &text_len, &x, &y, &width, &height, &nfont, &flags) == FAILURE)
 		return;
 
-	switch(nargs) {
+	switch (nargs)
+	{
 
-		case 4:
-			nfont = -1;
-			break;
+	case 4:
+		nfont = -1;
+		break;
 
-		case 5:
-			nfont = width;
-			break;
+	case 5:
+		nfont = width;
+		break;
 	}
 
 	// UGLY, DIRTY HACK that is necessary to change the unnatural default parameters of wbDrawText.
@@ -134,10 +136,10 @@ ZEND_FUNCTION(wb_draw_text)
 ZEND_FUNCTION(wb_draw_image)
 {
 	zend_long handle, hbm, x = 0, y = 0, w = 0, h = 0, cx = 0, cy = 0;
-    COLORREF transpcolor = NOCOLOR;
+	COLORREF transpcolor = NOCOLOR;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
 		return;
 
 	RETURN_BOOL((LONG)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor))

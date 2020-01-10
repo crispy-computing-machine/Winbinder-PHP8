@@ -16,10 +16,11 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-/*
- index is the index of the image on the file if filename is an icon library. Default is 0.
-*/
-
+/**
+ * [ index is the index of the image on the file if filename is an icon library. Default is 0.]
+ *
+ * @return  [type]  [return description]
+ */
 ZEND_FUNCTION(wb_load_image)
 {
 	char *s;
@@ -35,19 +36,20 @@ ZEND_FUNCTION(wb_load_image)
 	index = 0;
 	param = FALSE;
 
-	 if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "s|ll", &s, &s_len, &index, &param) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "s|ll", &s, &s_len, &index, &param) == FAILURE)
 		return;
 
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
-	if(!hImage) {
+	if (!hImage)
+	{
 		RETURN_NULL();
-	} else
+	}
+	else
 		RETURN_LONG((long)hImage);
 }
-
 
 ZEND_FUNCTION(wb_save_image)
 {
@@ -58,15 +60,15 @@ ZEND_FUNCTION(wb_save_image)
 	TCHAR *wcs = 0;
 	BOOL ret;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ls", &hbm, &s, &s_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ls", &hbm, &s, &s_len) == FAILURE)
 		RETURN_BOOL(FALSE);
 
-	if(!hbm)
+	if (!hbm)
 		RETURN_NULL();
 
 	wcs = Utf82WideChar(s, s_len);
-	ret  = wbSaveBitmap((HBITMAP)hbm, wcs);
+	ret = wbSaveBitmap((HBITMAP)hbm, wcs);
 	wbFree(wcs);
 
 	RETURN_BOOL(ret);
@@ -75,15 +77,16 @@ ZEND_FUNCTION(wb_save_image)
 ZEND_FUNCTION(wb_create_image)
 {
 	zend_long w, h, bmi = 0, bits = 0;
-    int nargs;
+	int nargs;
 
 	nargs = ZEND_NUM_ARGS();
 
-    if(zend_parse_parameters(nargs TSRMLS_CC,
-	  "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
+	if (zend_parse_parameters(nargs TSRMLS_CC,
+							  "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
 		return;
 
-	if(nargs == 3) {
+	if (nargs == 3)
+	{
 		wbError(TEXT("wb_create_image"), MB_ICONWARNING, TEXT("Invalid parameter count passed to function"));
 		RETURN_LONG(0);
 	}
@@ -94,17 +97,17 @@ ZEND_FUNCTION(wb_create_image)
 ZEND_FUNCTION(wb_get_image_data)
 {
 	zend_long hbm;
-    BYTE *lpBits = NULL;
-    DWORD size;
+	BYTE *lpBits = NULL;
+	DWORD size;
 	zend_long compress4to3 = FALSE;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "l|l", &hbm, &compress4to3) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "l|l", &hbm, &compress4to3) == FAILURE)
 		return;
 
 	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
 
-	if(!size || !lpBits)
+	if (!size || !lpBits)
 		RETURN_NULL();
 
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
@@ -116,11 +119,11 @@ ZEND_FUNCTION(wb_create_mask)
 {
 	zend_long hbm, c;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ll", &hbm, &c) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "ll", &hbm, &c) == FAILURE)
 		return;
 
-	if(!hbm)
+	if (!hbm)
 		RETURN_NULL();
 
 	RETURN_LONG((LONG)wbCreateMask((HBITMAP)hbm, c))
@@ -130,11 +133,11 @@ ZEND_FUNCTION(wb_destroy_image)
 {
 	zend_long hbm;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "l", &hbm) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "l", &hbm) == FAILURE)
 		return;
 
-	if(!hbm)
+	if (!hbm)
 		RETURN_NULL();
 
 	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm))

@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
+ Copyright ï¿½ Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  General-purpose functions (not exported to the ZEND engine)
@@ -35,7 +35,7 @@ int parse_array(zval *array, const char *fmt, ...)
 	va_start(ap, fmt);
 
 	target_hash = HASH_OF(array);
-	if(!target_hash)
+	if (!target_hash)
 		return 0;
 
 	nelem = zend_hash_num_elements(target_hash);
@@ -43,79 +43,93 @@ int parse_array(zval *array, const char *fmt, ...)
 
 	// Parse loop
 
-	for(i = 0; i < (int)strlen(fmt); i++) {
+	for (i = 0; i < (int)strlen(fmt); i++)
+	{
 
 		arg = va_arg(ap, void *);
-		if(!arg)
+		if (!arg)
 			break;
 
 		// Requested items past the length of the array must return NULL
 
-		if(i >= nelem ) {
+		if (i >= nelem)
+		{
 
-			switch(fmt[i]) {
+			switch (fmt[i])
+			{
 
-				case 'l':
-					*((long *)arg) = 0;
-					break;
-
-				case 'd':
-					*((double *)arg) = 0;
-					break;
-
-				case 's':
-					*((long *)arg) = (long)NULL;
-					break;
-
-				default:
-				    wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format character '%c' in function"), fmt[i]);
-					continue;
-			}
-			continue;
-
-		} else if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
-            wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
-			continue;
-
-		} else {
-
-			if(!entry)
+			case 'l':
+				*((long *)arg) = 0;
 				break;
 
-			switch(fmt[i]) {
+			case 'd':
+				*((double *)arg) = 0;
+				break;
 
-				case 'l':
-					if(Z_TYPE_P(entry) == IS_NULL) {
-						*((long *)arg) = (long)NULL;
-					} else
-						*((long *)arg) = Z_LVAL_P(entry);
-					break;
+			case 's':
+				*((long *)arg) = (long)NULL;
+				break;
 
-				case 'd':
-					if(Z_TYPE_P(entry) == IS_NULL) {
-						*((long *)arg) = (long)NULL;
-					} else
-						*((double *)arg) = Z_DVAL_P(entry);
-					break;
+			default:
+				wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format character '%c' in function"), fmt[i]);
+				continue;
+			}
+			continue;
+		}
+		else if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
+		{
+			wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+			continue;
+		}
+		else
+		{
 
-				case 's':
-					if(Z_TYPE_P(entry) == IS_STRING) {
-						*((long *)arg) = (long)(Z_STRVAL_P(entry));
-					} else if(Z_TYPE_P(entry) == IS_NULL) {
-						*((long *)arg) = (long)NULL;
-					} else
-						*((long *)arg) = (long)NULL;
-					break;
+			if (!entry)
+				break;
 
-				default:
-				    wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format string '%s' in function"),fmt);
-					continue;
+			switch (fmt[i])
+			{
+
+			case 'l':
+				if (Z_TYPE_P(entry) == IS_NULL)
+				{
+					*((long *)arg) = (long)NULL;
+				}
+				else
+					*((long *)arg) = Z_LVAL_P(entry);
+				break;
+
+			case 'd':
+				if (Z_TYPE_P(entry) == IS_NULL)
+				{
+					*((long *)arg) = (long)NULL;
+				}
+				else
+					*((double *)arg) = Z_DVAL_P(entry);
+				break;
+
+			case 's':
+				if (Z_TYPE_P(entry) == IS_STRING)
+				{
+					*((long *)arg) = (long)(Z_STRVAL_P(entry));
+				}
+				else if (Z_TYPE_P(entry) == IS_NULL)
+				{
+					*((long *)arg) = (long)NULL;
+				}
+				else
+					*((long *)arg) = (long)NULL;
+				break;
+
+			default:
+				wbError(TEXT("parse_array"), MB_ICONWARNING, TEXT("Invalid format string '%s' in function"), fmt);
+				continue;
 
 			} // switch
 
 		} // else
 
-		if(i < nelem - 1)
+		if (i < nelem - 1)
 			zend_hash_move_forward(target_hash);
 	}
 
@@ -133,20 +147,22 @@ zval *process_array(zval *zitems)
 	static HashTable *target_hash = NULL;
 	zval *entry = NULL;
 
-	if(Z_TYPE_P(zitems) != IS_ARRAY)
+	if (Z_TYPE_P(zitems) != IS_ARRAY)
 		return FALSE;
 
 	// Prepare to read items from zitem array
 
-	if(!nelems && !nelem) {
+	if (!nelems && !nelem)
+	{
 
 		target_hash = HASH_OF(zitems);
-		if(!target_hash)
+		if (!target_hash)
 			return FALSE;
 
 		nelems = zend_hash_num_elements(target_hash);
 
-		if(!nelems) {
+		if (!nelems)
+		{
 
 			// Array is empty: reset everything
 
@@ -154,23 +170,27 @@ zval *process_array(zval *zitems)
 			nelems = 0;
 			nelem = 0;
 			return NULL;
-
-		} else {
+		}
+		else
+		{
 
 			// Start array
 
 			zend_hash_internal_pointer_reset(target_hash);
 			nelem = 0;
 		}
+	}
+	else
+	{
 
-	} else {
-
-		if(nelem < nelems - 1) {
+		if (nelem < nelems - 1)
+		{
 
 			zend_hash_move_forward(target_hash);
 			nelem++;
-
-		} else if(nelem == nelems - 1) {
+		}
+		else if (nelem == nelems - 1)
+		{
 
 			// End of array: reset everything
 
@@ -183,13 +203,13 @@ zval *process_array(zval *zitems)
 
 	// Get zval data
 
-	if((entry = zend_hash_get_current_data(target_hash)) == NULL)
-	    wbError(TEXT("process_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"));
+	if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
+		wbError(TEXT("process_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"));
 
 	return entry;
 }
 
-TCHAR * Utf82WideChar(const char *str, int len)
+TCHAR *Utf82WideChar(const char *str, int len)
 {
 	TCHAR *wstr = "";
 	int wlen = 0;
@@ -200,10 +220,10 @@ TCHAR * Utf82WideChar(const char *str, int len)
 		len = strlen(str);
 
 	wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-	wstr = wbMalloc(sizeof(TCHAR)*(wlen));
+	wstr = wbMalloc(sizeof(TCHAR) * (wlen));
 	if (len > 0)
 		MultiByteToWideChar(CP_UTF8, 0, str, len, wstr, wlen);
-	wstr[wlen-1] = '\0';
+	wstr[wlen - 1] = '\0';
 	return wstr;
 }
 
@@ -215,23 +235,26 @@ void Utf82WideCharCopy(const char *str, int str_len, TCHAR *wcs, int wcs_len)
 	MultiByteToWideChar(CP_UTF8, 0, str, str_len, wcs, wcs_len);
 }
 
-char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen) {
+char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen)
+{
 	char *str = 0;
 
-	if (pszTextUTF16 == NULL) return NULL;
+	if (pszTextUTF16 == NULL)
+		return NULL;
 
 	int utf16len = wcslen(pszTextUTF16);
 	int utf8len = WideCharToMultiByte(CP_UTF8, 0, pszTextUTF16, utf16len,
-		NULL, 0, NULL, NULL);
+									  NULL, 0, NULL, NULL);
 
 	if (utf8len == 0)
 		return NULL;
 
 	str = wbMalloc(utf8len);
 	int size = WideCharToMultiByte(CP_UTF8, 0, pszTextUTF16, utf16len, str, utf8len, 0, 0);
-	if(plen)
+	if (plen)
 	{
-		if (size > 0) size--;
+		if (size > 0)
+			size--;
 		*plen = size;
 	}
 	return str;
@@ -250,11 +273,12 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 		return NULL;
 
 	str = wbMalloc(str_len);
-	int  size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
+	int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
 	str[str_len - 1] = '\0';
 	if (plen)
 	{
-		if (size > 0) size--;
+		if (size > 0)
+			size--;
 		*plen = size;
 	}
 	return str;
@@ -272,7 +296,8 @@ void dumptcs(TCHAR *str)
 	int len = wcslen(str);
 
 	printf("Dump String (%d): ", len);
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < len; i++)
+	{
 		printf("%x,", str[i]);
 	}
 	printf("\n");
