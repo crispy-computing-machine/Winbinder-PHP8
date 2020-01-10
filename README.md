@@ -2,8 +2,8 @@ WinBinder
 =========
 WinBinder - The native Windows binding for PHP 7.
 
-<img src="https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=master&passingText=Master Build Passing" alt="Project Badge">
-<img src="https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=develop&passingText=Develop Build Passing" alt="Project Badge">
+[![master](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=master&passingText=Master Build Passing "Master")]
+[![develop](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=develop&passingText=Develop Build Passing.png "Develop")]
 
 What is WinBinder?
 ==================
