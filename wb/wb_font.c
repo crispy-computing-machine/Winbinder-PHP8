@@ -108,8 +108,18 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 	else
 	{
 		// Set the font indexed by nFont
-		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont,
-					MAKELPARAM(bRedraw, 0));
+		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
+
+		// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
+        switch (pwbo->uClass)
+        {
+            case HyperLink:
+            case Label:
+                pwbo->lparam = nFont;
+                break;
+        }
+
+		// save the last font
 		nLastFont = nFont;
 	}
 

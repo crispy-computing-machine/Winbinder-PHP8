@@ -12,7 +12,7 @@ if (PHP_WINBINDER == "yes") {
 	phpwb_sysdlg.c phpwb_wb_lib.c phpwb_window.c phpwb_winsys.c", true, "/Iext/wibinder/wb");
 
 	ADD_SOURCES("ext/winbinder/wb", "wb_bitmap.c wb_control.c\
-	wb_control_calendar.c wb_control_html.c wb_control_hyperlink.c\
+	wb_control_calendar.c wb_control_html.c wb_control_hyperlink.c wb_control_label.c\
 	wb_control_listview.c wb_control_menu.c wb_control_tab.c wb_control_toolbar.c\
 	wb_control_treeview.c wb_draw.c wb_font.c wb_generic.c wb_lowlevel.c\
 	wb_sysdlg.c wb_window.c wb_winsys.c", "winbinder")
