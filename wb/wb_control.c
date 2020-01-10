@@ -29,6 +29,7 @@
 WNDPROC lpfnFrameProcOld = NULL;
 WNDPROC lpfnEditProcOld = NULL;
 WNDPROC lpfnHyperLinkProcOld = NULL;
+WNDPROC lpfnLabelProcOld = NULL;
 WNDPROC lpfnInvisibleProcOld = NULL;
 
 // External
@@ -64,6 +65,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 extern void SetStatusBarHandle(HWND hCtrl);
 extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab);
 extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -521,6 +523,14 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
 		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)HyperLinkProc);
+		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
+		CreateToolTip(pwbo, pszTooltip);
+		break;
+
+	case Label:
+		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
+		// Subclasses static control
+		lpfnLabelProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)LabelProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;

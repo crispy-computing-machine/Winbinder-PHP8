@@ -1178,6 +1178,11 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
 			break;
 
+		case Label:
+			if (HIWORD(wParam) == STN_CLICKED)
+				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+			break;
+
 		case PushButton:
 		case CheckBox:
 		case RadioButton:
@@ -1323,21 +1328,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 				return (LRESULT)hbrTabs; // Paint the background with the tab page color
 			}
 		}
-
-		/*
-			if(pwbobj->uClass == Label){
-
-                // Access font ID from control? hFont = SendMessage(hCtrl, WM_GETFONT, 0, 0);
-                pFont = wbGetFont(pwbobj->lparams[7]);
-                if(pFont != NULL){
-                    SetTextColor((HDC)wParam, pFont->color);
-                }
-
-                SetBkMode((HDC)wParam,TRANSPARENT);
-                SetBkColor((HDC)wParam,WINCOLOUR);
-                return (INT_PTR)CreateSolidBrush(WINCOLOUR); // windows colour
-            }
-            */
 		break;
 
 	case WM_TIMER:
