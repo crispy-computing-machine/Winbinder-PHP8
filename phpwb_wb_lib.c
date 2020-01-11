@@ -168,7 +168,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	if (bRet == SUCCESS)
 	{
 		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed"));
-		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, bRet);
+		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, Z_TYPE(bRet));
 	}
 
 	// Free everything we can
