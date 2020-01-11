@@ -164,8 +164,8 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		0,					// No separation flag (always 0)
 		NULL TSRMLS_CC);
 
-    //@todo test this  https://github.com/infusion/PHP/blob/master/main/streams/userspace.c#L370
-	if (bRet == SUCCESS)
+    // Check if its NOT FAILURE (NULL is okay as user functions may return void)
+	if (bRet !== SUCCESS && bRet !== IS_NULL)
 	{
 		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
 	}
