@@ -165,9 +165,12 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		NULL TSRMLS_CC);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
-	if (bRet !== SUCCESS && bRet != IS_NULL)
+	if (bRet != SUCCESS)
 	{
-		wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
+	    // supress if its null as the user function may not return anything
+	    if(bRet != IS_NULL){
+	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
+	    }
 	}
 
 	// Free everything we can
