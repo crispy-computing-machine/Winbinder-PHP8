@@ -165,13 +165,10 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		NULL TSRMLS_CC);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
-	if (bRet != SUCCESS)
-	{
-	    // supress if its null as the user function may not return anything
-	    if(bRet != IS_NULL){
-	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
-	    }
-	}
+	//if (bRet != SUCCESS)
+	//{
+	//    wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed, return type %s"), Z_TYPE(bRet));
+	//}
 
 	// Free everything we can
 	//if (funName) efree(funName);
@@ -182,6 +179,8 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	case IS_FALSE:
 		ret = Z_LVAL(return_value);
 		break;
+	default:
+            wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("Unknown return type %s"), Z_TYPE(bRet));
 	}
 	return ret;
 }
