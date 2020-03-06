@@ -66,8 +66,8 @@ ZEND_FUNCTION(wbtemp_set_accel_table);
 ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
 ZEND_FUNCTION(wb_empty_clipboard);
-ZEND_FUNCTION(wb_get_mouse_pos)
-ZEND_FUNCTION(wb_is_mouse_over)
+ZEND_FUNCTION(wb_get_mouse_pos);
+ZEND_FUNCTION(wb_is_mouse_over);
 
 // PHPWB_CONTROL.C
 
