@@ -701,4 +701,54 @@ ZEND_FUNCTION(wb_empty_clipboard)
 	RETURN_BOOL(success);
 }
 
+// get mouse pos else return false
+ZEND_FUNCTION(wb_get_mouse_pos)
+{
+	POINT cursor;
+
+    // New return array
+    array_init(return_value);
+
+    if (GetCursorPos(&cursor)) {
+        add_index_long(return_value, 0, cursor.x);
+        add_index_long(return_value, 1, cursor.y);
+        //cout << cursor.x << "," << cursor.y << "\n";
+        return;
+    }
+    RETURN_BOOL(0);
+}
+
+ZEND_FUNCTION(wb_is_mouse_over)
+{
+    RECT rc;
+    POINT pt;
+
+    // control wbobj
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
+							  "l", &pwbo) == FAILURE)
+		return;
+
+    // no control handle?
+    if(!pwbo->hwnd){
+        RETURN_BOOL(0);
+    }
+
+    // Get controls rect
+    if(GetWindowRect(pwbo->hwnd, &rc)){
+
+        // Get current cursor pos
+        if(GetCursorPos(&pt)){
+
+            // Check if its within the rect
+            RETURN_BOOL(PtInRect(&rc, pt));
+
+        }
+
+    }
+
+    RETURN_BOOL(0);
+
+}
+
+
 //------------------------------------------------------------------ END OF FILE

@@ -66,6 +66,8 @@ ZEND_FUNCTION(wbtemp_set_accel_table);
 ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
 ZEND_FUNCTION(wb_empty_clipboard);
+ZEND_FUNCTION(wb_get_mouse_pos)
+ZEND_FUNCTION(wb_is_mouse_over)
 
 // PHPWB_CONTROL.C
 
@@ -206,155 +208,157 @@ zend_function_entry winbinder_functions[] =
 	{
 		// PHPWB_WINSYS.C
 
-		ZEND_FE(wb_main_loop, NULL)
-			ZEND_FE(wb_find_file, NULL)
-				ZEND_FE(wb_message_box, NULL)
-					ZEND_FE(wb_play_sound, NULL)
-						ZEND_FE(wb_stop_sound, NULL)
-							ZEND_FE(wb_exec, NULL)
-								ZEND_FE(wb_get_system_info, NULL)
-									ZEND_FE(wb_get_registry_key, NULL)
-										ZEND_FE(wb_set_registry_key, NULL)
-											ZEND_FE(wb_create_timer, NULL)
-												ZEND_FE(wb_wait, NULL)
-													ZEND_FE(wb_is_obj, NULL)
-														ZEND_FE(wb_destroy_timer, NULL)
-															ZEND_FE(wbtemp_set_accel_table, NULL)
+        ZEND_FE(wb_main_loop, NULL)
+        ZEND_FE(wb_find_file, NULL)
+        ZEND_FE(wb_message_box, NULL)
+        ZEND_FE(wb_play_sound, NULL)
+        ZEND_FE(wb_stop_sound, NULL)
+        ZEND_FE(wb_exec, NULL)
+        ZEND_FE(wb_get_system_info, NULL)
+        ZEND_FE(wb_get_registry_key, NULL)
+        ZEND_FE(wb_set_registry_key, NULL)
+        ZEND_FE(wb_create_timer, NULL)
+        ZEND_FE(wb_wait, NULL)
+        ZEND_FE(wb_is_obj, NULL)
+        ZEND_FE(wb_destroy_timer, NULL)
+        ZEND_FE(wbtemp_set_accel_table, NULL)
 
-																ZEND_FE(wb_get_clipboard, NULL)
-																	ZEND_FE(wb_set_clipboard, NULL)
-																		ZEND_FE(wb_empty_clipboard, NULL)
+        ZEND_FE(wb_get_clipboard, NULL)
+        ZEND_FE(wb_set_clipboard, NULL)
+        ZEND_FE(wb_empty_clipboard, NULL)
+        ZEND_FE(wb_get_mouse_pos, NULL)
+        ZEND_FE(wb_is_mouse_over, NULL)
 
-		// PHPWB_BITMAP.C
+        // PHPWB_BITMAP.C
 
-		ZEND_FE(wb_load_image, NULL)
-			ZEND_FE(wb_save_image, NULL)
-				ZEND_FE(wb_create_image, NULL)
-					ZEND_FE(wb_create_mask, NULL)
-						ZEND_FE(wb_destroy_image, NULL)
-							ZEND_FE(wb_get_image_data, NULL)
+        ZEND_FE(wb_load_image, NULL)
+        ZEND_FE(wb_save_image, NULL)
+        ZEND_FE(wb_create_image, NULL)
+        ZEND_FE(wb_create_mask, NULL)
+        ZEND_FE(wb_destroy_image, NULL)
+        ZEND_FE(wb_get_image_data, NULL)
 
-		// PHPWB_DRAW.C
+        // PHPWB_DRAW.C
 
-		ZEND_FE(wb_get_pixel, NULL)
-			ZEND_FE(wb_draw_point, NULL)
-				ZEND_FE(wb_draw_line, NULL)
-					ZEND_FE(wb_draw_rect, NULL)
-						ZEND_FE(wb_draw_ellipse, NULL)
-							ZEND_FE(wb_draw_text, NULL)
-								ZEND_FE(wb_draw_image, NULL)
+        ZEND_FE(wb_get_pixel, NULL)
+        ZEND_FE(wb_draw_point, NULL)
+        ZEND_FE(wb_draw_line, NULL)
+        ZEND_FE(wb_draw_rect, NULL)
+        ZEND_FE(wb_draw_ellipse, NULL)
+        ZEND_FE(wb_draw_text, NULL)
+        ZEND_FE(wb_draw_image, NULL)
 
-		// PHPWB_CONTROL.C
+        // PHPWB_CONTROL.C
 
-		ZEND_FE(wb_destroy_control, NULL)
-			ZEND_FE(wb_get_value, NULL)
-				ZEND_FE(wb_refresh, NULL)
-					ZEND_FE(wb_set_enabled, NULL)
-						ZEND_FE(wb_set_image, NULL)
-							ZEND_FE(wb_set_item_image, NULL)
-								ZEND_FE(wbtemp_create_control, NULL)
-									ZEND_FE(wbtemp_create_item, NULL)
-										ZEND_FE(wbtemp_create_statusbar_items, NULL)
-											ZEND_FE(wbtemp_get_text, NULL)
-												ZEND_FE(wbtemp_set_text, NULL)
-													ZEND_FE(wb_delete_items, NULL)
-														ZEND_FE(wb_get_class, NULL)
-															ZEND_FE(wb_get_control, NULL)
-																ZEND_FE(wb_get_enabled, NULL)
-																	ZEND_FE(wb_get_focus, NULL)
-																		ZEND_FE(wb_get_id, NULL)
-																			ZEND_FE(wb_get_item_count, NULL)
-																				ZEND_FE(wb_get_parent, NULL)
-																					ZEND_FE(wb_get_selected, NULL)
-																						ZEND_FE(wb_get_state, NULL)
-																							ZEND_FE(wb_get_visible, NULL)
-																								ZEND_FE(wb_set_cursor, NULL)
-																									ZEND_FE(wb_set_focus, NULL)
-																										ZEND_FE(wb_set_handler, NULL)
-																											ZEND_FE(wb_set_location, NULL)
-																												ZEND_FE(wb_set_range, NULL)
-																													ZEND_FE(wb_set_state, NULL)
-																														ZEND_FE(wb_set_style, NULL)
-																															ZEND_FE(wb_set_visible, NULL)
-																																ZEND_FE(wb_sort, NULL)
-																																	ZEND_FE(wbtemp_select_tab, NULL)
-																																		ZEND_FE(wbtemp_set_value, NULL)
+        ZEND_FE(wb_destroy_control, NULL)
+        ZEND_FE(wb_get_value, NULL)
+        ZEND_FE(wb_refresh, NULL)
+        ZEND_FE(wb_set_enabled, NULL)
+        ZEND_FE(wb_set_image, NULL)
+        ZEND_FE(wb_set_item_image, NULL)
+        ZEND_FE(wbtemp_create_control, NULL)
+        ZEND_FE(wbtemp_create_item, NULL)
+        ZEND_FE(wbtemp_create_statusbar_items, NULL)
+        ZEND_FE(wbtemp_get_text, NULL)
+        ZEND_FE(wbtemp_set_text, NULL)
+        ZEND_FE(wb_delete_items, NULL)
+        ZEND_FE(wb_get_class, NULL)
+        ZEND_FE(wb_get_control, NULL)
+        ZEND_FE(wb_get_enabled, NULL)
+        ZEND_FE(wb_get_focus, NULL)
+        ZEND_FE(wb_get_id, NULL)
+        ZEND_FE(wb_get_item_count, NULL)
+        ZEND_FE(wb_get_parent, NULL)
+        ZEND_FE(wb_get_selected, NULL)
+        ZEND_FE(wb_get_state, NULL)
+        ZEND_FE(wb_get_visible, NULL)
+        ZEND_FE(wb_set_cursor, NULL)
+        ZEND_FE(wb_set_focus, NULL)
+        ZEND_FE(wb_set_handler, NULL)
+        ZEND_FE(wb_set_location, NULL)
+        ZEND_FE(wb_set_range, NULL)
+        ZEND_FE(wb_set_state, NULL)
+        ZEND_FE(wb_set_style, NULL)
+        ZEND_FE(wb_set_visible, NULL)
+        ZEND_FE(wb_sort, NULL)
+        ZEND_FE(wbtemp_select_tab, NULL)
+        ZEND_FE(wbtemp_set_value, NULL)
 
-		// PHPWB_CONTROL_LISTVIEW.C
+        // PHPWB_CONTROL_LISTVIEW.C
 
-		ZEND_FE(wbtemp_create_listview_item, NULL)
-			ZEND_FE(wbtemp_set_listview_item_checked, NULL)
-				ZEND_FE(wbtemp_get_listview_item_checked, NULL)
-					ZEND_FE(wbtemp_set_listview_item_text, NULL)
-						ZEND_FE(wbtemp_get_listview_text, NULL)
-							ZEND_FE(wbtemp_get_listview_columns, NULL)
-								ZEND_FE(wbtemp_create_listview_column, NULL)
-									ZEND_FE(wbtemp_clear_listview_columns, NULL)
-										ZEND_FE(wbtemp_select_listview_item, NULL)
-											ZEND_FE(wbtemp_select_all_listview_items, NULL)
-		//	ZEND_FE(wbtemp_get_listview_column_widths, NULL)
-		//	ZEND_FE(wbtemp_set_listview_column_widths, NULL)
+        ZEND_FE(wbtemp_create_listview_item, NULL)
+        ZEND_FE(wbtemp_set_listview_item_checked, NULL)
+        ZEND_FE(wbtemp_get_listview_item_checked, NULL)
+        ZEND_FE(wbtemp_set_listview_item_text, NULL)
+        ZEND_FE(wbtemp_get_listview_text, NULL)
+        ZEND_FE(wbtemp_get_listview_columns, NULL)
+        ZEND_FE(wbtemp_create_listview_column, NULL)
+        ZEND_FE(wbtemp_clear_listview_columns, NULL)
+        ZEND_FE(wbtemp_select_listview_item, NULL)
+        ZEND_FE(wbtemp_select_all_listview_items, NULL)
+        //	ZEND_FE(wbtemp_get_listview_column_widths, NULL)
+        //	ZEND_FE(wbtemp_set_listview_column_widths, NULL)
 
-		// PHPWB_CONTROL_MENU.C
+        // PHPWB_CONTROL_MENU.C
 
-		ZEND_FE(wbtemp_create_menu, NULL)
-			ZEND_FE(wbtemp_get_menu_item_checked, NULL)
-				ZEND_FE(wbtemp_set_menu_item_checked, NULL)
-					ZEND_FE(wbtemp_set_menu_item_selected, NULL)
-						ZEND_FE(wbtemp_set_menu_item_image, NULL)
+        ZEND_FE(wbtemp_create_menu, NULL)
+        ZEND_FE(wbtemp_get_menu_item_checked, NULL)
+        ZEND_FE(wbtemp_set_menu_item_checked, NULL)
+        ZEND_FE(wbtemp_set_menu_item_selected, NULL)
+        ZEND_FE(wbtemp_set_menu_item_image, NULL)
 
-		// PHPWB_CONTROL_TOOLBAR.C
+        // PHPWB_CONTROL_TOOLBAR.C
 
-		ZEND_FE(wbtemp_create_toolbar, NULL)
+        ZEND_FE(wbtemp_create_toolbar, NULL)
 
-		// PHPWB_CONTROL_TREEVIEW.C
+        // PHPWB_CONTROL_TREEVIEW.C
 
-		ZEND_FE(wbtemp_create_treeview_item, NULL)
-			ZEND_FE(wbtemp_set_treeview_item_selected, NULL)
-				ZEND_FE(wbtemp_set_treeview_item_text, NULL)
-					ZEND_FE(wbtemp_set_treeview_item_value, NULL)
-						ZEND_FE(wbtemp_get_treeview_item_text, NULL)
-							ZEND_FE(wb_get_level, NULL)
+        ZEND_FE(wbtemp_create_treeview_item, NULL)
+        ZEND_FE(wbtemp_set_treeview_item_selected, NULL)
+        ZEND_FE(wbtemp_set_treeview_item_text, NULL)
+        ZEND_FE(wbtemp_set_treeview_item_value, NULL)
+        ZEND_FE(wbtemp_get_treeview_item_text, NULL)
+        ZEND_FE(wb_get_level, NULL)
 
-		// PHPWB_FONTS.C
+        // PHPWB_FONTS.C
 
-		ZEND_FE(wb_create_font, NULL)
-			ZEND_FE(wb_destroy_font, NULL)
-				ZEND_FE(wb_set_font, NULL)
+        ZEND_FE(wb_create_font, NULL)
+        ZEND_FE(wb_destroy_font, NULL)
+        ZEND_FE(wb_set_font, NULL)
 
-		// PHPWB_LOWLEVEL.C
+        // PHPWB_LOWLEVEL.C
 
-		ZEND_FE(wb_get_address, arginfo_get_address)
-			ZEND_FE(wb_send_message, NULL)
-				ZEND_FE(wb_peek, NULL)
-					ZEND_FE(wb_poke, NULL)
-						ZEND_FE(wb_load_library, NULL)
-							ZEND_FE(wb_release_library, NULL)
-								ZEND_FE(wb_get_function_address, NULL)
-									ZEND_FE(wb_call_function, NULL)
-										ZEND_FE(wb_get_midi_callback, NULL)
-											ZEND_FE(wb_get_enum_callback, NULL)
-												ZEND_FE(wb_get_hook_callback, NULL)
+        ZEND_FE(wb_get_address, arginfo_get_address)
+        ZEND_FE(wb_send_message, NULL)
+        ZEND_FE(wb_peek, NULL)
+        ZEND_FE(wb_poke, NULL)
+        ZEND_FE(wb_load_library, NULL)
+        ZEND_FE(wb_release_library, NULL)
+        ZEND_FE(wb_get_function_address, NULL)
+        ZEND_FE(wb_call_function, NULL)
+        ZEND_FE(wb_get_midi_callback, NULL)
+        ZEND_FE(wb_get_enum_callback, NULL)
+        ZEND_FE(wb_get_hook_callback, NULL)
 
-		// PHPWB_WINDOW.C
+        // PHPWB_WINDOW.C
 
-		ZEND_FE(wb_destroy_window, NULL)
-			ZEND_FE(wb_get_size, NULL)
-				ZEND_FE(wb_set_size, NULL)
-					ZEND_FE(wb_set_position, NULL)
-						ZEND_FE(wb_get_position, NULL)
-							ZEND_FE(wb_create_window, NULL)
-								ZEND_FE(wb_get_instance, NULL)
-									ZEND_FE(wb_get_item_list, NULL)
-										ZEND_FE(wb_set_area, NULL)
+        ZEND_FE(wb_destroy_window, NULL)
+        ZEND_FE(wb_get_size, NULL)
+        ZEND_FE(wb_set_size, NULL)
+        ZEND_FE(wb_set_position, NULL)
+        ZEND_FE(wb_get_position, NULL)
+        ZEND_FE(wb_create_window, NULL)
+        ZEND_FE(wb_get_instance, NULL)
+        ZEND_FE(wb_get_item_list, NULL)
+        ZEND_FE(wb_set_area, NULL)
 
-		// PHPWB_SYSDLG.C
+        // PHPWB_SYSDLG.C
 
-		ZEND_FE(wb_sys_dlg_path, NULL)
-			ZEND_FE(wb_sys_dlg_color, NULL)
-				ZEND_FE(wbtemp_sys_dlg_open, NULL)
-					ZEND_FE(wbtemp_sys_dlg_save, NULL)
-						ZEND_FE(wb_sys_dlg_font, NULL)
+        ZEND_FE(wb_sys_dlg_path, NULL)
+        ZEND_FE(wb_sys_dlg_color, NULL)
+        ZEND_FE(wbtemp_sys_dlg_open, NULL)
+        ZEND_FE(wbtemp_sys_dlg_save, NULL)
+        ZEND_FE(wb_sys_dlg_font, NULL)
 
 		// The line below must be the last one
 
