@@ -1225,25 +1225,21 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
         RECT rc;
         POINT pt;
-		PWBOBJ pwctrlbobj;
 
-        // Get control
-        HWND hCtrl = (HWND)wParam;
-        pwctrlbobj = wbGetWBObj(hCtrl);
+		PWBOBJ pwbobj = wbGetWBObj(hwnd);
 
-        // Does the control have the notification flag
-		if (BITTEST(pwctrlbobj->lparam, WBC_MOUSEOVER))
+		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
 		{
 		    // Get controls rect
-            if(GetWindowRect(pwctrlbobj->hwnd, &rc)){
+            if(GetWindowRect(pwbobj->hwnd, &rc)){
 
                 // Get current cursor pos
                 if(GetCursorPos(&pt)){
 
                     // Check if its within the rect
                     if(PtInRect(&rc, pt)){
-                        if (pwctrlbobj && pwctrlbobj->pszCallBackFn && *pwctrlbobj->pszCallBackFn){
-                            wbCallUserFunction(pwctrlbobj->pszCallBackFn, pwctrlbobj->pszCallBackObj, pwctrlbobj, pwctrlbobj, 0,
+                        if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn){
+                            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
                                                WBC_MOUSEOVER | wParam, lParam, 0);
 
                         }
