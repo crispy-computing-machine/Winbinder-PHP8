@@ -1229,7 +1229,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
 		{
 		    // Get controls rect
-            if(GetWindowRect(pwbo->hwnd, &rc)){
+            if(GetWindowRect(pwbobj->hwnd, &rc)){
 
                 // Get current cursor pos
                 if(GetCursorPos(&pt)){
