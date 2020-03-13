@@ -1237,8 +1237,9 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                     // Check if its within the rect
                     if(PtInRect(&rc, pt)){
                         if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn){
-                            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-                                               WBC_MOUSEOVER | wParam, lParam, 0);
+                            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEOVER | wParam, lParam, 0);
+
+                            CALL_CALLBACK(LOWORD(wParam), WBC_MOUSEOVER, HIWORD(wParam), 0);
 
                         }
 
