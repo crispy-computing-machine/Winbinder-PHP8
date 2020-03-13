@@ -1203,7 +1203,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	}
 	break;
 
-		//------------------------------- Mouse messages
+    //------------------------------- Mouse messages
 
 	case WM_MOUSEMOVE:
 	{
@@ -1221,6 +1221,39 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
 								   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 		}
+
+		// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
+        RECT rc;
+        POINT pt;
+
+		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
+		{
+		    // Get controls rect
+            if(GetWindowRect(pwbo->hwnd, &rc)){
+
+                // Get current cursor pos
+                if(GetCursorPos(&pt)){
+
+                    // Check if its within the rect
+                    if(PtInRect(&rc, pt)){
+                            if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn){
+                                wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
+                                                   WBC_MOUSEOVER | wParam, lParam, 0);
+
+                            }
+
+                    }
+
+
+
+                }
+
+            }
+
+
+		}
+
+
 	}
 	break;
 
