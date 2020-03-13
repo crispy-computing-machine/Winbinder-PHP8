@@ -1226,8 +1226,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         RECT rc;
         POINT pt;
 
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
 		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
 		{
 		    // Get controls rect
