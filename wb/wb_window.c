@@ -1222,9 +1222,18 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 								   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 		}
 
-		// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
+	}
+	break;
+	case WM_MOUSEHOVER:
+	{
+		PWBOBJ pwbobj = wbGetWBObj(hwnd);
         RECT rc;
         POINT pt;
+
+		if (!pwbobj)
+			break;
+
+		// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
 
 		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
 		{
@@ -1237,9 +1246,9 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                     // Check if its within the rect
                     if(PtInRect(&rc, pt)){
                         if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn){
-                            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEOVER | wParam, lParam, 0);
+                            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEOVER | wParam, lParam, 0);
 
-                            CALL_CALLBACK(LOWORD(wParam), WBC_MOUSEOVER, HIWORD(wParam), 0);
+                            // CALL_CALLBACK(LOWORD(wParam), WBC_MOUSEOVER, HIWORD(wParam), 0);
 
                         }
 
