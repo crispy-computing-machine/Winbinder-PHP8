@@ -625,7 +625,7 @@ ZEND_FUNCTION(wb_get_clipboard)
         GlobalUnlock( hData );
         CloseClipboard();
     }
-    RETURN_STRING(tcopy, TRUE);
+    RETURN_STRING(fromClipboard, TRUE);
 }
 
 ZEND_FUNCTION(wb_set_clipboard)
