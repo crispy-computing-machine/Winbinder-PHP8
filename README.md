@@ -19,8 +19,8 @@ PHP Compatibility
   - PHP 7.0 ✅
   - PHP 7.1 ✅
   - PHP 7.2 ✅
-  - PHP 7.3 ✅
-  - PHP 7.4 ✅
+  - PHP 7.3 ❎
+  - PHP 7.4 ❎
   
 (For older PHP version compatibility please see PECL website for old .dll's)
 
