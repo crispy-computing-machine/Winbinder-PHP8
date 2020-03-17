@@ -2,7 +2,7 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright � Hypervisual - see LICENSE.TXT for details
+ Copyright  Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Window creation and manipulation functions
@@ -1174,6 +1174,11 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 			break;
 
 		case HyperLink:
+			if (HIWORD(wParam) == STN_CLICKED)
+				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+			break;
+
+		case Label:
 			if (HIWORD(wParam) == STN_CLICKED)
 				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
 			break;

@@ -5,7 +5,7 @@
  Copyright  Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
- Implements HyperLink control
+ Implements Label control
 
 *******************************************************************************/
 
@@ -15,13 +15,13 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define COLOR_HYPERLINK RGB(0, 0, 192)
+#define COLOR_LABEL RGB(0, 0, 0)
 
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
-extern WNDPROC lpfnHyperLinkProcOld;
+extern WNDPROC lpfnLabelProcOld;
 
-static BOOL DrawHyperLink(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color);
+static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color);
 
 //-------------------------------------------------------------------- VARIABLES
 
@@ -32,78 +32,78 @@ static BOOL bUnderline = FALSE;
 // Code adapted from Neal Stublen, thanks to Davide
 // http://www.codeguru.com/Cpp/controls/staticctrl/article.php/c5803/
 
-LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK LabelProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
 
-	case WM_PAINT:
-	{
-		HDC hdc;
-		PAINTSTRUCT ps;
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-        PFONT pfont;
+        case WM_PAINT:
+        {
+            HDC hdc;
+            PAINTSTRUCT ps;
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
+            PFONT pfont;
 
-		if (!pwbobj)
-			break;
+            if (!pwbobj)
+                break;
 
-		hdc = BeginPaint(hwnd, &ps);
+            hdc = BeginPaint(hwnd, &ps);
 
-        // Get font colour
-        pfont = wbGetFont(pwbobj->lparam);
+            // Get font colour
+            pfont = wbGetFont(pwbobj->lparam);
 
-		DrawHyperLink(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_HYPERLINK : pfont->color);
-		EndPaint(hwnd, &ps);
+            DrawLabel(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_LABEL : pfont->color);
+            EndPaint(hwnd, &ps);
+        }
+            return 0;
+
+        case WM_MOUSEMOVE:
+
+            if (GetCapture() != hwnd)
+            {
+                bUnderline = TRUE;
+                InvalidateRect(hwnd, NULL, FALSE);
+                SetCapture(hwnd);
+            }
+            else
+            {
+                RECT rect;
+                POINT pt;
+
+                GetWindowRect(hwnd, &rect);
+                pt.x = LOWORD(lParam);
+                pt.y = HIWORD(lParam);
+                ClientToScreen(hwnd, &pt);
+
+                if (!PtInRect(&rect, pt))
+                {
+                    bUnderline = FALSE;
+                    InvalidateRect(hwnd, NULL, FALSE);
+                    ReleaseCapture();
+                }
+            }
+            break;
+
+        case WM_SETCURSOR:
+        {
+            PWBOBJ pwbo = wbGetWBObj(hwnd);
+            if (!pwbo)
+                break;
+
+            if (M_nMouseCursor != 0)
+            {
+                SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
+                return TRUE; // Must return here, not break
+            }
+            else
+            {
+                break; // Normal behavior
+            }
+        }
+        break;
 	}
-		return 0;
 
-	case WM_MOUSEMOVE:
-
-		if (GetCapture() != hwnd)
-		{
-			bUnderline = TRUE;
-			InvalidateRect(hwnd, NULL, FALSE);
-			SetCapture(hwnd);
-		}
-		else
-		{
-			RECT rect;
-			POINT pt;
-
-			GetWindowRect(hwnd, &rect);
-			pt.x = LOWORD(lParam);
-			pt.y = HIWORD(lParam);
-			ClientToScreen(hwnd, &pt);
-
-			if (!PtInRect(&rect, pt))
-			{
-				bUnderline = FALSE;
-				InvalidateRect(hwnd, NULL, FALSE);
-				ReleaseCapture();
-			}
-		}
-		break;
-
-	case WM_SETCURSOR:
-	{
-		PWBOBJ pwbo = wbGetWBObj(hwnd);
-		if (!pwbo)
-			break;
-
-		if (M_nMouseCursor != 0)
-		{
-			SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
-			return TRUE; // Must return here, not break
-		}
-		else
-		{
-			break; // Normal behavior
-		}
-	}
-	break;
-	}
-
-	return CallWindowProc(lpfnHyperLinkProcOld, hwnd, msg, wParam, lParam);
+	return CallWindowProc(lpfnLabelProcOld, hwnd, msg, wParam, lParam);
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
@@ -120,7 +120,7 @@ LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 }
 */
 
-static BOOL DrawHyperLink(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
+static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 {
 	TCHAR szString[1024];
 	int nLen;
@@ -139,8 +139,7 @@ static BOOL DrawHyperLink(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 
 	hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	hbrOld = SelectObject(hdc, hbr);
-	PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top,
-		   PATCOPY);
+	PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top, PATCOPY);
 	SelectObject(hdc, hbrOld);
 	DeleteObject(hbr);
 

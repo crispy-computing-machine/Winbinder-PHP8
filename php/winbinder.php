@@ -4,7 +4,7 @@
 
  WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright � Hypervisual - see LICENSE.TXT for details
+ Copyright  Hypervisual - see LICENSE.TXT for details
  Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
  Main inclusion file for WinBinder
