@@ -1229,6 +1229,8 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 	}
 	break;
+	/*
+	// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
 	case WM_MOUSEHOVER:
 	{
 		PWBOBJ pwbobj = wbGetWBObj(hwnd);
@@ -1238,7 +1240,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		if (!pwbobj)
 			break;
 
-		// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
+
 
 		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
 		{
@@ -1268,10 +1270,10 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 	}
 	break;
+    */
 
-		// Alt key checking: http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_lbuttondown.asp
-		// Also see "System and Nonsystem Keystrokes" in API help
-
+    // Alt key checking: http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_lbuttondown.asp
+    // Also see "System and Nonsystem Keystrokes" in API help
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:

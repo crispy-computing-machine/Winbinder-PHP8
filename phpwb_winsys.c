@@ -573,7 +573,7 @@ ZEND_FUNCTION(wb_is_obj)
 	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
 }
 
-//
+/*
 ZEND_FUNCTION(wb_get_clipboard)
 {
 	char tcopy[4096];
@@ -584,22 +584,15 @@ ZEND_FUNCTION(wb_get_clipboard)
 
 	BOOL success = FALSE;
 
-	//printf("BREAK 1\n");
 	if (OpenClipboard(NULL))
 	{
-		//printf("BREAK 2\n");
 		hdata = GetClipboardData(CF_TEXT);
-		//printf("BREAK 3\n");
 		if (hdata)
 		{
-			//printf("BREAK 4\n");
 			wGlobal = (wchar_t *)GlobalLock(hdata);
-			//printf("BREAK 5\n");
 			if (wGlobal != NULL)
 			{
-				//printf("BREAK 6\n");
 				blen = GlobalSize(hdata);
-				//printf("SIZE: %d\n",blen);
 				if (blen > 4095)
 					blen = 4095;
 				memcpy(tcopy, wGlobal, blen);
@@ -608,12 +601,31 @@ ZEND_FUNCTION(wb_get_clipboard)
 				success = TRUE;
 			}
 		}
-		/*GlobalUnlock(hdata);*/
 	}
 	CloseClipboard();
 	if (!success)
 		RETURN_NULL();
 	RETURN_STRING(tcopy, TRUE);
+}
+*/
+
+//
+ZEND_FUNCTION(wb_get_clipboard)
+{
+    char * buffer = NULL;
+
+    //open the clipboard
+    CString fromClipboard;
+
+    if ( OpenClipboard() )
+    {
+        HANDLE hData = GetClipboardData( CF_TEXT );
+        char * buffer = (char*)GlobalLock( hData );
+        fromClipboard = buffer;
+        GlobalUnlock( hData );
+        CloseClipboard();
+    }
+    RETURN_STRING(tcopy, TRUE);
 }
 
 ZEND_FUNCTION(wb_set_clipboard)
