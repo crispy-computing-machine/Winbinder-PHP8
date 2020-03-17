@@ -609,23 +609,19 @@ ZEND_FUNCTION(wb_get_clipboard)
 }
 */
 
-//
 ZEND_FUNCTION(wb_get_clipboard)
 {
     char * buffer = NULL;
 
-    //open the clipboard
-    CString fromClipboard;
-
-    if ( OpenClipboard() )
+    if ( OpenClipboard(NULL) )
     {
         HANDLE hData = GetClipboardData( CF_TEXT );
         char * buffer = (char*)GlobalLock( hData );
-        fromClipboard = buffer;
         GlobalUnlock( hData );
         CloseClipboard();
+        RETURN_STRING(buffer, TRUE);
     }
-    RETURN_STRING(fromClipboard, TRUE);
+    RETURN_NULL();
 }
 
 ZEND_FUNCTION(wb_set_clipboard)
@@ -640,50 +636,33 @@ ZEND_FUNCTION(wb_set_clipboard)
 	LPTSTR clipcopy;
 	LPTSTR wclipcopy;
 
-	//printf("BREAK 1\n");
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 							  "s", &clip, &size) == FAILURE)
 		RETURN_BOOL(0);
 
-	//printf("BREAK 2\n");
 	if (OpenClipboard(NULL))
 	{
-		//printf("BREAK 3\n");
 		hdata = GlobalAlloc(GMEM_MOVEABLE, size + 1);
-		//printf("BREAK 5\n");
 		clipcopy = (LPTSTR)GlobalLock(hdata);
-		//printf("BREAK 5\n");
 		memcpy(clipcopy, clip, size);
 
-		//printf("BREAK 6\n");
 		if (SetClipboardData(CF_TEXT, hdata))
 		{
 			GlobalUnlock(hdata);
 			GlobalFree(hdata);
-			//printf("BREAK 7\n");
 			size = size * 2;
 			wclip = (WCHAR *)emalloc(size + 1);
-			//printf("BREAK 8\n");
+
 			if (!UTF8ToUnicode16(clip, wclip, size + 2))
 				printf("Conversion failed\n");
-			//printf("BREAK 9\n");
+
 			hwdata = GlobalAlloc(GMEM_MOVEABLE, size + 2);
-			//printf("BREAK 10\n");
 			wclipcopy = (LPTSTR)GlobalLock(hwdata);
-
-			//printf("BREAK 11\n");
 			memcpy(wclipcopy, wclip, size);
-
-			//printf("BREAK 12\n");
-
-			//printf("BREAK 13\n");
 			SetClipboardData(CF_UNICODETEXT, hwdata);
-			//printf("BREAK 14\n");
 			GlobalUnlock(hwdata);
 			GlobalFree(hwdata);
-			//printf("BREAK 15\n");
 			efree(wclip);
-			//printf("BREAK 16\n");
 			success = TRUE;
 		}
 		else
@@ -691,13 +670,8 @@ ZEND_FUNCTION(wb_set_clipboard)
 			GlobalUnlock(hdata);
 			GlobalFree(hdata);
 		}
-		//printf("BREAK 17\n");
-
-		//printf("BREAK 18\n");
 	}
-	//printf("BREAK 19\n");
 	CloseClipboard();
-	//printf("BREAK 20\n");
 	RETURN_BOOL(success);
 }
 
@@ -762,6 +736,4 @@ ZEND_FUNCTION(wb_is_mouse_over)
     RETURN_BOOL(0);
 
 }
-
-
 //------------------------------------------------------------------ END OF FILE
