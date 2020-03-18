@@ -740,8 +740,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 	switch (msg)
 	{
-	case WM_DROPFILES: // Custom WinBinder message
-		break;
+
 	//------------------------------- Notification messages
 	case WBWM_KEYDOWN: // Custom WinBinder message
 	{
@@ -1229,48 +1228,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 	}
 	break;
-	/*
-	// @todo check if mouse over control and send a new message type to control WBC_MOUSEOVER
-	case WM_MOUSEHOVER:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-        RECT rc;
-        POINT pt;
-
-		if (!pwbobj)
-			break;
-
-
-
-		if (BITTEST(pwbobj->lparam, WBC_MOUSEOVER))
-		{
-		    // Get controls rect
-            if(GetWindowRect(pwbobj->hwnd, &rc)){
-
-                // Get current cursor pos
-                if(GetCursorPos(&pt)){
-
-                    // Check if its within the rect
-                    if(PtInRect(&rc, pt)){
-                        if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn){
-                            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEOVER | wParam, lParam, 0);
-
-                            // CALL_CALLBACK(LOWORD(wParam), WBC_MOUSEOVER, HIWORD(wParam), 0);
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-		}
-
-
-	}
-	break;
-    */
 
     // Alt key checking: http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_lbuttondown.asp
     // Also see "System and Nonsystem Keystrokes" in API help
@@ -1464,11 +1421,6 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	{
 
 	//------------------------- Custom messages
-	case WM_DROPFILES: // Custom WinBinder message
-	{
-	}
-	break;
-
 	case WBWM_NOTIFYICON:
 	{
 		PWBOBJ pwbobj = wbGetWBObj(hwnd);

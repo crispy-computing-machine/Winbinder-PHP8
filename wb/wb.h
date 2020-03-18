@@ -222,7 +222,6 @@ enum
 #define WBC_MOUSEMOVE 0x00000080
 #define WBC_MOUSEDOWN 0x00000100
 #define WBC_MOUSEUP 0x00000200
-#define WBC_MOUSEOVER 0x00000300
 
 #define WBC_KEYDOWN 0x00000400 // Used in wbCheckInput()
 #define WBC_KEYUP 0x00000800
@@ -231,7 +230,6 @@ enum
 #define WBC_RESIZE 0x00002000
 #define WBC_REDRAW 0x00004000
 #define WBC_HEADERSEL 0x00008000
-#define WBC_DROPFILES 0x00000233
 
 // Additional notification message flags
 
