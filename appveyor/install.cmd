@@ -2,6 +2,7 @@
 setlocal enableextensions enabledelayedexpansion
 	cinst wget
 
+    echo INSTALLING PHP VERSION: %PHP_REL% 
 	if not exist "%PHP_BUILD_CACHE_BASE_DIR%" (
 		echo Creating %PHP_BUILD_CACHE_BASE_DIR%
 		mkdir "%PHP_BUILD_CACHE_BASE_DIR%"
