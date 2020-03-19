@@ -11,7 +11,7 @@ environment:
   PHP_BUILD_CACHE_SDK_DIR: c:\build-cache\sdk
   PHP_BUILD_SDK_BRANCH: php-sdk-2.1.9
   SDK_REMOTE: https://github.com/Microsoft/php-sdk-binary-tools.git
-  SDK_BRANCH: php-sdk-2.1.9
+  SDK_BRANCH: php-sdk-2.1.5
 
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
