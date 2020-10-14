@@ -41,6 +41,8 @@ setlocal enableextensions enabledelayedexpansion
 
 		if %errorlevel% neq 0 exit /b 3
 
+        if %errorlevel% == 0 echo BUILD SUCCESS!!!
+
 		cd /d %APPVEYOR_BUILD_FOLDER%
 
 		if not exist "%APPVEYOR_BUILD_FOLDER%\build\ext\php_winbinder.dll" exit /b 3
