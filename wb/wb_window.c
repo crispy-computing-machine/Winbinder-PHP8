@@ -375,7 +375,7 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 		return FALSE;
 
 	// pwboParent is ignored here
-
+	// @todo seems to segfault when clientarea is set to true!
 	if (bClientRect)
 	{
 		RECT rcParent;
