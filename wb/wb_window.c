@@ -376,8 +376,7 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 
 	// pwboParent is ignored here
 	// @todo seems to segfault when clientarea is set to true!
-	if (bClientRect)
-	{
+	if (bClientRect){
 		RECT rcParent;
 
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
@@ -385,9 +384,9 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 
 		rc.left -= rcParent.left;
 		rc.top -= rcParent.top;
-	}
-	else
+	} else {
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
+	}
 
 	if (!bRet)
 		return (DWORD)MAKELONG(WBC_CENTER, WBC_CENTER);
