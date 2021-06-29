@@ -39,6 +39,7 @@ install:
     #        & 7z x c:\build-cache\$lname0 -oc:\build-cache\$lname1
     #}
 
+    xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
 
 cache:
   c:\build-cache -> .appveyor.yml
@@ -70,10 +71,9 @@ build_script:
     $dname1 = 'php-' + $env:PHP_VER + $ts_part + '-devel-' + $env:VC.toUpper() + '-' + $env:ARCH
     if (-not (Test-Path c:\build-cache\$dname1)) {
             7z x c:\build-cache\$bname -oc:\build-cache
-            # Sleep 5 seconds (longer sleep, process cannot access the file)
-            Start-Sleep -s 10
-            echo Moving c:\build-cache\$dname0 to c:\build-cache\$dname1
-            move c:\build-cache\$dname0 c:\build-cache\$dname1
+            # Same directory???
+            #echo Moving c:\build-cache\$dname0 to c:\build-cache\$dname1
+            #move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
     
     cd c:\projects\winbinder
