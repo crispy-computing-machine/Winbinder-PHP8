@@ -37,6 +37,8 @@ setlocal enableextensions enabledelayedexpansion
 	rem )
 
 	rem powershell -Command "(New-Object Net.WebClient).DownloadFile('http://windows.php.net/downloads/releases/', 'C:\projects\php-src\php8.zip')"
+	echo Downloading deps from php website...
+	echo http://windows.php.net/downloads/releases/php-devel-pack-' + %PHP_VER% + !ZTS_SHORT! + '-Win32-' + %PHP_BUILD_CRT% + '-x86.zip
 	powershell -Command "Invoke-WebRequest http://windows.php.net/downloads/releases/php-devel-pack-' + %PHP_VER% + !ZTS_SHORT! + '-Win32-' + %PHP_BUILD_CRT% + '-x86.zip -OutFile C:\projects\php-src\php8.zip"
 	7z x C:\projects\php-src\php8.zip -oC:\projects\php-src
 
