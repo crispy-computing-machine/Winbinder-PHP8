@@ -26,7 +26,7 @@ setlocal enableextensions enabledelayedexpansion
 		cd /d C:\projects\php-src
 
 		rem New PHP 8 starter batch file
-		cmd /c phpsdk-%PHP_SDK_VC%-%PHP_SDK_ARCH%.bat
+		cmd /c bin\phpsdk-%PHP_REL%-%PHP_SDK_ARCH%.bat
 		if %errorlevel% neq 0 exit /b 3
 
 		rem Build php 8 build directory structure
