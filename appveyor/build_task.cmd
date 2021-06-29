@@ -25,20 +25,30 @@ setlocal enableextensions enabledelayedexpansion
 
 		cd /d C:\projects\php-src
 
-		cmd /c buildconf.bat --force
-
+		rem New PHP 8 starter batch file
+		cmd /c phpsdk-%PHP_SDK_VC%-%PHP_SDK_ARCH%.bat
 		if %errorlevel% neq 0 exit /b 3
 
-		cmd /c configure.bat --disable-all --with-mp=auto --enable-cli --!ZTS_STATE!-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
+		rem Build php 8 build directory structure
+		cmd /c bin\phpsdk_buildtree.bat.bat phpmaster
+		if %errorlevel% neq 0 exit /b 3
 
+		rem Set deps branch to same as build branch
+		cmd /c bin\phpsdk_deps.bat --update --branch %PHP_REL%
+		if %errorlevel% neq 0 exit /b 3
+
+		rem normal buildconf
+		cmd /c buildconf.bat --force
+		if %errorlevel% neq 0 exit /b 3
+
+		rem normal configure with module enabled
+		cmd /c configure.bat --disable-all --with-mp=auto --enable-cli --!ZTS_STATE!-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
 		if %errorlevel% neq 0 exit /b 3
 
 		nmake /NOLOGO
-
 		if %errorlevel% neq 0 exit /b 3
 
 		nmake install
-
 		if %errorlevel% neq 0 exit /b 3
 
         if %errorlevel% == 0 echo BUILD SUCCESS!!!
@@ -54,7 +64,8 @@ setlocal enableextensions enabledelayedexpansion
 		xcopy %APPVEYOR_BUILD_FOLDER%\build\ext\*.dll %APPVEYOR_BUILD_FOLDER%\php_winbinder-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%\ /y /f
 		7z a php_winbinder-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%.zip %APPVEYOR_BUILD_FOLDER%\php_winbinder-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%\*
 		appveyor PushArtifact php_winbinder-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%.zip -FileName php_winbinder-%APPVEYOR_REPO_TAG_NAME%-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%.zip
-
 		move build\ext\php_winbinder.dll artifacts\php_winbinder-%PHP_REL%-!ZTS_SHORT!-%PHP_BUILD_CRT%-%PHP_SDK_ARCH%.dll
+
+		if %errorlevel% == 0 echo ASSET READY FOR DOWNLOAD!!!
 	)
 endlocal
