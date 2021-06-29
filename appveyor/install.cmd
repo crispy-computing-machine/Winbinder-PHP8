@@ -38,12 +38,20 @@ setlocal enableextensions enabledelayedexpansion
 
 	rem powershell -Command "(New-Object Net.WebClient).DownloadFile('http://windows.php.net/downloads/releases/', 'C:\projects\php-src\php8.zip')"
 	echo Downloading deps from php website...
-	echo http://windows.php.net/downloads/releases/archives/php-devel-pack-%PHP_VER%!ZTS_SHORT!-Win32-%PHP_BUILD_CRT%-x86.zip
+	if not exist "%PHP_BUILD_PRJ_DIR%" (
+        echo Creating %PHP_BUILD_PRJ_DIR%
+        mkdir "%PHP_BUILD_PRJ_DIR%"
+    )
+	if not exist "%PHP_BUILD_SRC_DIR%" (
+        echo Creating %PHP_BUILD_SRC_DIR%
+        mkdir "%PHP_BUILD_SRC_DIR%"
+    )
+	echo https://windows.php.net/downloads/releases/archives/php-devel-pack-%PHP_VER%!ZTS_SHORT!-Win32-%PHP_BUILD_CRT%-x86.zip
 	rem http://windows.php.net/downloads/releases/php-devel-pack-8.0.3-Win32-vs16-x86.zip
 	powershell -Command "Invoke-WebRequest http://windows.php.net/downloads/releases/archives/php-devel-pack-%PHP_VER%!ZTS_SHORT!-Win32-%PHP_BUILD_CRT%-x86.zip -OutFile C:\projects\php-src\php8.zip"
-	7z x C:\projects\php-src\php8.zip -oC:\projects\php-src
+	7z x PHP_BUILD_SRC_DIR\php8.zip -o%PHP_BUILD_SRC_DIR%
 
-	xcopy %APPVEYOR_BUILD_FOLDER% C:\projects\php-src\ext\winbinder\ /s /e /y /f
+	xcopy %APPVEYOR_BUILD_FOLDER% %PHP_BUILD_SRC_DIR%\ext\winbinder\ /s /e /y /f
 
 	rem xcopy %APPVEYOR_BUILD_FOLDER%\LICENSE %APPVEYOR_BUILD_FOLDER%\artifacts\ /y /f
 
