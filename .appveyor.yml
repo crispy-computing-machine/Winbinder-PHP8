@@ -71,7 +71,7 @@ build_script:
     if (-not (Test-Path c:\build-cache\$dname1)) {
             7z x c:\build-cache\$bname -oc:\build-cache
             # Sleep 5 seconds (longer sleep, process cannot access the file)
-            Start-Sleep -s 60
+            Start-Sleep -s 300
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
     
@@ -94,7 +94,7 @@ after_build:
   ps: |
 
     $ts_part = 'ts'
-    if ('0' -eq $env:TS) { $ts_part = 'nts' }
+    if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $zip_bname = 'php_winbinder-' + $env:APPVEYOR_REPO_COMMIT.substring(0, 8) + '-' + $env:PHP_VER.substring(0, 3) + '-' + $ts_part + '-' + $env:VC + '-' + $env:ARCH + '.zip'
     $dir = 'c:\projects\winbinder\';
     if ('x64' -eq $env:ARCH) { $dir = $dir + 'x64\' }
@@ -106,7 +106,7 @@ after_build:
 test_script:
   ps: |
 
-    $ts_part = ''
+    $ts_part = 'ts'
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
     if (-not (Test-Path c:\build-cache\$bname)) {
