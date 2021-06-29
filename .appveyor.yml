@@ -16,7 +16,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PHP_BUILD_CRT: vs16
-      PHP_REL: 8.0.7
+      PHP_REL: 8.0.3
       ARCHITECTURES: x86
       ZTS_STATES: enable
 
