@@ -8,7 +8,7 @@ setlocal enableextensions enabledelayedexpansion
 	rem Set DEPS_DIR
 	set STABILITY=staging
 	rem php-8.0.3-devel-vs16-x86 after unzip?
-	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\php-%PHP_VER%-devel-%PHP_BUILD_CRT%-%ARCHITECTURES%
+	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\php-%PHP_VER%-devel-%PHP_BUILD_CRT%-%ARCHITECTURE%
 	echo %DEPS_DIR%
 
 	cd /d %PHP_BUILD_CACHE_SDK_DIR%\bin\
