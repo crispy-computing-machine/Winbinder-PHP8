@@ -71,7 +71,7 @@ build_script:
     if (-not (Test-Path c:\build-cache\$dname1)) {
             7z x c:\build-cache\$bname -oc:\build-cache
             # Sleep 5 seconds (longer sleep, process cannot access the file)
-            Start-Sleep -s 10
+            Start-Sleep -s 30
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
     
