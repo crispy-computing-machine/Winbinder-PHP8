@@ -22,7 +22,7 @@ setlocal enableextensions enabledelayedexpansion
 	rem Something went wrong, most likely when concurrent builds were to fetch deps
 	rem updates. It might be, that some locking mechanism is needed.
 	if not exist "%DEPS_DIR%" (
-		cmd /c phpsdk_deps.bat --update --force --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
+		cmd /c phpsdk_deps.bat --update --branch %PHP_REL%
 	)
 	if %errorlevel% neq 0 exit /b 3
 
