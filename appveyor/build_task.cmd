@@ -15,15 +15,12 @@ setlocal enableextensions enabledelayedexpansion
 
 	rem SDK is cached, deps info is cached as well
 	echo Updating dependencies in %DEPS_DIR%
-	echo phpsdk_deps.bat --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
-	cmd /c phpsdk_deps.bat --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
-	if %errorlevel% neq 0 exit /b 3
-
-	rem Something went wrong, most likely when concurrent builds were to fetch deps
-	rem updates. It might be, that some locking mechanism is needed.
 	if not exist "%DEPS_DIR%" (
-		cmd /c phpsdk_deps.bat --update --branch %PHP_REL%
-	)
+        echo Creating %DEPS_DIR%
+        mkdir "%DEPS_DIR%"
+    )
+	echo phpsdk_deps.bat --update --branch %PHP_REL%
+	cmd /c phpsdk_deps.bat --update --branch %PHP_REL%
 	if %errorlevel% neq 0 exit /b 3
 
 	rem New PHP 8 starter batch file
