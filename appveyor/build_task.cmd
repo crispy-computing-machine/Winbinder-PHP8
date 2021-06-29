@@ -11,7 +11,7 @@ setlocal enableextensions enabledelayedexpansion
 	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\php-%PHP_VER%-devel-%PHP_BUILD_CRT%-%ARCHITECTURE%
 	echo %DEPS_DIR%
 
-	cd /d %PHP_BUILD_CACHE_SDK_DIR%\bin\
+	cd /d %PHP_BUILD_SRC_DIR%\bin\
 
 	rem SDK is cached, deps info is cached as well
 	echo Updating dependencies in %DEPS_DIR%
@@ -19,24 +19,24 @@ setlocal enableextensions enabledelayedexpansion
         echo Creating %DEPS_DIR%
         mkdir "%DEPS_DIR%"
     )
-	echo phpsdk_deps.bat --update --branch %PHP_REL%
-	cmd /c phpsdk_deps.bat --update --branch %PHP_REL%
+	echo phpsdk_deps --update --branch %PHP_REL%
+	cmd /c phpsdk_deps --update --branch %PHP_REL%
 	if %errorlevel% neq 0 exit /b 3
 
 	rem New PHP 8 starter batch file
-	cmd /c phpsdk-%PHP_REL%-%PHP_SDK_ARCH%.bat
+	cmd /c phpsdk-%PHP_REL%-%PHP_SDK_ARCH%
 	if %errorlevel% neq 0 exit /b 3
 
 	rem Build php 8 build directory structure
-	cmd /c phpsdk_buildtree.bat.bat phpmaster
+	cmd /c phpsdk_buildtree phpmaster
 	if %errorlevel% neq 0 exit /b 3
 
 	rem normal buildconf
-	cmd /c buildconf.bat --force
+	cmd /c buildconf --force
 	if %errorlevel% neq 0 exit /b 3
 
 	rem normal configure with module enabled
-	cmd /c configure.bat --disable-all --with-mp=auto --enable-cli --%ZTS_STATE%-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
+	cmd /c configure --disable-all --with-mp=auto --enable-cli --%ZTS_STATE%-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
 	if %errorlevel% neq 0 exit /b 3
 
 	nmake /NOLOGO
