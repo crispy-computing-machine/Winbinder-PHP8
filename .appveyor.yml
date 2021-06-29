@@ -70,8 +70,8 @@ build_script:
     $dname1 = 'php-' + $env:PHP_VER + $ts_part + '-devel-' + $env:VC.toUpper() + '-' + $env:ARCH
     if (-not (Test-Path c:\build-cache\$dname1)) {
             7z x c:\build-cache\$bname -oc:\build-cache
-            # Sleep 5 seconds (process cannot access the file)
-            Start-Sleep -s 5
+            # Sleep 5 seconds (longer sleep, process cannot access the file)
+            Start-Sleep -s 10
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
     
