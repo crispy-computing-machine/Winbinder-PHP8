@@ -5,18 +5,8 @@ setlocal enableextensions enabledelayedexpansion
 	if %errorlevel% neq 0 exit /b 3
 
 	set STABILITY=staging
-	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\deps-%PHP_REL%-%PHP_SDK_VC%-%PHP_SDK_ARCH%
-	rem SDK is cached, deps info is cached as well
-	echo Updating dependencies in %DEPS_DIR%
-	cmd /c phpsdk_deps --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
-	if %errorlevel% neq 0 exit /b 3
-
-	rem Something went wrong, most likely when concurrent builds were to fetch deps
-	rem updates. It might be, that some locking mechanism is needed.
-	if not exist "%DEPS_DIR%" (
-		cmd /c phpsdk_deps --update --force --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
-	)
-	if %errorlevel% neq 0 exit /b 3
+	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\deps-%PHP_REL%-%PHP_REL%-%PHP_SDK_ARCH%
+	echo %DEPS_DIR%
 
 	for %%z in (%ZTS_STATES%) do (
 		set ZTS_STATE=%%z
@@ -24,6 +14,18 @@ setlocal enableextensions enabledelayedexpansion
 		if "!ZTS_STATE!"=="disable" set ZTS_SHORT=nts
 
 		cd /d C:\projects\php-src
+
+		rem SDK is cached, deps info is cached as well
+		echo Updating dependencies in %DEPS_DIR%
+		cmd /c bin\phpsdk_deps.bat --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
+		if %errorlevel% neq 0 exit /b 3
+
+		rem Something went wrong, most likely when concurrent builds were to fetch deps
+		rem updates. It might be, that some locking mechanism is needed.
+		if not exist "%DEPS_DIR%" (
+			cmd /c bin\phpsdk_deps.bat --update --force --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
+		)
+		if %errorlevel% neq 0 exit /b 3
 
 		rem New PHP 8 starter batch file
 		cmd /c bin\phpsdk-%PHP_REL%-%PHP_SDK_ARCH%.bat
@@ -33,16 +35,12 @@ setlocal enableextensions enabledelayedexpansion
 		cmd /c bin\phpsdk_buildtree.bat.bat phpmaster
 		if %errorlevel% neq 0 exit /b 3
 
-		rem Set deps branch to same as build branch
-		cmd /c bin\phpsdk_deps.bat --update --branch %PHP_REL%
-		if %errorlevel% neq 0 exit /b 3
-
 		rem normal buildconf
-		cmd /c buildconf.bat --force
+		cmd /c bin\buildconf.bat --force
 		if %errorlevel% neq 0 exit /b 3
 
 		rem normal configure with module enabled
-		cmd /c configure.bat --disable-all --with-mp=auto --enable-cli --!ZTS_STATE!-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
+		cmd /c bin\configure.bat --disable-all --with-mp=auto --enable-cli --!ZTS_STATE!-zts --with-winbinder=shared --enable-object-out-dir=%PHP_BUILD_OBJ_DIR% --with-config-file-scan-dir=%APPVEYOR_BUILD_FOLDER%\build\modules.d --with-prefix=%APPVEYOR_BUILD_FOLDER%\build --with-php-build=%DEPS_DIR%
 		if %errorlevel% neq 0 exit /b 3
 
 		nmake /NOLOGO
