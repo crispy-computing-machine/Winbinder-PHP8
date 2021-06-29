@@ -2,6 +2,10 @@
 setlocal enableextensions enabledelayedexpansion
 	cinst wget
 
+	if "!ZTS_STATE!"=="enable" set ZTS_SHORT=ts
+	if "!ZTS_STATE!"=="disable" set ZTS_SHORT=nts
+
+
     echo INSTALLING PHP VERSION: %PHP_REL% 
 	if not exist "%PHP_BUILD_CACHE_BASE_DIR%" (
 		echo Creating %PHP_BUILD_CACHE_BASE_DIR%
@@ -24,13 +28,17 @@ setlocal enableextensions enabledelayedexpansion
 		git --git-dir="%PHP_BUILD_CACHE_SDK_DIR%\.git" --work-tree="%PHP_BUILD_CACHE_SDK_DIR%" checkout --force %SDK_BRANCH%
 	)
 
-	if "%PHP_REL%"=="master" (
-		echo git clone -q --depth=1 --branch=%PHP_REL% https://github.com/php/php-src C:\projects\php-src
-		git clone -q --depth=1 --branch=%PHP_REL% https://github.com/php/php-src C:\projects\php-src
-	) else (
-		echo git clone -q --depth=1 --branch=PHP-%PHP_REL% https://github.com/php/php-src C:\projects\php-src
-		git clone -q --depth=1 --branch=PHP-%PHP_REL% https://github.com/php/php-src C:\projects\php-src
-	)
+	rem if "%PHP_REL%"=="master" (
+	rem 	echo git clone -q --depth=1 --branch=%PHP_REL% https://github.com/php/php-src C:\projects\php-src
+	rem 	git clone -q --depth=1 --branch=%PHP_REL% https://github.com/php/php-src C:\projects\php-src
+	rem ) else (
+	rem 	echo git clone -q --depth=1 --branch=PHP-%PHP_REL% https://github.com/php/php-src C:\projects\php-src
+	rem 	git clone -q --depth=1 --branch=PHP-%PHP_REL% https://github.com/php/php-src C:\projects\php-src
+	rem )
+
+	rem powershell -Command "(New-Object Net.WebClient).DownloadFile('http://windows.php.net/downloads/releases/', 'C:\projects\php-src\php8.zip')"
+	powershell -Command "Invoke-WebRequest http://windows.php.net/downloads/releases/php-devel-pack-' + %PHP_VER% + !ZTS_SHORT! + '-Win32-' + %PHP_BUILD_CRT% + '-x86.zip -OutFile C:\projects\php-src\php8.zip"
+	7z x C:\projects\php-src\php8.zip -oC:\projects\php-src
 
 	xcopy %APPVEYOR_BUILD_FOLDER% C:\projects\php-src\ext\winbinder\ /s /e /y /f
 

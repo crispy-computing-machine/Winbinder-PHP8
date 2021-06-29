@@ -16,9 +16,10 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PHP_BUILD_CRT: vs16
+      PHP_VER: 8.0.3
       PHP_REL: 8.1
       ARCHITECTURES: x86
-      ZTS_STATES: enable
+      ZTS_STATES: disable
 
 install:
   - appveyor\install.cmd
