@@ -49,7 +49,7 @@ setlocal enableextensions enabledelayedexpansion
 	echo https://windows.php.net/downloads/releases/archives/php-devel-pack-%PHP_VER%!ZTS_SHORT!-Win32-%PHP_BUILD_CRT%-x86.zip
 	rem http://windows.php.net/downloads/releases/php-devel-pack-8.0.3-Win32-vs16-x86.zip
 	powershell -Command "Invoke-WebRequest http://windows.php.net/downloads/releases/archives/php-devel-pack-%PHP_VER%!ZTS_SHORT!-Win32-%PHP_BUILD_CRT%-x86.zip -OutFile C:\projects\php-src\php8.zip"
-	7z x PHP_BUILD_SRC_DIR\php8.zip -o%PHP_BUILD_SRC_DIR%
+	7z x %PHP_BUILD_SRC_DIR%\php8.zip -o %PHP_BUILD_SRC_DIR%
 
 	xcopy %APPVEYOR_BUILD_FOLDER% %PHP_BUILD_SRC_DIR%\ext\winbinder\ /s /e /y /f
 
