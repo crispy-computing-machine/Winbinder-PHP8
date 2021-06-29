@@ -2,11 +2,7 @@
 setlocal enableextensions enabledelayedexpansion
 	cinst wget
 
-	if "!ZTS_STATE!"=="enable" set ZTS_SHORT=ts
-	if "!ZTS_STATE!"=="disable" set ZTS_SHORT=nts
-
-
-    echo INSTALLING PHP VERSION: %PHP_REL% 
+    echo INSTALLING PHP VERSION: %PHP_REL%
 	if not exist "%PHP_BUILD_CACHE_BASE_DIR%" (
 		echo Creating %PHP_BUILD_CACHE_BASE_DIR%
 		mkdir "%PHP_BUILD_CACHE_BASE_DIR%"
@@ -20,12 +16,12 @@ setlocal enableextensions enabledelayedexpansion
 	if not exist "%PHP_BUILD_CACHE_SDK_DIR%" (
 		echo Cloning remote SDK repository
 		rem git clone -q --depth=1 --branch %SDK_BRANCH% %SDK_REMOTE% "%PHP_BUILD_CACHE_SDK_DIR%" 2>&1
-		git clone --branch %SDK_BRANCH% %SDK_REMOTE% "%PHP_BUILD_CACHE_SDK_DIR%" 2>&1
+		git clone --branch %SDK_BRANCH% %SDK_REMOTE% "%PHP_BUILD_CACHE_SDK_DIR%" -v
 	) else (
 		echo Fetching remote SDK repository
-		git --git-dir="%PHP_BUILD_CACHE_SDK_DIR%\.git" --work-tree="%PHP_BUILD_CACHE_SDK_DIR%" fetch --prune origin 2>&1
+		git --git-dir="%PHP_BUILD_CACHE_SDK_DIR%\.git" --work-tree="%PHP_BUILD_CACHE_SDK_DIR%" fetch --prune origin -v
 		echo Checkout SDK repository branch
-		git --git-dir="%PHP_BUILD_CACHE_SDK_DIR%\.git" --work-tree="%PHP_BUILD_CACHE_SDK_DIR%" checkout --force %SDK_BRANCH%
+		git --git-dir="%PHP_BUILD_CACHE_SDK_DIR%\.git" --work-tree="%PHP_BUILD_CACHE_SDK_DIR%" checkout --force %SDK_BRANCH% -v
 	)
 
 	rem if "%PHP_REL%"=="master" (

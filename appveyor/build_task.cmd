@@ -7,13 +7,15 @@ setlocal enableextensions enabledelayedexpansion
 
 	rem Set DEPS_DIR
 	set STABILITY=staging
-	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\deps-%PHP_REL%-%PHP_REL%-%ARCHITECTURES%
+	rem php-8.0.3-devel-vs16-x86 after unzip?
+	set DEPS_DIR=%PHP_BUILD_CACHE_BASE_DIR%\php-%PHP_VER%-devel-%PHP_BUILD_CRT%-%ARCHITECTURES%
 	echo %DEPS_DIR%
 
 	cd /d %PHP_BUILD_CACHE_SDK_DIR%\bin\
 
 	rem SDK is cached, deps info is cached as well
 	echo Updating dependencies in %DEPS_DIR%
+	echo phpsdk_deps.bat --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
 	cmd /c phpsdk_deps.bat --update --no-backup --branch %PHP_REL% --stability %STABILITY% --deps %DEPS_DIR% --crt %PHP_BUILD_CRT%
 	if %errorlevel% neq 0 exit /b 3
 
