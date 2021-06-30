@@ -105,6 +105,7 @@ test_script:
     $ts_part = 'ts'
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+    echo Release file URL "http://windows.php.net/downloads/releases/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
       Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
       if (-not (Test-Path c:\build-cache\$bname)) {
