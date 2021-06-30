@@ -4,7 +4,7 @@
 ARG_WITH("winbinder", "Include windows GUI support", "no");
 
 if (PHP_WINBINDER == "yes") {
-	PHP_INSTALL_HEADERS("C:\projects\php-src\ext\winbinder\wb\", "wb.h");
+	PHP_INSTALL_HEADERS("C:\\projects\\php-src\\ext\\winbinder\\wb", "wb.h");
 
 	EXTENSION("winbinder", "phpwb_bitmap.c phpwb_control.c phpwb_control_listview.c\
 	phpwb_control_menu.c phpwb_control_toolbar.c phpwb_control_treeview.c\
