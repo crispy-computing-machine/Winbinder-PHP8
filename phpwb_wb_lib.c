@@ -161,7 +161,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		CALLBACK_ARGS,		// Parameter count
 		parms,				// Parameter array
 		0,					// No separation flag (always 0)
-		NULL TSRMLS_CC);
+		NULL);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
