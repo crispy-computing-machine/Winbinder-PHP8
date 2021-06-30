@@ -43,7 +43,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{

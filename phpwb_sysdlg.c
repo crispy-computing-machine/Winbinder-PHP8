@@ -45,7 +45,7 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	szTitle = Utf82WideChar(title, title_len);
 	szFilter = Utf82WideChar(filter, filter_len);
@@ -84,7 +84,7 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		}
 	}
 	else
-		RETURN_STRING("")
+		RETURN_STRING("");
 }
 
 ZEND_FUNCTION(wbtemp_sys_dlg_save)
@@ -111,7 +111,7 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (*file){
 		//		strcpy(szFile, file);
@@ -132,10 +132,10 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	if (*szFile)
 	{
 		file = WideChar2Utf8(szFile, &file_len);
-		RETURN_STRINGL(file, file_len)
+		RETURN_STRINGL(file, file_len);
 	}
 	else{
-		RETURN_STRING("")
+		RETURN_STRING("");
 	}
 }
 
@@ -160,7 +160,7 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	szTitle = Utf82WideChar(title, title_len);
 	szPath = Utf82WideChar(path, path_len);
@@ -170,10 +170,10 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	if (*szSelPath)
 	{
 		selPath = WideChar2Utf8(szSelPath, &sel_len);
-		RETURN_STRINGL(selPath, sel_len)
+		RETURN_STRINGL(selPath, sel_len);
 	}
 	else{
-		RETURN_STRING("")
+		RETURN_STRING("");
 	}
 }
 
@@ -195,7 +195,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	szTitle = Utf82WideChar(title, title_len);
 	RETURN_LONG(wbSysDlgColor((PWBOBJ)pwboParent, szTitle, (COLORREF)color));
@@ -222,7 +222,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	font.pszName = name;
 	font.nHeight = height;

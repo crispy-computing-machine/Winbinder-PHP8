@@ -64,7 +64,7 @@ ZEND_FUNCTION(wbtemp_create_control)
 	}
 
 	if (!wbIsWBObj((void *)pwboparent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	// 2016_08_12 PHP 7 no longer has the same zval struct, let's not be complicated and use *macros*
 	// switch(zcaption->type) {
@@ -103,7 +103,7 @@ ZEND_FUNCTION(wb_destroy_control)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_BOOL(wbDestroyControl((PWBOBJ)pwbo));
 	}
@@ -120,7 +120,7 @@ ZEND_FUNCTION(wb_get_visible)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	} else{
 		RETURN_BOOL(wbGetVisible((PWBOBJ)pwbo));
 	}
@@ -140,7 +140,7 @@ ZEND_FUNCTION(wb_set_visible)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_BOOL(wbSetVisible((PWBOBJ)pwbo, b));
 	}
@@ -157,9 +157,9 @@ ZEND_FUNCTION(wb_set_focus)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
-		RETURN_BOOL(wbSetFocus((PWBOBJ)pwbo))
+		RETURN_BOOL(wbSetFocus((PWBOBJ)pwbo));
 	}
 }
 
@@ -179,7 +179,7 @@ ZEND_FUNCTION(wb_set_state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Set expanded / collapsed state
@@ -204,7 +204,7 @@ ZEND_FUNCTION(wb_get_state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Get expanded / collapsed state
@@ -229,7 +229,7 @@ ZEND_FUNCTION(wb_get_parent)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{
@@ -249,7 +249,8 @@ ZEND_FUNCTION(wb_get_parent)
 }
 
 ZEND_FUNCTION(wb_get_focus){
-	RETURN_LONG((LONG)wbGetFocus())}
+	RETURN_LONG((LONG)wbGetFocus());
+	}
 
 ZEND_FUNCTION(wb_set_style)
 {
@@ -613,7 +614,7 @@ ZEND_FUNCTION(wb_get_control)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwboparent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_LONG((LONG)wbGetControl((PWBOBJ)pwboparent, id));
 	}
@@ -631,7 +632,7 @@ ZEND_FUNCTION(wb_set_enabled)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_BOOL(wbSetEnabled((PWBOBJ)pwbo, state));
 	}
@@ -648,10 +649,10 @@ ZEND_FUNCTION(wb_get_enabled)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_BOOL(wbGetEnabled((PWBOBJ)pwbo));
-		}
+	}
 }
 
 /* bool wb_refresh (int control [, bool now]) */
@@ -674,7 +675,7 @@ ZEND_FUNCTION(wb_refresh)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_BOOL(wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now));
 	}
@@ -691,7 +692,7 @@ ZEND_FUNCTION(wb_get_item_count)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else{
 		RETURN_LONG(wbGetItemCount((PWBOBJ)pwbo));
 		}
@@ -712,7 +713,7 @@ ZEND_FUNCTION(wb_delete_items)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (!zitems){ // Delete all items
 		RETURN_LONG(wbDeleteItems((PWBOBJ)pwbo, TRUE));
@@ -765,11 +766,11 @@ ZEND_FUNCTION(wb_sort)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	} else
 	{
 		if (((PWBOBJ)pwbo)->uClass == ListView){
-			RETURN_BOOL(wbSortLVColumn((PWBOBJ)pwbo, subitem, ascending))
+			RETURN_BOOL(wbSortLVColumn((PWBOBJ)pwbo, subitem, ascending));
 		}else{
 			RETURN_BOOL(FALSE);
 
@@ -793,7 +794,7 @@ ZEND_FUNCTION(wb_set_location)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (((PWBOBJ)pwbo)->uClass == HTMLControl)
 	{
@@ -885,7 +886,7 @@ ZEND_FUNCTION(wbtemp_create_item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}else
 	{
 		wcs = Utf82WideChar(s, s_len);
@@ -910,7 +911,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	switch (Z_TYPE_P(zitems))
 	{
@@ -1012,7 +1013,7 @@ ZEND_FUNCTION(wbtemp_set_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	switch (Z_TYPE_P(zcaption))
 	{
@@ -1135,7 +1136,7 @@ ZEND_FUNCTION(wbtemp_get_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL() // This is an error, so return NULL
+		RETURN_NULL(); // This is an error, so return NULL
 	}
 	//Get rtf text
 	if (((PWBOBJ)pwbo)->uClass == RTFEditBox && index == WBC_RTF_TEXT)
@@ -1147,7 +1148,7 @@ ZEND_FUNCTION(wbtemp_get_text)
 			//str = WideChar2Utf8(ptext, &str_len);
 			RETURN_STRINGL(str, strlen(str));
 		}
-		RETURN_STRING("")
+		RETURN_STRING("");
 	}
 
 	len = wbGetTextLength((PWBOBJ)pwbo, index) + 1;
@@ -1156,7 +1157,7 @@ ZEND_FUNCTION(wbtemp_get_text)
 		ptext = emalloc(sizeof(TCHAR) * (len + 1));
 		if (!ptext)
 		{
-			RETURN_NULL() // This is an error, so return NULL
+			RETURN_NULL(); // This is an error, so return NULL
 		}
 		else
 		{
@@ -1165,18 +1166,18 @@ ZEND_FUNCTION(wbtemp_get_text)
 			{
 				str = WideChar2Utf8(ptext, &str_len);
 				efree(ptext);
-				RETURN_STRINGL(str, max(0, str_len))
+				RETURN_STRINGL(str, max(0, str_len));
 			}
 			else
 			{
 				efree(ptext);
-				RETURN_STRING("") // This is a valid empty string
+				RETURN_STRING(""); // This is a valid empty string
 			}
 		}
 	}
 	else
 	{
-		RETURN_STRING("") // This is a valid empty string
+		RETURN_STRING(""); // This is a valid empty string
 	}
 }
 

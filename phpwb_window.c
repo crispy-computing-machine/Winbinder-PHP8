@@ -44,7 +44,7 @@ ZEND_FUNCTION(wb_create_window)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (nargs == 5)
 	{
@@ -93,9 +93,9 @@ ZEND_FUNCTION(wb_destroy_window)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
-	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo))
+	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo));
 }
 
 ZEND_FUNCTION(wb_get_instance)
@@ -253,7 +253,7 @@ ZEND_FUNCTION(wb_set_size)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	if ((Z_TYPE_P(zparm) == IS_ARRAY) && ((PWBOBJ)pwbo)->uClass == ListView)
 	{
@@ -317,10 +317,10 @@ ZEND_FUNCTION(wb_set_size)
 		}
 
 		if (h != 65535){
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1))
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1));
 			}
 		else{
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval))
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval));
 		}
 	}
 }
@@ -341,7 +341,7 @@ ZEND_FUNCTION(wb_get_position)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	// Build the array
 
@@ -369,7 +369,7 @@ ZEND_FUNCTION(wb_set_position)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	RETURN_BOOL(wbSetWindowPosition((PWBOBJ)pwbo, x, y, NULL));
 }
@@ -411,7 +411,7 @@ ZEND_FUNCTION(wb_set_area)
 	}
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	RETURN_BOOL(wbSetWindowArea((PWBOBJ)pwbo, type, x, y, w, h));
 }
@@ -474,7 +474,7 @@ ZEND_FUNCTION(wb_get_item_list)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwboParent, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	// Build the array
 	array_init(return_value);

@@ -33,7 +33,7 @@ ZEND_FUNCTION(wb_get_level)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{
@@ -64,7 +64,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	RETURN_BOOL(wbSetTreeViewItemSelected((PWBOBJ)pwbo, (HTREEITEM)item));
 }
@@ -86,7 +86,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	wcs = Utf82WideChar(s, s_len);
 	RETURN_BOOL(wbSetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, wcs));
@@ -109,7 +109,7 @@ ZEND_FUNCTION(wbtemp_get_treeview_item_text)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	wbGetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, szItem, MAX_ITEM_STRING - 1);
 	str = WideChar2Utf8(szItem, &str_len);
@@ -137,7 +137,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_value)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	 }
 	switch (Z_TYPE_P(zparam))
 	{
@@ -189,7 +189,7 @@ ZEND_FUNCTION(wbtemp_create_treeview_item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
+		RETURN_NULL();
 	/* wb_create_items value only integer|null or adress possible, otherwise we need to allocate memory !   GYW */
 	switch (Z_TYPE_P(zparam))
 	{

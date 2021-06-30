@@ -74,12 +74,12 @@ ZEND_FUNCTION(wb_peek)
 	if (bytes == 0)
 	{ // Want a zero-terminated string?
 		if (!IsBadStringPtr(ptr, 32767))
-			RETURN_STRINGL(ptr, strlen(ptr), TRUE)
+			RETURN_STRINGL(ptr, strlen(ptr), TRUE);
 	}
 	else
 	{ // No, want a memory dump
 		if (!IsBadReadPtr(ptr, bytes)){
-			RETURN_STRINGL(ptr, bytes, TRUE)
+			RETURN_STRINGL(ptr, bytes, TRUE);
 		}
 	}
 	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
@@ -183,7 +183,7 @@ ZEND_FUNCTION(wb_get_address)
 		RETURN_LONG((LONG)(void *)Z_STRVAL_P(source));
 	}
 	else{
-		RETURN_LONG((LONG)(void *)source)
+		RETURN_LONG((LONG)(void *)source);
 	}
 }
 
@@ -210,7 +210,7 @@ ZEND_FUNCTION(wb_load_library)
 	//hlib = (LONG)wbLoadLibrary(lib);
 
 	if (hlib){
-		RETURN_LONG(hlib)
+		RETURN_LONG(hlib);
 	}else
 	{
 		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
@@ -277,7 +277,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	addr = (LONG)wbGetLibraryFunction((HMODULE)hlib, fun);
 
 	if (addr){
-		RETURN_LONG(addr)
+		RETURN_LONG(addr);
 	}else
 	{
 		wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Unable to locate function %s() in library"), fun);

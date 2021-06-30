@@ -104,7 +104,7 @@ ZEND_FUNCTION(wb_create_image)
 		RETURN_LONG(0);
 	}
 
-	RETURN_LONG((LONG)wbCreateBitmap(w, h, (BITMAPINFO *)bmi, (void *)bits))
+	RETURN_LONG((LONG)wbCreateBitmap(w, h, (BITMAPINFO *)bmi, (void *)bits));
 }
 
 ZEND_FUNCTION(wb_get_image_data)
@@ -147,7 +147,7 @@ ZEND_FUNCTION(wb_create_mask)
 	if (!hbm){
 		RETURN_NULL();
 	}
-	RETURN_LONG((LONG)wbCreateMask((HBITMAP)hbm, c))
+	RETURN_LONG((LONG)wbCreateMask((HBITMAP)hbm, c));
 }
 
 ZEND_FUNCTION(wb_destroy_image)
@@ -163,7 +163,7 @@ ZEND_FUNCTION(wb_destroy_image)
 	if (!hbm){
 		RETURN_NULL();
 	}
-	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm))
+	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm));
 }
 
 #ifdef __LCC__

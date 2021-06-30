@@ -282,7 +282,7 @@ ZEND_FUNCTION(wb_message_box)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL()
+		RETURN_NULL();
 	}
 	if (!title || !*title)
 	{
@@ -461,10 +461,10 @@ ZEND_FUNCTION(wb_get_registry_key)
 		if (*szVal)
 		{
 			WideCharCopy(szVal, sval, buflen);
-			RETURN_STRING(sval)
+			RETURN_STRING(sval);
 		}
 		else
-			RETURN_STRING("")
+			RETURN_STRING("");
 	}
 	else
 	{
