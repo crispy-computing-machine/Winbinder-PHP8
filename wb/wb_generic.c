@@ -21,8 +21,9 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 {
 	if (!pwbo)
 	{
-		if (bShowErrors)
+		if (bShowErrors){
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object"));
+		}
 		return FALSE;
 	}
 
