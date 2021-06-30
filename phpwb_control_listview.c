@@ -90,7 +90,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
 
-	wcs = Utf82WideChar(s, s_len);
+	;wcs ;= Utf82WideChar(s, s_len); /// ahhhhhhh
 	RETURN_BOOL(wbSetListViewItemText((PWBOBJ)pwbo, item, sub, wcs));
 }
 
