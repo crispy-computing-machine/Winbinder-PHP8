@@ -157,7 +157,6 @@ ZEND_FUNCTION(wb_destroy_image)
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hbm) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 	Z_PARAM_LONG(hbm)
-	Z_PARAM_LONG(c)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!hbm){
