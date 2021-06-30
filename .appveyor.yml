@@ -55,7 +55,7 @@ build_script:
     if (-not (Test-Path c:\build-cache\$bname)) {
             Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
             if (-not (Test-Path c:\build-cache\$bname)) {
-                    Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+                    Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
             }
     }
     
@@ -68,7 +68,7 @@ build_script:
             #move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
 
-    echo Start build process...
+    echo Main build process...
     cd c:\projects\winbinder
     $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
