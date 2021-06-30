@@ -27,9 +27,14 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "llls", &pwbo, &nitem, &nimage, &s, &s_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llls", &pwbo, &nitem, &nimage, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(4, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(nitem)
+		Z_PARAM_LONG(nimage)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -82,9 +87,14 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	int s_len;
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "llls", &pwbo, &item, &sub, &s, &s_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llls", &pwbo, &item, &sub, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(4, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_LONG(sub)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -97,9 +107,13 @@ ZEND_FUNCTION(wbtemp_set_listview_item_checked)
 {
 	zend_long pwbo, item, checked;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &item, &checked) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &item, &checked) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_LONG(checked)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -117,9 +131,15 @@ ZEND_FUNCTION(wbtemp_create_listview_column)
 
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "llsll", &pwbo, &ncol, &s, &s_len, &w, &align) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llsll", &pwbo, &ncol, &s, &s_len, &w, &align) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(5, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(ncol)
+		Z_PARAM_STR(s)
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(align)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -211,9 +231,11 @@ ZEND_FUNCTION(wbtemp_get_listview_columns)
 {
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwbo) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -242,9 +264,12 @@ ZEND_FUNCTION(wbtemp_get_listview_item_checked)
 {
 	zend_long pwbo, item;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &item) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &item) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -256,9 +281,12 @@ ZEND_FUNCTION(wbtemp_clear_listview_columns)
 {
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwbo) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -270,9 +298,13 @@ ZEND_FUNCTION(wbtemp_select_listview_item)
 {
 	zend_long pwbo, nitem, state;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &nitem, &state) == FAILURE)
-		RETURN_NULL();
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &nitem, &state) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(nitem)
+		Z_PARAM_LONG(state)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -286,9 +318,12 @@ ZEND_FUNCTION(wbtemp_select_all_listview_items)
 {
 	zend_long pwbo, state;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &state) == FAILURE)
-		RETURN_NULL();
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &state) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(state)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -307,9 +342,14 @@ ZEND_FUNCTION(wbtemp_get_listview_text)
 	char *str = 0;
 	int len = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|ll", &pwbo, &nitem, &ncol) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pwbo, &nitem, &ncol) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(nitm)
+		Z_PARAM_LONG(ncol)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()

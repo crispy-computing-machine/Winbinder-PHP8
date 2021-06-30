@@ -31,9 +31,15 @@ ZEND_FUNCTION(wb_send_message)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(msg)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(l)
+	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
 }
@@ -52,9 +58,13 @@ ZEND_FUNCTION(wb_peek)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|l", &address, &bytes) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &address, &bytes) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(address)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(bytes)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
 		RETURN_NULL();
@@ -91,9 +101,13 @@ ZEND_FUNCTION(wb_poke)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(address)
+		Z_PARAM_STR(contents)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(bytes)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
 	{
@@ -141,9 +155,10 @@ ZEND_FUNCTION(wb_get_address)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "z/", &source) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z/", &source) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ZVAL(source)
+	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 	if (sourcetype == IS_LONG)
@@ -184,9 +199,10 @@ ZEND_FUNCTION(wb_load_library)
 	}
 
 	//TCHAR *wcs = 0; // not sure if this is needed
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s", &lib, &lib_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(lib)
+	ZEND_PARSE_PARAMETERS_END();
 
 	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
 	//hlib = (LONG)wbLoadLibrary(lib);
@@ -211,9 +227,11 @@ ZEND_FUNCTION(wb_release_library)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &hlib) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hlib) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(hlib)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	// Is the library handle valid?
 
@@ -239,9 +257,12 @@ ZEND_FUNCTION(wb_get_function_address)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|l", &fun, &fun_len, &hlib) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &fun, &fun_len, &hlib) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_STR(fun)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(hlib)
+	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the library handle valid?
 
@@ -278,9 +299,12 @@ ZEND_FUNCTION(wb_call_function)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|a!", &addr, &array) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|a!", &addr, &array) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(addr)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ARRAY(array)
+	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the address valid?
 

@@ -34,9 +34,15 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 	TCHAR *szPath = 0;
 	TCHAR thisOne[MAX_PATH], fullPath[MAX_PATH * 2];
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sssl", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &style) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sssl", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &style) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 5)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(title)
+		Z_PARAM_STR(filter)
+		Z_PARAM_STR(path)
+		Z_PARAM_LONG(style)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
 		RETURN_NULL()
@@ -92,9 +98,16 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	TCHAR *szFilter = 0;
 	TCHAR *szPath = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sssss", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &file, &file_len, &defext, &defext_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sssss", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &file, &file_len, &defext, &defext_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 6)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(title)
+		Z_PARAM_STR(filter)
+		Z_PARAM_STR(path)
+		Z_PARAM_STR(file)
+		Z_PARAM_STR(defext)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
 		RETURN_NULL()
@@ -133,9 +146,13 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	char *selPath = 0;
 	int sel_len = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|ss", &pwboParent, &title, &title_len, &path, &path_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ss", &pwboParent, &title, &title_len, &path, &path_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(title)
+		Z_PARAM_STR(path)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
 		RETURN_NULL()
@@ -163,9 +180,13 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 
 	TCHAR *szTitle = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(title)
+		Z_PARAM_LONG(color)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
 		RETURN_NULL()
@@ -183,9 +204,16 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	int title_len = 0, name_len = 0;
 	FONT font;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_STR(title)
+		Z_PARAM_STR(name)
+		Z_PARAM_LONG(height)
+		Z_PARAM_LONG(color)
+		Z_PARAM_LONG(flags)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE))
 		RETURN_NULL()

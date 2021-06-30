@@ -30,9 +30,17 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	// Get function parameters
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz!|lls", &pwboParent, &zarray, &width, &height, &s, &s_len) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!|lls", &pwboParent, &zarray, &width, &height, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zarray)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(width)
+		Z_PARAM_LONG(height)
+		Z_PARAM_STR(s)
+
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwboParent, TRUE))
 		RETURN_NULL()

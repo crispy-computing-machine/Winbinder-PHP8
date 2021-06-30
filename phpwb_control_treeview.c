@@ -25,9 +25,12 @@ ZEND_FUNCTION(wb_get_level)
 {
 	zend_long pwbo, item = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &item) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &item) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -53,9 +56,12 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
 {
 	zend_long pwbo, item;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &item) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &item) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(itm)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -71,9 +77,13 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_text)
 
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lls", &pwbo, &item, &s, &s_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lls", &pwbo, &item, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -90,9 +100,13 @@ ZEND_FUNCTION(wbtemp_get_treeview_item_text)
 	char *str = 0;
 	int str_len = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &item) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &item) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(itm)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -114,9 +128,13 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_value)
 	zend_long pwbo, item, lparam = 0;
 	zval *zparam, zcopy;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "llz!", &pwbo, &item, &zparam) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llz!", &pwbo, &item, &zparam) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_ZVAL(zparam)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -157,9 +175,18 @@ ZEND_FUNCTION(wbtemp_create_treeview_item)
 	TCHAR *wcs = 0;
 	LONG ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls|zllll", &pwbo, &str, &str_len, &zparam, &where, &img1, &img2, &insertiontype) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|zllll", &pwbo, &str, &str_len, &zparam, &where, &img1, &img2, &insertiontype) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 7)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STR(str)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ZVAL(zparam)
+		Z_PARAM_LONG(where)
+		Z_PARAM_LONG(img1)
+		Z_PARAM_LONG(img2)
+		Z_PARAM_LONG(insertiontype)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()

@@ -46,10 +46,11 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 
 	// Get function parameters
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz!", &pwbo, &zarray) == FAILURE)
-		return;
-
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!", &pwbo, &zarray) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zarray)
+	ZEND_PARSE_PARAMETERS_END();
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{
 
@@ -112,9 +113,11 @@ ZEND_FUNCTION(wb_set_cursor)
 	HANDLE hCursor;
 	LPTSTR pszCursorName;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz!", &pwbo, &source) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!", &pwbo, &source) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(source)
+	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 
@@ -189,9 +192,12 @@ ZEND_FUNCTION(wb_play_sound)
 	TCHAR *szCmd = 0;
 	BOOL ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "z|s", &source, &cmd, &cmd_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|s", &source, &cmd, &cmd_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(source)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(cmd)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source)
 		RETURN_NULL();
@@ -245,9 +251,11 @@ ZEND_FUNCTION(wb_stop_sound)
 
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "|s", &cmd, &cmd_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &cmd, &cmd_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(cmd)
+	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(cmd, cmd_len);
 	RETURN_BOOL(wbStopSound(wcs));
@@ -264,9 +272,13 @@ ZEND_FUNCTION(wb_message_box)
 
 	style = MB_OK;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STR(msg)
+		Z_PARAM_STR(title)
+		Z_PARAM_LONG(style)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
@@ -307,9 +319,13 @@ ZEND_FUNCTION(wb_exec)
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_STR(pgm)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(parm)
+		Z_PARAM_LONG(show)
+	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
 	szParm = Utf82WideChar(parm, parm_len);
@@ -327,9 +343,10 @@ ZEND_FUNCTION(wb_get_system_info)
 	TCHAR szVal[1024];
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s", &s, &s_len) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!stricmp(s, "extensionpath"))
 	{
@@ -392,9 +409,10 @@ ZEND_FUNCTION(wb_find_file)
 
 	TCHAR *szPath = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s", &s, &s_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	szPath = Utf82WideChar(s, s_len);
 	wbFindFile(szPath, MAX_PATH * 4);
@@ -422,9 +440,13 @@ ZEND_FUNCTION(wb_get_registry_key)
 	TCHAR *szEntry = 0;
 	BOOL ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ss|s", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_STR(key)
+		Z_PARAM_STR(subkey)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(entry)
+	ZEND_PARSE_PARAMETERS_END();
 
 	szKey = Utf82WideChar(key, key_len);
 	szSubKey = Utf82WideChar(subkey, subkey_len);
@@ -460,9 +482,14 @@ ZEND_FUNCTION(wb_set_registry_key)
 	TCHAR *szVal = 0;
 	BOOL ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ss|sz!", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len, &source) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|sz!", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len, &source) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_STR(key)
+		Z_PARAM_STR(subkey)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR(entry)
+		Z_PARAM_ZVAL(source)
+	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 
@@ -523,9 +550,12 @@ ZEND_FUNCTION(wb_create_timer)
 	zend_long pwbo;
 	zend_long id, ms;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &id, &ms) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &id, &ms) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+		Z_PARAM_LONG(ms)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
@@ -538,9 +568,11 @@ ZEND_FUNCTION(wb_destroy_timer)
 	zend_long pwbo;
 	zend_long id;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &id) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &id) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
@@ -552,9 +584,13 @@ ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "|lll", &pwbo, &pause, &flags) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lll", &pwbo, &pause, &flags) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(0, 3)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(pause)
+		Z_PARAM_LONG(flags)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL();
@@ -566,9 +602,10 @@ ZEND_FUNCTION(wb_is_obj)
 {
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwbo) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL(wbIsWBObj((void *)pwbo, FALSE));
 }
@@ -636,9 +673,10 @@ ZEND_FUNCTION(wb_set_clipboard)
 	LPTSTR clipcopy;
 	LPTSTR wclipcopy;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s", &clip, &size) == FAILURE)
-		RETURN_BOOL(0);
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &clip, &size) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(clip)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (OpenClipboard(NULL))
 	{
@@ -711,9 +749,10 @@ ZEND_FUNCTION(wb_is_mouse_over)
     POINT pt;
 
     // control wbobj
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwbo) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
     // no control handle?
     if(!pwbo->hwnd){

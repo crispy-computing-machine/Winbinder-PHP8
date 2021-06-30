@@ -36,8 +36,10 @@ ZEND_FUNCTION(wb_load_image)
 	index = 0;
 	param = FALSE;
 
-	ZEND_PARSE_PARAMETERS_START(1, 1)
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_STR(s)
+		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(index)
 		Z_PARAM_LONG(param)
 	ZEND_PARSE_PARAMETERS_END();
@@ -62,9 +64,12 @@ ZEND_FUNCTION(wb_save_image)
 	TCHAR *wcs = 0;
 	BOOL ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls", &hbm, &s, &s_len) == FAILURE)
-		RETURN_BOOL(FALSE);
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls", &hbm, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(hbm)
+		Z_PARAM_STR(s)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!hbm)
 		RETURN_NULL();
@@ -83,9 +88,15 @@ ZEND_FUNCTION(wb_create_image)
 
 	nargs = ZEND_NUM_ARGS();
 
-	if (zend_parse_parameters(nargs TSRMLS_CC,
-							  "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
-		return;
+	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_LONG(value)
+		Z_PARAM_LONG(value)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(value)
+		Z_PARAM_LONG(value)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (nargs == 3)
 	{
@@ -103,9 +114,13 @@ ZEND_FUNCTION(wb_get_image_data)
 	DWORD size;
 	zend_long compress4to3 = FALSE;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|l", &hbm, &compress4to3) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &hbm, &compress4to3) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(hbm)
+		Z_PARAM_OPTIONAL // Everything after optional
+		Z_PARAM_LONG(compress4to3)
+	ZEND_PARSE_PARAMETERS_END();
 
 	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
 
@@ -121,9 +136,13 @@ ZEND_FUNCTION(wb_create_mask)
 {
 	zend_long hbm, c;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &hbm, &c) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &hbm, &c) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(hbm)
+		Z_PARAM_LONG(c)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	if (!hbm)
 		RETURN_NULL();
@@ -135,9 +154,11 @@ ZEND_FUNCTION(wb_destroy_image)
 {
 	zend_long hbm;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &hbm) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hbm) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(hbm)
+		Z_PARAM_LONG(c)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!hbm)
 		RETURN_NULL();
