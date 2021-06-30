@@ -42,16 +42,16 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE))
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{
 
 		target_hash = HASH_OF(zarray);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -94,8 +94,9 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 				RETURN_NULL();
 			}
 
-			if (i < nelem - 1)
+			if (i < nelem - 1){
 				zend_hash_move_forward(target_hash);
+			}
 		}
 
 		wcs = Utf82WideChar(s, s_len);
@@ -117,9 +118,9 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	l = (LONG)wbCreateToolbar((PWBOBJ)pwboParent, pitem, nelem, width, height, hImage);
 
-	if (pitem)
+	if (pitem){
 		efree(pitem);
-
+	}
 	RETURN_LONG(l);
 }
 

@@ -37,16 +37,16 @@ ZEND_FUNCTION(wbtemp_create_menu)
 		Z_PARAM_ZVAL(zarray)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE))
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{
 
 		target_hash = HASH_OF(zarray);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -102,8 +102,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 				break;
 			}
 
-			if (i < nelem - 1)
+			if (i < nelem - 1){
 				zend_hash_move_forward(target_hash);
+			}
 		}
 
 		// Create accelerator table
@@ -120,8 +121,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 	l = (LONG)wbCreateMenu((PWBOBJ)pwboParent, pitem, nelem);
 
-	if (pitem)
+	if (pitem){
 		efree(pitem);
+	}
 	RETURN_LONG(l);
 }
 

@@ -43,9 +43,9 @@ ZEND_FUNCTION(wb_create_window)
 		Z_PARAM_LONG(lparam)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE))
+	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL()
-
+	}
 	if (nargs == 5)
 	{
 		w = x;
@@ -92,9 +92,9 @@ ZEND_FUNCTION(wb_destroy_window)
 		Z_PARAM_LONG(pwbo)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	 }
 	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo))
 }
 
@@ -140,14 +140,15 @@ ZEND_FUNCTION(wb_get_size)
 		Z_PARAM_LONG(lparam)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!source)
+	if (!source){
 		RETURN_NULL();
-
+	}
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: PWBO, HBITMAP or HICON
 
-		if (!source->value.lval)
+		if (!source->value.lval){
 			RETURN_NULL();
+		}
 		//Test first is image
 		size = wbGetImageDimensions((HBITMAP)source->value.lval);
 		if (size == 0) //if not image then get windo or listview size
@@ -193,19 +194,22 @@ ZEND_FUNCTION(wb_get_size)
 
 			wcs = Utf82WideChar(source_str_val, Z_STRLEN_P(source));
 			hbm = wbLoadImage(wcs, 0, 0);
-			if (hbm)
+			if (hbm){
 				//size = wbGetImageDimensions(wbLoadImage(source->value.str.val, 0, 0));
 				size = wbGetImageDimensions(hbm);
+			}
 		}
 		else
 		{
 
 			SIZE siz;
 			wcs = Utf82WideChar(source_str_val, Z_STRLEN_P(source));
-			if (wbGetTextSize(&siz, wcs, lparam))
+			if (wbGetTextSize(&siz, wcs, lparam)){
 				size = (DWORD)MAKELONG(siz.cx, siz.cy);
-			else
+				}
+			else{
 				size = 0;
+				}
 		}
 	}
 	else
@@ -248,9 +252,9 @@ ZEND_FUNCTION(wb_set_size)
 		Z_PARAM_LONG(h)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	 }
 	if ((Z_TYPE_P(zparm) == IS_ARRAY) && ((PWBOBJ)pwbo)->uClass == ListView)
 	{
 
@@ -260,9 +264,9 @@ ZEND_FUNCTION(wb_set_size)
 		zval *entry = NULL;
 
 		target_hash = HASH_OF(zparm);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -312,10 +316,12 @@ ZEND_FUNCTION(wb_set_size)
 			RETURN_NULL();
 		}
 
-		if (h != 65535)
+		if (h != 65535){
 			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1))
-		else
+			}
+		else{
 			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval))
+		}
 	}
 }
 
@@ -334,9 +340,9 @@ ZEND_FUNCTION(wb_get_position)
 		Z_PARAM_LONG(clientarea)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	 }
 	// Build the array
 
 	pos = wbGetWindowPosition((PWBOBJ)pwbo, NULL, clientarea);
@@ -362,9 +368,9 @@ ZEND_FUNCTION(wb_set_position)
 		Z_PARAM_LONG(y)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	 }
 	RETURN_BOOL(wbSetWindowPosition((PWBOBJ)pwbo, x, y, NULL));
 }
 
@@ -404,9 +410,9 @@ ZEND_FUNCTION(wb_set_area)
 		RETURN_NULL();
 	}
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	 }
 	RETURN_BOOL(wbSetWindowArea((PWBOBJ)pwbo, type, x, y, w, h));
 }
 
@@ -426,9 +432,9 @@ ZEND_FUNCTION(wb_set_handler)
 		Z_PARAM_ZVAL(zparam)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
-
+	}
 	switch (Z_TYPE_P(zparam))
 	{
 	case IS_ARRAY:
@@ -467,9 +473,9 @@ ZEND_FUNCTION(wb_get_item_list)
 		Z_PARAM_LONG(pwboparent)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboparent, TRUE))
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	// Build the array
 	array_init(return_value);
 

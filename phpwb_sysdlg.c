@@ -44,9 +44,9 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	szFilter = Utf82WideChar(filter, filter_len);
 	szPath = Utf82WideChar(path, path_len);
@@ -67,8 +67,9 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		ptr += wcslen(szDir) + 1;
 		while (*ptr)
 		{
-			if (fileCount == 0)
+			if (fileCount == 0){
 				wcscat(szDir, L"\\");
+			}
 			wcscpy(fullPath, szDir);
 			wcscat(fullPath, ptr);
 			ptr += (wcslen(ptr) + 1);
@@ -109,15 +110,18 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 		Z_PARAM_STR(defext)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
-	if (*file)
+	}
+	if (*file){
 		//		strcpy(szFile, file);
 		Utf82WideCharCopy(file, file_len, szFile, file_len);
-	if (*defext)
+	}
+
+	if (*defext){
 		//		strcpy(szDefExt, defext);
 		szDefExt = Utf82WideChar(defext, defext_len);
+	}
 
 	szTitle = Utf82WideChar(title, title_len);
 	szFilter = Utf82WideChar(filter, filter_len);
@@ -130,8 +134,9 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 		file = WideChar2Utf8(szFile, &file_len);
 		RETURN_STRINGL(file, file_len)
 	}
-	else
+	else{
 		RETURN_STRING("")
+	}
 }
 
 ZEND_FUNCTION(wb_sys_dlg_path)
@@ -154,9 +159,9 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 		Z_PARAM_STR(path)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	szPath = Utf82WideChar(path, path_len);
 
@@ -167,8 +172,9 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 		selPath = WideChar2Utf8(szSelPath, &sel_len);
 		RETURN_STRINGL(selPath, sel_len)
 	}
-	else
+	else{
 		RETURN_STRING("")
+	}
 }
 
 ZEND_FUNCTION(wb_sys_dlg_color)
@@ -188,9 +194,9 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 		Z_PARAM_LONG(color)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL()
-
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	RETURN_LONG(wbSysDlgColor((PWBOBJ)pwboParent, szTitle, (COLORREF)color));
 }
@@ -215,9 +221,9 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		Z_PARAM_LONG(flags)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE))
+	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE)){
 		RETURN_NULL()
-
+	}
 	font.pszName = name;
 	font.nHeight = height;
 	font.color = color;

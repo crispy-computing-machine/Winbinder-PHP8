@@ -55,9 +55,9 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 	{
 
 		target_hash = HASH_OF(zarray);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -92,8 +92,9 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 				break;
 			}
 
-			if (i < nelem - 1)
+			if (i < nelem - 1){
 				zend_hash_move_forward(target_hash);
+			}
 		}
 
 		// Create accelerator table
@@ -199,9 +200,9 @@ ZEND_FUNCTION(wb_play_sound)
 		Z_PARAM_STR(cmd)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!source)
+	if (!source){
 		RETURN_NULL();
-
+	}
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: Play system sound
 
@@ -280,9 +281,9 @@ ZEND_FUNCTION(wb_message_box)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL()
-
+	}
 	if (!title || !*title)
 	{
 		title = szAppName;
@@ -356,8 +357,9 @@ ZEND_FUNCTION(wb_get_system_info)
 		char *value;
 		TCHAR *szValue = 0;
 
-		if (cfg_get_string("extension_dir", &value) == FAILURE)
+		if (cfg_get_string("extension_dir", &value) == FAILURE){
 			RETURN_BOOL(FALSE);
+		}
 		szValue = Utf82WideChar(value, strlen(value));
 
 		// Assemble the final string
@@ -557,9 +559,9 @@ ZEND_FUNCTION(wb_create_timer)
 		Z_PARAM_LONG(ms)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
-
+	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, MAX(1, ms)));
 }
 
@@ -574,9 +576,9 @@ ZEND_FUNCTION(wb_destroy_timer)
 		Z_PARAM_LONG(id)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
-
+	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, 0));
 }
 
@@ -592,9 +594,9 @@ ZEND_FUNCTION(wb_wait)
 		Z_PARAM_LONG(flags)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE))
+	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
-
+	}
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
 
@@ -691,9 +693,9 @@ ZEND_FUNCTION(wb_set_clipboard)
 			size = size * 2;
 			wclip = (WCHAR *)emalloc(size + 1);
 
-			if (!UTF8ToUnicode16(clip, wclip, size + 2))
+			if (!UTF8ToUnicode16(clip, wclip, size + 2)){
 				printf("Conversion failed\n");
-
+			}
 			hwdata = GlobalAlloc(GMEM_MOVEABLE, size + 2);
 			wclipcopy = (LPTSTR)GlobalLock(hwdata);
 			memcpy(wclipcopy, wclip, size);
@@ -718,8 +720,9 @@ ZEND_FUNCTION(wb_empty_clipboard)
 	BOOL success = FALSE;
 	if (OpenClipboard(NULL))
 	{
-		if (EmptyClipboard())
+		if (EmptyClipboard()){
 			success = TRUE;
+		}
 		CloseClipboard();
 	}
 	RETURN_BOOL(success);

@@ -66,9 +66,9 @@ ZEND_FUNCTION(wb_peek)
 		Z_PARAM_LONG(bytes)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!address)
+	if (!address){
 		RETURN_NULL();
-
+	}
 	bytes = max(0, bytes);
 	ptr = (char *)address;
 	if (bytes == 0)
@@ -78,8 +78,9 @@ ZEND_FUNCTION(wb_peek)
 	}
 	else
 	{ // No, want a memory dump
-		if (!IsBadReadPtr(ptr, bytes))
+		if (!IsBadReadPtr(ptr, bytes)){
 			RETURN_STRINGL(ptr, bytes, TRUE)
+		}
 	}
 	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
 	RETURN_NULL();
@@ -121,9 +122,9 @@ ZEND_FUNCTION(wb_poke)
 		RETURN_NULL();
 	}
 
-	if (!bytes)
+	if (!bytes){
 		bytes = contents_len;
-
+	}
 	ptr = (void *)address;
 
 	if (IsBadWritePtr(ptr, bytes))
@@ -181,8 +182,9 @@ ZEND_FUNCTION(wb_get_address)
 	{
 		RETURN_LONG((LONG)(void *)Z_STRVAL_P(source));
 	}
-	else
+	else{
 		RETURN_LONG((LONG)(void *)source)
+	}
 }
 
 ZEND_FUNCTION(wb_load_library)
@@ -207,9 +209,9 @@ ZEND_FUNCTION(wb_load_library)
 	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
 	//hlib = (LONG)wbLoadLibrary(lib);
 
-	if (hlib)
+	if (hlib){
 		RETURN_LONG(hlib)
-	else
+	}else
 	{
 		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
 		RETURN_NULL();
@@ -274,9 +276,9 @@ ZEND_FUNCTION(wb_get_function_address)
 
 	addr = (LONG)wbGetLibraryFunction((HMODULE)hlib, fun);
 
-	if (addr)
+	if (addr){
 		RETURN_LONG(addr)
-	else
+	}else
 	{
 		wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Unable to locate function %s() in library"), fun);
 		RETURN_NULL();
@@ -367,8 +369,9 @@ ZEND_FUNCTION(wb_call_function)
 					break;
 				}
 
-				if (i < nelem - 1)
+				if (i < nelem - 1){
 					zend_hash_move_forward(target_hash);
+				}
 			}
 		}
 	}

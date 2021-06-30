@@ -35,9 +35,9 @@ int parse_array(zval *array, const char *fmt, ...)
 	va_start(ap, fmt);
 
 	target_hash = HASH_OF(array);
-	if (!target_hash)
+	if (!target_hash){
 		return 0;
-
+	}
 	nelem = zend_hash_num_elements(target_hash);
 	zend_hash_internal_pointer_reset(target_hash);
 
@@ -47,9 +47,9 @@ int parse_array(zval *array, const char *fmt, ...)
 	{
 
 		arg = va_arg(ap, void *);
-		if (!arg)
+		if (!arg){
 			break;
-
+		}
 		// Requested items past the length of the array must return NULL
 
 		if (i >= nelem)
@@ -84,9 +84,9 @@ int parse_array(zval *array, const char *fmt, ...)
 		else
 		{
 
-			if (!entry)
+			if (!entry){
 				break;
-
+			}
 			switch (fmt[i])
 			{
 
@@ -95,8 +95,9 @@ int parse_array(zval *array, const char *fmt, ...)
 				{
 					*((long *)arg) = (long)NULL;
 				}
-				else
+				else{
 					*((long *)arg) = Z_LVAL_P(entry);
+				}
 				break;
 
 			case 'd':
@@ -104,8 +105,9 @@ int parse_array(zval *array, const char *fmt, ...)
 				{
 					*((long *)arg) = (long)NULL;
 				}
-				else
+				else{
 					*((double *)arg) = Z_DVAL_P(entry);
+				}
 				break;
 
 			case 's':
@@ -117,8 +119,9 @@ int parse_array(zval *array, const char *fmt, ...)
 				{
 					*((long *)arg) = (long)NULL;
 				}
-				else
+				else{
 					*((long *)arg) = (long)NULL;
+				}
 				break;
 
 			default:
@@ -129,8 +132,9 @@ int parse_array(zval *array, const char *fmt, ...)
 
 		} // else
 
-		if (i < nelem - 1)
+		if (i < nelem - 1){
 			zend_hash_move_forward(target_hash);
+			}
 	}
 
 	va_end(ap);
@@ -147,18 +151,18 @@ zval *process_array(zval *zitems)
 	static HashTable *target_hash = NULL;
 	zval *entry = NULL;
 
-	if (Z_TYPE_P(zitems) != IS_ARRAY)
+	if (Z_TYPE_P(zitems) != IS_ARRAY){
 		return FALSE;
-
+	}
 	// Prepare to read items from zitem array
 
 	if (!nelems && !nelem)
 	{
 
 		target_hash = HASH_OF(zitems);
-		if (!target_hash)
+		if (!target_hash){
 			return FALSE;
-
+		}
 		nelems = zend_hash_num_elements(target_hash);
 
 		if (!nelems)
@@ -203,9 +207,9 @@ zval *process_array(zval *zitems)
 
 	// Get zval data
 
-	if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
+	if ((entry = zend_hash_get_current_data(target_hash)) == NULL){
 		wbError(TEXT("process_array"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"));
-
+	}
 	return entry;
 }
 
@@ -213,25 +217,26 @@ TCHAR *Utf82WideChar(const char *str, int len)
 {
 	TCHAR *wstr = "";
 	int wlen = 0;
-	if (!str)
+	if (!str){
 		return NULL;
-
-	if (len <= 0)
+	}
+	if (len <= 0){
 		len = strlen(str);
-
+	}
 	wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
 	wstr = wbMalloc(sizeof(TCHAR) * (wlen));
-	if (len > 0)
+	if (len > 0){
 		MultiByteToWideChar(CP_UTF8, 0, str, len, wstr, wlen);
+	}
 	wstr[wlen - 1] = '\0';
 	return wstr;
 }
 
 void Utf82WideCharCopy(const char *str, int str_len, TCHAR *wcs, int wcs_len)
 {
-	if (!str || !wcs)
+	if (!str || !wcs){
 		return NULL;
-
+	}
 	MultiByteToWideChar(CP_UTF8, 0, str, str_len, wcs, wcs_len);
 }
 
@@ -239,22 +244,23 @@ char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen)
 {
 	char *str = 0;
 
-	if (pszTextUTF16 == NULL)
+	if (pszTextUTF16 == NULL){
 		return NULL;
-
+	}
 	int utf16len = wcslen(pszTextUTF16);
 	int utf8len = WideCharToMultiByte(CP_UTF8, 0, pszTextUTF16, utf16len,
 									  NULL, 0, NULL, NULL);
 
-	if (utf8len == 0)
+	if (utf8len == 0){
 		return NULL;
-
+	}
 	str = wbMalloc(utf8len);
 	int size = WideCharToMultiByte(CP_UTF8, 0, pszTextUTF16, utf16len, str, utf8len, 0, 0);
 	if (plen)
 	{
-		if (size > 0)
+		if (size > 0){
 			size--;
+		}
 		*plen = size;
 	}
 	return str;
@@ -265,20 +271,21 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 	char *str = 0;
 	int str_len = 0;
 
-	if (!wcs)
+	if (!wcs){
 		return NULL;
-
+	}
 	str_len = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, 0, NULL, NULL);
-	if (str_len == 0)
+	if (str_len == 0){
 		return NULL;
-
+	}
 	str = wbMalloc(str_len);
 	int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
 	str[str_len - 1] = '\0';
 	if (plen)
 	{
-		if (size > 0)
+		if (size > 0){
 			size--;
+		}
 		*plen = size;
 	}
 	return str;
@@ -286,8 +293,9 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 
 void WideCharCopy(LPCTSTR wcs, char *s, int len)
 {
-	if (wcs && s)
+	if (wcs && s){
 		WideCharToMultiByte(CP_UTF8, 0, wcs, -1, s, len, NULL, NULL);
+	}
 }
 
 void dumptcs(TCHAR *str)

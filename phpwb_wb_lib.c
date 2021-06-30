@@ -213,8 +213,9 @@ char *wbStrnDup(const char *string, size_t size)
 
 BOOL wbFree(void *ptr)
 {
-	if (ptr)
+	if (ptr){
 		efree(ptr);
+	}
 	return TRUE;
 }
 
