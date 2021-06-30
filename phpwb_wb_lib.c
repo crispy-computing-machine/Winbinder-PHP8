@@ -150,7 +150,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	ZVAL_LONG(&parms[5], (LONG)lParam3);
 
 	// Call the user function
-	bRet = call_user_function_ex(
+	bRet = call_user_function(
 		CG(function_table), // Hash value for the function table
 		&pszObject,			// Pointer to an object (may be NULL)
 		&fname,				// Function name
