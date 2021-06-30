@@ -28,9 +28,10 @@ int parse_array(zval *array, const char *fmt, ...)
 	zval *entry = NULL;
 	va_list ap;
 	HashTable *target_hash;
-#if (PHP_MAJOR_VERSION >= 5)
-	TSRMLS_FETCH();
-#endif
+
+// #if (PHP_MAJOR_VERSION >= 5)
+// 	TSRMLS_FETCH();
+// #endif
 
 	va_start(ap, fmt);
 

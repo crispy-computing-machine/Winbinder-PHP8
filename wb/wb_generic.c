@@ -47,22 +47,19 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 	}
 
 	// Does it have a valid handle?
-
+	PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
+	if (pwboTest)
 	{
-		PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
-		if (pwboTest)
-		{
-			CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
+		CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
 
-			if (!pwboTest->hwnd)
-			{
-				wbFree(pwboTest);
-				if (bShowErrors)
-					wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
-				return FALSE;
-			}
+		if (!pwboTest->hwnd)
+		{
 			wbFree(pwboTest);
+			if (bShowErrors)
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
+			return FALSE;
 		}
+		wbFree(pwboTest);
 	}
 
 	if (IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
