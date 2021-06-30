@@ -36,9 +36,11 @@ ZEND_FUNCTION(wb_load_image)
 	index = 0;
 	param = FALSE;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|ll", &s, &s_len, &index, &param) == FAILURE)
-		return;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(s)
+		Z_PARAM_LONG(index)
+		Z_PARAM_LONG(param)
+	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);

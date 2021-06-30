@@ -80,7 +80,6 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	zend_long pwbo, item, sub;
 	char *s;
 	int s_len;
-
 	TCHAR *wcs = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
@@ -90,7 +89,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_NULL()
 
-	;wcs ;= Utf82WideChar(s, s_len); /// ahhhhhhh
+	wcs = Utf82WideChar(s, s_len); /// ahhhhhhh
 	RETURN_BOOL(wbSetListViewItemText((PWBOBJ)pwbo, item, sub, wcs));
 }
 
