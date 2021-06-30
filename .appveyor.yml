@@ -102,14 +102,14 @@ test_script:
     echo "Start tests..."
 
     echo "Download PHP BIN..."
-    $ts_part = 'ts'
+    $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
-    $bname = 'php-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
-    echo "Release file URL http://windows.php.net/downloads/releases/$bname"
+    $bname = 'php-' + $env:PHP_VER + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+    echo "Release file URL http://windows.php.net/downloads/releases/archives/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
-      Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+      Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
       if (-not (Test-Path c:\build-cache\$bname)) {
-        Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+        Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
       }
     }
 
