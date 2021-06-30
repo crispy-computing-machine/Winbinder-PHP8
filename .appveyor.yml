@@ -131,4 +131,4 @@ test_script:
     $runner = 'c:\build-cache\php-sdk-' + $env:BIN_SDK_VER + '\phpsdk' + '-' + $env:VC + '-' + $env:ARCH + '.bat'
     $task = $here + '\task.bat'
     & $runner -t $task
-
+    echo "Test complete, Ignore: Missing arginfo for PHP8 unit tests)
