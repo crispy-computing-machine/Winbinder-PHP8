@@ -331,7 +331,7 @@ ZEND_FUNCTION(wb_get_value)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(itm)
+		Z_PARAM_LONG(item)
 		Z_PARAM_LONG(subitem)
 	ZEND_PARSE_PARAMETERS_END();
 

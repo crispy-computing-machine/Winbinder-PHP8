@@ -33,7 +33,7 @@ ZEND_FUNCTION(wbtemp_create_menu)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!", &pwboParent, &zarray) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
-		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_ZVAL(zarray)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -176,12 +176,12 @@ ZEND_FUNCTION(wbtemp_set_menu_item_selected)
 	ZEND_PARSE_PARAMETERS_START(3, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(id)
-		Z_PARAM_LONG(sate)
+		Z_PARAM_LONG(state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	((PWBOBJ)pwbo)->id = id;
 
-	RETURN_BOOL(wbSetMenuItemSelected((PWBOBJ)pwbo))
+	RETURN_BOOL(wbSetMenuItemSelected((PWBOBJ)pwbo));
 }
 
 ZEND_FUNCTION(wbtemp_set_menu_item_image)

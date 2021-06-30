@@ -53,7 +53,7 @@ ZEND_FUNCTION(wb_get_pixel)
 			Z_PARAM_STR(pixdata)
 			Z_PARAM_LONG(x)
 			Z_PARAM_LONG(y)
-			Z_PARAM_LONG(pwbo)
+			Z_PARAM_LONG(compress4to3)
 		ZEND_PARSE_PARAMETERS_END(compress4to3);
 
 		RETURN_LONG(wbGetPixelDirect(pixdata, x, y, compress4to3));

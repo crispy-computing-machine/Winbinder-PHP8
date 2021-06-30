@@ -64,7 +64,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	}
 
 	// Normal error with stack trace
-	php_error_docref(NULL TSRMLS_CC, messageType, str);
+	// php_error_docref(NULL TSRMLS_CC, messageType, str);
 
 	// if not debug mode show friendly error box (only for fatal errors)
 	if (INI_INT("winbinder.debug_level") == 0 && messageType == E_ERROR)

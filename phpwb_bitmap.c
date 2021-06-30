@@ -91,11 +91,11 @@ ZEND_FUNCTION(wb_create_image)
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 4)
-	Z_PARAM_LONG(value)
-	Z_PARAM_LONG(value)
+	Z_PARAM_LONG(w)
+	Z_PARAM_LONG(h)
 	Z_PARAM_OPTIONAL
-	Z_PARAM_LONG(value)
-	Z_PARAM_LONG(value)
+	Z_PARAM_LONG(bmi)
+	Z_PARAM_LONG(bits)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (nargs == 3)

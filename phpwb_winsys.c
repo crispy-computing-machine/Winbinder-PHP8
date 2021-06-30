@@ -146,7 +146,7 @@ ZEND_FUNCTION(wb_set_cursor)
 		RETURN_NULL();
 	}
 
-	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor))
+	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor));
 }
 
 /*

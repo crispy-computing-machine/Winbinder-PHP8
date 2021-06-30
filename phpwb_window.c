@@ -31,7 +31,7 @@ ZEND_FUNCTION(wb_create_window)
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|zllllll", &pwboparent, &wbclass, &zcaption, &x, &y, &w, &h, &style, &lparam) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 9)
-		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_LONG(pwboparent)
 		Z_PARAM_LONG(wbclass)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_ZVAL(zcaption)
@@ -473,7 +473,7 @@ ZEND_FUNCTION(wb_get_item_list)
 		Z_PARAM_LONG(pwboparent)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE)){
+	if (!wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL();
 	}
 	// Build the array

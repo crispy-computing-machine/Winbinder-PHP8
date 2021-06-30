@@ -60,7 +60,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(itm)
+		Z_PARAM_LONG(item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -104,7 +104,7 @@ ZEND_FUNCTION(wbtemp_get_treeview_item_text)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(itm)
+		Z_PARAM_LONG(item)
 	ZEND_PARSE_PARAMETERS_END();
 
 
@@ -113,7 +113,7 @@ ZEND_FUNCTION(wbtemp_get_treeview_item_text)
 	 }
 	wbGetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, szItem, MAX_ITEM_STRING - 1);
 	str = WideChar2Utf8(szItem, &str_len);
-	RETURN_STRINGL(str, str_len)
+	RETURN_STRINGL(str, str_len);
 }
 
 /*
