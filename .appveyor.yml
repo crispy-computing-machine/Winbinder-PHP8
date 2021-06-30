@@ -10,12 +10,12 @@ clone_folder:  c:\projects\winbinder
 install:
   ps: |
 
-    echo build cache directory c:\build-cache
+    echo "Build cache directory c:\build-cache"
     if (-not (Test-Path c:\build-cache)) {
             mkdir c:\build-cache
     }
 
-    echo Download PHP 8 binary tools
+    echo "Download PHP 8 binary tools"
     $bname = 'php-sdk-' + $env:BIN_SDK_VER + '.zip'
     if (-not (Test-Path c:\build-cache\$bname)) {
             Invoke-WebRequest "https://github.com/OSTC/php-sdk-binary-tools/archive/$bname" -OutFile "c:\build-cache\$bname"
@@ -29,7 +29,7 @@ install:
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
 
-    echo Copy GIT files to SRC build directory
+    echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
 
 cache:
@@ -48,7 +48,7 @@ environment:
 build_script:
   ps: |
 
-    echo Download PHP8 development pack from release
+    echo "Download PHP8 development pack from release"
     $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
@@ -68,7 +68,7 @@ build_script:
             #move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
 
-    echo Main build process...
+    echo "Main build process..."
     cd c:\projects\winbinder
     $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
@@ -85,7 +85,7 @@ build_script:
 after_build:
   ps: |
 
-    echo Build download archive of build extension and save as artifact...
+    echo "Build download archive of build extension and save as artifact..."
     $ts_part = 'ts'
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $zip_bname = 'php_winbinder-' + $env:APPVEYOR_REPO_COMMIT.substring(0, 8) + '-' + $env:PHP_VER.substring(0, 3) + '-' + $ts_part + '-' + $env:VC + '-' + $env:ARCH + '.zip'
@@ -99,13 +99,13 @@ after_build:
 test_script:
   ps: |
 
-    echo Start tests...
+    echo "Start tests..."
 
-    echo Download PHP BIN...
+    echo "Download PHP BIN..."
     $ts_part = 'ts'
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
-    echo Release file URL "http://windows.php.net/downloads/releases/$bname"
+    echo "Release file URL http://windows.php.net/downloads/releases/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
       Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
       if (-not (Test-Path c:\build-cache\$bname)) {
@@ -113,7 +113,7 @@ test_script:
       }
     }
 
-    echo Extract PHP BIN...
+    echo "Extract PHP BIN..."
     $dname = 'php-' + $env:PHP_VER + $ts_part + '-' + $env:VC.toUpper() + '-' + $env:ARCH
     if (-not (Test-Path c:\build-cache\$dname)) {
             7z x c:\build-cache\$bname -oc:\build-cache\$dname
