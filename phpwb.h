@@ -31,10 +31,6 @@
 
 #define ZEND_DEBUG FALSE // Must be FALSE
 
-#ifndef ZTS
-#define ZTS // Must define ZTS (Zend Thread Safety)
-#endif
-
 #define PHP_REGEX_H // Skip php_regex.h: '_off_t' not defined anywhere
 
 //----------------------------------------------------------------- DEPENDENCIES

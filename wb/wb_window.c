@@ -219,7 +219,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 
 	CreateToolTip(pwbo, pszTooltip);
 
-	SetWindowLong(pwbo->hwnd, GWL_USERDATA, (LONG)pwbo);
+	SetWindowLong(pwbo->hwnd, GWLP_USERDATA, (LONG)pwbo);
 
 	// Is it a modal dialog?
 
@@ -2032,11 +2032,11 @@ static HICON GetWindowIcon(HWND hwnd)
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICONSM);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICONSM);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICON);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICON);
 	if (hIcon)
 		return hIcon;
 
