@@ -7,7 +7,7 @@ WinBinder - The native Windows binding for PHP 7.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=develop)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=develop) Development Branch (PHP 7)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8) PHP 8
+[![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8) PHP 8 - ❗ Compiled but untested
 
 
 What is WinBinder?
@@ -22,7 +22,7 @@ PHP Compatibility
 - PHP 7.2 ✅
 - PHP 7.3 ✅
 - PHP 7.4 ✅
-- PHP 8.0 ✅
+- PHP 8.0 ✅ - ❗ Compiled but untested
 
 (For older PHP version compatibility please see PECL website for old .dll's)
 
