@@ -245,7 +245,7 @@ ZEND_FUNCTION(wb_set_size)
 	nargs = ZEND_NUM_ARGS();
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "lz|l", &pwbo, &zparm, &h) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(1, 2)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zparm)
 		Z_PARAM_OPTIONAL
