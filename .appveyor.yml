@@ -42,7 +42,7 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       ARCH: x86
       VC: vs16
-      PHP_VER: 8.0.3
+      PHP_VER: 8.1.10
       TS: 1
 
 build_script:
