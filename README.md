@@ -22,7 +22,7 @@ PHP Compatibility
 - PHP 7.2 ✅
 - PHP 7.3 ✅
 - PHP 7.4 ✅
-- PHP 8.0 ✅ - ❗ Compiled but untested
+- PHP 8.0 ✅
 
 (For older PHP version compatibility please see PECL website for old .dll's)
 
