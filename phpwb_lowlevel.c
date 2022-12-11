@@ -189,7 +189,7 @@ ZEND_FUNCTION(wb_get_address)
 
 ZEND_FUNCTION(wb_load_library)
 {
-	zend_string *lib;
+	char *lib;
 	int lib_len;
 	LONG hlib;
 
@@ -203,11 +203,11 @@ ZEND_FUNCTION(wb_load_library)
 	//TCHAR *wcs = 0; // not sure if this is needed
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STR(lib)
+		Z_PARAM_STRING(lib,lib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	//hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
-	hlib = (LONG)wbLoadLibrary(lib);
+	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
+	//hlib = (LONG)wbLoadLibrary(lib);
 
 	if (hlib){
 		RETURN_LONG(hlib);
