@@ -189,7 +189,7 @@ ZEND_FUNCTION(wb_get_address)
 
 ZEND_FUNCTION(wb_load_library)
 {
-	char *lib;
+	zend_string *lib;
 	int lib_len;
 	LONG hlib;
 
