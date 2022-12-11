@@ -103,7 +103,7 @@ ZEND_FUNCTION(wb_poke)
 	}
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(1, 2)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(address)
 		Z_PARAM_STRING(contents, contents_len)
 		Z_PARAM_OPTIONAL
