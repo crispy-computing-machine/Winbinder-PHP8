@@ -206,8 +206,8 @@ ZEND_FUNCTION(wb_load_library)
 		Z_PARAM_STR(lib)
 	ZEND_PARSE_PARAMETERS_END();
 
-	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
-	//hlib = (LONG)wbLoadLibrary(lib);
+	//hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
+	hlib = (LONG)wbLoadLibrary(lib);
 
 	if (hlib){
 		RETURN_LONG(hlib);
