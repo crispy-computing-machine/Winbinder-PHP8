@@ -904,7 +904,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_ZVAL(zitems)
+		Z_PARAM_ZVAL(zitems) // Has to be an array of arrays!
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(clear)
 		Z_PARAM_LONG(param)
@@ -931,13 +931,6 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 		{
 			parse_array(zitem, "");
 			nParts++;
-		}
-
-		// display array
-		printf("wbtemp_create_statusbar_items debug array: ");
-		while ((zitem = process_array(zitems)) != NULL) {
-			parse_array(zitem, "sl", &pszCaption, &nWidth);
-			printf("%s ", pszCaption);
 		}
 
 		// Create the array of widths
