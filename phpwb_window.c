@@ -108,7 +108,7 @@ ZEND_FUNCTION(wb_get_instance)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &caption, &caption_len, &bringtofront) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
-		Z_PARAM_STR(caption)
+		Z_PARAM_STRING(caption, caption_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(bringtofront)
 	ZEND_PARSE_PARAMETERS_END();

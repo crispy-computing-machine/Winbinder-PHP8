@@ -38,7 +38,7 @@ ZEND_FUNCTION(wb_load_image)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
-	Z_PARAM_STR(s)
+	Z_PARAM_STRING(s,s_len)
 	Z_PARAM_OPTIONAL
 	Z_PARAM_LONG(index)
 	Z_PARAM_LONG(param)
@@ -68,7 +68,7 @@ ZEND_FUNCTION(wb_save_image)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 	Z_PARAM_LONG(hbm)
-	Z_PARAM_STR(s)
+	Z_PARAM_STRING(s, s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!hbm){

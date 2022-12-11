@@ -33,7 +33,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(nitem)
 		Z_PARAM_LONG(nimage)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -94,7 +94,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(item)
 		Z_PARAM_LONG(sub)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -138,7 +138,7 @@ ZEND_FUNCTION(wbtemp_create_listview_column)
 	ZEND_PARSE_PARAMETERS_START(5, 5)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(ncol)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 		Z_PARAM_LONG(w)
 		Z_PARAM_LONG(align)
 	ZEND_PARSE_PARAMETERS_END();

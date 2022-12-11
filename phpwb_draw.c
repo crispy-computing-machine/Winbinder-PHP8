@@ -50,7 +50,7 @@ ZEND_FUNCTION(wb_get_pixel)
 		// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "slll", &pixdata, &pixdata_len, &x, &y, &compress4to3) == FAILURE)
 		// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 		ZEND_PARSE_PARAMETERS_START(4, 4)
-			Z_PARAM_STR(pixdata)
+			Z_PARAM_STRING(pixdata,pixdata_len)
 			Z_PARAM_LONG(x)
 			Z_PARAM_LONG(y)
 			Z_PARAM_LONG(compress4to3)
@@ -159,7 +159,7 @@ ZEND_FUNCTION(wb_draw_text)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(4, 8)
 		Z_PARAM_LONG(handle)
-		Z_PARAM_STR(text)
+		Z_PARAM_STRING(text, text_len)
 		Z_PARAM_LONG(x)
 		Z_PARAM_LONG(y)
 		Z_PARAM_OPTIONAL

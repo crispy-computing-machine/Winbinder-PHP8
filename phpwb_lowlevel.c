@@ -105,7 +105,7 @@ ZEND_FUNCTION(wb_poke)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(address)
-		Z_PARAM_STR(contents)
+		Z_PARAM_STRING(contents, contents_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(bytes)
 	ZEND_PARSE_PARAMETERS_END();
@@ -261,7 +261,7 @@ ZEND_FUNCTION(wb_get_function_address)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &fun, &fun_len, &hlib) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
-		Z_PARAM_STR(fun)
+		Z_PARAM_STRING(fun, fun_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(hlib)
 	ZEND_PARSE_PARAMETERS_END();

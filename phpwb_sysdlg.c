@@ -38,9 +38,9 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 	ZEND_PARSE_PARAMETERS_START(1, 5)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(title)
-		Z_PARAM_STR(filter)
-		Z_PARAM_STR(path)
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_STRING(filter, filter_len)
+		Z_PARAM_STRING(path, path_len)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -103,11 +103,11 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(title)
-		Z_PARAM_STR(filter)
-		Z_PARAM_STR(path)
-		Z_PARAM_STR(file)
-		Z_PARAM_STR(defext)
+		Z_PARAM_STRING(title,title_len)
+		Z_PARAM_STRING(filter,filter_len)
+		Z_PARAM_STRING(path,path_len)
+		Z_PARAM_STRING(file, file_len)
+		Z_PARAM_STRING(defext, defext_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -155,8 +155,8 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(title)
-		Z_PARAM_STR(path)
+		Z_PARAM_STRING(title,title_len)
+		Z_PARAM_STRING(path,path_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -190,7 +190,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(title)
+		Z_PARAM_STRING(title, title_len)
 		Z_PARAM_LONG(color)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -214,8 +214,8 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(pwbparent)
-		Z_PARAM_STR(title)
-		Z_PARAM_STR(name)
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_STRING(name,name_len)
 		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(color)
 		Z_PARAM_LONG(flags)

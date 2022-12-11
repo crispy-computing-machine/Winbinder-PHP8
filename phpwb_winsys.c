@@ -197,7 +197,7 @@ ZEND_FUNCTION(wb_play_sound)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(source)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(cmd)
+		Z_PARAM_STRING(cmd,cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source){
@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_stop_sound)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &cmd, &cmd_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(cmd)
+		Z_PARAM_STRING(cmd, cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(cmd, cmd_len);
@@ -276,8 +276,8 @@ ZEND_FUNCTION(wb_message_box)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_STR(msg)
-		Z_PARAM_STR(title)
+		Z_PARAM_STRING(msg, msg_len)
+		Z_PARAM_STRING(title, title_len)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -322,9 +322,9 @@ ZEND_FUNCTION(wb_exec)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
-		Z_PARAM_STR(pgm)
+		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(parm)
+		Z_PARAM_STRING(parm,parm_len)
 		Z_PARAM_LONG(show)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -346,7 +346,7 @@ ZEND_FUNCTION(wb_get_system_info)
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!stricmp(s, "extensionpath"))
@@ -413,7 +413,7 @@ ZEND_FUNCTION(wb_find_file)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPath = Utf82WideChar(s, s_len);
@@ -444,10 +444,10 @@ ZEND_FUNCTION(wb_get_registry_key)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 3)
-		Z_PARAM_STR(key)
-		Z_PARAM_STR(subkey)
+		Z_PARAM_STRING(key, key_len)
+		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(entry)
+		Z_PARAM_STRING(entry, entry_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szKey = Utf82WideChar(key, key_len);
@@ -486,10 +486,10 @@ ZEND_FUNCTION(wb_set_registry_key)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|sz!", &key, &key_len, &subkey, &subkey_len, &entry, &entry_len, &source) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
-		Z_PARAM_STR(key)
-		Z_PARAM_STR(subkey)
+		Z_PARAM_STRING(key, key_len)
+		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR(entry)
+		Z_PARAM_STRING(entry, entry_len)
 		Z_PARAM_ZVAL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -677,7 +677,7 @@ ZEND_FUNCTION(wb_set_clipboard)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &clip, &size) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STR(clip)
+		Z_PARAM_STRING(clip, size)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (OpenClipboard(NULL))

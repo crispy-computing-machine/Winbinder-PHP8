@@ -38,7 +38,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(width)
 		Z_PARAM_LONG(height)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s,s_len)
 
 	ZEND_PARSE_PARAMETERS_END();
 

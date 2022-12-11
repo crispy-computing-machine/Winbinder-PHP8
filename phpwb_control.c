@@ -790,7 +790,7 @@ ZEND_FUNCTION(wb_set_location)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_STR(location)
+		Z_PARAM_STRING(location,location_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -880,7 +880,7 @@ ZEND_FUNCTION(wbtemp_create_item)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 3)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_STR(s)
+		Z_PARAM_STRING(s, s_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(param)
 	ZEND_PARSE_PARAMETERS_END();

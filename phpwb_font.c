@@ -28,7 +28,7 @@ ZEND_FUNCTION(wb_create_font)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|ll", &name, &name_len, &height, &color, &flags) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 4)
-		Z_PARAM_STR(name)
+		Z_PARAM_STRING(name,name_len)
 		Z_PARAM_LONG(height)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(color)
