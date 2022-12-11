@@ -935,7 +935,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 
 		// display array
 		printf("wbtemp_create_statusbar_items debug array: ");
-		while ((zitem = process_array(zitems)) != NULL)
+		while ((zitem = process_array(zitems)) != NULL) {
 			parse_array(zitem, "sl", &pszCaption, &nWidth);
 			printf("%s ", pszCaption);
 		}
