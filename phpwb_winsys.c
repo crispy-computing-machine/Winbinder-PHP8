@@ -195,7 +195,7 @@ ZEND_FUNCTION(wb_play_sound)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|s", &source, &cmd, &cmd_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
-		Z_PARAM_LONG(source)
+		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_STRING(cmd,cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
