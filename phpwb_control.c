@@ -913,6 +913,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
 	}
+
 	switch (Z_TYPE_P(zitems))
 	{
 
@@ -926,11 +927,17 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 		LONG nWidth;
 
 		// Count array elements
-
 		while ((zitem = process_array(zitems)) != NULL)
 		{
 			parse_array(zitem, "");
 			nParts++;
+		}
+
+		// display array
+		printf("wbtemp_create_statusbar_items debug array: ");
+		while ((zitem = process_array(zitems)) != NULL)
+			parse_array(zitem, "sl", &pszCaption, &nWidth);
+			printf("%s ", pszCaption);
 		}
 
 		// Create the array of widths
@@ -987,7 +994,7 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 		RETURN_BOOL(bRet);
 
 	default:
-		wbError(TEXT("wbtemp_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in function"));
+		wbError(TEXT("wbtemp_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in wbtemp_create_statusbar_items"));
 		RETURN_NULL();
 	}
 }
