@@ -293,7 +293,7 @@ ZEND_FUNCTION(wbtemp_clear_listview_columns)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
 	}
-	RETURN_LONG(wbClearListViewColumns((PWBOBJ)pwbo));
+	RETURN_BOOL(wbClearListViewColumns((PWBOBJ)pwbo));
 }
 
 ZEND_FUNCTION(wbtemp_select_listview_item)
