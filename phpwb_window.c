@@ -458,7 +458,7 @@ ZEND_FUNCTION(wb_set_handler)
 	{
 
 		wcsHandler = Utf82WideChar(handler, 0);
-		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, obj, wcsHandler));
+		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, (LPDWORD)obj, wcsHandler));
 	}
 }
 
