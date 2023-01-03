@@ -74,9 +74,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 			case IS_ARRAY: // A menu item is an array inside an array
 				parse_array(entry, "lssss", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->pszImage, &str_accel);
-				pitem[i]->pszCaption = Utf82WideChar((char)pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar((char)pitem[i]->pszHint, 0);
-				pitem[i]->pszImage = Utf82WideChar((char)pitem[i]->pszImage, 0);
+				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
+				pitem[i]->pszImage = Utf82WideChar((const char *)pitem[i]->pszImage, 0);
 
 				if (str_accel && *str_accel && naccel < MAX_ACCELS)
 				{
