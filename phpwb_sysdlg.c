@@ -225,8 +225,8 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		RETURN_NULL();
 	}
 
-	font = wbCreateFont(name, height, color, flags);
-	RETURN_LONG( wbSysDlgFont((PWBOBJ)pwbparent, (LPTSTR)title, pFonts[font]) );
+	font = wbCreateFont((LPCTSTR)name, height, color, flags);
+	RETURN_LONG( wbSysDlgFont((PWBOBJ)pwbparent, (LPTSTR)title, wbGetFont(font)) );
 }
 
 //------------------------------------------------------------------ END OF FILE
