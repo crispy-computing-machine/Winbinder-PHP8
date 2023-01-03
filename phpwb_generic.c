@@ -216,7 +216,7 @@ zval *process_array(zval *zitems)
 
 TCHAR *Utf82WideChar(const char *str, int len)
 {
-	TCHAR *wstr = "";
+	TCHAR *wstr;
 	int wlen = 0;
 	if (!str){
 		return NULL;
@@ -236,7 +236,7 @@ TCHAR *Utf82WideChar(const char *str, int len)
 void Utf82WideCharCopy(const char *str, int str_len, TCHAR *wcs, int wcs_len)
 {
 	if (!str || !wcs){
-		return NULL;
+		return;
 	}
 	MultiByteToWideChar(CP_UTF8, 0, str, str_len, wcs, wcs_len);
 }

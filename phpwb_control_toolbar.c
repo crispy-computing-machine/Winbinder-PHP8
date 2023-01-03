@@ -80,8 +80,8 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 			case IS_ARRAY: // Toolbar button
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
-				pitem[i]->pszCaption = Utf82WideChar(pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar(pitem[i]->pszHint, 0);
+				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 				break;
 
 			case IS_NULL: // Separator

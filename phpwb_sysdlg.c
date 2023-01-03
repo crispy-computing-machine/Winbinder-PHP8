@@ -224,11 +224,11 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE)){
 		RETURN_NULL();
 	}
-	font.pszName = name;
+	font.pszName = (LPTSTR)name;
 	font.nHeight = height;
 	font.color = color;
 	font.dwFlags = flags;
-	RETURN_LONG(wbSysDlgFont((PWBOBJ)pwbparent, title, &font));
+	RETURN_LONG(wbSysDlgFont((PWBOBJ)pwbparent, (LPTSTR)title, (PFONT)&font));
 }
 
 //------------------------------------------------------------------ END OF FILE

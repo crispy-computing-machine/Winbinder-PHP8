@@ -73,13 +73,13 @@ ZEND_FUNCTION(wb_peek)
 	ptr = (char *)address;
 	if (bytes == 0)
 	{ // Want a zero-terminated string?
-		if (!IsBadStringPtr(ptr, 32767))
-			RETURN_STRINGL(ptr, strlen(ptr), TRUE);
+		if (!IsBadStringPtr(((LPCWSTR)ptr), 32767))
+			RETURN_STRINGL(ptr, strlen(ptr));
 	}
 	else
 	{ // No, want a memory dump
 		if (!IsBadReadPtr(ptr, bytes)){
-			RETURN_STRINGL(ptr, bytes, TRUE);
+			RETURN_STRINGL(ptr, bytes);
 		}
 	}
 	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
