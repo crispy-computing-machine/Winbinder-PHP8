@@ -938,7 +938,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 					{
 						LISTVIEWCOLOR lvc = {0};
-						UINT ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, ((LPNMHDR)lParam)->idFrom, lplvcd->nmcd.lItemlParam, lplvcd->iSubItem, &lvc);
+						UINT ret = wbCallUserFunction(
+								pwbobj->pszCallBackFn,
+								pwbobj->pszCallBackObj,
+								pwbobj->parent,
+								pwbobj,
+								((LPNMHDR)lParam)->idFrom,
+								lplvcd->nmcd.lItemlParam,
+								lplvcd->iSubItem,
+								(LPARAM)&lvc
+							);
 						if (ret > 0)
 						{
 							switch (lvc.nMode)
