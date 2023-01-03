@@ -758,12 +758,12 @@ ZEND_FUNCTION(wb_is_mouse_over)
 	ZEND_PARSE_PARAMETERS_END();
 
     // no control handle?
-    if(!pwbo->hwnd){
+    if(!(PWBOBJ)pwbo->hwnd){
         RETURN_BOOL(0);
     }
 
     // Get controls rect
-    if(GetWindowRect(pwbo->hwnd, &rc)){
+    if(GetWindowRect((PWBOBJ)pwbo->hwnd, &rc)){
 
         // Get current cursor pos
         if(GetCursorPos(&pt)){
