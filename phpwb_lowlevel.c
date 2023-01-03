@@ -484,7 +484,7 @@ void CALLBACK wbMidiInProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_MIDI, hMidiIn, &param);
+		SendMessage(pwndMain->hwnd, WBWM_MIDI, hMidiIn, (LPARAM)&param);
 	}
 
 	return;
@@ -492,7 +492,7 @@ void CALLBACK wbMidiInProc(
 
 ZEND_FUNCTION(wb_get_midi_callback)
 {
-	RETURN_LONG(wbMidiInProc);
+	wbMidiInProc;
 }
 
 // Enum callback
@@ -504,7 +504,7 @@ void CALLBACK wbEnumProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_ENUM, hwnd, lParam);
+		SendMessage(pwndMain->hwnd, WBWM_ENUM, (WPARAM)hwnd, lParam);
 	}
 
 	return;
@@ -513,7 +513,7 @@ void CALLBACK wbEnumProc(
 ZEND_FUNCTION(wb_get_enum_callback)
 {
 
-	RETURN_LONG(wbEnumProc);
+	wbEnumProc;
 }
 
 DWORD WINAPI wbHookProc(
@@ -531,7 +531,7 @@ DWORD WINAPI wbHookProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_HOOK, code, &param);
+		SendMessage(pwndMain->hwnd, WBWM_HOOK, code, (LPARAM)&param);
 	}
 	if (code < 0)
 	{
@@ -543,7 +543,7 @@ DWORD WINAPI wbHookProc(
 
 ZEND_FUNCTION(wb_get_hook_callback)
 {
-	RETURN_LONG(wbHookProc);
+	wbHookProc;
 }
 
 //------------------------------------------------------------------ END OF FILE
