@@ -185,7 +185,7 @@ ZEND_FUNCTION(wb_get_size)
 	{
 
 		// Is source an image file?
-		wchar_t source_str_val = Z_STRVAL_P(source);
+		char* const source_str_val = Z_STRVAL_P(source);
 		if (strchr(source_str_val, '.') && (strstr(source_str_val, ".bmp") || strstr(source_str_val, ".ico") || strstr(source_str_val, ".icl") ||
 											strstr(source_str_val, ".dll") || strstr(source_str_val, ".exe")))
 		{
