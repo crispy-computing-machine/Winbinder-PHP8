@@ -1603,7 +1603,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	// added by AF
 	case WBWM_ENUM:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 
 		pwbobj = wbGetWBObj(hwnd);
 
@@ -1615,13 +1615,13 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_ENUM, lParam, wParam, 0, 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 	// added by AF
 	case WBWM_HOOK:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 
@@ -1635,7 +1635,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_HOOK, wParam, ptr[0], ptr[1], 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 
