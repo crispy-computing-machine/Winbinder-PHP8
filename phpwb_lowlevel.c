@@ -492,7 +492,7 @@ void CALLBACK wbMidiInProc(
 
 ZEND_FUNCTION(wb_get_midi_callback)
 {
-	wbMidiInProc;
+	// wbMidiInProc;
 }
 
 // Enum callback
@@ -513,7 +513,7 @@ void CALLBACK wbEnumProc(
 ZEND_FUNCTION(wb_get_enum_callback)
 {
 
-	wbEnumProc;
+	// wbEnumProc;
 }
 
 DWORD WINAPI wbHookProc(
@@ -543,7 +543,7 @@ DWORD WINAPI wbHookProc(
 
 ZEND_FUNCTION(wb_get_hook_callback)
 {
-	wbHookProc;
+	//wbHookProc;
 }
 
 //------------------------------------------------------------------ END OF FILE

@@ -158,15 +158,15 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 		&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
 		parms,				// Parameter array
-		0,					// No separation flag (always 0)
-		NULL);
+		0				// No separation flag (always 0)
+		);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
 	{
 	    // supress if its null as the user function may not return anything
 	    if(bRet != IS_NULL){
-	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
+	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), (BOOL)Z_TYPE(bRet));
 	    }
 	}
 
