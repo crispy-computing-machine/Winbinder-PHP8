@@ -209,6 +209,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	int height = 0, color = 0, flags = 0;
 	int title_len = 0, name_len = 0;
 	PFONT * font;
+	font = wbGetFont(-1); // last font used
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
