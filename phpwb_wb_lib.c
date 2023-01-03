@@ -82,7 +82,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
 UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
-	zval fname = {0};
+	zval **fname = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
@@ -154,7 +154,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	bRet = call_user_function(
 		NULL, // CG(function_table) Hash value for the function table
 		(zval *)&pszObject,			// Pointer to an object (may be NULL)
-		(zval **)&fname,				// Function name
+		&fname,				// Function name
 		&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
 		parms				// Parameter array
