@@ -82,7 +82,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
 UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
-	zval *fname = {0};
+	zval fname = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
