@@ -165,7 +165,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	{
 	    // supress if its null as the user function may not return anything
 	    if(bRet != IS_NULL){
-	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), (BOOL)Z_TYPE(bRet));
+	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE((BOOL)bRet));
 	    }
 	}
 
