@@ -538,7 +538,7 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
 BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText);
 BOOL wbCreateTabItem(PWBOBJ pwbo, LPCTSTR pszItem);
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem);
-BOOL wbCreateTabControlImageList(PWBOBJ pwboTab, int nItem);
+BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex);
 
 // WB_DRAW.C

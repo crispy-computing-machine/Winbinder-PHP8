@@ -1637,7 +1637,7 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 	case TabControl:
 
 		lParam = MAX(1, lParam); // Image count
-		bRet = wbCreateTabControlImageList(pwbo, hImage, lParam, clTransp);
+		bRet = wbCreateTabControlImageList(pwbo, hImage, (int)lParam, clTransp);
 		break;
 
 	case TreeView:
