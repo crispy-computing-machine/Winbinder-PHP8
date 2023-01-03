@@ -1580,7 +1580,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	// added by AF
 	case WBWM_MIDI:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 		//MessageBox(NULL, "midi", 0,0);
@@ -1597,7 +1597,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 			return TRUE;
 		}
-		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
+ */		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
 	}
 	break;
 	// added by AF
