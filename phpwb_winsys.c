@@ -658,7 +658,7 @@ ZEND_FUNCTION(wb_get_clipboard)
         char * buffer = (char*)GlobalLock( hData );
         GlobalUnlock( hData );
         CloseClipboard();
-        RETURN_STRING(buffer, TRUE);
+        RETURN_STRING(buffer);
     }
     RETURN_NULL();
 }
@@ -747,7 +747,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 
 ZEND_FUNCTION(wb_is_mouse_over)
 {
-    PWBOBJ pwbo;
+    zend_long pwbo;
     RECT rc;
     POINT pt;
 
