@@ -152,12 +152,12 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 
 	// Call the user function
 	bRet = call_user_function(
-		CG(function_table), // Hash value for the function table
+		(HashTable)CG(function_table), // Hash value for the function table
 		(zval **)&pszObject,			// Pointer to an object (may be NULL)
-		&fname,				// Function name
-		&return_value,		// Return value
+		(zval *)&fname,				// Function name
+		(zval *)&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
-		parms				// Parameter array
+		(zval *)parms				// Parameter array
 		);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
