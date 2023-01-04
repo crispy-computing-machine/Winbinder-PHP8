@@ -30,8 +30,8 @@ ZEND_FUNCTION(wb_get_pixel)
 		// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 		ZEND_PARSE_PARAMETERS_START(3, 3)
 			Z_PARAM_LONG(handle)
-			Z_PARAM_DOUBLE(x)
-			Z_PARAM_DOUBLE(y)
+			Z_PARAM_LONG(x)
+			Z_PARAM_LONG(y)
 		ZEND_PARSE_PARAMETERS_END();
 
 
@@ -51,8 +51,8 @@ ZEND_FUNCTION(wb_get_pixel)
 		// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 		ZEND_PARSE_PARAMETERS_START(4, 4)
 			Z_PARAM_STRING(pixdata,pixdata_len)
-			Z_PARAM_DOUBLE(x)
-			Z_PARAM_DOUBLE(y)
+			Z_PARAM_LONG(x)
+			Z_PARAM_LONG(y)
 			Z_PARAM_LONG(compress4to3)
 		ZEND_PARSE_PARAMETERS_END();
 
@@ -72,8 +72,8 @@ ZEND_FUNCTION(wb_draw_point)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(4, 4)
 		Z_PARAM_LONG(handle)
-		Z_PARAM_DOUBLE(x)
-		Z_PARAM_DOUBLE(y)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
 		Z_PARAM_LONG(color)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -88,10 +88,10 @@ ZEND_FUNCTION(wb_draw_line)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(6, 8)
 		Z_PARAM_LONG(handle)
-		Z_PARAM_DOUBLE(x0)
-		Z_PARAM_DOUBLE(y0)
-		Z_PARAM_DOUBLE(x1)
-		Z_PARAM_DOUBLE(y1)
+		Z_PARAM_LONG(x0)
+		Z_PARAM_LONG(y0)
+		Z_PARAM_LONG(x1)
+		Z_PARAM_LONG(y1)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(linewidth)
@@ -109,10 +109,10 @@ ZEND_FUNCTION(wb_draw_rect)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(6, 9)
 		Z_PARAM_LONG(handle)
-		Z_PARAM_DOUBLE(x)
-		Z_PARAM_DOUBLE(y)
-		Z_PARAM_DOUBLE(width)
-		Z_PARAM_DOUBLE(height)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+		Z_PARAM_LONG(width)
+		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(filled)
@@ -131,10 +131,10 @@ ZEND_FUNCTION(wb_draw_ellipse)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(6, 9)
 		Z_PARAM_LONG(handle)
-		Z_PARAM_DOUBLE(x)
-		Z_PARAM_DOUBLE(y)
-		Z_PARAM_DOUBLE(width)
-		Z_PARAM_DOUBLE(height)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+		Z_PARAM_LONG(width)
+		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(filled)
@@ -160,11 +160,11 @@ ZEND_FUNCTION(wb_draw_text)
 	ZEND_PARSE_PARAMETERS_START(4, 8)
 		Z_PARAM_LONG(handle)
 		Z_PARAM_STRING(text, text_len)
-		Z_PARAM_DOUBLE(x)
-		Z_PARAM_DOUBLE(y)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_DOUBLE(width)
-		Z_PARAM_DOUBLE(height)
+		Z_PARAM_LONG(width)
+		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(nfont)
 		Z_PARAM_LONG(flags)
 	ZEND_PARSE_PARAMETERS_END();
@@ -200,13 +200,13 @@ ZEND_FUNCTION(wb_draw_image)
 		Z_PARAM_LONG(handle)
 		Z_PARAM_LONG(hbm)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_DOUBLE(x)
-		Z_PARAM_DOUBLE(y)
-		Z_PARAM_DOUBLE(w)
-		Z_PARAM_DOUBLE(h)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(h)
 		Z_PARAM_LONG(transpcolor)
-		Z_PARAM_DOUBLE(cx)
-		Z_PARAM_DOUBLE(cy)
+		Z_PARAM_LONG(cx)
+		Z_PARAM_LONG(cy)
 	ZEND_PARSE_PARAMETERS_END();
 	RETURN_BOOL((LONG)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
 }
