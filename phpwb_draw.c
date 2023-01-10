@@ -211,10 +211,7 @@ ZEND_FUNCTION(wb_draw_image)
 		Z_PARAM_LONG_OR_NULL(cy, cy_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if(transpcolor_isnull){
-		transpcolor = NOCOLOR;
-	}
-
+	printf("%d", handle);
 
 	RETURN_BOOL((LONG)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
 }

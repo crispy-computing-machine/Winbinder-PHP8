@@ -45,12 +45,11 @@ ZEND_FUNCTION(wb_load_image)
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
-	if (!hImage)
-	{
+	if (!hImage) {
 		RETURN_NULL();
+	} else {
+		RETURN_LONG((long)hImage);
 	}
-	else
-	RETURN_LONG((long)hImage);
 }
 
 ZEND_FUNCTION(wb_save_image)
