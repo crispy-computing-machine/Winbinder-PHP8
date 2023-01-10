@@ -34,11 +34,6 @@ ZEND_FUNCTION(wb_load_image)
 
 	TCHAR *wcs = 0;
 
-	// Default parameter values
-
-	index = 0;
-	param = FALSE;
-
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 	Z_PARAM_STRING(s,s_len)
