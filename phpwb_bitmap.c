@@ -27,6 +27,9 @@ ZEND_FUNCTION(wb_load_image)
 	int s_len;
 	zend_long index;
 	zend_long param = 0;
+	zend_bool index_isnull;
+	zend_bool param_isnull;
+
 	HANDLE hImage;
 
 	TCHAR *wcs = 0;
@@ -40,8 +43,8 @@ ZEND_FUNCTION(wb_load_image)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 	Z_PARAM_STRING(s,s_len)
 	Z_PARAM_OPTIONAL
-	Z_PARAM_LONG(index)
-	Z_PARAM_LONG(param)
+	Z_PARAM_LONG_OR_NULL(index, index_isnull)
+	Z_PARAM_LONG_OR_NULL(param, param_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
