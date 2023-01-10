@@ -36,10 +36,10 @@ ZEND_FUNCTION(wb_load_image)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
-	Z_PARAM_STRING(s,s_len)
-	Z_PARAM_OPTIONAL
-	Z_PARAM_LONG_OR_NULL(index, index_isnull)
-	Z_PARAM_LONG_OR_NULL(param, param_isnull)
+		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(index, index_isnull)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
