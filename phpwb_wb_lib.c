@@ -225,7 +225,7 @@ BOOL wbFree(void *ptr)
 	return TRUE;
 }
 
-UINT MemCheck(const char *string message){
+UINT MemCheck(const char *message){
 	struct rusage r_usage;
 	int *p = 0;
 	while(1) {
