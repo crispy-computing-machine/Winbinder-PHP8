@@ -256,6 +256,8 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 		return NULL;
 
 	wcsncpy(szFile, pszImageFile, MAX_PATH - 1);
+	// wbFree pszImageFile?
+
 
 	if (!wbFindFile(szFile, MAX_PATH))
 	{
