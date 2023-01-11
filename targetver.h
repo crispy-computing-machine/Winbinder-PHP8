@@ -1,10 +1,13 @@
 #pragma once
 
+
+#define _WIN32_WINNT_WIN10                  0x0A00 // Windows 10
+
 /** Windows Constants **/
-#define WINVER 0x0501         // Windows XP
-#define _WIN32_WINNT 0x0501   // Windows XP
-#define _WIN32_WINDOWS 0x0501 // Windows XP
-#define _WIN32_IE 0x0600      // Internet Explorer 6
+#define WINVER _WIN32_WINNT_WIN10         // Windows 10
+#define _WIN32_WINNT _WIN32_WINNT_WIN10   // Windows XP
+#define _WIN32_WINDOWS _WIN32_WINNT_WIN10 // Windows XP
+#define _WIN32_IE _WIN32_WINNT_WIN10      // Internet Explorer 6
 
 // NTDDI_VERSION
-#define NTDDI_VERSION 0x05010000
+#define NTDDI_VERSION 0x0A000000
