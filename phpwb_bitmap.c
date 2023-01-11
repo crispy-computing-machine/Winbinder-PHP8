@@ -45,7 +45,7 @@ ZEND_FUNCTION(wb_load_image)
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
-	wbFree(s);
+	//wbFree(s);
 
 	if (!hImage) {
 		RETURN_NULL();
