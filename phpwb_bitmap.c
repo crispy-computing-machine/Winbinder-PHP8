@@ -41,7 +41,6 @@ ZEND_FUNCTION(wb_load_image)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
-
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
 	//wbFree(s); // dont free filenames, mangles them :)
