@@ -424,7 +424,7 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 
 	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
 	{
-		*lpBits = NULL;
+		wbFree(lpBits);
 		DeleteDC(hdc);
 		return 0;
 	}
@@ -449,10 +449,12 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
+		wbFree(lpBits);
 		return (nLen / 4) * 3;
-	}
-	else
+	} else {
+		wbFree(lpBits);
 		return pbmi->bmiHeader.biSizeImage;
+	}
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
@@ -523,6 +525,7 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 	if (!lpDIB)
 	{
 		_lclose(hFile);
+		wbFree(lpDIB);
 		return NULL;
 	}
 
@@ -734,7 +737,7 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 		return FALSE;
 
 	// Free memory
-
+	wbFree(hp);
 	wbFree((HGLOBAL)lpBits);
 	return TRUE;
 }
