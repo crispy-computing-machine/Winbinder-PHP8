@@ -267,7 +267,7 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 	if (wcsstr(szFile, TEXT(".bmp")))
 	{ 
 		// Load bitmap
-		MemCheck("wbLoadImage before:", false);
+		MemCheck("wbLoadImage before:", FALSE);
 		int cxDib, cyDib;
 		HBMP hbmpData;
 		HBMP lpDIBBits;
@@ -290,7 +290,7 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 			cxDib = DIBWIDTH(hbmpData);
 			cyDib = DIBHEIGHT(hbmpData);
 			hbm = SetBitmap((BITMAPINFO *)hbmpData, lpDIBBits, cxDib, cyDib);
-			MemCheck("wbLoadImage after:", false);
+			MemCheck("wbLoadImage after:", FALSE);
 			return hbm;
 		} else {
 			return NULL;
