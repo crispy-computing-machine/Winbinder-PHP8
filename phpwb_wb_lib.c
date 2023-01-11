@@ -12,7 +12,11 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
-
+#include <sys/resource.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 //-------------------------------------------------------------------- CONSTANTS
 
 #define CALLBACK_ARGS 6 // Number of arguments of the callback function
@@ -221,5 +225,23 @@ BOOL wbFree(void *ptr)
 	}
 	return TRUE;
 }
+
+UINT MemCheck(void){
+	struct rusage r_usage;
+	int *p = 0;
+	while(1) {
+		p = (int*)malloc(sizeof(int)*1000);
+		int ret = getrusage(RUSAGE_SELF,&r_usage);
+		if(ret == 0){
+			printf("Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
+		} else {
+			printf("Error in getrusage. errno = %d\n", errno);
+		}
+		usleep(10);
+	}
+	return 0;
+}
+
+
 
 //------------------------------------------------------------------ END OF FILE

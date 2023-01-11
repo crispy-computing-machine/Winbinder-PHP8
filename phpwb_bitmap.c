@@ -45,6 +45,8 @@ ZEND_FUNCTION(wb_load_image)
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
+	wbFree(s);
+
 	if (!hImage) {
 		RETURN_NULL();
 	} else {
@@ -74,6 +76,7 @@ ZEND_FUNCTION(wb_save_image)
 	wcs = Utf82WideChar(s, s_len);
 	ret = wbSaveBitmap((HBITMAP)hbm, wcs);
 	wbFree(wcs);
+	wbFree(s);
 
 	RETURN_BOOL(ret);
 }
@@ -126,7 +129,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
 	RETVAL_STRINGL(lpBits, size);
-	efree(lpBits);
+	wbFree(lpBits);
 }
 
 ZEND_FUNCTION(wb_create_mask)

@@ -289,9 +289,9 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 			cyDib = DIBHEIGHT(hbmpData);
 			hbm = SetBitmap((BITMAPINFO *)hbmpData, lpDIBBits, cxDib, cyDib);
 			return hbm;
-		}
-		else
+		} else {
 			return NULL;
+		}
 	}
 	else if (wcsstr(szFile, TEXT(".ico")) || wcsstr(szFile, TEXT(".icl")) ||
 			 wcsstr(szFile, TEXT(".dll")) || wcsstr(szFile, TEXT(".exe")))
