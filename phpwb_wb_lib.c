@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <unistd.h>
 //-------------------------------------------------------------------- CONSTANTS
 
 #define CALLBACK_ARGS 6 // Number of arguments of the callback function
