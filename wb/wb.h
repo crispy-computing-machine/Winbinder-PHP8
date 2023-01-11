@@ -634,7 +634,6 @@ char *wbStrDup(const char *string);
 char *wbStrnDup(const char *string, size_t size);
 UINT MemCheck(void);
 
-
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _WB_H

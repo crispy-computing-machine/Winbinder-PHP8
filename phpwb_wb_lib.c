@@ -12,6 +12,7 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
+#include "win32/getrusage.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
