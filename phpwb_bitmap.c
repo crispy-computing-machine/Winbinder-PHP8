@@ -29,9 +29,7 @@ ZEND_FUNCTION(wb_load_image)
 	zend_long param = 0;
 	zend_bool index_isnull;
 	zend_bool param_isnull;
-
 	HANDLE hImage;
-
 	TCHAR *wcs = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
@@ -43,11 +41,8 @@ ZEND_FUNCTION(wb_load_image)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
-	// clrscr(); /*clear output screen*/
-	MemCheck("wb_load_image before:", false);
-	hImage = wbLoadImage(wcs, index, param);
-	MemCheck("wb_load_image after:", false);
 
+	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
 	//wbFree(s); // dont free filenames, mangles them :)
 
