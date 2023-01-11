@@ -197,32 +197,32 @@ ZEND_FUNCTION(wb_draw_image)
 	zend_bool transpcolor_isnull;
 	zend_bool x_isnull, y_isnull, w_isnull, h_isnull, cx_isnull, cy_isnull;
 
-	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
-	// ZEND_PARSE_PARAMETERS_START(2, 9)
-	// 	Z_PARAM_LONG(handle)
-	// 	Z_PARAM_LONG(hbm)
-	// 	Z_PARAM_OPTIONAL
-	// 	Z_PARAM_LONG_OR_NULL(x, x_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(y, y_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(w, w_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(h, h_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(transpcolor, transpcolor_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(cx, cx_isnull)
-	// 	Z_PARAM_LONG_OR_NULL(cy, cy_isnull)
-	// ZEND_PARSE_PARAMETERS_END();
-
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 9)
 		Z_PARAM_LONG(handle)
 		Z_PARAM_LONG(hbm)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(h)
-		Z_PARAM_LONG(transpcolor)
-		Z_PARAM_LONG(cx)
-		Z_PARAM_LONG(cy)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(h, h_isnull)
+		Z_PARAM_LONG_OR_NULL(transpcolor, transpcolor_isnull)
+		Z_PARAM_LONG_OR_NULL(cx, cx_isnull)
+		Z_PARAM_LONG_OR_NULL(cy, cy_isnull)
 	ZEND_PARSE_PARAMETERS_END();
+
+	// ZEND_PARSE_PARAMETERS_START(2, 9)
+	// 	Z_PARAM_LONG(handle)
+	// 	Z_PARAM_LONG(hbm)
+	// 	Z_PARAM_OPTIONAL
+	// 	Z_PARAM_LONG(x)
+	// 	Z_PARAM_LONG(y)
+	// 	Z_PARAM_LONG(w)
+	// 	Z_PARAM_LONG(h)
+	// 	Z_PARAM_LONG(transpcolor)
+	// 	Z_PARAM_LONG(cx)
+	// 	Z_PARAM_LONG(cy)
+	// ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL((LONG)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
 }
