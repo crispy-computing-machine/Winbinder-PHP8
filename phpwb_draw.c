@@ -197,7 +197,7 @@ ZEND_FUNCTION(wb_draw_image)
 	zend_bool transpcolor_isnull;
 	zend_bool x_isnull, y_isnull, w_isnull, h_isnull, cx_isnull, cy_isnull;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|lllllll", &handle, &hbm, &x, &y, &w, &h, &transpcolor, &cx, &cy) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 9)
 		Z_PARAM_LONG(handle)
 		Z_PARAM_LONG(hbm)
