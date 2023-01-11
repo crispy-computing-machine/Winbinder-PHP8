@@ -225,16 +225,16 @@ BOOL wbFree(void *ptr)
 	return TRUE;
 }
 
-UINT MemCheck(void){
+UINT MemCheck(LPCTSTR message){
 	struct rusage r_usage;
 	int *p = 0;
 	while(1) {
 		p = (int*)malloc(sizeof(int)*1000);
 		int ret = getrusage(RUSAGE_SELF,&r_usage);
 		if(ret == 0){
-			printf("Memory usage: %ld kilobytes\n",r_usage.ru_maxrss);
+			printf("%s Memory: %ld\n", message, (r_usage.ru_maxrss/1024));
 		} else {
-			printf("Error in getrusage. errno = %d\n", errno);
+			printf("MemCheck Error in getrusage. errno = %d\n", errno);
 		}
 		usleep(10);
 	}

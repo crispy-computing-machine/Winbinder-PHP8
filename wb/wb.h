@@ -632,7 +632,7 @@ BOOL wbFree(void *ptr);
 void *wbRealloc(void *ptr, size_t size);
 char *wbStrDup(const char *string);
 char *wbStrnDup(const char *string, size_t size);
-UINT MemCheck(void);
+UINT MemCheck(LPCTSTR message);
 
 //------------------------------------------------------------------ END OF FILE
 
