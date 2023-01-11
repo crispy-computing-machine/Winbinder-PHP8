@@ -225,13 +225,17 @@ BOOL wbFree(void *ptr)
 	return TRUE;
 }
 
-UINT MemCheck(const char *message){
+UINT MemCheck(const char *message, BOOL mb){
 	struct rusage r_usage;
 	int *p = 0;
 	p = (int*)malloc(sizeof(int)*1000);
 	int ret = getrusage(RUSAGE_SELF,&r_usage);
 	if(ret == 0){
-		printf("%s Memory: %ld\n", message, (r_usage.ru_maxrss/1024));
+		if(mb){
+			printf("%s Memory: %ldMB\n", message, (r_usage.ru_maxrss/1024));
+		} else {
+			printf("%s Memory: %ldKB\n", message, r_usage.ru_maxrss);
+		}
 	} else {
 		printf("MemCheck Error in getrusage. errno = %d\n", errno);
 	}
