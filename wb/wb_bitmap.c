@@ -250,14 +250,12 @@ HDC wbCreateBitmapDC(HBITMAP hbm)
 
 HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 {
-	TCHAR szFile[MAX_PATH];
+	TCHAR szFile[MAX_PATH]; // 256
 
 	if (!pszImageFile || !*pszImageFile)
 		return NULL;
 
 	wcsncpy(szFile, pszImageFile, MAX_PATH - 1);
-	wbFree(*pszImageFile);
-
 
 	if (!wbFindFile(szFile, MAX_PATH))
 	{
