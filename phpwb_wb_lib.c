@@ -236,7 +236,6 @@ UINT MemCheck(const char *message){
 		} else {
 			printf("MemCheck Error in getrusage. errno = %d\n", errno);
 		}
-		usleep(10);
 	}
 	return 0;
 }
