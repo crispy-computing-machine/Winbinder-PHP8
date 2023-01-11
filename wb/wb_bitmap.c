@@ -532,6 +532,9 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 	dwOffset = 0;
 	while (dwDIBSize > 0)
 	{
+		// 32,768 is a positive integer equal to. 
+		// It is notable in computer science for being the absolute value of the maximum negative value of a 16-bit signed integer,
+		// which spans the range [-32768, 32767]. 
 		wDibRead = (WORD)min(32768, dwDIBSize);
 		if (wDibRead != _lread(hFile, (LPSTR)(lpDIB + dwOffset), wDibRead))
 		{
