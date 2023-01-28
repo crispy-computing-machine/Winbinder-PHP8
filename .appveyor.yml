@@ -29,6 +29,17 @@ install:
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
 
+    echo "Download xdebug"
+    if (-not (Test-Path c:\build-cache\xdebug)) {
+            Invoke-WebRequest "https://github.com/xdebug/xdebug/archive/refs/heads/master.zip" -OutFile "c:\build-cache\xdebug.zip"
+    }
+    if (-not (Test-Path c:\build-cache\xdebug.zip)) {
+            7z x c:\build-cache\xdebug.zip -oc:\build-cache
+            # Sleep 5 seconds (process cannot access the file)
+            Start-Sleep -s 5
+            xcopy c:\build-cache\xdebug C:\projects\php-src\ext\xdebug\ /s /e /y /f
+    }   
+
     echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
 
