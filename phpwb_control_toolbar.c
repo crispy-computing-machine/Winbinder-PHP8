@@ -30,20 +30,28 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	// Get function parameters
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz!|lls", &pwboParent, &zarray, &width, &height, &s, &s_len) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!|lls", &pwboParent, &zarray, &width, &height, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 5)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_ZVAL(zarray)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(width)
+		Z_PARAM_LONG(height)
+		Z_PARAM_STRING(s,s_len)
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
+	ZEND_PARSE_PARAMETERS_END();
 
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{
 
 		target_hash = HASH_OF(zarray);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -72,8 +80,8 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 			case IS_ARRAY: // Toolbar button
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
-				pitem[i]->pszCaption = Utf82WideChar(pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar(pitem[i]->pszHint, 0);
+				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 				break;
 
 			case IS_NULL: // Separator
@@ -86,8 +94,9 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 				RETURN_NULL();
 			}
 
-			if (i < nelem - 1)
+			if (i < nelem - 1){
 				zend_hash_move_forward(target_hash);
+			}
 		}
 
 		wcs = Utf82WideChar(s, s_len);
@@ -109,9 +118,9 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	l = (LONG)wbCreateToolbar((PWBOBJ)pwboParent, pitem, nelem, width, height, hImage);
 
-	if (pitem)
+	if (pitem){
 		efree(pitem);
-
+	}
 	RETURN_LONG(l);
 }
 

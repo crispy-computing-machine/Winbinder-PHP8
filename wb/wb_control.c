@@ -440,7 +440,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case EditBox: // Subclasses edit box to process keyboard messages
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
-		lpfnEditProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)EditBoxProc);
+		lpfnEditProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)EditBoxProc);
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
@@ -448,7 +448,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		//			// Subclasses tab control to process WM_COMMAND
-		//			lpfnTabProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)TabProc);
+		//			lpfnTabProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)TabProc);
 		CreateToolTip(pwbo, pszTooltip);
 		wbSetTabControlText(pwbo, pszCaption);
 
@@ -462,12 +462,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		if (!wcsicmp(pszClass, TEXT("BUTTON"))) // Only for group boxes!
-			lpfnFrameProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)FrameProc);
+			lpfnFrameProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)FrameProc);
 		break;
 
 	case InvisibleArea: // Subclasses InvisibleArea to process WM_MOUSEMOVE
 		CreateToolTip(pwbo, pszTooltip);
-		lpfnInvisibleProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)InvisibleProc);
+		lpfnInvisibleProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)InvisibleProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		break;
 
@@ -522,7 +522,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case HyperLink:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)HyperLinkProc);
+		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)HyperLinkProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -530,7 +530,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case Label:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnLabelProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)LabelProc);
+		lpfnLabelProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG)LabelProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -561,7 +561,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	if (pwboParent->uClass == TabControl)
 		RegisterControlInTab(pwboParent, pwbo, id, nTab);
 
-	SetWindowLong(pwbo->hwnd, GWL_USERDATA, (LONG)pwbo);
+	SetWindowLong(pwbo->hwnd, GWLP_USERDATA, (LONG)pwbo);
 
 	return pwbo;
 }
@@ -664,7 +664,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 
 				if (IsWindow(hCtrl))
 				{
-					pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWL_USERDATA);
+					pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWLP_USERDATA);
 				}
 				else
 				{
@@ -706,7 +706,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 
 							if (IsWindow(hCtrl))
 							{
-								pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWL_USERDATA);
+								pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWLP_USERDATA);
 							}
 							else
 							{
@@ -1637,7 +1637,7 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 	case TabControl:
 
 		lParam = MAX(1, lParam); // Image count
-		bRet = wbCreateTabControlImageList(pwbo, hImage, lParam, clTransp);
+		bRet = wbCreateTabControlImageList(pwbo, hImage, (int)lParam, clTransp);
 		break;
 
 	case TreeView:

@@ -219,7 +219,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 
 	CreateToolTip(pwbo, pszTooltip);
 
-	SetWindowLong(pwbo->hwnd, GWL_USERDATA, (LONG)pwbo);
+	SetWindowLong(pwbo->hwnd, GWLP_USERDATA, (LONG)pwbo);
 
 	// Is it a modal dialog?
 
@@ -375,9 +375,8 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 		return FALSE;
 
 	// pwboParent is ignored here
-
-	if (bClientRect)
-	{
+	// @todo seems to segfault when clientarea is set to true!
+	if (bClientRect){
 		RECT rcParent;
 
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
@@ -385,9 +384,9 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 
 		rc.left -= rcParent.left;
 		rc.top -= rcParent.top;
-	}
-	else
+	} else {
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
+	}
 
 	if (!bRet)
 		return (DWORD)MAKELONG(WBC_CENTER, WBC_CENTER);
@@ -901,7 +900,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					case CDDS_ITEMPREPAINT:
 					{
 						LISTVIEWCOLOR lvc = {0};
-						UINT ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, ((LPNMHDR)lParam)->idFrom, lplvcd->nmcd.lItemlParam, -1, &lvc);
+						UINT ret = wbCallUserFunction(
+									pwbobj->pszCallBackFn,
+									pwbobj->pszCallBackObj,
+									pwbobj->parent,
+									pwbobj,
+									((LPNMHDR)lParam)->idFrom,
+									lplvcd->nmcd.lItemlParam,
+									-1,
+									(LPARAM)&lvc
+								);
 
 						if (ret > 0)
 						{
@@ -930,7 +938,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 					{
 						LISTVIEWCOLOR lvc = {0};
-						UINT ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, ((LPNMHDR)lParam)->idFrom, lplvcd->nmcd.lItemlParam, lplvcd->iSubItem, &lvc);
+						UINT ret = wbCallUserFunction(
+								pwbobj->pszCallBackFn,
+								pwbobj->pszCallBackObj,
+								pwbobj->parent,
+								pwbobj,
+								((LPNMHDR)lParam)->idFrom,
+								lplvcd->nmcd.lItemlParam,
+								lplvcd->iSubItem,
+								(LPARAM)&lvc
+							);
 						if (ret > 0)
 						{
 							switch (lvc.nMode)
@@ -1563,7 +1580,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	// added by AF
 	case WBWM_MIDI:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 		//MessageBox(NULL, "midi", 0,0);
@@ -1580,13 +1597,13 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 			return TRUE;
 		}
-		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
+ */		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
 	}
 	break;
 	// added by AF
 	case WBWM_ENUM:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 
 		pwbobj = wbGetWBObj(hwnd);
 
@@ -1598,13 +1615,13 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_ENUM, lParam, wParam, 0, 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 	// added by AF
 	case WBWM_HOOK:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 
@@ -1618,7 +1635,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_HOOK, wParam, ptr[0], ptr[1], 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 
@@ -2033,11 +2050,11 @@ static HICON GetWindowIcon(HWND hwnd)
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICONSM);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICONSM);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICON);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICON);
 	if (hIcon)
 		return hIcon;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-/** Windows Constants **/
+/** Windows Constants - LOWEST version this can run on **/
 #define WINVER 0x0501         // Windows XP
 #define _WIN32_WINNT 0x0501   // Windows XP
 #define _WIN32_WINDOWS 0x0501 // Windows XP

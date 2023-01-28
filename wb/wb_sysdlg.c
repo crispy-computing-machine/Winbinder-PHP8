@@ -226,7 +226,7 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 		lf.lfWeight = (pfont->dwFlags & FTA_ITALIC) ? TRUE : FALSE;
 		lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
 		lf.lfCharSet = DEFAULT_CHARSET;
-		strncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE);
+		strncpy((char *)lf.lfFaceName, (char *)pfont->pszName, LF_FACESIZE);
 	}
 	else
 		cf.Flags = CF_TTONLY;

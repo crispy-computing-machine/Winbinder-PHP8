@@ -250,7 +250,7 @@ HDC wbCreateBitmapDC(HBITMAP hbm)
 
 HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 {
-	TCHAR szFile[MAX_PATH];
+	TCHAR szFile[MAX_PATH]; // 256
 
 	if (!pszImageFile || !*pszImageFile)
 		return NULL;
@@ -263,8 +263,8 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 	}
 
 	if (wcsstr(szFile, TEXT(".bmp")))
-	{ // Load bitmap
-
+	{ 
+		// Load bitmap
 		int cxDib, cyDib;
 		HBMP hbmpData;
 		HBMP lpDIBBits;
@@ -278,7 +278,6 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 		}
 
 		// Reject old Windows bitmap format
-
 		if (DIBHDRSIZE(hbmpData) == sizeof(BITMAPCOREHEADER))
 			return NULL;
 
@@ -288,10 +287,11 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 			cxDib = DIBWIDTH(hbmpData);
 			cyDib = DIBHEIGHT(hbmpData);
 			hbm = SetBitmap((BITMAPINFO *)hbmpData, lpDIBBits, cxDib, cyDib);
+
 			return hbm;
-		}
-		else
+		} else {
 			return NULL;
+		}
 	}
 	else if (wcsstr(szFile, TEXT(".ico")) || wcsstr(szFile, TEXT(".icl")) ||
 			 wcsstr(szFile, TEXT(".dll")) || wcsstr(szFile, TEXT(".exe")))
@@ -424,7 +424,7 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 
 	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
 	{
-		*lpBits = NULL;
+		wbFree(lpBits);
 		DeleteDC(hdc);
 		return 0;
 	}
@@ -449,10 +449,12 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
+		wbFree(lpBits);
 		return (nLen / 4) * 3;
-	}
-	else
+	} else {
+		wbFree(lpBits);
 		return pbmi->bmiHeader.biSizeImage;
+	}
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
@@ -523,12 +525,16 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 	if (!lpDIB)
 	{
 		_lclose(hFile);
+		wbFree(lpDIB);
 		return NULL;
 	}
 
 	dwOffset = 0;
 	while (dwDIBSize > 0)
 	{
+		// 32,768 is a positive integer equal to. 
+		// It is notable in computer science for being the absolute value of the maximum negative value of a 16-bit signed integer,
+		// which spans the range [-32768, 32767]. 
 		wDibRead = (WORD)min(32768, dwDIBSize);
 		if (wDibRead != _lread(hFile, (LPSTR)(lpDIB + dwOffset), wDibRead))
 		{
@@ -734,7 +740,7 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 		return FALSE;
 
 	// Free memory
-
+	wbFree(hp);
 	wbFree((HGLOBAL)lpBits);
 	return TRUE;
 }

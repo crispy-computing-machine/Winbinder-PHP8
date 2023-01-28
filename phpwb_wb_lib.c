@@ -12,7 +12,10 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
-
+#include "win32/getrusage.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 //-------------------------------------------------------------------- CONSTANTS
 
 #define CALLBACK_ARGS 6 // Number of arguments of the callback function
@@ -64,16 +67,17 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	}
 
 	// Normal error with stack trace
-	php_error_docref(NULL TSRMLS_CC, messageType, str);
+	php_error_docref(NULL, messageType, str);
 
-	// if not debug mode show friendly error box (only for fatal errors)
+
+	/* if not debug mode show friendly error box (only for fatal errors)
 	if (INI_INT("winbinder.debug_level") == 0 && messageType == E_ERROR)
 	{
 		szMsg = Utf82WideChar(str, 0);
 		szTitle = Utf82WideChar("wbError", 0);
 		wbMessageBox(NULL, szMsg, szTitle, nType);
 	}
-
+	*/
 	return FALSE;
 }
 
@@ -90,8 +94,6 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	char *pszOName;
 	zend_string *funName;
 	int name_len = 0;
-
-	TSRMLS_FETCH();
 
 	if (pszObject == NULL)
 	{
@@ -152,22 +154,26 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	ZVAL_LONG(&parms[5], (LONG)lParam3);
 
 	// Call the user function
-	bRet = call_user_function_ex(
-		CG(function_table), // Hash value for the function table
-		&pszObject,			// Pointer to an object (may be NULL)
+	bRet = call_user_function(
+		NULL, // CG(function_table) Hash value for the function table
+		(zval *)&pszObject,			// Pointer to an object (may be NULL)
 		&fname,				// Function name
 		&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
-		parms,				// Parameter array
-		0,					// No separation flag (always 0)
-		NULL TSRMLS_CC);
+		parms				// Parameter array
+		);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
 	{
 	    // supress if its null as the user function may not return anything
 	    if(bRet != IS_NULL){
-	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
+	        wbError(
+				TEXT("wbCallUserFunction"),
+				 MB_ICONWARNING,
+				  TEXT("User function call failed %s"),
+				   (BOOL)bRet
+				   );
 	    }
 	}
 
@@ -213,9 +219,29 @@ char *wbStrnDup(const char *string, size_t size)
 
 BOOL wbFree(void *ptr)
 {
-	if (ptr)
+	if (ptr){
 		efree(ptr);
+	}
 	return TRUE;
 }
+
+UINT MemCheck(const char *message, BOOL mb){
+	struct rusage r_usage;
+	int *p = 0;
+	p = (int*)malloc(sizeof(int)*1000);
+	int ret = getrusage(RUSAGE_SELF,&r_usage);
+	if(ret == 0){
+		if(mb){
+			printf("%s Memory: %ldMB\n", message, (r_usage.ru_maxrss/1024));
+		} else {
+			printf("%s Memory: %ldKB\n", message, r_usage.ru_maxrss);
+		}
+	} else {
+		printf("MemCheck Error in getrusage. errno = %d\n", errno);
+	}
+	return 0;
+}
+
+
 
 //------------------------------------------------------------------ END OF FILE

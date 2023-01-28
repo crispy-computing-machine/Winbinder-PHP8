@@ -30,20 +30,23 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 	// Get function parameters
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz!", &pwboParent, &zarray) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!", &pwboParent, &zarray) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_ZVAL(zarray)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
 	if (Z_TYPE_P(zarray) == IS_ARRAY)
 	{
 
 		target_hash = HASH_OF(zarray);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -71,9 +74,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 			case IS_ARRAY: // A menu item is an array inside an array
 				parse_array(entry, "lssss", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->pszImage, &str_accel);
-				pitem[i]->pszCaption = Utf82WideChar(pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar(pitem[i]->pszHint, 0);
-				pitem[i]->pszImage = Utf82WideChar(pitem[i]->pszImage, 0);
+				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
+				pitem[i]->pszImage = Utf82WideChar((const char *)pitem[i]->pszImage, 0);
 
 				if (str_accel && *str_accel && naccel < MAX_ACCELS)
 				{
@@ -99,8 +102,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 				break;
 			}
 
-			if (i < nelem - 1)
+			if (i < nelem - 1){
 				zend_hash_move_forward(target_hash);
+			}
 		}
 
 		// Create accelerator table
@@ -117,8 +121,9 @@ ZEND_FUNCTION(wbtemp_create_menu)
 
 	l = (LONG)wbCreateMenu((PWBOBJ)pwboParent, pitem, nelem);
 
-	if (pitem)
+	if (pitem){
 		efree(pitem);
+	}
 	RETURN_LONG(l);
 }
 
@@ -127,9 +132,12 @@ ZEND_FUNCTION(wbtemp_get_menu_item_checked)
 	zend_long id;
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &pwbo, &id) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &id) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+	ZEND_PARSE_PARAMETERS_END();
 
 	((PWBOBJ)pwbo)->id = id;
 
@@ -141,9 +149,13 @@ ZEND_FUNCTION(wbtemp_set_menu_item_checked)
 	zend_long id, b;
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &id, &b) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &id, &b) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+		Z_PARAM_LONG(b)
+	ZEND_PARSE_PARAMETERS_END();
 
 	((PWBOBJ)pwbo)->id = id;
 
@@ -159,13 +171,17 @@ ZEND_FUNCTION(wbtemp_set_menu_item_selected)
 {
 	zend_long pwbo, id, state;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &id, &state) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &id, &state) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+		Z_PARAM_LONG(state)
+	ZEND_PARSE_PARAMETERS_END();
 
 	((PWBOBJ)pwbo)->id = id;
 
-	RETURN_BOOL(wbSetMenuItemSelected((PWBOBJ)pwbo))
+	RETURN_BOOL(wbSetMenuItemSelected((PWBOBJ)pwbo));
 }
 
 ZEND_FUNCTION(wbtemp_set_menu_item_image)
@@ -173,9 +189,13 @@ ZEND_FUNCTION(wbtemp_set_menu_item_image)
 	zend_long id, handle;
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lll", &pwbo, &id, &handle) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &id, &handle) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+		Z_PARAM_LONG(handle)
+	ZEND_PARSE_PARAMETERS_END();
 
 	((PWBOBJ)pwbo)->id = id;
 

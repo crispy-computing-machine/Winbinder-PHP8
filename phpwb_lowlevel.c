@@ -31,9 +31,15 @@ ZEND_FUNCTION(wb_send_message)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|ll", &pwbo, &msg, &w, &l) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(msg)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(l)
+	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
 }
@@ -52,24 +58,29 @@ ZEND_FUNCTION(wb_peek)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|l", &address, &bytes) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &address, &bytes) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(address)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(bytes)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!address)
+	if (!address){
 		RETURN_NULL();
-
+	}
 	bytes = max(0, bytes);
 	ptr = (char *)address;
 	if (bytes == 0)
 	{ // Want a zero-terminated string?
-		if (!IsBadStringPtr(ptr, 32767))
-			RETURN_STRINGL(ptr, strlen(ptr), TRUE)
+		if (!IsBadStringPtr(((LPCWSTR)ptr), 32767))
+			RETURN_STRINGL(ptr, strlen(ptr));
 	}
 	else
 	{ // No, want a memory dump
-		if (!IsBadReadPtr(ptr, bytes))
-			RETURN_STRINGL(ptr, bytes, TRUE)
+		if (!IsBadReadPtr(ptr, bytes)){
+			RETURN_STRINGL(ptr, bytes);
+		}
 	}
 	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
 	RETURN_NULL();
@@ -91,9 +102,13 @@ ZEND_FUNCTION(wb_poke)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|l", &address, &contents, &contents_len, &bytes) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(address)
+		Z_PARAM_STRING(contents, contents_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(bytes)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
 	{
@@ -107,9 +122,9 @@ ZEND_FUNCTION(wb_poke)
 		RETURN_NULL();
 	}
 
-	if (!bytes)
+	if (!bytes){
 		bytes = contents_len;
-
+	}
 	ptr = (void *)address;
 
 	if (IsBadWritePtr(ptr, bytes))
@@ -141,9 +156,10 @@ ZEND_FUNCTION(wb_get_address)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "z/", &source) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z/", &source) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ZVAL(source)
+	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
 	if (sourcetype == IS_LONG)
@@ -166,8 +182,9 @@ ZEND_FUNCTION(wb_get_address)
 	{
 		RETURN_LONG((LONG)(void *)Z_STRVAL_P(source));
 	}
-	else
-		RETURN_LONG((LONG)(void *)source)
+	else{
+		RETURN_LONG((LONG)(void *)source);
+	}
 }
 
 ZEND_FUNCTION(wb_load_library)
@@ -184,16 +201,17 @@ ZEND_FUNCTION(wb_load_library)
 	}
 
 	//TCHAR *wcs = 0; // not sure if this is needed
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s", &lib, &lib_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(lib,lib_len)
+	ZEND_PARSE_PARAMETERS_END();
 
 	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
 	//hlib = (LONG)wbLoadLibrary(lib);
 
-	if (hlib)
-		RETURN_LONG(hlib)
-	else
+	if (hlib){
+		RETURN_LONG(hlib);
+	}else
 	{
 		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
 		RETURN_NULL();
@@ -211,9 +229,11 @@ ZEND_FUNCTION(wb_release_library)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &hlib) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hlib) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(hlib)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	// Is the library handle valid?
 
@@ -239,9 +259,12 @@ ZEND_FUNCTION(wb_get_function_address)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|l", &fun, &fun_len, &hlib) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &fun, &fun_len, &hlib) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_STRING(fun, fun_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(hlib)
+	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the library handle valid?
 
@@ -253,9 +276,9 @@ ZEND_FUNCTION(wb_get_function_address)
 
 	addr = (LONG)wbGetLibraryFunction((HMODULE)hlib, fun);
 
-	if (addr)
-		RETURN_LONG(addr)
-	else
+	if (addr){
+		RETURN_LONG(addr);
+	}else
 	{
 		wbError(TEXT("wb_get_function_address"), MB_ICONWARNING, TEXT("Unable to locate function %s() in library"), fun);
 		RETURN_NULL();
@@ -278,9 +301,12 @@ ZEND_FUNCTION(wb_call_function)
 		return;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|a!", &addr, &array) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|a!", &addr, &array) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(addr)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ARRAY(array)
+	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the address valid?
 
@@ -343,8 +369,9 @@ ZEND_FUNCTION(wb_call_function)
 					break;
 				}
 
-				if (i < nelem - 1)
+				if (i < nelem - 1){
 					zend_hash_move_forward(target_hash);
+				}
 			}
 		}
 	}
@@ -457,7 +484,7 @@ void CALLBACK wbMidiInProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_MIDI, hMidiIn, &param);
+		SendMessage(pwndMain->hwnd, WBWM_MIDI, hMidiIn, (LPARAM)&param);
 	}
 
 	return;
@@ -465,7 +492,7 @@ void CALLBACK wbMidiInProc(
 
 ZEND_FUNCTION(wb_get_midi_callback)
 {
-	RETURN_LONG(wbMidiInProc);
+	// wbMidiInProc;
 }
 
 // Enum callback
@@ -477,7 +504,7 @@ void CALLBACK wbEnumProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_ENUM, hwnd, lParam);
+		SendMessage(pwndMain->hwnd, WBWM_ENUM, (WPARAM)hwnd, lParam);
 	}
 
 	return;
@@ -486,7 +513,7 @@ void CALLBACK wbEnumProc(
 ZEND_FUNCTION(wb_get_enum_callback)
 {
 
-	RETURN_LONG(wbEnumProc);
+	// wbEnumProc;
 }
 
 DWORD WINAPI wbHookProc(
@@ -504,7 +531,7 @@ DWORD WINAPI wbHookProc(
 	if (pwndMain)
 	{
 		//SendMessage(pwbo->hwnd, wMsg, dwParam1,dwParam2);
-		SendMessage(pwndMain->hwnd, WBWM_HOOK, code, &param);
+		SendMessage(pwndMain->hwnd, WBWM_HOOK, code, (LPARAM)&param);
 	}
 	if (code < 0)
 	{
@@ -516,7 +543,7 @@ DWORD WINAPI wbHookProc(
 
 ZEND_FUNCTION(wb_get_hook_callback)
 {
-	RETURN_LONG(wbHookProc);
+	//wbHookProc;
 }
 
 //------------------------------------------------------------------ END OF FILE

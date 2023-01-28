@@ -29,13 +29,23 @@ ZEND_FUNCTION(wb_create_window)
 
 	nargs = ZEND_NUM_ARGS();
 
-	if (zend_parse_parameters(nargs TSRMLS_CC,
-							  "ll|zllllll", &pwboparent, &wbclass, &zcaption, &x, &y, &w, &h, &style, &lparam) == FAILURE)
-		return;
+	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|zllllll", &pwboparent, &wbclass, &zcaption, &x, &y, &w, &h, &style, &lparam) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 9)
+		Z_PARAM_LONG(pwboparent)
+		Z_PARAM_LONG(wbclass)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ZVAL(zcaption)
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(h)
+		Z_PARAM_LONG(style)
+		Z_PARAM_LONG(lparam)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE))
-		RETURN_NULL()
-
+	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
+		RETURN_NULL();
+	}
 	if (nargs == 5)
 	{
 		w = x;
@@ -77,14 +87,15 @@ ZEND_FUNCTION(wb_destroy_window)
 {
 	zend_long pwbo;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwbo) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_NULL();
+	 }
+	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo));
 }
 
 ZEND_FUNCTION(wb_get_instance)
@@ -95,9 +106,12 @@ ZEND_FUNCTION(wb_get_instance)
 
 	TCHAR *szCaption = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|l", &caption, &caption_len, &bringtofront) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &caption, &caption_len, &bringtofront) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_STRING(caption, caption_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(bringtofront)
+	ZEND_PARSE_PARAMETERS_END();
 
 	// This function could return the window handler instead of a BOOL,
 	// but it wouldn't be useful. Windows wouldn't let the second PHP process to
@@ -119,18 +133,22 @@ ZEND_FUNCTION(wb_get_size)
 
 	TCHAR *wcs = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "z|l", &source, &lparam) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|l", &source, &lparam) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_ZVAL(source)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(lparam)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!source)
+	if (!source){
 		RETURN_NULL();
-
+	}
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: PWBO, HBITMAP or HICON
 
-		if (!source->value.lval)
+		if (!source->value.lval){
 			RETURN_NULL();
+		}
 		//Test first is image
 		size = wbGetImageDimensions((HBITMAP)source->value.lval);
 		if (size == 0) //if not image then get windo or listview size
@@ -167,7 +185,7 @@ ZEND_FUNCTION(wb_get_size)
 	{
 
 		// Is source an image file?
-		wchar_t source_str_val = Z_STRVAL_P(source);
+		char* const source_str_val = Z_STRVAL_P(source);
 		if (strchr(source_str_val, '.') && (strstr(source_str_val, ".bmp") || strstr(source_str_val, ".ico") || strstr(source_str_val, ".icl") ||
 											strstr(source_str_val, ".dll") || strstr(source_str_val, ".exe")))
 		{
@@ -176,19 +194,22 @@ ZEND_FUNCTION(wb_get_size)
 
 			wcs = Utf82WideChar(source_str_val, Z_STRLEN_P(source));
 			hbm = wbLoadImage(wcs, 0, 0);
-			if (hbm)
+			if (hbm){
 				//size = wbGetImageDimensions(wbLoadImage(source->value.str.val, 0, 0));
 				size = wbGetImageDimensions(hbm);
+			}
 		}
 		else
 		{
 
 			SIZE siz;
 			wcs = Utf82WideChar(source_str_val, Z_STRLEN_P(source));
-			if (wbGetTextSize(&siz, wcs, lparam))
+			if (wbGetTextSize(&siz, wcs, lparam)){
 				size = (DWORD)MAKELONG(siz.cx, siz.cy);
-			else
+				}
+			else{
 				size = 0;
+				}
 		}
 	}
 	else
@@ -223,13 +244,17 @@ ZEND_FUNCTION(wb_set_size)
 
 	nargs = ZEND_NUM_ARGS();
 
-	if (zend_parse_parameters(nargs TSRMLS_CC,
-							  "lz|l", &pwbo, &zparm, &h) == FAILURE)
-		return;
+	// if (zend_parse_parameters(nargs TSRMLS_CC, "lz|l", &pwbo, &zparm, &h) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zparm)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(h)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_NULL();
+	 }
 	if ((Z_TYPE_P(zparm) == IS_ARRAY) && ((PWBOBJ)pwbo)->uClass == ListView)
 	{
 
@@ -239,9 +264,9 @@ ZEND_FUNCTION(wb_set_size)
 		zval *entry = NULL;
 
 		target_hash = HASH_OF(zparm);
-		if (!target_hash)
+		if (!target_hash){
 			RETURN_NULL();
-
+		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
 
@@ -291,10 +316,12 @@ ZEND_FUNCTION(wb_set_size)
 			RETURN_NULL();
 		}
 
-		if (h != 65535)
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1))
-		else
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval))
+		if (h != 65535){
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1));
+			}
+		else{
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval));
+		}
 	}
 }
 
@@ -306,13 +333,16 @@ ZEND_FUNCTION(wb_get_position)
 	DWORD pos;
 	zend_long clientarea = FALSE;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|l", &pwbo, &clientarea) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &pwbo, &clientarea) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(clientarea)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_NULL();
+	 }
 	// Build the array
 
 	pos = wbGetWindowPosition((PWBOBJ)pwbo, NULL, clientarea);
@@ -330,13 +360,17 @@ ZEND_FUNCTION(wb_set_position)
 	x = WBC_CENTER;
 	y = WBC_CENTER;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|ll", &pwbo, &x, &y) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pwbo, &x, &y) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_NULL();
+	 }
 	RETURN_BOOL(wbSetWindowPosition((PWBOBJ)pwbo, x, y, NULL));
 }
 
@@ -353,9 +387,17 @@ ZEND_FUNCTION(wb_set_area)
 	h = 0;
 
 	nargs = ZEND_NUM_ARGS();
-	if (zend_parse_parameters(nargs TSRMLS_CC,
-							  "ll|llll", &pwbo, &type, &x, &y, &w, &h) == FAILURE)
-		return;
+	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|llll", &pwbo, &type, &x, &y, &w, &h) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(2, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(type)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(x)
+		Z_PARAM_LONG(y)
+		Z_PARAM_LONG(w)
+		Z_PARAM_LONG(h)
+	ZEND_PARSE_PARAMETERS_END();
+
 
 	// x, y, w, h must be supplied together
 
@@ -368,9 +410,9 @@ ZEND_FUNCTION(wb_set_area)
 		RETURN_NULL();
 	}
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_NULL();
+	 }
 	RETURN_BOOL(wbSetWindowArea((PWBOBJ)pwbo, type, x, y, w, h));
 }
 
@@ -384,13 +426,15 @@ ZEND_FUNCTION(wb_set_handler)
 
 	TCHAR *wcsHandler = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "lz", &pwbo, &zparam) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz", &pwbo, &zparam) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zparam)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwbo, TRUE))
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
-
+	}
 	switch (Z_TYPE_P(zparam))
 	{
 	case IS_ARRAY:
@@ -414,7 +458,7 @@ ZEND_FUNCTION(wb_set_handler)
 	{
 
 		wcsHandler = Utf82WideChar(handler, 0);
-		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, obj, wcsHandler));
+		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, (LPDWORD)obj, wcsHandler));
 	}
 }
 
@@ -424,13 +468,14 @@ ZEND_FUNCTION(wb_get_item_list)
 	PWBOBJ *plist;
 	int nctrls, i;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &pwboparent) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwboparent) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwboparent)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)pwboparent, TRUE))
-		RETURN_NULL()
-
+	if (!wbIsWBObj((void *)pwboparent, TRUE)){
+		RETURN_NULL();
+	}
 	// Build the array
 	array_init(return_value);
 

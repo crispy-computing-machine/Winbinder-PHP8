@@ -34,13 +34,19 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 	TCHAR *szPath = 0;
 	TCHAR thisOne[MAX_PATH], fullPath[MAX_PATH * 2];
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sssl", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &style) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sssl", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &style) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 5)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_STRING(filter, filter_len)
+		Z_PARAM_STRING(path, path_len)
+		Z_PARAM_LONG(style)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
-
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	szFilter = Utf82WideChar(filter, filter_len);
 	szPath = Utf82WideChar(path, path_len);
@@ -61,8 +67,9 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		ptr += wcslen(szDir) + 1;
 		while (*ptr)
 		{
-			if (fileCount == 0)
+			if (fileCount == 0){
 				wcscat(szDir, L"\\");
+			}
 			wcscpy(fullPath, szDir);
 			wcscat(fullPath, ptr);
 			ptr += (wcslen(ptr) + 1);
@@ -77,7 +84,7 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		}
 	}
 	else
-		RETURN_STRING("")
+		RETURN_STRING("");
 }
 
 ZEND_FUNCTION(wbtemp_sys_dlg_save)
@@ -92,19 +99,29 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	TCHAR *szFilter = 0;
 	TCHAR *szPath = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sssss", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &file, &file_len, &defext, &defext_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sssss", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &file, &file_len, &defext, &defext_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 6)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title,title_len)
+		Z_PARAM_STRING(filter,filter_len)
+		Z_PARAM_STRING(path,path_len)
+		Z_PARAM_STRING(file, file_len)
+		Z_PARAM_STRING(defext, defext_len)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
-
-	if (*file)
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
+	if (*file){
 		//		strcpy(szFile, file);
 		Utf82WideCharCopy(file, file_len, szFile, file_len);
-	if (*defext)
+	}
+
+	if (*defext){
 		//		strcpy(szDefExt, defext);
 		szDefExt = Utf82WideChar(defext, defext_len);
+	}
 
 	szTitle = Utf82WideChar(title, title_len);
 	szFilter = Utf82WideChar(filter, filter_len);
@@ -115,10 +132,11 @@ ZEND_FUNCTION(wbtemp_sys_dlg_save)
 	if (*szFile)
 	{
 		file = WideChar2Utf8(szFile, &file_len);
-		RETURN_STRINGL(file, file_len)
+		RETURN_STRINGL(file, file_len);
 	}
-	else
-		RETURN_STRING("")
+	else{
+		RETURN_STRING("");
+	}
 }
 
 ZEND_FUNCTION(wb_sys_dlg_path)
@@ -133,13 +151,17 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	char *selPath = 0;
 	int sel_len = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|ss", &pwboParent, &title, &title_len, &path, &path_len) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ss", &pwboParent, &title, &title_len, &path, &path_len) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title,title_len)
+		Z_PARAM_STRING(path,path_len)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
-
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	szPath = Utf82WideChar(path, path_len);
 
@@ -148,10 +170,11 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	if (*szSelPath)
 	{
 		selPath = WideChar2Utf8(szSelPath, &sel_len);
-		RETURN_STRINGL(selPath, sel_len)
+		RETURN_STRINGL(selPath, sel_len);
 	}
-	else
-		RETURN_STRING("")
+	else{
+		RETURN_STRING("");
+	}
 }
 
 ZEND_FUNCTION(wb_sys_dlg_color)
@@ -163,13 +186,17 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 
 	TCHAR *szTitle = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_LONG(pwboParent)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_LONG(color)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
-		RETURN_NULL()
-
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
+		RETURN_NULL();
+	}
 	szTitle = Utf82WideChar(title, title_len);
 	RETURN_LONG(wbSysDlgColor((PWBOBJ)pwboParent, szTitle, (COLORREF)color));
 }
@@ -181,20 +208,31 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *name = "";
 	int height = 0, color = 0, flags = 0;
 	int title_len = 0, name_len = 0;
-	FONT font;
+	int font;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(pwbparent)
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_STRING(name,name_len)
+		Z_PARAM_LONG(height)
+		Z_PARAM_LONG(color)
+		Z_PARAM_LONG(flags)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE))
-		RETURN_NULL()
+	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE)){
+		RETURN_NULL();
+	}
 
-	font.pszName = name;
-	font.nHeight = height;
-	font.color = color;
-	font.dwFlags = flags;
-	RETURN_LONG(wbSysDlgFont((PWBOBJ)pwbparent, title, &font));
+	font = wbCreateFont((LPCTSTR)name, height, color, flags);
+	RETURN_LONG(
+		(LONG)wbSysDlgFont(
+			(PWBOBJ)pwbparent,
+			 (LPTSTR)title,
+			  (PFONT)wbGetFont(font)
+			  )
+		);
 }
 
 //------------------------------------------------------------------ END OF FILE

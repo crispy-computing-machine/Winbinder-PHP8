@@ -67,6 +67,7 @@
 #include "wb_version.h"
 #include <windows.h>
 #include <commctrl.h>
+#include <WinUser.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
@@ -537,7 +538,7 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
 BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText);
 BOOL wbCreateTabItem(PWBOBJ pwbo, LPCTSTR pszItem);
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem);
-BOOL wbCreateTabControlImageList(PWBOBJ pwboTab, int nItem);
+BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex);
 
 // WB_DRAW.C
@@ -589,8 +590,8 @@ BOOL wbSetWindowSize(PWBOBJ pwbo, int nWidth, int nHeight, int nShowMode);
 DWORD wbGetWindowSize(PWBOBJ pwbo, BOOL bClientRect);
 DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect);
 BOOL wbSetWindowPosition(PWBOBJ pwbo, int xPos, int yPos, PWBOBJ pwboParent);
-void *wbGetAppInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT uLen);
-BOOL wbSetAppInfo(LPCTSTR pszInfo, BOOL *pbString, DWORD dwValue);
+// void *wbGetAppInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT uLen);
+// BOOL wbSetAppInfo(LPCTSTR pszInfo, BOOL *pbString, DWORD dwValue);
 BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT uPeriod);
 BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending);
 UINT wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT nMaxControls);
@@ -631,6 +632,7 @@ BOOL wbFree(void *ptr);
 void *wbRealloc(void *ptr, size_t size);
 char *wbStrDup(const char *string);
 char *wbStrnDup(const char *string, size_t size);
+UINT MemCheck(const char *message, BOOL mb);
 
 //------------------------------------------------------------------ END OF FILE
 

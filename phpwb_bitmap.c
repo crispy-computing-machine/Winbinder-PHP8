@@ -1,11 +1,11 @@
 /*******************************************************************************
 
- WINBINDER - The native Windows binding for PHP for PHP
+WINBINDER - The native Windows binding for PHP for PHP
 
- Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+Copyright  Hypervisual - see LICENSE.TXT for details
+Author: Rubem Pechansky (http://winbinder.org/contact.php)
 
- ZEND wrapper for bitmap functions
+ZEND wrapper for bitmap functions
 
 *******************************************************************************/
 
@@ -17,38 +17,39 @@
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /**
- * [ index is the index of the image on the file if filename is an icon library. Default is 0.]
- *
- * @return  [type]  [return description]
- */
+* [ index is the index of the image on the file if filename is an icon library. Default is 0.]
+*
+* @return  [type]  [return description]
+*/
 ZEND_FUNCTION(wb_load_image)
 {
 	char *s;
 	int s_len;
 	zend_long index;
 	zend_long param = 0;
+	zend_bool index_isnull;
+	zend_bool param_isnull;
 	HANDLE hImage;
-
 	TCHAR *wcs = 0;
 
-	// Default parameter values
-
-	index = 0;
-	param = FALSE;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "s|ll", &s, &s_len, &index, &param) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,"s|ll", &s, &s_len, &index, &param) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(index, index_isnull)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
+	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(s, s_len);
 	hImage = wbLoadImage(wcs, index, param);
 	wbFree(wcs);
-	if (!hImage)
-	{
+	//wbFree(s); // dont free filenames, mangles them :)
+
+	if (!hImage) {
 		RETURN_NULL();
-	}
-	else
+	} else {
 		RETURN_LONG((long)hImage);
+	}
 }
 
 ZEND_FUNCTION(wb_save_image)
@@ -60,16 +61,20 @@ ZEND_FUNCTION(wb_save_image)
 	TCHAR *wcs = 0;
 	BOOL ret;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ls", &hbm, &s, &s_len) == FAILURE)
-		RETURN_BOOL(FALSE);
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls", &hbm, &s, &s_len) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+	Z_PARAM_LONG(hbm)
+	Z_PARAM_STRING(s, s_len)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!hbm)
+	if (!hbm){
 		RETURN_NULL();
-
+	}
 	wcs = Utf82WideChar(s, s_len);
 	ret = wbSaveBitmap((HBITMAP)hbm, wcs);
 	wbFree(wcs);
+	wbFree(s);
 
 	RETURN_BOOL(ret);
 }
@@ -81,9 +86,15 @@ ZEND_FUNCTION(wb_create_image)
 
 	nargs = ZEND_NUM_ARGS();
 
-	if (zend_parse_parameters(nargs TSRMLS_CC,
-							  "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
-		return;
+	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+	Z_PARAM_LONG(w)
+	Z_PARAM_LONG(h)
+	Z_PARAM_OPTIONAL
+	Z_PARAM_LONG(bmi)
+	Z_PARAM_LONG(bits)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (nargs == 3)
 	{
@@ -91,7 +102,7 @@ ZEND_FUNCTION(wb_create_image)
 		RETURN_LONG(0);
 	}
 
-	RETURN_LONG((LONG)wbCreateBitmap(w, h, (BITMAPINFO *)bmi, (void *)bits))
+	RETURN_LONG((LONG)wbCreateBitmap(w, h, (BITMAPINFO *)bmi, (void *)bits));
 }
 
 ZEND_FUNCTION(wb_get_image_data)
@@ -101,46 +112,55 @@ ZEND_FUNCTION(wb_get_image_data)
 	DWORD size;
 	zend_long compress4to3 = FALSE;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l|l", &hbm, &compress4to3) == FAILURE)
-		return;
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &hbm, &compress4to3) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+	Z_PARAM_LONG(hbm)
+	Z_PARAM_OPTIONAL // Everything after optional
+	Z_PARAM_LONG(compress4to3)
+	ZEND_PARSE_PARAMETERS_END();
 
 	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
 
-	if (!size || !lpBits)
+	if (!size || !lpBits){
 		RETURN_NULL();
-
+	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
 	RETVAL_STRINGL(lpBits, size);
-	efree(lpBits);
+	wbFree(lpBits);
 }
 
 ZEND_FUNCTION(wb_create_mask)
 {
 	zend_long hbm, c;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "ll", &hbm, &c) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &hbm, &c) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+	Z_PARAM_LONG(hbm)
+	Z_PARAM_LONG(c)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!hbm)
+
+	if (!hbm){
 		RETURN_NULL();
-
-	RETURN_LONG((LONG)wbCreateMask((HBITMAP)hbm, c))
+	}
+	RETURN_LONG((LONG)wbCreateMask((HBITMAP)hbm, c));
 }
 
 ZEND_FUNCTION(wb_destroy_image)
 {
 	zend_long hbm;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-							  "l", &hbm) == FAILURE)
-		return;
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hbm) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+	Z_PARAM_LONG(hbm)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (!hbm)
+	if (!hbm){
 		RETURN_NULL();
-
-	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm))
+	}
+	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm));
 }
 
 #ifdef __LCC__
