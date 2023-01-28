@@ -29,14 +29,6 @@ install:
             move c:\build-cache\$dname0 c:\build-cache\$dname1
     }
 
-    echo "Download xdebug"
-    Invoke-WebRequest "https://github.com/xdebug/xdebug/archive/refs/heads/master.zip" -OutFile "c:\build-cache\xdebug.zip"
-    echo "Extract xdebug"
-    7z x c:\build-cache\xdebug.zip -oc:\build-cache
-    # Sleep 5 seconds (process cannot access the file)
-    Start-Sleep -s 5
-    xcopy c:\build-cache\xdebug-master C:\projects\php-src\ext\xdebug\ /s /e /y /f
-
     echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
 
@@ -81,7 +73,7 @@ build_script:
     $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
     echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
-    $conf_cmd = 'call configure --with-xdebug --with-winbinder=shared --enable-debug-pack 2>&1'
+    $conf_cmd = 'call configure --with-winbinder=shared --enable-debug-pack 2>&1'
     echo $conf_cmd | Out-File -Encoding "ASCII" -Append task.bat
     echo "nmake /nologo 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
     echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat
