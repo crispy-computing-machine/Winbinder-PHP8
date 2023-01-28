@@ -35,7 +35,7 @@ install:
     7z x c:\build-cache\xdebug.zip -oc:\build-cache
     # Sleep 5 seconds (process cannot access the file)
     Start-Sleep -s 5
-    xcopy c:\build-cache\xdebug C:\projects\php-src\ext\xdebug\ /s /e /y /f
+    xcopy c:\build-cache\xdebug-master C:\projects\php-src\ext\xdebug\ /s /e /y /f
 
     echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
