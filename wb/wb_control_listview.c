@@ -162,7 +162,7 @@ int wbGetListViewCheckedItems(PWBOBJ pwbo, int *pbItems)
 
 int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems)
 {
-	int i, nCount, nSel;
+	int i, nCount, nSel = 0;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;

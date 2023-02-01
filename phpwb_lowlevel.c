@@ -305,7 +305,7 @@ ZEND_FUNCTION(wb_call_function)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(addr)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ARRAY(array)
+		Z_PARAM_ARRAY_OR_NULL(array)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the address valid?

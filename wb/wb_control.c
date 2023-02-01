@@ -2100,9 +2100,9 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 			if (!(wParam & MK_LBUTTON))
 			{
 
+				// Mouseover
 				RECT rc;
 				POINT pt;
-
 				GetWindowRect(hwnd, &rc);
 				pt.x = LOWORD(lParam) + rc.left;
 				pt.y = HIWORD(lParam) + rc.top;
