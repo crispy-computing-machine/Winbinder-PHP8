@@ -42,16 +42,16 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       ARCH: x86
       VC: vs16
-      PHP_VER: 8.2.1
+      PHP_VER: 8.2.2
       TS: 1
 
 build_script:
   ps: |
 
-    echo "Download PHP8 development pack from release"
     $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+    echo "Download PHP8 development pack from release http://windows.php.net/downloads/releases/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
             Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
             if (-not (Test-Path c:\build-cache\$bname)) {
