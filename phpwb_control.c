@@ -506,7 +506,7 @@ ZEND_FUNCTION(wb_set_image)
 			// Here param is the icon size: set it to 1 for a small icon
 			wcs = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
 			hImage = wbLoadImage(wcs, MAX(0, index), param);
-			wbFree(wcs);
+			//wbFree(wcs);
 
 			if (!hImage)
 			{
