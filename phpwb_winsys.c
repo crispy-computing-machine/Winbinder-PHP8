@@ -742,7 +742,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
 	ZEND_PARSE_PARAMETERS_END();
-	cout << pwbo_isnull << "\n"; // debug?
+
 
     // New return array
     array_init(return_value);
@@ -759,7 +759,6 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 
         add_index_long(return_value, 0, cursor.x);
         add_index_long(return_value, 1, cursor.y);
-        //cout << cursor.x << "," << cursor.y << "\n"; // debug
         return;
     }
     RETURN_BOOL(0);
