@@ -732,11 +732,29 @@ ZEND_FUNCTION(wb_empty_clipboard)
 ZEND_FUNCTION(wb_get_mouse_pos)
 {
 	POINT cursor;
+	POINT cursor;
+
+	zend_long pwbo;
+	zend_long id;
+
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &id) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
 
     // New return array
     array_init(return_value);
 
     if (GetCursorPos(&cursor)) {
+
+		// A handle to the window whose client area will be used for the conversion.
+		if(((PWBOBJ)pwbo)->hwnd){
+			// converts the screen coordinates of a specified point on the screen to client-area coordinates
+			ScreenToClient(((PWBOBJ)pwbo)->hwnd, &cursor);	
+		}
+
         add_index_long(return_value, 0, cursor.x);
         add_index_long(return_value, 1, cursor.y);
         //cout << cursor.x << "," << cursor.y << "\n";
