@@ -1229,7 +1229,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE:
 	{
 		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
 		if (!pwbobj)
 			break;
 
@@ -1239,8 +1238,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
 
 			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-								   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
+				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 		}
 
 	}

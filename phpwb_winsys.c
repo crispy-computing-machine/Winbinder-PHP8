@@ -770,10 +770,19 @@ ZEND_FUNCTION(wb_is_mouse_over)
     RECT rc;
     POINT pt;
 
-    // control wbobj
-	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
+    /**
+    typedef struct tagRECT {
+		LONG left;
+		LONG top;
+		LONG right;
+		LONG bottom;
+	} RECT, *PRECT, *NPRECT, *LPRECT;
+     */
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(left)
+		Z_PARAM_LONG(top)
+		Z_PARAM_LONG(right)
+		Z_PARAM_LONG(bottom)
 	ZEND_PARSE_PARAMETERS_END();
 
     // no control handle?
@@ -781,16 +790,21 @@ ZEND_FUNCTION(wb_is_mouse_over)
         RETURN_BOOL(0);
     }
 
+	// Don't need Window RECT, need control RECT
+	//GetWindowRect(((PWBOBJ)pwbo)->hwnd, &rc);
+
+	// Get current cursor pos
+	if(GetCursorPos(&pt)){
+
+		// Check if its within the rect
+		RETURN_BOOL(PtInRect(&rc, pt));
+
+	}
+
+
     // Get controls rect
-    if(GetWindowRect(((PWBOBJ)pwbo)->hwnd, &rc)){
+    if(){
 
-        // Get current cursor pos
-        if(GetCursorPos(&pt)){
-
-            // Check if its within the rect
-            RETURN_BOOL(PtInRect(&rc, pt));
-
-        }
 
     }
 
