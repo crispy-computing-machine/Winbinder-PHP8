@@ -751,7 +751,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
     if (GetCursorPos(&cursor)) {
 
 		// A handle to the window whose client area will be used for the conversion.
-		if(((PWBOBJ)pwbo)->hwnd){
+		if(!pwbo_isnull && ((PWBOBJ)pwbo)->hwnd){
 			// converts the screen coordinates of a specified point on the screen to client-area coordinates
 			// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-screentoclients
 			ScreenToClient(((PWBOBJ)pwbo)->hwnd, &cursor);	
