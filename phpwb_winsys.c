@@ -767,18 +767,13 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_is_mouse_over)
 {
     zend_long pwbo;
-    RECT rc;
+	zend_long left, top, right ,bottom;
+
+    RECT windowrc;
+	RECT controlrc;
     POINT pt;
 
-    /**
-    typedef struct tagRECT {
-		LONG left;
-		LONG top;
-		LONG right;
-		LONG bottom;
-	} RECT, *PRECT, *NPRECT, *LPRECT;
-     */
-	ZEND_PARSE_PARAMETERS_START(1, 1)
+	ZEND_PARSE_PARAMETERS_START(4, 4)
 		Z_PARAM_LONG(left)
 		Z_PARAM_LONG(top)
 		Z_PARAM_LONG(right)
@@ -791,13 +786,27 @@ ZEND_FUNCTION(wb_is_mouse_over)
     }
 
 	// Don't need Window RECT, need control RECT
-	//GetWindowRect(((PWBOBJ)pwbo)->hwnd, &rc);
+	//GetWindowRect(((PWBOBJ)pwbo)->hwnd, &windowrc);
+
+	// Control rect:
+	    /**
+    typedef struct tagRECT {
+		LONG left;
+		LONG top;
+		LONG right;
+		LONG bottom;
+	} RECT, *PRECT, *NPRECT, *LPRECT;
+     */
+	controlrc.left = left;
+	controlrc.top = top;
+	controlrc.right = right;
+	controlrc.bottom = bottom;
 
 	// Get current cursor pos
 	if(GetCursorPos(&pt)){
 
 		// Check if its within the rect
-		RETURN_BOOL(PtInRect(&rc, pt));
+		RETURN_BOOL(PtInRect(&controlrc, pt));
 
 	}
 
