@@ -736,12 +736,13 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 
 	zend_long pwbo;
 	zend_long id;
+	zend_bool pwbo_isnull;
 
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
 	ZEND_PARSE_PARAMETERS_END();
-
+	cout << pwbo_isnull << "\n"; // debug?
 
     // New return array
     array_init(return_value);
