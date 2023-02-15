@@ -493,6 +493,7 @@ void CALLBACK wbMidiInProc(
 ZEND_FUNCTION(wb_get_midi_callback)
 {
 	// wbMidiInProc;
+	return 0;
 }
 
 // Enum callback
@@ -512,7 +513,7 @@ void CALLBACK wbEnumProc(
 
 ZEND_FUNCTION(wb_get_enum_callback)
 {
-
+	return 0;
 	// wbEnumProc;
 }
 
