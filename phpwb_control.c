@@ -288,24 +288,6 @@ ZEND_FUNCTION(wb_get_class)
 	RETURN_LONG(((PWBOBJ)pwbo)->uClass);
 }
 
-ZEND_FUNCTION(wb_set_range)
-{
-	zend_long pwbo, min = 0, max = 0;
-
-	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &min, &max) == FAILURE)
-	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
-	ZEND_PARSE_PARAMETERS_START(3, 3)
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(min)
-		Z_PARAM_LONG(max)
-	ZEND_PARSE_PARAMETERS_END();
-
-	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
-	}
-	RETURN_BOOL(wbSetRange((PWBOBJ)pwbo, min, max));
-}
-
 ZEND_FUNCTION(wb_get_id)
 {
 	zend_long pwbo;
