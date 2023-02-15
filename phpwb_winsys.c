@@ -729,9 +729,9 @@ ZEND_FUNCTION(wb_empty_clipboard)
 }
 
 // get mouse pos else return false
+// https://learn.microsoft.com/en-us/windows/win32/inputdev/using-mouse-input?source=recommendations#tracking-the-mouse-cursor
 ZEND_FUNCTION(wb_get_mouse_pos)
 {
-	POINT cursor;
 	POINT cursor;
 
 	zend_long pwbo;
@@ -747,17 +747,19 @@ ZEND_FUNCTION(wb_get_mouse_pos)
     // New return array
     array_init(return_value);
 
+	// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
     if (GetCursorPos(&cursor)) {
 
 		// A handle to the window whose client area will be used for the conversion.
 		if(((PWBOBJ)pwbo)->hwnd){
 			// converts the screen coordinates of a specified point on the screen to client-area coordinates
+			// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-screentoclients
 			ScreenToClient(((PWBOBJ)pwbo)->hwnd, &cursor);	
 		}
 
         add_index_long(return_value, 0, cursor.x);
         add_index_long(return_value, 1, cursor.y);
-        //cout << cursor.x << "," << cursor.y << "\n";
+        //cout << cursor.x << "," << cursor.y << "\n"; // debug
         return;
     }
     RETURN_BOOL(0);
