@@ -764,10 +764,13 @@ ZEND_FUNCTION(wb_get_mouse_pos)
     RETURN_BOOL(0);
 }
 
+/**
+ * Use control gemom to see if mouse is over
+*/
 ZEND_FUNCTION(wb_is_mouse_over)
 {
     zend_long pwbo;
-	zend_long left, top, right ,bottom;
+	zend_long left, top, right, bottom;
 
     RECT windowrc;
 	RECT controlrc;
@@ -809,13 +812,6 @@ ZEND_FUNCTION(wb_is_mouse_over)
 		RETURN_BOOL(PtInRect(&controlrc, pt));
 
 	}
-
-
-    // Get controls rect
-    if(){
-
-
-    }
 
     RETURN_BOOL(0);
 
