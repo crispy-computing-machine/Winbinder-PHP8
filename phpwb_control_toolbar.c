@@ -15,7 +15,7 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_create_toolbar)
+ZEND_FUNCTION(wb_create_toolbar)
 {
 	zend_long i, nelem, s_len = 0;
 	zval *zarray = NULL, *entry = NULL;
@@ -66,7 +66,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
-				wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				efree(pitem);
 				RETURN_NULL();
 			}
@@ -89,7 +89,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 				break;
 
 			default:
-				wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("Invalid element type in array: must be an array or null in function"));
+				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Invalid element type in array: must be an array or null in function"));
 				efree(pitem);
 				RETURN_NULL();
 			}
@@ -105,7 +105,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 		if (!hImage)
 		{
-			wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
+			wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
 		}
 	}
 	else

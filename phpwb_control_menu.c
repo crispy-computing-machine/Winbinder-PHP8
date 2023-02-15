@@ -15,7 +15,7 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_create_menu)
+ZEND_FUNCTION(wb_create_menu)
 {
 	int i, nelem;
 	zval *zarray = NULL, *entry = NULL;
@@ -60,7 +60,7 @@ ZEND_FUNCTION(wbtemp_create_menu)
 		{
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
-				wbError(TEXT("wbtemp_create_menu"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+				wbError(TEXT("wb_create_menu"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				efree(pitem);
 				RETURN_NULL();
 			}
@@ -127,7 +127,7 @@ ZEND_FUNCTION(wbtemp_create_menu)
 	RETURN_LONG(l);
 }
 
-ZEND_FUNCTION(wbtemp_get_menu_item_checked)
+ZEND_FUNCTION(wb_get_menu_item_checked)
 {
 	zend_long id;
 	zend_long pwbo;
@@ -144,7 +144,7 @@ ZEND_FUNCTION(wbtemp_get_menu_item_checked)
 	RETURN_BOOL(wbGetMenuItemChecked((PWBOBJ)pwbo));
 }
 
-ZEND_FUNCTION(wbtemp_set_menu_item_checked)
+ZEND_FUNCTION(wb_set_menu_item_checked)
 {
 	zend_long id, b;
 	zend_long pwbo;
@@ -167,7 +167,7 @@ ZEND_FUNCTION(wbtemp_set_menu_item_checked)
 	NOTE: state is not used, must be 1
 */
 
-ZEND_FUNCTION(wbtemp_set_menu_item_selected)
+ZEND_FUNCTION(wb_set_menu_item_selected)
 {
 	zend_long pwbo, id, state;
 
@@ -184,7 +184,7 @@ ZEND_FUNCTION(wbtemp_set_menu_item_selected)
 	RETURN_BOOL(wbSetMenuItemSelected((PWBOBJ)pwbo));
 }
 
-ZEND_FUNCTION(wbtemp_set_menu_item_image)
+ZEND_FUNCTION(wb_set_menu_item_image)
 {
 	zend_long id, handle;
 	zend_long pwbo;

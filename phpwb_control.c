@@ -23,7 +23,7 @@ extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
 
 /* Creates a window control, menu, toolbar, status bar or accelerator. */
 
-ZEND_FUNCTION(wbtemp_create_control)
+ZEND_FUNCTION(wb_create_control)
 {
 	zend_long pwboparent;
 	zend_long wbclass, x = WBC_CENTER, y = WBC_CENTER;
@@ -808,7 +808,7 @@ ZEND_FUNCTION(wb_set_location)
 
 //------------------------------------------------- AUXILIARY EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_select_tab)
+ZEND_FUNCTION(wb_select_tab)
 {
 	zend_long pwbo;
 	zend_long ntab;
@@ -826,7 +826,7 @@ ZEND_FUNCTION(wbtemp_select_tab)
 	RETURN_BOOL(wbSelectTab((PWBOBJ)pwbo, ntab));
 }
 
-ZEND_FUNCTION(wbtemp_set_value)
+ZEND_FUNCTION(wb_set_value)
 {
 	zend_long pwbo, value, item = 0, subitem = 0;
 
@@ -849,7 +849,7 @@ ZEND_FUNCTION(wbtemp_set_value)
 	RETURN_BOOL(wbSetValue((PWBOBJ)pwbo, value));
 }
 
-ZEND_FUNCTION(wbtemp_set_range)
+ZEND_FUNCTION(wb_set_range)
 {
 	zend_long pwbo, min = 0, max = 0;
 
@@ -868,7 +868,7 @@ ZEND_FUNCTION(wbtemp_set_range)
 	RETURN_BOOL(wbSetRange((PWBOBJ)pwbo, min, max));
 }
 
-ZEND_FUNCTION(wbtemp_create_item)
+ZEND_FUNCTION(wb_create_item)
 {
 	char *s;
 	int s_len;
@@ -894,7 +894,7 @@ ZEND_FUNCTION(wbtemp_create_item)
 	}
 }
 
-ZEND_FUNCTION(wbtemp_create_statusbar_items)
+ZEND_FUNCTION(wb_create_statusbar_items)
 {
 	zend_long pwbo, clear, param;
 	zval *zitems = NULL;
@@ -987,12 +987,12 @@ ZEND_FUNCTION(wbtemp_create_statusbar_items)
 		RETURN_BOOL(bRet);
 
 	default:
-		wbError(TEXT("wbtemp_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in wbtemp_create_statusbar_items"));
+		wbError(TEXT("wb_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in wb_create_statusbar_items"));
 		RETURN_NULL();
 	}
 }
 
-ZEND_FUNCTION(wbtemp_set_text)
+ZEND_FUNCTION(wb_set_text)
 {
 	zend_long pwbo, item = 0;
 	BOOL ret = TRUE;
@@ -1048,7 +1048,7 @@ ZEND_FUNCTION(wbtemp_set_text)
 }
 
 /*
-ZEND_FUNCTION(wbtemp_set_text)
+ZEND_FUNCTION(wb_set_text)
 {
 	LONG pwbo, item = 0;
 	BOOL ret = TRUE;
@@ -1115,7 +1115,7 @@ ZEND_FUNCTION(wbtemp_set_text)
 }
 */
 
-ZEND_FUNCTION(wbtemp_get_text)
+ZEND_FUNCTION(wb_get_text)
 {
 	TCHAR *ptext = NULL;
 	zend_long pwbo;

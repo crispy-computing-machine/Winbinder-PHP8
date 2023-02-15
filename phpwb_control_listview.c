@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_create_listview_item)
+ZEND_FUNCTION(wb_create_listview_item)
 {
 	zend_long pwbo, nitem, nimage;
 	char *s;
@@ -44,7 +44,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 
 	if (newitem == -1)
 	{
-		wbError(TEXT("wbtemp_create_listview_item"), MB_ICONWARNING, TEXT("Cannot insert item #%ld ('%s') in ListView in function"), nitem, s);
+		wbError(TEXT("wb_create_listview_item"), MB_ICONWARNING, TEXT("Cannot insert item #%ld ('%s') in ListView in function"), nitem, s);
 		RETURN_LONG(-1);
 		return;
 	}
@@ -53,7 +53,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 		}
 }
 
-/*ZEND_FUNCTION(wbtemp_delete_listview_item)
+/*ZEND_FUNCTION(wb_delete_listview_item)
 {
 	long pwbo, nitem;
 
@@ -67,7 +67,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 	RETURN_BOOL(wbDeleteListViewItem((PWBOBJ)pwbo, nitem));
 }
 */
-/*ZEND_FUNCTION(wbtemp_create_listview_images)
+/*ZEND_FUNCTION(wb_create_listview_images)
 {
 	long pwbo, hbm, n, color;
 
@@ -81,7 +81,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 	RETURN_LONG((LONG)wbCreateListViewImages((PWBOBJ)pwbo, (HBITMAP)hbm, n, color));
 }*/
 
-ZEND_FUNCTION(wbtemp_set_listview_item_text)
+ZEND_FUNCTION(wb_set_listview_item_text)
 {
 	zend_long pwbo, item, sub;
 	char *s;
@@ -104,7 +104,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	RETURN_BOOL(wbSetListViewItemText((PWBOBJ)pwbo, item, sub, wcs));
 }
 
-ZEND_FUNCTION(wbtemp_set_listview_item_checked)
+ZEND_FUNCTION(wb_set_listview_item_checked)
 {
 	zend_long pwbo, item, checked;
 
@@ -125,7 +125,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_checked)
 
 /* If w is negative, calculate width automatically */
 
-ZEND_FUNCTION(wbtemp_create_listview_column)
+ZEND_FUNCTION(wb_create_listview_column)
 {
 	zend_long pwbo, ncol, w = 0, align = 0;
 	char *s;
@@ -152,7 +152,7 @@ ZEND_FUNCTION(wbtemp_create_listview_column)
 
 /* Returns an array with the column widths of control pwbo */
 /*
-ZEND_FUNCTION(wbtemp_get_listview_column_widths)
+ZEND_FUNCTION(wb_get_listview_column_widths)
 {
 	int i, cols;
 	long pwbo;
@@ -174,7 +174,7 @@ ZEND_FUNCTION(wbtemp_get_listview_column_widths)
 }
 */
 
-/*ZEND_FUNCTION(wbtemp_set_listview_column_widths)
+/*ZEND_FUNCTION(wb_set_listview_column_widths)
 {
 	int i, nelem;
 	long pwbo;
@@ -229,7 +229,7 @@ ZEND_FUNCTION(wbtemp_get_listview_column_widths)
 
 /* Returns the number of columns of control pwbo */
 
-ZEND_FUNCTION(wbtemp_get_listview_columns)
+ZEND_FUNCTION(wb_get_listview_columns)
 {
 	zend_long pwbo;
 
@@ -245,7 +245,7 @@ ZEND_FUNCTION(wbtemp_get_listview_columns)
 	RETURN_LONG(wbGetListViewColumnWidths((PWBOBJ)pwbo, NULL));
 }
 /*
-ZEND_FUNCTION(wbtemp_set_listview_item_image)
+ZEND_FUNCTION(wb_set_listview_item_image)
 {
 	long pwbo, nitem, ncol, nimage;
 
@@ -262,7 +262,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_image)
 
 /* Return TRUE if the item's checkbox is checked */
 
-ZEND_FUNCTION(wbtemp_get_listview_item_checked)
+ZEND_FUNCTION(wb_get_listview_item_checked)
 {
 	zend_long pwbo, item;
 
@@ -279,7 +279,7 @@ ZEND_FUNCTION(wbtemp_get_listview_item_checked)
 	RETURN_BOOL(wbGetListViewItemChecked((PWBOBJ)pwbo, item));
 }
 
-ZEND_FUNCTION(wbtemp_clear_listview_columns)
+ZEND_FUNCTION(wb_clear_listview_columns)
 {
 	zend_long pwbo;
 
@@ -296,7 +296,7 @@ ZEND_FUNCTION(wbtemp_clear_listview_columns)
 	RETURN_BOOL(wbClearListViewColumns((PWBOBJ)pwbo));
 }
 
-ZEND_FUNCTION(wbtemp_select_listview_item)
+ZEND_FUNCTION(wb_select_listview_item)
 {
 	zend_long pwbo, nitem, state;
 
@@ -316,7 +316,7 @@ ZEND_FUNCTION(wbtemp_select_listview_item)
 
 /* Selects / deselects all items */
 
-ZEND_FUNCTION(wbtemp_select_all_listview_items)
+ZEND_FUNCTION(wb_select_all_listview_items)
 {
 	zend_long pwbo, state;
 
@@ -335,7 +335,7 @@ ZEND_FUNCTION(wbtemp_select_all_listview_items)
 
 /* Returns an array of strings */
 
-ZEND_FUNCTION(wbtemp_get_listview_text)
+ZEND_FUNCTION(wb_get_listview_text)
 {
 	int ncols, nitems;
 	zend_long pwbo, nitem = -1, ncol = -1;

@@ -36,9 +36,8 @@ ZEND_MINFO_FUNCTION(winbinder);
 /*
   NOTE:
 
-  Functions starting with "wbtemp_" must not be used by applications. These are for
-  internal use only and will disappear in the future. The "wb_" functions are
-  intended for public usage.
+  Functions starting with "wb_temp" have been renamed... These are now
+  part of Winbinder. All "wb_" functions are intended for public usage.
 
 */
 
@@ -105,7 +104,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_timer, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_accel_table, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_accel_table, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_clipboard, 0, 0, 1)
@@ -180,19 +179,19 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_item_image, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_control, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_control, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_item, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_item, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_statusbar_items, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_statusbar_items, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_delete_items, 0, 0, 1)
@@ -255,73 +254,73 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sort, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_select_tab, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_tab, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_value, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_value, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_listview_item, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_listview_item, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_listview_item_checked, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_listview_item_checked, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_listview_item_checked, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_item_checked, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_listview_item_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_listview_item_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_listview_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_listview_columns, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_columns, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_listview_column, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_listview_column, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_clear_listview_columns, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_clear_listview_columns, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_select_listview_item, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_listview_item, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_select_all_listview_items, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_all_listview_items, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_menu, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_menu, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_menu_item_checked, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_menu_item_checked, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_menu_item_checked, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_checked, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_menu_item_selected, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_selected, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_menu_item_image, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_image, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_toolbar, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_toolbar, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_create_treeview_item, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_treeview_item, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_treeview_item_selected, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_selected, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_treeview_item_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_set_treeview_item_value, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_value, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_get_treeview_item_text, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_treeview_item_text, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_level, 0, 0, 1)
@@ -390,10 +389,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_color, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_sys_dlg_open, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_open, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wbtemp_sys_dlg_save, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_save, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_font, 0, 0, 1)
@@ -414,7 +413,7 @@ ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
 ZEND_FUNCTION(wb_is_obj);
-ZEND_FUNCTION(wbtemp_set_accel_table);
+ZEND_FUNCTION(wb_set_accel_table);
 
 ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
@@ -450,13 +449,13 @@ ZEND_FUNCTION(wb_set_state);
 ZEND_FUNCTION(wb_set_style);
 ZEND_FUNCTION(wb_set_visible);
 ZEND_FUNCTION(wb_sort);
-ZEND_FUNCTION(wbtemp_create_control);
-ZEND_FUNCTION(wbtemp_create_item);
-ZEND_FUNCTION(wbtemp_create_statusbar_items);
-ZEND_FUNCTION(wbtemp_get_text);
-ZEND_FUNCTION(wbtemp_select_tab);
-ZEND_FUNCTION(wbtemp_set_text);
-ZEND_FUNCTION(wbtemp_set_value);
+ZEND_FUNCTION(wb_create_control);
+ZEND_FUNCTION(wb_create_item);
+ZEND_FUNCTION(wb_create_statusbar_items);
+ZEND_FUNCTION(wb_get_text);
+ZEND_FUNCTION(wb_select_tab);
+ZEND_FUNCTION(wb_set_text);
+ZEND_FUNCTION(wb_set_value);
 
 // PHPWB_DRAW.C
 
@@ -479,38 +478,38 @@ ZEND_FUNCTION(wb_get_image_data);
 
 // PHPWB_CONTROL_LISTVIEW.C
 
-ZEND_FUNCTION(wbtemp_create_listview_item);
-ZEND_FUNCTION(wbtemp_set_listview_item_checked);
-ZEND_FUNCTION(wbtemp_get_listview_item_checked);
-ZEND_FUNCTION(wbtemp_set_listview_item_text);
-ZEND_FUNCTION(wbtemp_get_listview_text);
-ZEND_FUNCTION(wbtemp_get_listview_columns);
-ZEND_FUNCTION(wbtemp_clear_listview_columns);
-ZEND_FUNCTION(wbtemp_create_listview_column);
-ZEND_FUNCTION(wbtemp_select_listview_item);
-ZEND_FUNCTION(wbtemp_select_all_listview_items);
-//ZEND_FUNCTION(wbtemp_get_listview_column_widths);
-//ZEND_FUNCTION(wbtemp_set_listview_column_widths);
+ZEND_FUNCTION(wb_create_listview_item);
+ZEND_FUNCTION(wb_set_listview_item_checked);
+ZEND_FUNCTION(wb_get_listview_item_checked);
+ZEND_FUNCTION(wb_set_listview_item_text);
+ZEND_FUNCTION(wb_get_listview_text);
+ZEND_FUNCTION(wb_get_listview_columns);
+ZEND_FUNCTION(wb_clear_listview_columns);
+ZEND_FUNCTION(wb_create_listview_column);
+ZEND_FUNCTION(wb_select_listview_item);
+ZEND_FUNCTION(wb_select_all_listview_items);
+//ZEND_FUNCTION(wb_get_listview_column_widths);
+//ZEND_FUNCTION(wb_set_listview_column_widths);
 
 // PHPWB_CONTROL_MENU.C
 
-ZEND_FUNCTION(wbtemp_create_menu);
-ZEND_FUNCTION(wbtemp_get_menu_item_checked);
-ZEND_FUNCTION(wbtemp_set_menu_item_checked);
-ZEND_FUNCTION(wbtemp_set_menu_item_selected);
-ZEND_FUNCTION(wbtemp_set_menu_item_image);
+ZEND_FUNCTION(wb_create_menu);
+ZEND_FUNCTION(wb_get_menu_item_checked);
+ZEND_FUNCTION(wb_set_menu_item_checked);
+ZEND_FUNCTION(wb_set_menu_item_selected);
+ZEND_FUNCTION(wb_set_menu_item_image);
 
 // PHPWB_CONTROL_TOOLBAR.C
 
-ZEND_FUNCTION(wbtemp_create_toolbar);
+ZEND_FUNCTION(wb_create_toolbar);
 
 // PHPWB_CONTROL_TREEVIEW.C
 
-ZEND_FUNCTION(wbtemp_create_treeview_item);
-ZEND_FUNCTION(wbtemp_set_treeview_item_selected);
-ZEND_FUNCTION(wbtemp_set_treeview_item_text);
-ZEND_FUNCTION(wbtemp_set_treeview_item_value);
-ZEND_FUNCTION(wbtemp_get_treeview_item_text);
+ZEND_FUNCTION(wb_create_treeview_item);
+ZEND_FUNCTION(wb_set_treeview_item_selected);
+ZEND_FUNCTION(wb_set_treeview_item_text);
+ZEND_FUNCTION(wb_set_treeview_item_value);
+ZEND_FUNCTION(wb_get_treeview_item_text);
 ZEND_FUNCTION(wb_get_level);
 
 // PHPWB_FONTS.C
@@ -549,8 +548,8 @@ ZEND_FUNCTION(wb_set_area);
 
 ZEND_FUNCTION(wb_sys_dlg_path);
 ZEND_FUNCTION(wb_sys_dlg_color);
-ZEND_FUNCTION(wbtemp_sys_dlg_open);
-ZEND_FUNCTION(wbtemp_sys_dlg_save);
+ZEND_FUNCTION(wb_sys_dlg_open);
+ZEND_FUNCTION(wb_sys_dlg_save);
 ZEND_FUNCTION(wb_sys_dlg_font);
 
 //-------------------------------------------------------------------- VARIABLES
@@ -574,7 +573,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_wait,arginfo_wb_wait)
         ZEND_FE(wb_is_obj,arginfo_wb_is_obj)
         ZEND_FE(wb_destroy_timer,arginfo_wb_destroy_timer)
-        ZEND_FE(wbtemp_set_accel_table,arginfo_wbtemp_set_accel_table)
+        ZEND_FE(wb_set_accel_table,arginfo_wb_set_accel_table)
 
         ZEND_FE(wb_get_clipboard,arginfo_wb_get_clipboard)
         ZEND_FE(wb_set_clipboard,arginfo_wb_set_clipboard)
@@ -609,11 +608,11 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_enabled,arginfo_wb_set_enabled)
         ZEND_FE(wb_set_image,arginfo_wb_set_image)
         ZEND_FE(wb_set_item_image,arginfo_wb_set_item_image)
-        ZEND_FE(wbtemp_create_control,arginfo_wbtemp_create_control)
-        ZEND_FE(wbtemp_create_item,arginfo_wbtemp_create_item)
-        ZEND_FE(wbtemp_create_statusbar_items,arginfo_wbtemp_create_statusbar_items)
-        ZEND_FE(wbtemp_get_text,arginfo_wbtemp_get_text)
-        ZEND_FE(wbtemp_set_text,arginfo_wbtemp_set_text)
+        ZEND_FE(wb_create_control,arginfo_wb_create_control)
+        ZEND_FE(wb_create_item,arginfo_wb_create_item)
+        ZEND_FE(wb_create_statusbar_items,arginfo_wb_create_statusbar_items)
+        ZEND_FE(wb_get_text,arginfo_wb_get_text)
+        ZEND_FE(wb_set_text,arginfo_wb_set_text)
         ZEND_FE(wb_delete_items,arginfo_wb_delete_items)
         ZEND_FE(wb_get_class,arginfo_wb_get_class)
         ZEND_FE(wb_get_control,arginfo_wb_get_control)
@@ -634,43 +633,43 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_style,arginfo_wb_set_style)
         ZEND_FE(wb_set_visible,arginfo_wb_set_visible)
         ZEND_FE(wb_sort,arginfo_wb_sort)
-        ZEND_FE(wbtemp_select_tab,arginfo_wbtemp_select_tab)
-        ZEND_FE(wbtemp_set_value,arginfo_wbtemp_set_value)
+        ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
+        ZEND_FE(wb_set_value,arginfo_wb_set_value)
 
         // PHPWB_CONTROL_LISTVIEW.C
 
-        ZEND_FE(wbtemp_create_listview_item,arginfo_wbtemp_create_listview_item)
-        ZEND_FE(wbtemp_set_listview_item_checked,arginfo_wbtemp_set_listview_item_checked)
-        ZEND_FE(wbtemp_get_listview_item_checked,arginfo_wbtemp_get_listview_item_checked)
-        ZEND_FE(wbtemp_set_listview_item_text,arginfo_wbtemp_set_listview_item_text)
-        ZEND_FE(wbtemp_get_listview_text,arginfo_wbtemp_get_listview_text)
-        ZEND_FE(wbtemp_get_listview_columns,arginfo_wbtemp_get_listview_columns)
-        ZEND_FE(wbtemp_create_listview_column,arginfo_wbtemp_create_listview_column)
-        ZEND_FE(wbtemp_clear_listview_columns,arginfo_wbtemp_clear_listview_columns)
-        ZEND_FE(wbtemp_select_listview_item,arginfo_wbtemp_select_listview_item)
-        ZEND_FE(wbtemp_select_all_listview_items,arginfo_wbtemp_select_all_listview_items)
-        //	ZEND_FE(wbtemp_get_listview_column_widths,arginfo_wbtemp_get_listview_column_widths)
-        //	ZEND_FE(wbtemp_set_listview_column_widths,arginfo_wbtemp_set_listview_column_widths)
+        ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
+        ZEND_FE(wb_set_listview_item_checked,arginfo_wb_set_listview_item_checked)
+        ZEND_FE(wb_get_listview_item_checked,arginfo_wb_get_listview_item_checked)
+        ZEND_FE(wb_set_listview_item_text,arginfo_wb_set_listview_item_text)
+        ZEND_FE(wb_get_listview_text,arginfo_wb_get_listview_text)
+        ZEND_FE(wb_get_listview_columns,arginfo_wb_get_listview_columns)
+        ZEND_FE(wb_create_listview_column,arginfo_wb_create_listview_column)
+        ZEND_FE(wb_clear_listview_columns,arginfo_wb_clear_listview_columns)
+        ZEND_FE(wb_select_listview_item,arginfo_wb_select_listview_item)
+        ZEND_FE(wb_select_all_listview_items,arginfo_wb_select_all_listview_items)
+        //	ZEND_FE(wb_get_listview_column_widths,arginfo_wb_get_listview_column_widths)
+        //	ZEND_FE(wb_set_listview_column_widths,arginfo_wb_set_listview_column_widths)
 
         // PHPWB_CONTROL_MENU.C
 
-        ZEND_FE(wbtemp_create_menu,arginfo_wbtemp_create_menu)
-        ZEND_FE(wbtemp_get_menu_item_checked,arginfo_wbtemp_get_menu_item_checked)
-        ZEND_FE(wbtemp_set_menu_item_checked,arginfo_wbtemp_set_menu_item_checked)
-        ZEND_FE(wbtemp_set_menu_item_selected,arginfo_wbtemp_set_menu_item_selected)
-        ZEND_FE(wbtemp_set_menu_item_image,arginfo_wbtemp_set_menu_item_image)
+        ZEND_FE(wb_create_menu,arginfo_wb_create_menu)
+        ZEND_FE(wb_get_menu_item_checked,arginfo_wb_get_menu_item_checked)
+        ZEND_FE(wb_set_menu_item_checked,arginfo_wb_set_menu_item_checked)
+        ZEND_FE(wb_set_menu_item_selected,arginfo_wb_set_menu_item_selected)
+        ZEND_FE(wb_set_menu_item_image,arginfo_wb_set_menu_item_image)
 
         // PHPWB_CONTROL_TOOLBAR.C
 
-        ZEND_FE(wbtemp_create_toolbar,arginfo_wbtemp_create_toolbar)
+        ZEND_FE(wb_create_toolbar,arginfo_wb_create_toolbar)
 
         // PHPWB_CONTROL_TREEVIEW.C
 
-        ZEND_FE(wbtemp_create_treeview_item,arginfo_wbtemp_create_treeview_item)
-        ZEND_FE(wbtemp_set_treeview_item_selected,arginfo_wbtemp_set_treeview_item_selected)
-        ZEND_FE(wbtemp_set_treeview_item_text,arginfo_wbtemp_set_treeview_item_text)
-        ZEND_FE(wbtemp_set_treeview_item_value,arginfo_wbtemp_set_treeview_item_value)
-        ZEND_FE(wbtemp_get_treeview_item_text,arginfo_wbtemp_get_treeview_item_text)
+        ZEND_FE(wb_create_treeview_item,arginfo_wb_create_treeview_item)
+        ZEND_FE(wb_set_treeview_item_selected,arginfo_wb_set_treeview_item_selected)
+        ZEND_FE(wb_set_treeview_item_text,arginfo_wb_set_treeview_item_text)
+        ZEND_FE(wb_set_treeview_item_value,arginfo_wb_set_treeview_item_value)
+        ZEND_FE(wb_get_treeview_item_text,arginfo_wb_get_treeview_item_text)
         ZEND_FE(wb_get_level,arginfo_wb_get_level)
 
         // PHPWB_FONTS.C
@@ -709,8 +708,8 @@ zend_function_entry winbinder_functions[] =
 
         ZEND_FE(wb_sys_dlg_path,arginfo_wb_sys_dlg_path)
         ZEND_FE(wb_sys_dlg_color,arginfo_wb_sys_dlg_color)
-        ZEND_FE(wbtemp_sys_dlg_open,arginfo_wbtemp_sys_dlg_open)
-        ZEND_FE(wbtemp_sys_dlg_save,arginfo_wbtemp_sys_dlg_save)
+        ZEND_FE(wb_sys_dlg_open,arginfo_wb_sys_dlg_open)
+        ZEND_FE(wb_sys_dlg_save,arginfo_wb_sys_dlg_save)
         ZEND_FE(wb_sys_dlg_font,arginfo_wb_sys_dlg_font)
 
 		// The line below must be the last one

@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_sys_dlg_open)
+ZEND_FUNCTION(wb_sys_dlg_open)
 {
 	zend_long pwboParent = (long)NULL;
 	char *title = "", *filter = "", *path = "";
@@ -87,7 +87,7 @@ ZEND_FUNCTION(wbtemp_sys_dlg_open)
 		RETURN_STRING("");
 }
 
-ZEND_FUNCTION(wbtemp_sys_dlg_save)
+ZEND_FUNCTION(wb_sys_dlg_save)
 {
 	zend_long pwboParent = (long)NULL;
 	char *title = "", *filter = "", *path = "", *file = "", *defext = "";

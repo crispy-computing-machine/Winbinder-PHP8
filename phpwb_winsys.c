@@ -33,7 +33,7 @@ ZEND_FUNCTION(wb_main_loop)
 	RETURN_LONG(wbMainLoop());
 }
 
-ZEND_FUNCTION(wbtemp_set_accel_table)
+ZEND_FUNCTION(wb_set_accel_table)
 {
 	int i, nelem;
 	zval *zarray = NULL, *entry = NULL;
@@ -67,7 +67,7 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 		{
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
-				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				RETURN_NULL();
 			}
 
@@ -87,7 +87,7 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 				break;
 
 			default:
-				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
+				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
 				RETURN_NULL();
 				break;
 			}

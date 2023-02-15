@@ -52,7 +52,7 @@ ZEND_FUNCTION(wb_get_level)
 	}
 }
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
+ZEND_FUNCTION(wb_set_treeview_item_selected)
 {
 	zend_long pwbo, item;
 
@@ -69,7 +69,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
 	RETURN_BOOL(wbSetTreeViewItemSelected((PWBOBJ)pwbo, (HTREEITEM)item));
 }
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_text)
+ZEND_FUNCTION(wb_set_treeview_item_text)
 {
 	zend_long pwbo, item;
 	char *s;
@@ -92,7 +92,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_text)
 	RETURN_BOOL(wbSetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, wcs));
 }
 
-ZEND_FUNCTION(wbtemp_get_treeview_item_text)
+ZEND_FUNCTION(wb_get_treeview_item_text)
 {
 	zend_long pwbo, item = 0;
 	TCHAR szItem[MAX_ITEM_STRING];
@@ -123,7 +123,7 @@ If zparam is NULL, does not change associated value (does nothing).
 
 */
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_value)
+ZEND_FUNCTION(wb_set_treeview_item_value)
 {
 	zend_long pwbo, item, lparam = 0;
 	zval *zparam, zcopy;
@@ -157,14 +157,14 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_value)
 
 /*
 
-int wbtemp_create_treeview_item( int wbobject, string caption [, mixed param [, int where [, int image [, int selectedimage [, insertiontype]]]]])
+int wb_create_treeview_item( int wbobject, string caption [, mixed param [, int where [, int image [, int selectedimage [, insertiontype]]]]])
 
 Create a new treeview item and returns the HTREEITEM handle to it.
 If zparam is NULL, does not change associated value.
 
 */
 
-ZEND_FUNCTION(wbtemp_create_treeview_item)
+ZEND_FUNCTION(wb_create_treeview_item)
 {
 	zend_long pwbo, where = 0, img1 = -1, img2 = -1, insertiontype = 0, lparam = 0;
 	char *str;
