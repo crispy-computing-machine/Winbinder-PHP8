@@ -10,8 +10,35 @@
 *******************************************************************************/
 
 //----------------------------------------------------------------- DEPENDENCIES
-
 #include "phpwb.h"
+
+#include "ext/standard/info.h" // For ZEND_MINFO_FUNCTION
+
+//-------------------------------------------------------------------- CONSTANTS
+
+//----------------------------------------------------------------------- MACROS
+
+#define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
+
+// ---------------------------------------------------------- INI SETTINGS
+PHP_INI_BEGIN()
+PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, NULL)
+PHP_INI_ENTRY("winbinder.low_level_functions", "0", PHP_INI_ALL, NULL)
+PHP_INI_END()
+
+ZEND_MINIT_FUNCTION(winbinder);
+ZEND_MSHUTDOWN_FUNCTION(winbinder);
+ZEND_MINFO_FUNCTION(winbinder);
+
+//----------------------------------------------------------- EXPORTED FUNCTIONS
+
+/*
+  NOTE:
+
+  Functions starting with "wb_temp" have been renamed... These are now
+  part of Winbinder. All "wb_" functions are intended for public usage.
+
+*/
 
 #include "phpwb_wb_arginfo.h" // Arg info meta
 
