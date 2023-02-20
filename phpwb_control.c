@@ -524,14 +524,14 @@ ZEND_FUNCTION(wb_set_item_image)
 	zend_long pwbo, item = 0, subitem = 0;
 	zval *zindex = NULL;
 	int nclass, index1 = 0, index2 = 0;
-
+	zend_bool item_isnull, subitem_isnull;
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz|ll", &pwbo, &zindex, &item, &subitem) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zindex)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(subitem)
+		Z_PARAM_LONG_OR_NULL(item, item_isnull)
+		Z_PARAM_LONG_OR_NULL(subitem, subitem_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	nclass = ((PWBOBJ)pwbo)->uClass;

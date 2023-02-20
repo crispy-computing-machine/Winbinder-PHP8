@@ -770,7 +770,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 */
 ZEND_FUNCTION(wb_is_mouse_over)
 {
-    zend_long pwbo;
+    zend_long pwbo = 0;
 	zend_long left, top, right, bottom;
 
     RECT windowrc;
