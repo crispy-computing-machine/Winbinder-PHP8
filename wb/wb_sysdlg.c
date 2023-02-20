@@ -218,7 +218,8 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 	cf.lpLogFont = &lf;
 
 	if (pfont)
-	{ // A default font was specified
+	{ 
+		// A default font was specified
 		cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
 		cf.rgbColors = pfont->color;
 		lf.lfHeight = pfont->nHeight;

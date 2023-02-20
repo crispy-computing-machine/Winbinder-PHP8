@@ -209,7 +209,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *name = "";
 	int height = 0, color = 0, flags = 0;
 	int title_len = 0, name_len = 0;
-	int font;
+	int font = 0;
 	zend_bool pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
 
 
@@ -233,7 +233,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		(LONG)wbSysDlgFont(
 			(PWBOBJ)pwbparent,
 			 (LPTSTR)title,
-			  (PFONT)wbGetFont(font)
+			  0
 			  )
 		);
 }
