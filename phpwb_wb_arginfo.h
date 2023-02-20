@@ -1,14 +1,3 @@
-/*******************************************************************************
-
- WINBINDER - The native Windows binding for PHP for PHP
-
- Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
-
- ZEND exports module
-
-*******************************************************************************/
-
 // 					See: https://github.com/php/php-src/blob/master/Zend/zend_API.h
 
 // ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(name, return_reference, required_num_args, MAY_BE_STRING|MAY_BE_BOOL)
@@ -39,8 +28,6 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_wb_call_function, 0, 1, MAY_BE_L
 	ZEND_ARG_TYPE_INFO(0, addr, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, array, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
-
-/* TODO */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, 0, IS_LONG, 1)
 ZEND_END_ARG_INFO()
