@@ -214,7 +214,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(1, 3)
+	ZEND_PARSE_PARAMETERS_START(0, 6)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG_OR_NULL(pwbparent, pwbparent_isnull)
 		Z_PARAM_STRING_OR_NULL(title, title_len)
