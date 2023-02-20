@@ -249,7 +249,7 @@ ZEND_FUNCTION(wb_get_parent)
 	}
 }
 
-ZEND_FUNCTION(wb_get_focus){
+ZEND_FUNCTION(wb_get_focus){wb_get_image_data
 	
 	RETURN_LONG((LONG)wbGetFocus());
 
