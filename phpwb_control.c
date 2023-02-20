@@ -250,8 +250,10 @@ ZEND_FUNCTION(wb_get_parent)
 }
 
 ZEND_FUNCTION(wb_get_focus){
+	
 	RETURN_LONG((LONG)wbGetFocus());
-	}
+
+}
 
 ZEND_FUNCTION(wb_set_style)
 {
