@@ -72,9 +72,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_call_function, 0, 1, MAY_BE_L
 ZEND_END_ARG_INFO()
 
 /* TODO */
-int required_num_args = 0;
-int type = IS_MIXED;
-int allow_null = 0;
+static int required_num_args = 0;
+static int type = IS_MIXED;
+static int allow_null = 0;
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, required_num_args, type, allow_null)
 ZEND_END_ARG_INFO()
 
