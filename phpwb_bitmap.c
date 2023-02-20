@@ -84,7 +84,7 @@ ZEND_FUNCTION(wb_create_image)
 	zend_long w, h, bmi = 0, bits = 0;
 	int nargs;
 	nargs = ZEND_NUM_ARGS();
-	zend_long bmi_isnull, bits_isnull;
+	zend_bool bmi_isnull, bits_isnull;
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.

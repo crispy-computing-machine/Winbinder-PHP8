@@ -123,7 +123,7 @@ ZEND_FUNCTION(wb_draw_rect)
 		Z_PARAM_LONG_OR_NULL(linestyle, linestyle_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_BOOL(wbDrawRect((HANDLE)handle, x, y, width, height, color, ,, linewidth, linestyle));
+	RETURN_BOOL(wbDrawRect((HANDLE)handle, x, y, width, height, color, filled, linewidth, linestyle));
 }
 
 ZEND_FUNCTION(wb_draw_ellipse)
