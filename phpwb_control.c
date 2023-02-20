@@ -529,6 +529,7 @@ ZEND_FUNCTION(wb_set_item_image)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zindex)
+		Z_PARAM_OPTIONAL // Everything after optional
 		Z_PARAM_LONG(item)
 		Z_PARAM_LONG(subitem)
 	ZEND_PARSE_PARAMETERS_END();

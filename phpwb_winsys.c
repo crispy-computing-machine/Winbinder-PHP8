@@ -346,7 +346,7 @@ ZEND_FUNCTION(wb_get_system_info)
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_STRING_OR_NULL(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!stricmp(s, "extensionpath"))
