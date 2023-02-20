@@ -41,10 +41,20 @@ ZEND_MINFO_FUNCTION(winbinder);
 
 */
 
+// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(name, return_reference, required_num_args, type, allow_null)
+
+//		ZEND_ARG_TYPE_INFO(pass_by_ref, name, type_hint, allow_null)
+
+//		ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, type_hint, allow_null, default_value)
+
+// 		ZEND_ARG_INFO_WITH_DEFAULT_VALUE(pass_by_ref, name, default_value)
+
+// ZEND_END_ARG_INFO()
+
 // PHPWB_WINSYS.C
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_get_address, 0, 0, 1)
-ZEND_ARG_INFO(1, source)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_get_address, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, source, IS_LONG, 0, "0")
 ZEND_END_ARG_INFO()
 
 /* OK */
@@ -64,6 +74,8 @@ ZEND_ARG_INFO(0, array)
 ZEND_END_ARG_INFO()
 
 /* TODO */
+
+
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_main_loop, 0, 0, 1)
 ZEND_END_ARG_INFO()
