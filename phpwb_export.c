@@ -72,339 +72,341 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_call_function, 0, 1, MAY_BE_L
 ZEND_END_ARG_INFO()
 
 /* TODO */
+int required_num_args = 0;
+int type = 0;
+int allow_null = 0;
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_find_file, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_find_file, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_message_box, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_message_box, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_play_sound, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_play_sound, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_stop_sound, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_stop_sound, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_exec, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_exec, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_system_info, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_system_info, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_registry_key, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_registry_key, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_registry_key, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_registry_key, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_timer, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_timer, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_wait, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_wait, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_is_obj, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_is_obj, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_timer, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_timer, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_accel_table, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_accel_table, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_clipboard, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_clipboard, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_clipboard, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_clipboard, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_empty_clipboard, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_empty_clipboard, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_mouse_pos, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_mouse_pos, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_is_mouse_over, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_is_mouse_over, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_load_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_load_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_save_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_save_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_mask, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_mask, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_image_data, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_image_data, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_pixel, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_pixel, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_point, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_point, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_line, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_line, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_rect, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_rect, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_ellipse, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_ellipse, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_draw_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_control, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_control, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_value, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_value, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_refresh, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_refresh, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_enabled, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_enabled, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_item_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_item_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_control, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_control, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_item, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_item, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_statusbar_items, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_statusbar_items, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_delete_items, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_delete_items, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_class, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_class, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_control, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_control, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_enabled, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_enabled, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_focus, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_focus, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_id, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_id, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_item_count, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_item_count, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_parent, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_parent, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_selected, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_selected, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_state, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_state, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_visible, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_visible, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_cursor, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_cursor, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_focus, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_focus, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_handler, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_handler, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_location, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_location, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_range, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_range, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_state, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_state, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_style, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_style, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_visible, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_visible, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sort, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sort, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_tab, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_tab, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_value, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_value, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_listview_item, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_listview_item, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_listview_item_checked, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_listview_item_checked, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_item_checked, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_item_checked, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_listview_item_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_listview_item_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_columns, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_listview_columns, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_listview_column, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_listview_column, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_clear_listview_columns, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_clear_listview_columns, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_listview_item, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_listview_item, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_all_listview_items, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_all_listview_items, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_menu, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_menu, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_menu_item_checked, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_menu_item_checked, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_checked, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_checked, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_selected, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_selected, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_image, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_menu_item_image, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_toolbar, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_toolbar, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_treeview_item, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_treeview_item, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_selected, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_selected, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_value, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_treeview_item_value, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_treeview_item_text, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_treeview_item_text, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_level, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_level, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_font, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_font, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_font, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_font, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_font, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_font, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_send_message, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_send_message, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_peek, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_peek, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_poke, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_poke, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_release_library, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_release_library, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_midi_callback, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_midi_callback, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_enum_callback, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_enum_callback, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_hook_callback, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_hook_callback, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_window, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_destroy_window, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_size, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_size, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_size, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_size, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_position, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_position, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_position, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_position, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_window, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_window, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_instance, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_instance, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_item_list, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_item_list, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_area, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_area, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_path, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_path, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_color, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_color, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_open, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_open, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_save, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_save, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
-
-// ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_font, 0, required_num_args, type, allow_null)
-// ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_sys_dlg_font, 0, required_num_args, type, allow_null)
+ZEND_END_ARG_INFO()
 
 /* END */
 
