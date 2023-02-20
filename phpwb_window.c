@@ -23,24 +23,24 @@ ZEND_FUNCTION(wb_create_window)
 	zval *zcaption;
 	char *caption = "";
 	char *tooltip = "";
-
 	TCHAR *wcsCaption = 0;
 	TCHAR *wcsTooltip = 0;
-
 	nargs = ZEND_NUM_ARGS();
+
+	zend_bool x_isnull ,y_isnull ,w_isnull ,h_isnull ,style_isnull ,lparam_isnull;
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|zllllll", &pwboparent, &wbclass, &zcaption, &x, &y, &w, &h, &style, &lparam) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 9)
 		Z_PARAM_LONG(pwboparent)
 		Z_PARAM_LONG(wbclass)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL(zcaption)
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(h)
-		Z_PARAM_LONG(style)
-		Z_PARAM_LONG(lparam)
+		Z_PARAM_ZVAL_OR_NULL(zcaption)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(h, h_isnull)
+		Z_PARAM_LONG_OR_NULL(style, style_isnull)
+		Z_PARAM_LONG_OR_NULL(lparam, lparam_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
@@ -103,14 +103,14 @@ ZEND_FUNCTION(wb_get_instance)
 	char *caption = "";
 	zend_long caption_len = 0;
 	BOOL bringtofront = FALSE;
-
 	TCHAR *szCaption = 0;
+	zend_bool bringtofront_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &caption, &caption_len, &bringtofront) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(caption, caption_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(bringtofront)
+		Z_PARAM_LONG_OR_NULL(bringtofront, bringtofront_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// This function could return the window handler instead of a BOOL,
@@ -129,6 +129,7 @@ ZEND_FUNCTION(wb_get_size)
 	zval *source;
 	DWORD size;
 	zend_long lparam = 0;
+	zend_bool lparam_isnull;
 	PWBOBJ pwbo;
 
 	TCHAR *wcs = 0;
@@ -137,12 +138,13 @@ ZEND_FUNCTION(wb_get_size)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(lparam)
+		Z_PARAM_LONG_OR_NULL(lparam, lparam_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source){
 		RETURN_NULL();
 	}
+
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: PWBO, HBITMAP or HICON
 
@@ -241,7 +243,7 @@ ZEND_FUNCTION(wb_set_size)
 	zend_long h = 65535;
 	int nargs;
 	zval *zparm = NULL;
-
+	zend_bool h_isnull;
 	nargs = ZEND_NUM_ARGS();
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "lz|l", &pwbo, &zparm, &h) == FAILURE)
@@ -249,7 +251,7 @@ ZEND_FUNCTION(wb_set_size)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zparm)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(h)
+		Z_PARAM_LONG_OR_NULL(h, h_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -332,12 +334,12 @@ ZEND_FUNCTION(wb_get_position)
 	zend_long pwbo;
 	DWORD pos;
 	zend_long clientarea = FALSE;
-
+	zend_bool clientarea_isnull;
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &pwbo, &clientarea) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(clientarea)
+		Z_PARAM_LONG_OR_NULL(clientarea, clientarea_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -356,6 +358,7 @@ ZEND_FUNCTION(wb_set_position)
 	zend_long pwbo, x, y;
 
 	// Default parameter values
+	zend_bool x_isnull, y_isnull;
 
 	x = WBC_CENTER;
 	y = WBC_CENTER;
@@ -364,8 +367,8 @@ ZEND_FUNCTION(wb_set_position)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -385,22 +388,21 @@ ZEND_FUNCTION(wb_set_area)
 	y = -1;
 	w = 0;
 	h = 0;
-
+	zend_bool x_isnull, y_isnull, w_isnull, h_isnull;
 	nargs = ZEND_NUM_ARGS();
+
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|llll", &pwbo, &type, &x, &y, &w, &h) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 6)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(type)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(h)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(h, h_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-
 	// x, y, w, h must be supplied together
-
 	switch (nargs)
 	{
 	case 3:

@@ -197,7 +197,7 @@ ZEND_FUNCTION(wb_play_sound)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd,cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd,cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source){
@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_stop_sound)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &cmd, &cmd_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd, cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd, cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(cmd, cmd_len);
@@ -316,16 +316,16 @@ ZEND_FUNCTION(wb_exec)
 	char *pgm, *parm = NULL;
 	int pgm_len, parm_len = 0;
 	zend_long show;
-
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
+	zend_bool show_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(parm,parm_len)
-		Z_PARAM_LONG(show)
+		Z_PARAM_STRING_OR_NULL(parm, parm_len)
+		Z_PARAM_LONG_OR_NULL(show, show_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
@@ -447,7 +447,7 @@ ZEND_FUNCTION(wb_get_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szKey = Utf82WideChar(key, key_len);
@@ -489,8 +489,8 @@ ZEND_FUNCTION(wb_set_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
-		Z_PARAM_ZVAL(source)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
+		Z_PARAM_ZVAL_OR_NULL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
@@ -585,13 +585,14 @@ ZEND_FUNCTION(wb_destroy_timer)
 ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
+	zend_bool pwbo_isnull, pause_isnull, flags_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lll", &pwbo, &pause, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 3)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(pause)
-		Z_PARAM_LONG(flags)
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
+		Z_PARAM_LONG_OR_NULL(pause, pause_isnull)
+		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE)){

@@ -25,8 +25,8 @@ ZEND_FUNCTION(wb_create_toolbar)
 	zend_long pwboParent, width = 0, height = 0;
 	char *s = "";
 	PWBITEM *pitem;
-
 	TCHAR *wcs = 0;
+	zend_bool width_isnull, height_isnull;
 
 	// Get function parameters
 
@@ -36,9 +36,9 @@ ZEND_FUNCTION(wb_create_toolbar)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_ZVAL(zarray)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(width)
-		Z_PARAM_LONG(height)
-		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+		Z_PARAM_STRING_OR_NULL(s,s_len)
 
 	ZEND_PARSE_PARAMETERS_END();
 

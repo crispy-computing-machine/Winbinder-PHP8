@@ -171,9 +171,9 @@ ZEND_FUNCTION(wb_create_treeview_item)
 	int str_len;
 	zval *zparam;
 	BOOL setlparam = FALSE;
-
 	TCHAR *wcs = 0;
 	LONG ret;
+	zend_bool where_isnull ,img1_isnull, img2_isnull, insertiontype_isnull;
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|zllll", &pwbo, &str, &str_len, &zparam, &where, &img1, &img2, &insertiontype) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -181,11 +181,11 @@ ZEND_FUNCTION(wb_create_treeview_item)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(str,str_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL(zparam)
-		Z_PARAM_LONG(where)
-		Z_PARAM_LONG(img1)
-		Z_PARAM_LONG(img2)
-		Z_PARAM_LONG(insertiontype)
+		Z_PARAM_ZVAL_OR_NULL(zparam)
+		Z_PARAM_LONG_OR_NULL(where, where_isnull)
+		Z_PARAM_LONG_OR_NULL(img1, img1_isnull)
+		Z_PARAM_LONG_OR_NULL(img2, img2_isnull)
+		Z_PARAM_LONG_OR_NULL(insertiontype, insertiontype_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))

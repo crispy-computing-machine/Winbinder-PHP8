@@ -83,8 +83,8 @@ ZEND_FUNCTION(wb_create_image)
 {
 	zend_long w, h, bmi = 0, bits = 0;
 	int nargs;
-
 	nargs = ZEND_NUM_ARGS();
+	zend_long bmi_isnull, bits_isnull;
 
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "ll|ll", &w, &h, &bmi, &bits) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -92,8 +92,8 @@ ZEND_FUNCTION(wb_create_image)
 	Z_PARAM_LONG(w)
 	Z_PARAM_LONG(h)
 	Z_PARAM_OPTIONAL
-	Z_PARAM_LONG(bmi)
-	Z_PARAM_LONG(bits)
+	Z_PARAM_LONG_OR_NULL(bmi, bmi_isnull)
+	Z_PARAM_LONG_OR_NULL(bits, bits_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (nargs == 3)
@@ -111,13 +111,14 @@ ZEND_FUNCTION(wb_get_image_data)
 	BYTE *lpBits = NULL;
 	DWORD size;
 	zend_long compress4to3 = FALSE;
+	zend_bool compress4to3_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &hbm, &compress4to3) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 	Z_PARAM_LONG(hbm)
 	Z_PARAM_OPTIONAL // Everything after optional
-	Z_PARAM_LONG(compress4to3)
+	Z_PARAM_LONG_OR_NULL(compress4to3, compress4to3_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
