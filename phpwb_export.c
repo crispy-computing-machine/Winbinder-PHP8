@@ -68,15 +68,12 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_call_function, 0, 1, MAY_BE_LONG|MAY_BE_NULL, 1)
 	ZEND_ARG_TYPE_INFO(0, addr, IS_LONG, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, array, IS_ARRAY, 1, 'null')
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, array, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 /* TODO */
-static int required_num_args = 0;
-static int type = IS_MIXED;
-static int allow_null = 0;
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, required_num_args, type, allow_null)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_main_loop, 0, required_num_args = 0, type = IS_MIXED, allow_null = 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_find_file, 0, required_num_args, type, allow_null)
