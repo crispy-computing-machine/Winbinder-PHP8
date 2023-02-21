@@ -560,7 +560,7 @@ ZEND_FUNCTION(wb_create_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, MAX(1, ms)));
 }
