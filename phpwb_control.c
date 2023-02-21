@@ -756,7 +756,7 @@ ZEND_FUNCTION(wb_sort)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_BOOL();
+		RETURN_BOOL(FALSE);
 	} else
 	{
 		if (((PWBOBJ)pwbo)->uClass == ListView){
