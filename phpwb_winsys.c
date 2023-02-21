@@ -315,7 +315,7 @@ ZEND_FUNCTION(wb_exec)
 {
 	char *pgm, *parm = NULL;
 	int pgm_len, parm_len = 0;
-	zend_long show;
+	zend_bool show = TRUE;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
 	zend_bool show_isnull;
@@ -325,7 +325,7 @@ ZEND_FUNCTION(wb_exec)
 		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_STRING_OR_NULL(parm, parm_len)
-		Z_PARAM_LONG_OR_NULL(show, show_isnull)
+		Z_PARAM_BOOL_OR_NULL(show, show_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
