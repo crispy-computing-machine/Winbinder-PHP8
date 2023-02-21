@@ -562,7 +562,7 @@ IDYES		 1
 Error		-2
 
 */
-
+// @todo wb_quiet_message_box() (@see Fred)
 int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT nStyle)
 {
 	int nRet;
