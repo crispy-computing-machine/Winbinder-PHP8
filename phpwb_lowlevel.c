@@ -116,13 +116,13 @@ ZEND_FUNCTION(wb_poke)
 	if (!address)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Invalid address"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	if (!contents_len)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Zero length contents"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	if (!bytes){
@@ -133,7 +133,7 @@ ZEND_FUNCTION(wb_poke)
 	if (IsBadWritePtr(ptr, bytes))
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (int)ptr);
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	memcpy(ptr, contents, bytes);

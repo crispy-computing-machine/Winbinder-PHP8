@@ -93,7 +93,7 @@ ZEND_FUNCTION(wb_destroy_window)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbDestroyWindow((PWBOBJ)pwbo));
 }
@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_set_size)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	if ((Z_TYPE_P(zparm) == IS_ARRAY) && ((PWBOBJ)pwbo)->uClass == ListView)
 	{
@@ -267,7 +267,7 @@ ZEND_FUNCTION(wb_set_size)
 
 		target_hash = HASH_OF(zparm);
 		if (!target_hash){
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
@@ -279,7 +279,7 @@ ZEND_FUNCTION(wb_set_size)
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
 				wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Could not retrieve element %d from zparm"), i);
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 			switch (Z_TYPE_P(entry))
 			{
@@ -301,7 +301,7 @@ ZEND_FUNCTION(wb_set_size)
 
 			default:
 				wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in array in function"));
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 
 			zend_hash_move_forward(target_hash);
@@ -315,7 +315,7 @@ ZEND_FUNCTION(wb_set_size)
 		if (Z_TYPE_P(zparm) != IS_LONG)
 		{
 			wbError(TEXT("wb_set_size"), MB_ICONWARNING, TEXT("Wrong data type in width in function"));
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 
 		if (h != 65535){
@@ -372,7 +372,7 @@ ZEND_FUNCTION(wb_set_position)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSetWindowPosition((PWBOBJ)pwbo, x, y, NULL));
 }
@@ -435,7 +435,7 @@ ZEND_FUNCTION(wb_set_handler)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	switch (Z_TYPE_P(zparam))
 	{
@@ -447,14 +447,14 @@ ZEND_FUNCTION(wb_set_handler)
 		break;
 	default:
 		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Wrong data type in function"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	// Error checking
 	if (!zend_is_callable(zparam, 0, &fname))
 	{
 		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("handler is not a function or cannot be called"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	else
 	{

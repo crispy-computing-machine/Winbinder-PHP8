@@ -104,7 +104,7 @@ ZEND_FUNCTION(wb_destroy_control)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbDestroyControl((PWBOBJ)pwbo));
 	}
@@ -121,7 +121,7 @@ ZEND_FUNCTION(wb_get_visible)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	} else{
 		RETURN_BOOL(wbGetVisible((PWBOBJ)pwbo));
 	}
@@ -141,7 +141,7 @@ ZEND_FUNCTION(wb_set_visible)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbSetVisible((PWBOBJ)pwbo, b));
 	}
@@ -158,7 +158,7 @@ ZEND_FUNCTION(wb_set_focus)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(TRUE);
 	}else{
 		RETURN_BOOL(wbSetFocus((PWBOBJ)pwbo));
 	}
@@ -180,15 +180,15 @@ ZEND_FUNCTION(wb_set_state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
+
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Set expanded / collapsed state
 		RETURN_BOOL(wbSetTreeViewItemState((PWBOBJ)pwbo, (HTREEITEM)item, state));
 	}
-	else{
-		RETURN_NULL();
-	}
+	
+	RETURN_BOOL(FALSE);
 }
 
 /* Gets the state of a control item */
@@ -205,7 +205,7 @@ ZEND_FUNCTION(wb_get_state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Get expanded / collapsed state
@@ -271,7 +271,7 @@ ZEND_FUNCTION(wb_set_style)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetStyle((PWBOBJ)pwbo, style, value));
 }
@@ -468,7 +468,7 @@ ZEND_FUNCTION(wb_set_image)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	// Get the image handle from source
 
@@ -498,13 +498,13 @@ ZEND_FUNCTION(wb_set_image)
 			if (!hImage)
 			{
 				wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid image file %s or image index %d"), Z_STRVAL_P(source), index);
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 		}
 		else
 		{
 			wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 	}
 
@@ -620,7 +620,7 @@ ZEND_FUNCTION(wb_set_enabled)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbSetEnabled((PWBOBJ)pwbo, state));
 	}
@@ -637,7 +637,7 @@ ZEND_FUNCTION(wb_get_enabled)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbGetEnabled((PWBOBJ)pwbo));
 	}
@@ -664,7 +664,7 @@ ZEND_FUNCTION(wb_refresh)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now));
 	}
@@ -756,7 +756,7 @@ ZEND_FUNCTION(wb_sort)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL();
 	} else
 	{
 		if (((PWBOBJ)pwbo)->uClass == ListView){
@@ -784,7 +784,7 @@ ZEND_FUNCTION(wb_set_location)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	if (((PWBOBJ)pwbo)->uClass == HTMLControl)
 	{
@@ -792,8 +792,8 @@ ZEND_FUNCTION(wb_set_location)
 		RETURN_BOOL(DisplayHTMLPage((PWBOBJ)pwbo, wcs));
 	}
 	else{
-		RETURN_NULL();
-		}
+		RETURN_BOOL(FALSE);
+	}
 }
 
 //------------------------------------------------- AUXILIARY EXPORTED FUNCTIONS
@@ -811,7 +811,7 @@ ZEND_FUNCTION(wb_select_tab)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSelectTab((PWBOBJ)pwbo, ntab));
 }
@@ -831,7 +831,7 @@ ZEND_FUNCTION(wb_set_value)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	((PWBOBJ)pwbo)->item = item;
 	((PWBOBJ)pwbo)->subitem = subitem;
@@ -854,7 +854,7 @@ ZEND_FUNCTION(wb_set_range)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetRange((PWBOBJ)pwbo, min, max));
 }
@@ -877,7 +877,7 @@ ZEND_FUNCTION(wb_create_item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else
 	{
 		wcs = Utf82WideChar(s, s_len);
@@ -1005,7 +1005,7 @@ ZEND_FUNCTION(wb_set_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	switch (Z_TYPE_P(zcaption))
 	{

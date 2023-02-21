@@ -56,7 +56,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 
 		target_hash = HASH_OF(zarray);
 		if (!target_hash){
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
@@ -68,7 +68,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
 				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 
 			switch (Z_TYPE_P(entry))
@@ -88,7 +88,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 
 			default:
 				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 				break;
 			}
 
@@ -143,7 +143,7 @@ ZEND_FUNCTION(wb_set_cursor)
 	else
 	{
 		wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor));
@@ -577,7 +577,7 @@ ZEND_FUNCTION(wb_destroy_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, 0));
 }

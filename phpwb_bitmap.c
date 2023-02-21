@@ -159,7 +159,7 @@ ZEND_FUNCTION(wb_destroy_image)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!hbm){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm));
 }
