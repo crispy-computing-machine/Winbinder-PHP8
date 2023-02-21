@@ -497,7 +497,7 @@ void CALLBACK wbMidiInProc(
 ZEND_FUNCTION(wb_get_midi_callback)
 {
 	// wbMidiInProc;
-	return 0;
+	//return 0;
 }
 
 // Enum callback
