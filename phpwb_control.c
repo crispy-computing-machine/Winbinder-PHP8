@@ -130,13 +130,13 @@ ZEND_FUNCTION(wb_get_visible)
 ZEND_FUNCTION(wb_set_visible)
 {
 	zend_long pwbo;
-	zend_long b;
+	zend_bool b;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &b) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(b)
+		Z_PARAM_BOOL(b)
 	ZEND_PARSE_PARAMETERS_END();
 
 
