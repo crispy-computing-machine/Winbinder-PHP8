@@ -169,14 +169,14 @@ ZEND_FUNCTION(wb_set_focus)
 ZEND_FUNCTION(wb_set_state)
 {
 	zend_long pwbo, item;
-	zend_long state = TRUE;
+	zend_bool state = TRUE;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &item, &state) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(3, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(state)
+		Z_PARAM_BOOL(state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
