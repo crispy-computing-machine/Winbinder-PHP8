@@ -647,7 +647,8 @@ ZEND_FUNCTION(wb_get_enabled)
 
 ZEND_FUNCTION(wb_refresh)
 {
-	zend_long pwbo, now = TRUE;
+	zend_long pwbo;
+	zend_bool now = TRUE;
 	zend_long x = 0, y = 0, width = 0, height = 0;
 	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
 
@@ -656,7 +657,7 @@ ZEND_FUNCTION(wb_refresh)
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG_OR_NULL(now, now_isnull)
+		Z_PARAM_BOOL_OR_NULL(now, now_isnull)
 		Z_PARAM_LONG_OR_NULL(x, x_isnull)
 		Z_PARAM_LONG_OR_NULL(y, y_isnull)
 		Z_PARAM_LONG_OR_NULL(width, width_isnull)
