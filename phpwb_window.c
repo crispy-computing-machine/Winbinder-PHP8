@@ -46,6 +46,7 @@ ZEND_FUNCTION(wb_create_window)
 	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL();
 	}
+	
 	if (nargs == 5)
 	{
 		w = x;
