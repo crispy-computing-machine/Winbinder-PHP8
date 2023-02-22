@@ -333,20 +333,21 @@ ZEND_FUNCTION(wb_get_position)
 {
 	zend_long pwbo;
 	DWORD pos;
-	zend_long clientarea = FALSE;
+	zend_bool clientarea = FALSE;
 	zend_bool clientarea_isnull;
+	
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &pwbo, &clientarea) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(clientarea, clientarea_isnull)
+		Z_PARAM_BOOL_OR_NULL(clientarea, clientarea_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
 	 }
-	// Build the array
 
+	// Build the array x, y
 	pos = wbGetWindowPosition((PWBOBJ)pwbo, NULL, clientarea);
 	array_init(return_value);
 	add_next_index_long(return_value, LOWORD(pos));
