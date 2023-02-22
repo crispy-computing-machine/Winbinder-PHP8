@@ -88,13 +88,11 @@
 //-------------------------------------------------------------------- CONSTANTS
 
 // May be missing in some headers
-
 #ifndef LVIS_CHECKED
 #define LVIS_CHECKED 0x2000
 #endif
 
 // Other constants
-
 #define MAX_TABS 16				 // Maximum number of tabs in a TabControl
 #define MAX_TABCONTROLS 512		 // Maximum number of controls in a TabControl
 #define MAX_LISTVIEWCOLS 256	 // Maximum columns in a ListView
@@ -109,13 +107,11 @@
 #define MAX_PATH_BUFFER 1024		 // Maximum size for selected files
 
 // Strings
-
 #define RICHEDITCONTROL TEXT("RichEdit20A")
 #define TAB_PAGE_CLASS TEXT("wbTabPage")
 #define WB_EXTENSION TEXT("phpw")
 
 // WinBinder window class names (must begin with "wb", lowercase)
-
 #define MAIN_WINDOW_CLASS TEXT("wbMainWnd")
 #define OWNERDRAWN_WINDOW_CLASS TEXT("wbOwnerdrawnWnd")
 #define OWNERDRAWN_NAKED_CLASS TEXT("wbOwnerdrawnNakedWnd")
@@ -126,7 +122,6 @@
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
 
 // Custom WinBinder messages
-
 #define WBWM_NOTIFYICON (WM_APP + 2)
 #define WBWM_KEYDOWN (WM_APP + 3)
 #define WBWM_KEYUP (WM_APP + 4)
