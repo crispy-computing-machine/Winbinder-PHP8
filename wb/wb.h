@@ -103,7 +103,7 @@
 #define MAX_IMAGELIST_IMAGES 128 // Maximum images inside a ImageList
 #define REPEAT_TIMER 901		 // Timer identifier for ImageButtons
 #define NOCOLOR CLR_INVALID
-#define WINCOLOUR RGB(240, 240, 240) // https://stackoverflow.com/questions/9108323/whats-the-rgb-color-for-the-windows-color-window-or-color-background
+#define WINCOLOUR RGB(240, 240, 240)
 #define MAX_PATH_BUFFER 1024		 // Maximum size for selected files
 
 // Strings
@@ -480,7 +480,6 @@ BOOL wbCreateComboItem(PWBOBJ pwbol, LPCTSTR pszItem, BOOL bCombo);
 // WB_CONTROL_LISTVIEW.C
 
 int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText);
-//BOOL		wbDeleteListViewItem(PWBOBJ pwbo, int nItem);
 BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbCreateListViewColumn(PWBOBJ pwbo, int nCol, LPTSTR lpszItem, int nWidth, int nAlign);
 BOOL wbSetListViewItemText(PWBOBJ pwbo, int nItem, int nSubItem, LPCTSTR pszText);

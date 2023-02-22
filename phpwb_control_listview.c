@@ -53,34 +53,6 @@ ZEND_FUNCTION(wb_create_listview_item)
 		}
 }
 
-/*ZEND_FUNCTION(wb_delete_listview_item)
-{
-	long pwbo, nitem;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ll", &pwbo, &nitem) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_BOOL(wbDeleteListViewItem((PWBOBJ)pwbo, nitem));
-}
-*/
-/*ZEND_FUNCTION(wb_create_listview_images)
-{
-	long pwbo, hbm, n, color;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llll", &pwbo, &hbm, &n, &color) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_LONG((LONG)wbCreateListViewImages((PWBOBJ)pwbo, (HBITMAP)hbm, n, color));
-}*/
-
 ZEND_FUNCTION(wb_set_listview_item_text)
 {
 	zend_long pwbo, item, sub;
