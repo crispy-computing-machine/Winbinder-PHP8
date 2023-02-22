@@ -610,13 +610,14 @@ ZEND_FUNCTION(wb_get_control)
 
 ZEND_FUNCTION(wb_set_enabled)
 {
-	zend_long pwbo, state;
+	zend_long pwbo;
+	zend_bool state;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &state) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(state)
+		Z_PARAM_BOOL(state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
