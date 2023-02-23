@@ -83,7 +83,7 @@ ZEND_FUNCTION(wb_draw_point)
 ZEND_FUNCTION(wb_draw_line)
 {
 	zend_long handle, x0, y0, x1, y1, color, linewidth = 0, linestyle = 0;
-
+	zend_bool linewidth_isnull, linestyle_isnull;
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llllll|ll", &handle, &x0, &y0, &x1, &y1, &color, &linewidth, &linestyle) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(6, 8)
@@ -94,8 +94,8 @@ ZEND_FUNCTION(wb_draw_line)
 		Z_PARAM_LONG(y1)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(linewidth)
-		Z_PARAM_LONG(linestyle)
+		Z_PARAM_LONG_OR_NULL(linewidth, linewidth_isnull)
+		Z_PARAM_LONG_OR_NULL(linestyle, linestyle_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL(wbDrawLine((HANDLE)handle, x0, y0, x1, y1, color, linewidth, linestyle));
@@ -104,6 +104,9 @@ ZEND_FUNCTION(wb_draw_line)
 ZEND_FUNCTION(wb_draw_rect)
 {
 	zend_long handle, x, y, width, height, color, filled = TRUE, linewidth = 0, linestyle = 0;
+	zend_bool filled_isnull;
+	zend_bool linewidth_isnull;
+	zend_bool linestyle_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -115,9 +118,9 @@ ZEND_FUNCTION(wb_draw_rect)
 		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(filled)
-		Z_PARAM_LONG(linewidth)
-		Z_PARAM_LONG(linestyle)
+		Z_PARAM_LONG_OR_NULL(filled, filled_isnull)
+		Z_PARAM_LONG_OR_NULL(linewidth, linewidth_isnull)
+		Z_PARAM_LONG_OR_NULL(linestyle, linestyle_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL(wbDrawRect((HANDLE)handle, x, y, width, height, color, filled, linewidth, linestyle));
@@ -126,6 +129,9 @@ ZEND_FUNCTION(wb_draw_rect)
 ZEND_FUNCTION(wb_draw_ellipse)
 {
 	zend_long handle, x, y, width, height, color, filled = TRUE, linewidth = 0, linestyle = 0;
+	zend_bool filled_isnull;
+	zend_bool linewidth_isnull;
+	zend_bool linestyle_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llllll|lll", &handle, &x, &y, &width, &height, &color, &filled, &linewidth, &linestyle) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -137,9 +143,9 @@ ZEND_FUNCTION(wb_draw_ellipse)
 		Z_PARAM_LONG(height)
 		Z_PARAM_LONG(color)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(filled)
-		Z_PARAM_LONG(linewidth)
-		Z_PARAM_LONG(linestyle)
+		Z_PARAM_LONG_OR_NULL(filled, filled_isnull)
+		Z_PARAM_LONG_OR_NULL(linewidth, linewidth_isnull)
+		Z_PARAM_LONG_OR_NULL(linestyle, linestyle_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL(wbDrawEllipse((HANDLE)handle, x, y, width, height, color, filled, linewidth, linestyle));
@@ -151,10 +157,14 @@ ZEND_FUNCTION(wb_draw_text)
 	char *text;
 	int text_len;
 	int nargs;
-
 	TCHAR *wcs = 0;
-
 	nargs = ZEND_NUM_ARGS();
+	zend_bool width_isnull;
+	zend_bool height_isnull;
+	zend_bool nfont_isnull;
+	zend_bool flags_isnull;
+
+
 	// if (zend_parse_parameters(nargs TSRMLS_CC, "lsll|llll", &handle, &text, &text_len, &x, &y, &width, &height, &nfont, &flags) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(4, 8)
@@ -163,10 +173,10 @@ ZEND_FUNCTION(wb_draw_text)
 		Z_PARAM_LONG(x)
 		Z_PARAM_LONG(y)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(width)
-		Z_PARAM_LONG(height)
-		Z_PARAM_LONG(nfont)
-		Z_PARAM_LONG(flags)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+		Z_PARAM_LONG_OR_NULL(nfont, nfont_isnull)
+		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	switch (nargs)

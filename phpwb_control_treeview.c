@@ -64,7 +64,7 @@ ZEND_FUNCTION(wb_set_treeview_item_selected)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSetTreeViewItemSelected((PWBOBJ)pwbo, (HTREEITEM)item));
 }
@@ -86,7 +86,7 @@ ZEND_FUNCTION(wb_set_treeview_item_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	wcs = Utf82WideChar(s, s_len);
 	RETURN_BOOL(wbSetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, wcs));
@@ -109,7 +109,7 @@ ZEND_FUNCTION(wb_get_treeview_item_text)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	wbGetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, szItem, MAX_ITEM_STRING - 1);
 	str = WideChar2Utf8(szItem, &str_len);
@@ -137,7 +137,7 @@ ZEND_FUNCTION(wb_set_treeview_item_value)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	switch (Z_TYPE_P(zparam))
 	{
@@ -171,9 +171,9 @@ ZEND_FUNCTION(wb_create_treeview_item)
 	int str_len;
 	zval *zparam;
 	BOOL setlparam = FALSE;
-
 	TCHAR *wcs = 0;
 	LONG ret;
+	zend_bool where_isnull ,img1_isnull, img2_isnull, insertiontype_isnull;
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|zllll", &pwbo, &str, &str_len, &zparam, &where, &img1, &img2, &insertiontype) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -181,11 +181,11 @@ ZEND_FUNCTION(wb_create_treeview_item)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(str,str_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL(zparam)
-		Z_PARAM_LONG(where)
-		Z_PARAM_LONG(img1)
-		Z_PARAM_LONG(img2)
-		Z_PARAM_LONG(insertiontype)
+		Z_PARAM_ZVAL_OR_NULL(zparam)
+		Z_PARAM_LONG_OR_NULL(where, where_isnull)
+		Z_PARAM_LONG_OR_NULL(img1, img1_isnull)
+		Z_PARAM_LONG_OR_NULL(img2, img2_isnull)
+		Z_PARAM_LONG_OR_NULL(insertiontype, insertiontype_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))

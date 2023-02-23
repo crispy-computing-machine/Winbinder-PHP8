@@ -47,16 +47,7 @@ int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText)
 	return ListView_InsertItem(pwbo->hwnd, &lvi);
 }
 
-/*BOOL wbDeleteListViewItem(PWBOBJ pwbo, int nItem)
-{
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
-		return FALSE;
-
-	return ListView_DeleteItem(pwbo->hwnd, nItem);
-}*/
-
 /* Create or destroy an ImageList for the ListView */
-
 BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent)
 {
 	HBITMAP hbmMask;

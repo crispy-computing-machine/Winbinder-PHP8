@@ -10,15 +10,10 @@
 *******************************************************************************/
 
 //----------------------------------------------------------------- DEPENDENCIES
-
 #include "phpwb.h"
-
 #include "ext/standard/info.h" // For ZEND_MINFO_FUNCTION
 
-//-------------------------------------------------------------------- CONSTANTS
-
 //----------------------------------------------------------------------- MACROS
-
 #define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
 
 // ---------------------------------------------------------- INI SETTINGS
@@ -41,365 +36,9 @@ ZEND_MINFO_FUNCTION(winbinder);
 
 */
 
+#include "phpwb_wb_arginfo.h" // Arg info meta
+
 // PHPWB_WINSYS.C
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_get_address, 0, 0, 1)
-ZEND_ARG_INFO(1, source)
-ZEND_END_ARG_INFO()
-
-/* OK */
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_load_library, 0, 0, 1)
-ZEND_ARG_INFO(0, lib)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_function_address, 0, 0, 1)
-ZEND_ARG_INFO(0, fun)
-ZEND_ARG_INFO(0, hlib)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_call_function, 0, 0, 1)
-ZEND_ARG_INFO(0, addr)
-ZEND_ARG_INFO(0, array)
-ZEND_END_ARG_INFO()
-
-/* TODO */
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_main_loop, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_find_file, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_message_box, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_play_sound, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_stop_sound, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_exec, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_system_info, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_registry_key, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_registry_key, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_timer, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_wait, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_is_obj, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_timer, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_accel_table, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_clipboard, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_clipboard, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_empty_clipboard, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_mouse_pos, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_is_mouse_over, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_load_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_save_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_mask, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_image_data, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_pixel, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_point, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_line, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_rect, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_ellipse, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_draw_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_control, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_value, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_refresh, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_enabled, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_item_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_control, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_item, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_statusbar_items, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_delete_items, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_class, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_control, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_enabled, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_focus, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_id, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_item_count, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_parent, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_selected, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_state, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_visible, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_cursor, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_focus, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_handler, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_location, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_range, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_state, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_style, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_visible, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sort, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_tab, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_value, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_listview_item, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_listview_item_checked, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_item_checked, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_listview_item_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_listview_columns, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_listview_column, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_clear_listview_columns, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_listview_item, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_select_all_listview_items, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_menu, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_menu_item_checked, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_checked, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_selected, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_menu_item_image, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_toolbar, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_treeview_item, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_selected, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_treeview_item_value, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_treeview_item_text, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_level, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_font, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_font, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_font, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_send_message, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_peek, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_poke, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_release_library, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_midi_callback, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_enum_callback, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_hook_callback, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_destroy_window, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_size, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_size, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_position, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_position, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_create_window, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_instance, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_get_item_list, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_set_area, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_path, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_color, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_open, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_save, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_wb_sys_dlg_font, 0, 0, 1)
-ZEND_END_ARG_INFO()
-
-/* END NONO */
-
 ZEND_FUNCTION(wb_main_loop);
 ZEND_FUNCTION(wb_find_file);
 ZEND_FUNCTION(wb_message_box);
@@ -414,7 +53,7 @@ ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
 ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wb_set_accel_table);
-
+// new PHPWB_WINSYS.C
 ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
 ZEND_FUNCTION(wb_empty_clipboard);
@@ -422,7 +61,6 @@ ZEND_FUNCTION(wb_get_mouse_pos);
 ZEND_FUNCTION(wb_is_mouse_over);
 
 // PHPWB_CONTROL.C
-
 ZEND_FUNCTION(wb_delete_items);
 ZEND_FUNCTION(wb_destroy_control);
 ZEND_FUNCTION(wb_get_class);
@@ -458,7 +96,6 @@ ZEND_FUNCTION(wb_set_text);
 ZEND_FUNCTION(wb_set_value);
 
 // PHPWB_DRAW.C
-
 ZEND_FUNCTION(wb_get_pixel);
 ZEND_FUNCTION(wb_draw_point);
 ZEND_FUNCTION(wb_draw_line);
@@ -468,7 +105,6 @@ ZEND_FUNCTION(wb_draw_text);
 ZEND_FUNCTION(wb_draw_image);
 
 // PHPWB_BITMAP.C
-
 ZEND_FUNCTION(wb_load_image);
 ZEND_FUNCTION(wb_save_image);
 ZEND_FUNCTION(wb_create_image);
@@ -477,7 +113,6 @@ ZEND_FUNCTION(wb_destroy_image);
 ZEND_FUNCTION(wb_get_image_data);
 
 // PHPWB_CONTROL_LISTVIEW.C
-
 ZEND_FUNCTION(wb_create_listview_item);
 ZEND_FUNCTION(wb_set_listview_item_checked);
 ZEND_FUNCTION(wb_get_listview_item_checked);
@@ -492,7 +127,6 @@ ZEND_FUNCTION(wb_select_all_listview_items);
 //ZEND_FUNCTION(wb_set_listview_column_widths);
 
 // PHPWB_CONTROL_MENU.C
-
 ZEND_FUNCTION(wb_create_menu);
 ZEND_FUNCTION(wb_get_menu_item_checked);
 ZEND_FUNCTION(wb_set_menu_item_checked);
@@ -500,11 +134,9 @@ ZEND_FUNCTION(wb_set_menu_item_selected);
 ZEND_FUNCTION(wb_set_menu_item_image);
 
 // PHPWB_CONTROL_TOOLBAR.C
-
 ZEND_FUNCTION(wb_create_toolbar);
 
 // PHPWB_CONTROL_TREEVIEW.C
-
 ZEND_FUNCTION(wb_create_treeview_item);
 ZEND_FUNCTION(wb_set_treeview_item_selected);
 ZEND_FUNCTION(wb_set_treeview_item_text);
@@ -513,13 +145,11 @@ ZEND_FUNCTION(wb_get_treeview_item_text);
 ZEND_FUNCTION(wb_get_level);
 
 // PHPWB_FONTS.C
-
 ZEND_FUNCTION(wb_create_font);
 ZEND_FUNCTION(wb_destroy_font);
 ZEND_FUNCTION(wb_set_font);
 
 // PHPWB_LOWLEVEL.C
-
 ZEND_FUNCTION(wb_get_address);
 ZEND_FUNCTION(wb_send_message);
 ZEND_FUNCTION(wb_peek);
@@ -533,7 +163,6 @@ ZEND_FUNCTION(wb_get_enum_callback);
 ZEND_FUNCTION(wb_get_hook_callback);
 
 // PHPWB_WINDOW.C
-
 ZEND_FUNCTION(wb_get_size);
 ZEND_FUNCTION(wb_set_size);
 ZEND_FUNCTION(wb_set_position);
@@ -545,7 +174,6 @@ ZEND_FUNCTION(wb_get_instance);
 ZEND_FUNCTION(wb_set_area);
 
 // PHPWB_SYSDLG.C
-
 ZEND_FUNCTION(wb_sys_dlg_path);
 ZEND_FUNCTION(wb_sys_dlg_color);
 ZEND_FUNCTION(wb_sys_dlg_open);
@@ -555,11 +183,11 @@ ZEND_FUNCTION(wb_sys_dlg_font);
 //-------------------------------------------------------------------- VARIABLES
 
 /* List of exported functions */
-
 zend_function_entry winbinder_functions[] =
 	{
+		// Namespace
+		// ZEND_FE(
 		// PHPWB_WINSYS.C
-
         ZEND_FE(wb_main_loop,arginfo_wb_main_loop)
         ZEND_FE(wb_find_file,arginfo_wb_find_file)
         ZEND_FE(wb_message_box,arginfo_wb_message_box)
@@ -575,6 +203,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_destroy_timer,arginfo_wb_destroy_timer)
         ZEND_FE(wb_set_accel_table,arginfo_wb_set_accel_table)
 
+		// new PHPWB_WINSYS.C
         ZEND_FE(wb_get_clipboard,arginfo_wb_get_clipboard)
         ZEND_FE(wb_set_clipboard,arginfo_wb_set_clipboard)
         ZEND_FE(wb_empty_clipboard,arginfo_wb_empty_clipboard)
@@ -582,7 +211,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_is_mouse_over,arginfo_wb_is_mouse_over)
 
         // PHPWB_BITMAP.C
-
         ZEND_FE(wb_load_image,arginfo_wb_load_image)
         ZEND_FE(wb_save_image,arginfo_wb_save_image)
         ZEND_FE(wb_create_image,arginfo_wb_create_image)
@@ -591,7 +219,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_image_data,arginfo_wb_get_image_data)
 
         // PHPWB_DRAW.C
-
         ZEND_FE(wb_get_pixel,arginfo_wb_get_pixel)
         ZEND_FE(wb_draw_point,arginfo_wb_draw_point)
         ZEND_FE(wb_draw_line,arginfo_wb_draw_line)
@@ -601,7 +228,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_draw_image,arginfo_wb_draw_image)
 
         // PHPWB_CONTROL.C
-
         ZEND_FE(wb_destroy_control,arginfo_wb_destroy_control)
         ZEND_FE(wb_get_value,arginfo_wb_get_value)
         ZEND_FE(wb_refresh,arginfo_wb_refresh)
@@ -637,7 +263,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_value,arginfo_wb_set_value)
 
         // PHPWB_CONTROL_LISTVIEW.C
-
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
         ZEND_FE(wb_set_listview_item_checked,arginfo_wb_set_listview_item_checked)
         ZEND_FE(wb_get_listview_item_checked,arginfo_wb_get_listview_item_checked)
@@ -652,7 +277,6 @@ zend_function_entry winbinder_functions[] =
         //	ZEND_FE(wb_set_listview_column_widths,arginfo_wb_set_listview_column_widths)
 
         // PHPWB_CONTROL_MENU.C
-
         ZEND_FE(wb_create_menu,arginfo_wb_create_menu)
         ZEND_FE(wb_get_menu_item_checked,arginfo_wb_get_menu_item_checked)
         ZEND_FE(wb_set_menu_item_checked,arginfo_wb_set_menu_item_checked)
@@ -660,11 +284,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_menu_item_image,arginfo_wb_set_menu_item_image)
 
         // PHPWB_CONTROL_TOOLBAR.C
-
         ZEND_FE(wb_create_toolbar,arginfo_wb_create_toolbar)
 
         // PHPWB_CONTROL_TREEVIEW.C
-
         ZEND_FE(wb_create_treeview_item,arginfo_wb_create_treeview_item)
         ZEND_FE(wb_set_treeview_item_selected,arginfo_wb_set_treeview_item_selected)
         ZEND_FE(wb_set_treeview_item_text,arginfo_wb_set_treeview_item_text)
@@ -673,13 +295,11 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_level,arginfo_wb_get_level)
 
         // PHPWB_FONTS.C
-
         ZEND_FE(wb_create_font,arginfo_wb_create_font)
         ZEND_FE(wb_destroy_font,arginfo_wb_destroy_font)
         ZEND_FE(wb_set_font,arginfo_wb_set_font)
 
         // PHPWB_LOWLEVEL.C
-
         ZEND_FE(wb_get_address, arginfo_get_address)
         ZEND_FE(wb_send_message,arginfo_wb_send_message)
         ZEND_FE(wb_peek,arginfo_wb_peek)
@@ -693,7 +313,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_hook_callback,arginfo_wb_get_hook_callback)
 
         // PHPWB_WINDOW.C
-
         ZEND_FE(wb_destroy_window,arginfo_wb_destroy_window)
         ZEND_FE(wb_get_size,arginfo_wb_get_size)
         ZEND_FE(wb_set_size,arginfo_wb_set_size)
@@ -705,7 +324,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_area,arginfo_wb_set_area)
 
         // PHPWB_SYSDLG.C
-
         ZEND_FE(wb_sys_dlg_path,arginfo_wb_sys_dlg_path)
         ZEND_FE(wb_sys_dlg_color,arginfo_wb_sys_dlg_color)
         ZEND_FE(wb_sys_dlg_open,arginfo_wb_sys_dlg_open)
@@ -713,7 +331,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_sys_dlg_font,arginfo_wb_sys_dlg_font)
 
 		// The line below must be the last one
-
 		{NULL, NULL, NULL}};
 
 /*
@@ -753,7 +370,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "ToolDialog", ToolDialog)
 
 	// WinBinder control classes
-
 	WB_ZEND_CONST(LONG, "Accel", Accel)
 	WB_ZEND_CONST(LONG, "Calendar", Calendar)
 	WB_ZEND_CONST(LONG, "CheckBox", CheckBox)
@@ -781,11 +397,9 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
 
 	// System constants
-
 	WB_ZEND_CONST(STRING, "WBC_VERSION", LIBVERSION)
 
 	// Style flags
-
 	WB_ZEND_CONST(LONG, "WBC_BORDER", WBC_BORDER)
 	WB_ZEND_CONST(LONG, "WBC_BOTTOM", WBC_BOTTOM)
 	WB_ZEND_CONST(LONG, "WBC_CENTER", WBC_CENTER)
@@ -819,7 +433,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_NOHEADER", WBC_NOHEADER)
 
 	// Notification message flags
-
 	WB_ZEND_CONST(LONG, "WBC_DBLCLICK", WBC_DBLCLICK)
 	WB_ZEND_CONST(LONG, "WBC_MOUSEMOVE", WBC_MOUSEMOVE)
 	WB_ZEND_CONST(LONG, "WBC_MOUSEDOWN", WBC_MOUSEDOWN)
@@ -831,9 +444,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_REDRAW", WBC_REDRAW)
 	WB_ZEND_CONST(LONG, "WBC_HEADERSEL", WBC_HEADERSEL)
 
-
 	// Additional notification message flags
-
 	WB_ZEND_CONST(LONG, "WBC_ALT", WBC_ALT)
 	WB_ZEND_CONST(LONG, "WBC_CONTROL", WBC_CONTROL)
 	WB_ZEND_CONST(LONG, "WBC_SHIFT", WBC_SHIFT)
@@ -842,7 +453,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_RBUTTON", WBC_RBUTTON)
 
 	// Message box and beep types
-
 	WB_ZEND_CONST(LONG, "WBC_BEEP", WBC_BEEP)
 	WB_ZEND_CONST(LONG, "WBC_INFO", MB_ICONINFORMATION)
 	WB_ZEND_CONST(LONG, "WBC_OK", MB_OK)
@@ -854,19 +464,16 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_YESNOCANCEL", MB_YESNOCANCEL | MB_ICONQUESTION)
 
 	// Window states
-
 	WB_ZEND_CONST(LONG, "WBC_MAXIMIZED", WBC_MAXIMIZED)
 	WB_ZEND_CONST(LONG, "WBC_MINIMIZED", WBC_MINIMIZED)
 	WB_ZEND_CONST(LONG, "WBC_NORMAL", WBC_NORMAL)
 
 	// Area types for wb_set_area()
-
 	WB_ZEND_CONST(LONG, "WBC_MINSIZE", WBC_MINSIZE);
 	WB_ZEND_CONST(LONG, "WBC_MAXSIZE", WBC_MAXSIZE);
 	WB_ZEND_CONST(LONG, "WBC_TITLE", WBC_TITLE);
 
 	// Windows standard identifiers
-
 	WB_ZEND_CONST(LONG, "IDABORT", IDABORT);
 	WB_ZEND_CONST(LONG, "IDCANCEL", IDCANCEL);
 	WB_ZEND_CONST(LONG, "IDCLOSE", IDCLOSE);
@@ -879,7 +486,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "IDYES", IDYES);
 
 	// Font attributes
-
 	WB_ZEND_CONST(LONG, "FTA_BOLD", FTA_BOLD);
 	WB_ZEND_CONST(LONG, "FTA_ITALIC", FTA_ITALIC);
 	WB_ZEND_CONST(LONG, "FTA_NORMAL", FTA_NORMAL);
@@ -888,7 +494,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "FTA_UNDERLINE", FTA_UNDERLINE);
 
 	// RGB standard colors
-
 	WB_ZEND_CONST(LONG, "BLACK", RGB(0, 0, 0))
 	WB_ZEND_CONST(LONG, "BLUE", RGB(0, 0, 255))
 	WB_ZEND_CONST(LONG, "CYAN", RGB(0, 255, 255))
@@ -909,7 +514,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WINCOLOUR", WINCOLOUR)
 
 	// BGR standard colors
-
 	WB_ZEND_CONST(LONG, "bgrBLACK", RGB(0, 0, 0))
 	WB_ZEND_CONST(LONG, "bgrBLUE", RGB(255, 0, 0))
 	WB_ZEND_CONST(LONG, "bgrCYAN", RGB(255, 255, 0))
@@ -936,9 +540,35 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_LV_DEFAULT", WBC_LV_DEFAULT);
 	WB_ZEND_CONST(LONG, "WBC_LV_DRAW", WBC_LV_DRAW);
 	WB_ZEND_CONST(LONG, "WBC_LV_COLUMNS", WBC_LV_COLUMNS);
-
+	WB_ZEND_CONST(LONG, "LVM_FIRST",			LVM_FIRST);
+	WB_ZEND_CONST(LONG, "LVM_DELETEALLITEMS",	LVM_DELETEALLITEMS);
+	WB_ZEND_CONST(LONG, "LVM_GETITEMCOUNT",		LVM_GETITEMCOUNT);
+	WB_ZEND_CONST(LONG, "LVM_GETITEMSTATE",		LVM_GETITEMSTATE);
+	WB_ZEND_CONST(LONG, "LVM_GETSELECTEDCOUNT",	LVM_GETSELECTEDCOUNT);
+	WB_ZEND_CONST(LONG, "LVIS_SELECTED",		LVIS_SELECTED);
 	// RTFEditBox
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
+
+	// Additional @todo refactor to WBC constants
+
+	// Button control
+	WB_ZEND_CONST(LONG, "BM_SETCHECK",			BM_SETCHECK);
+
+	// Tab control
+	WB_ZEND_CONST(LONG, "TCM_GETCURSEL",		TCM_GETCURSEL);
+	WB_ZEND_CONST(LONG, "TCM_SETCURSEL",		TCM_SETCURSEL);
+
+	// Combobox
+	WB_ZEND_CONST(LONG, "CB_FINDSTRINGEXACT",	CB_FINDSTRINGEXACT);
+	WB_ZEND_CONST(LONG, "CB_SETCURSEL",			CB_SETCURSEL);
+
+	// Listbox
+	WB_ZEND_CONST(LONG, "LB_FINDSTRINGEXACT",	LB_FINDSTRINGEXACT);
+	WB_ZEND_CONST(LONG, "LB_SETCURSEL",			LB_SETCURSEL);
+
+	// Window
+	WB_ZEND_CONST(LONG, "WM_SETTEXT",			WM_SETTEXT);
+
 	return SUCCESS;
 }
 
@@ -947,7 +577,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 ZEND_MINFO_FUNCTION(winbinder)
 {
 	php_info_print_table_start();
-	php_info_print_table_row(2, "WinBinder", "enabled");
+	php_info_print_table_row(2, MODULENAME, "enabled");
 	php_info_print_table_row(2, "Version", WINBINDER_VERSION);
 	php_info_print_table_end();
 

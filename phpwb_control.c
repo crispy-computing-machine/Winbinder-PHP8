@@ -37,6 +37,7 @@ ZEND_FUNCTION(wb_create_control)
 	TCHAR *wcsTooltip = 0;
 
 	nargs = ZEND_NUM_ARGS();
+	zend_bool x_isnull, y_isnull, w_isnull, h_isnull, id_isnull, style_isnull, param_isnull, ntab_isnull;
 
 	//if (zend_parse_parameters(nargs TSRMLS_CC, "ll|zllllllll", &pwboparent, &wbclass, &zcaption, &x, &y, &w, &h, &id, &style, &param, &ntab) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -44,15 +45,15 @@ ZEND_FUNCTION(wb_create_control)
 		Z_PARAM_LONG(pwboparent)
 		Z_PARAM_LONG(wbclass)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_ZVAL(zcaption)
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(h)
-		Z_PARAM_LONG(id)
-		Z_PARAM_LONG(style)
-		Z_PARAM_LONG(param)
-		Z_PARAM_LONG(ntab)
+		Z_PARAM_ZVAL_OR_NULL(zcaption)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(h, h_isnull)
+		Z_PARAM_LONG_OR_NULL(id, id_isnull)
+		Z_PARAM_LONG_OR_NULL(style, style_isnull)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
+		Z_PARAM_LONG_OR_NULL(ntab, ntab_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (nargs == 5)
@@ -103,7 +104,7 @@ ZEND_FUNCTION(wb_destroy_control)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbDestroyControl((PWBOBJ)pwbo));
 	}
@@ -120,7 +121,7 @@ ZEND_FUNCTION(wb_get_visible)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	} else{
 		RETURN_BOOL(wbGetVisible((PWBOBJ)pwbo));
 	}
@@ -129,18 +130,18 @@ ZEND_FUNCTION(wb_get_visible)
 ZEND_FUNCTION(wb_set_visible)
 {
 	zend_long pwbo;
-	zend_long b;
+	zend_bool b;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &b) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(b)
+		Z_PARAM_BOOL(b)
 	ZEND_PARSE_PARAMETERS_END();
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbSetVisible((PWBOBJ)pwbo, b));
 	}
@@ -157,7 +158,7 @@ ZEND_FUNCTION(wb_set_focus)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(TRUE);
 	}else{
 		RETURN_BOOL(wbSetFocus((PWBOBJ)pwbo));
 	}
@@ -168,26 +169,26 @@ ZEND_FUNCTION(wb_set_focus)
 ZEND_FUNCTION(wb_set_state)
 {
 	zend_long pwbo, item;
-	zend_long state = TRUE;
+	zend_bool state = TRUE;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lll", &pwbo, &item, &state) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(3, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(state)
+		Z_PARAM_BOOL(state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
+
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Set expanded / collapsed state
 		RETURN_BOOL(wbSetTreeViewItemState((PWBOBJ)pwbo, (HTREEITEM)item, state));
 	}
-	else{
-		RETURN_NULL();
-	}
+	
+	RETURN_BOOL(FALSE);
 }
 
 /* Gets the state of a control item */
@@ -204,7 +205,7 @@ ZEND_FUNCTION(wb_get_state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Get expanded / collapsed state
@@ -249,13 +250,16 @@ ZEND_FUNCTION(wb_get_parent)
 }
 
 ZEND_FUNCTION(wb_get_focus){
+	
 	RETURN_LONG((LONG)wbGetFocus());
-	}
+
+}
 
 ZEND_FUNCTION(wb_set_style)
 {
 	zend_long pwbo, style;
 	zend_long value = TRUE;
+	zend_bool value_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|l", &pwbo, &style, &value) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -263,11 +267,11 @@ ZEND_FUNCTION(wb_set_style)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(style)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(value)
+		Z_PARAM_LONG_OR_NULL(value, value_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetStyle((PWBOBJ)pwbo, style, value));
 }
@@ -307,14 +311,14 @@ ZEND_FUNCTION(wb_get_id)
 ZEND_FUNCTION(wb_get_value)
 {
 	zend_long pwbo, item = -1, subitem = -1;
-
+	zend_bool item_isnull, subitem_isnull;
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pwbo, &item, &subitem) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(subitem)
+		Z_PARAM_LONG_OR_NULL(item, item_isnull)
+		Z_PARAM_LONG_OR_NULL(subitem, subitem_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -450,20 +454,21 @@ ZEND_FUNCTION(wb_set_image)
 	zval *source = NULL;
 	HANDLE hImage = NULL;
 	TCHAR *wcs = 0;
-
+	zend_bool trcolor_isnull, index_isnull, param_isnull;
+	
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!|lll", &pwbo, &source, &trcolor, &index, &param) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 5)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(trcolor)
-		Z_PARAM_LONG(index)
-		Z_PARAM_LONG(param)
+		Z_PARAM_LONG_OR_NULL(trcolor, trcolor_isnull)
+		Z_PARAM_LONG_OR_NULL(index, index_isnull)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	// Get the image handle from source
 
@@ -493,13 +498,13 @@ ZEND_FUNCTION(wb_set_image)
 			if (!hImage)
 			{
 				wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid image file %s or image index %d"), Z_STRVAL_P(source), index);
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 		}
 		else
 		{
 			wbError(TEXT("wb_set_image"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 	}
 
@@ -521,13 +526,14 @@ ZEND_FUNCTION(wb_set_item_image)
 	zend_long pwbo, item = 0, subitem = 0;
 	zval *zindex = NULL;
 	int nclass, index1 = 0, index2 = 0;
-
+	zend_bool item_isnull, subitem_isnull;
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz|ll", &pwbo, &zindex, &item, &subitem) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zindex)
-		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(subitem)
+		Z_PARAM_OPTIONAL // Everything after optional
+		Z_PARAM_LONG_OR_NULL(item, item_isnull)
+		Z_PARAM_LONG_OR_NULL(subitem, subitem_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	nclass = ((PWBOBJ)pwbo)->uClass;
@@ -604,17 +610,18 @@ ZEND_FUNCTION(wb_get_control)
 
 ZEND_FUNCTION(wb_set_enabled)
 {
-	zend_long pwbo, state;
+	zend_long pwbo;
+	zend_bool state;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &state) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(state)
+		Z_PARAM_BOOL(state)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbSetEnabled((PWBOBJ)pwbo, state));
 	}
@@ -631,7 +638,7 @@ ZEND_FUNCTION(wb_get_enabled)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbGetEnabled((PWBOBJ)pwbo));
 	}
@@ -641,23 +648,25 @@ ZEND_FUNCTION(wb_get_enabled)
 
 ZEND_FUNCTION(wb_refresh)
 {
-	zend_long pwbo, now = TRUE;
+	zend_long pwbo;
+	zend_bool now = TRUE;
 	zend_long x = 0, y = 0, width = 0, height = 0;
+	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(now)
-		Z_PARAM_LONG(x)
-		Z_PARAM_LONG(y)
-		Z_PARAM_LONG(width)
-		Z_PARAM_LONG(height)
+		Z_PARAM_BOOL_OR_NULL(now, now_isnull)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else{
 		RETURN_BOOL(wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now));
 	}
@@ -691,7 +700,7 @@ ZEND_FUNCTION(wb_delete_items)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL(zitems)
+		Z_PARAM_ZVAL_OR_NULL(zitems)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -737,18 +746,19 @@ ZEND_FUNCTION(wb_delete_items)
 ZEND_FUNCTION(wb_sort)
 {
 	zend_long pwbo, ascending = TRUE, subitem = 0;
+	zend_bool ascending_isnull, subitem_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pwbo, &ascending, &subitem) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_LONG(ascending)
-		Z_PARAM_LONG(subitem)
+		Z_PARAM_LONG_OR_NULL(ascending, ascending_isnull)
+		Z_PARAM_LONG_OR_NULL(subitem, subitem_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	} else
 	{
 		if (((PWBOBJ)pwbo)->uClass == ListView){
@@ -776,7 +786,7 @@ ZEND_FUNCTION(wb_set_location)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	if (((PWBOBJ)pwbo)->uClass == HTMLControl)
 	{
@@ -784,8 +794,8 @@ ZEND_FUNCTION(wb_set_location)
 		RETURN_BOOL(DisplayHTMLPage((PWBOBJ)pwbo, wcs));
 	}
 	else{
-		RETURN_NULL();
-		}
+		RETURN_BOOL(FALSE);
+	}
 }
 
 //------------------------------------------------- AUXILIARY EXPORTED FUNCTIONS
@@ -803,7 +813,7 @@ ZEND_FUNCTION(wb_select_tab)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSelectTab((PWBOBJ)pwbo, ntab));
 }
@@ -811,19 +821,19 @@ ZEND_FUNCTION(wb_select_tab)
 ZEND_FUNCTION(wb_set_value)
 {
 	zend_long pwbo, value, item = 0, subitem = 0;
-
+	zend_bool item_isnull, subitem_isnull;
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|ll", &pwbo, &value, &item, &subitem) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(value)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(item)
-		Z_PARAM_LONG(subitem)
+		Z_PARAM_LONG_OR_NULL(item, item_isnull)
+		Z_PARAM_LONG_OR_NULL(subitem, subitem_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	((PWBOBJ)pwbo)->item = item;
 	((PWBOBJ)pwbo)->subitem = subitem;
@@ -834,6 +844,7 @@ ZEND_FUNCTION(wb_set_value)
 ZEND_FUNCTION(wb_set_range)
 {
 	zend_long pwbo, min = 0, max = 0;
+	zend_bool max_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll|l", &pwbo, &min, &max) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -841,11 +852,11 @@ ZEND_FUNCTION(wb_set_range)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(min)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(max)
+		Z_PARAM_LONG_OR_NULL(max, max_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetRange((PWBOBJ)pwbo, min, max));
 }
@@ -855,8 +866,8 @@ ZEND_FUNCTION(wb_create_item)
 	char *s;
 	int s_len;
 	zend_long pwbo, param = 0;
-
 	TCHAR *wcs = 0;
+	zend_bool param_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|l", &pwbo, &s, &s_len, &param) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -864,11 +875,11 @@ ZEND_FUNCTION(wb_create_item)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(s, s_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(param)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}else
 	{
 		wcs = Utf82WideChar(s, s_len);
@@ -881,6 +892,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 	zend_long pwbo, clear, param;
 	zval *zitems = NULL;
 	BOOL bRet = TRUE;
+	zend_bool clear_isnull, param_isnull;
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!|ll", &pwbo, &zitems, &clear, &param) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -888,8 +900,8 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zitems) // Has to be an array of arrays!
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(clear)
-		Z_PARAM_LONG(param)
+		Z_PARAM_LONG_OR_NULL(clear, clear_isnull)
+		Z_PARAM_LONG_OR_NULL(param, param_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
@@ -981,9 +993,9 @@ ZEND_FUNCTION(wb_set_text)
 	zval *zcaption;
 	char *caption = "";
 	char *tooltip = "";
-
 	TCHAR *wcsCaption = 0;
 	TCHAR *wcsTooltip = 0;
+	zend_bool item_isnull;
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz|l", &pwbo, &zcaption, &item) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -991,11 +1003,11 @@ ZEND_FUNCTION(wb_set_text)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL(zcaption)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(item)
+		Z_PARAM_LONG_OR_NULL(item, item_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	switch (Z_TYPE_P(zcaption))
 	{
@@ -1105,6 +1117,7 @@ ZEND_FUNCTION(wb_get_text)
 
 	char *str = 0;
 	int str_len = 0;
+	zend_bool index_isnull;
 
 	// NOTE: I don't quite understand why do I need all these
 	// len + 1 and len - 1 stuff below, but it works
@@ -1114,7 +1127,7 @@ ZEND_FUNCTION(wb_get_text)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(index)
+		Z_PARAM_LONG_OR_NULL(index, index_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){

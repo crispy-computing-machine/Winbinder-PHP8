@@ -56,7 +56,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 
 		target_hash = HASH_OF(zarray);
 		if (!target_hash){
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
@@ -68,7 +68,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
 				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 			}
 
 			switch (Z_TYPE_P(entry))
@@ -88,7 +88,7 @@ ZEND_FUNCTION(wb_set_accel_table)
 
 			default:
 				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
-				RETURN_NULL();
+				RETURN_BOOL(FALSE);
 				break;
 			}
 
@@ -143,7 +143,7 @@ ZEND_FUNCTION(wb_set_cursor)
 	else
 	{
 		wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor));
@@ -197,7 +197,7 @@ ZEND_FUNCTION(wb_play_sound)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd,cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd,cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source){
@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_stop_sound)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &cmd, &cmd_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd, cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd, cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(cmd, cmd_len);
@@ -315,17 +315,17 @@ ZEND_FUNCTION(wb_exec)
 {
 	char *pgm, *parm = NULL;
 	int pgm_len, parm_len = 0;
-	zend_long show;
-
+	zend_bool show = TRUE;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
+	zend_bool show_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(parm,parm_len)
-		Z_PARAM_LONG(show)
+		Z_PARAM_STRING_OR_NULL(parm, parm_len)
+		Z_PARAM_BOOL_OR_NULL(show, show_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
@@ -346,7 +346,7 @@ ZEND_FUNCTION(wb_get_system_info)
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_STRING_OR_NULL(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!stricmp(s, "extensionpath"))
@@ -447,7 +447,7 @@ ZEND_FUNCTION(wb_get_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szKey = Utf82WideChar(key, key_len);
@@ -489,8 +489,8 @@ ZEND_FUNCTION(wb_set_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
-		Z_PARAM_ZVAL(source)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
+		Z_PARAM_ZVAL_OR_NULL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
@@ -560,7 +560,7 @@ ZEND_FUNCTION(wb_create_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, MAX(1, ms)));
 }
@@ -577,7 +577,7 @@ ZEND_FUNCTION(wb_destroy_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, 0));
 }
@@ -585,13 +585,14 @@ ZEND_FUNCTION(wb_destroy_timer)
 ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
+	zend_bool pwbo_isnull, pause_isnull, flags_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lll", &pwbo, &pause, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 3)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(pause)
-		Z_PARAM_LONG(flags)
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
+		Z_PARAM_LONG_OR_NULL(pause, pause_isnull)
+		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE)){
@@ -769,7 +770,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 */
 ZEND_FUNCTION(wb_is_mouse_over)
 {
-    zend_long pwbo;
+    zend_long pwbo = 0;
 	zend_long left, top, right, bottom;
 
     RECT windowrc;

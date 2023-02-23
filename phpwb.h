@@ -19,6 +19,8 @@
 #define APPNAME "WinBinder-PHP"
 #define MODULENAME "winbinder" // For phpinfo() and extension_loaded()
 #define LIBVERSION WINBINDER_VERSION
+#define WB_NAMESPACE "Wb" // Function namespace
+
 
 // ZEND constants
 

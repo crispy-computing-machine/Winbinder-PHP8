@@ -53,34 +53,6 @@ ZEND_FUNCTION(wb_create_listview_item)
 		}
 }
 
-/*ZEND_FUNCTION(wb_delete_listview_item)
-{
-	long pwbo, nitem;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ll", &pwbo, &nitem) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_BOOL(wbDeleteListViewItem((PWBOBJ)pwbo, nitem));
-}
-*/
-/*ZEND_FUNCTION(wb_create_listview_images)
-{
-	long pwbo, hbm, n, color;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llll", &pwbo, &hbm, &n, &color) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_LONG((LONG)wbCreateListViewImages((PWBOBJ)pwbo, (HBITMAP)hbm, n, color));
-}*/
-
 ZEND_FUNCTION(wb_set_listview_item_text)
 {
 	zend_long pwbo, item, sub;
@@ -98,7 +70,7 @@ ZEND_FUNCTION(wb_set_listview_item_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	wcs = Utf82WideChar(s, s_len); /// ahhhhhhh
 	RETURN_BOOL(wbSetListViewItemText((PWBOBJ)pwbo, item, sub, wcs));
@@ -117,7 +89,7 @@ ZEND_FUNCTION(wb_set_listview_item_checked)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	RETURN_BOOL(wbSetListViewItemChecked((PWBOBJ)pwbo, item, checked));
@@ -144,7 +116,7 @@ ZEND_FUNCTION(wb_create_listview_column)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	wcs = Utf82WideChar(s, s_len);
 	RETURN_BOOL(wbCreateListViewColumn((PWBOBJ)pwbo, ncol, wcs, w, align));
@@ -274,7 +246,7 @@ ZEND_FUNCTION(wb_get_listview_item_checked)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbGetListViewItemChecked((PWBOBJ)pwbo, item));
 }
@@ -291,7 +263,7 @@ ZEND_FUNCTION(wb_clear_listview_columns)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbClearListViewColumns((PWBOBJ)pwbo));
 }
@@ -309,7 +281,7 @@ ZEND_FUNCTION(wb_select_listview_item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSelectListViewItem((PWBOBJ)pwbo, nitem, state));
 }
@@ -328,7 +300,7 @@ ZEND_FUNCTION(wb_select_all_listview_items)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSelectAllListViewItems((PWBOBJ)pwbo, state));
 }
@@ -337,7 +309,8 @@ ZEND_FUNCTION(wb_select_all_listview_items)
 
 ZEND_FUNCTION(wb_get_listview_text)
 {
-	int ncols, nitems;
+	int ncols = 0, nitems = 0;
+	zend_bool nitems_isnull, ncol_isnull;
 	zend_long pwbo, nitem = -1, ncol = -1;
 	TCHAR szItem[MAX_ITEM_STRING];
 
@@ -349,8 +322,8 @@ ZEND_FUNCTION(wb_get_listview_text)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(nitem)
-		Z_PARAM_LONG(ncol)
+		Z_PARAM_LONG_OR_NULL(nitem, nitems_isnull)
+		Z_PARAM_LONG_OR_NULL(ncol, ncol_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){

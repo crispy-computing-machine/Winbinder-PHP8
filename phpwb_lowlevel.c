@@ -23,6 +23,7 @@ ZEND_FUNCTION(wb_send_message)
 {
 	zend_long msg, w, l;
 	zend_long pwbo;
+	zend_bool w_isnull, l_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -37,8 +38,8 @@ ZEND_FUNCTION(wb_send_message)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(msg)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(l)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(l, l_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
@@ -50,6 +51,7 @@ ZEND_FUNCTION(wb_peek)
 {
 	zend_long address, bytes = 0;
 	char *ptr;
+	zend_bool bytes_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -63,7 +65,7 @@ ZEND_FUNCTION(wb_peek)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(address)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(bytes)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address){
@@ -94,6 +96,7 @@ ZEND_FUNCTION(wb_poke)
 	char *contents;
 	int contents_len;
 	void *ptr;
+	zend_bool bytes_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -107,19 +110,19 @@ ZEND_FUNCTION(wb_poke)
 		Z_PARAM_LONG(address)
 		Z_PARAM_STRING(contents, contents_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(bytes)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Invalid address"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	if (!contents_len)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Zero length contents"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	if (!bytes){
@@ -130,7 +133,7 @@ ZEND_FUNCTION(wb_poke)
 	if (IsBadWritePtr(ptr, bytes))
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (int)ptr);
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	memcpy(ptr, contents, bytes);
@@ -251,6 +254,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	char *fun;
 	int fun_len;
 	zend_long addr, hlib = (LONG)NULL;
+	zend_bool hlib_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -263,7 +267,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(fun, fun_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(hlib)
+		Z_PARAM_LONG_OR_NULL(hlib, hlib_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the library handle valid?

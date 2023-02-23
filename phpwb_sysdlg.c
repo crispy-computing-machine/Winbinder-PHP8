@@ -33,15 +33,16 @@ ZEND_FUNCTION(wb_sys_dlg_open)
 	TCHAR *szFilter = 0;
 	TCHAR *szPath = 0;
 	TCHAR thisOne[MAX_PATH], fullPath[MAX_PATH * 2];
+	zend_bool style_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sssl", &pwboParent, &title, &title_len, &filter, &filter_len, &path, &path_len, &style) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 5)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(title, title_len)
-		Z_PARAM_STRING(filter, filter_len)
-		Z_PARAM_STRING(path, path_len)
-		Z_PARAM_LONG(style)
+		Z_PARAM_STRING_OR_NULL(title, title_len)
+		Z_PARAM_STRING_OR_NULL(filter, filter_len)
+		Z_PARAM_STRING_OR_NULL(path, path_len)
+		Z_PARAM_LONG_OR_NULL(style, style_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -103,11 +104,11 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(title,title_len)
-		Z_PARAM_STRING(filter,filter_len)
-		Z_PARAM_STRING(path,path_len)
-		Z_PARAM_STRING(file, file_len)
-		Z_PARAM_STRING(defext, defext_len)
+		Z_PARAM_STRING_OR_NULL(title,title_len)
+		Z_PARAM_STRING_OR_NULL(filter,filter_len)
+		Z_PARAM_STRING_OR_NULL(path,path_len)
+		Z_PARAM_STRING_OR_NULL(file, file_len)
+		Z_PARAM_STRING_OR_NULL(defext, defext_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -155,8 +156,8 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(title,title_len)
-		Z_PARAM_STRING(path,path_len)
+		Z_PARAM_STRING_OR_NULL(title,title_len)
+		Z_PARAM_STRING_OR_NULL(path,path_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -183,15 +184,15 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	zend_long color = NOCOLOR;
 	char *title = "";
 	int title_len = 0;
-
 	TCHAR *szTitle = 0;
-
+	zend_bool color_isnull;
+	
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwboParent)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(title, title_len)
-		Z_PARAM_LONG(color)
+		Z_PARAM_STRING_OR_NULL(title, title_len)
+		Z_PARAM_LONG_OR_NULL(color, color_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
@@ -208,17 +209,19 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *name = "";
 	int height = 0, color = 0, flags = 0;
 	int title_len = 0, name_len = 0;
-	int font;
+	int font = 0;
+	zend_bool pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
+
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(1, 3)
+	ZEND_PARSE_PARAMETERS_START(0, 6)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(pwbparent)
-		Z_PARAM_STRING(title, title_len)
-		Z_PARAM_STRING(name,name_len)
-		Z_PARAM_LONG(height)
-		Z_PARAM_LONG(color)
-		Z_PARAM_LONG(flags)
+		Z_PARAM_LONG_OR_NULL(pwbparent, pwbparent_isnull)
+		Z_PARAM_STRING_OR_NULL(title, title_len)
+		Z_PARAM_STRING_OR_NULL(name,name_len)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+		Z_PARAM_LONG_OR_NULL(color, color_isnull)
+		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbparent && !wbIsWBObj((void *)pwbparent, TRUE)){
@@ -230,7 +233,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		(LONG)wbSysDlgFont(
 			(PWBOBJ)pwbparent,
 			 (LPTSTR)title,
-			  (PFONT)wbGetFont(font)
+			  0
 			  )
 		);
 }
