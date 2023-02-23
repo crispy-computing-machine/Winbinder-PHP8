@@ -160,7 +160,7 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 	bi.pidlRoot = 0;
 	bi.pszDisplayName = pszSelPath;
 	bi.lpszTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
-	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE; // BIF_NEWDIALOGSTYLE 
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE; // BIF_NEWDIALOGSTYLE (new folder, status, label etc)
 	bi.lpfn = BrowseCallbackProc;
 	bi.lParam = 0;
 	bi.iImage = 0;
