@@ -569,6 +569,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	// Window
 	WB_ZEND_CONST(LONG, "WM_SETTEXT",			WM_SETTEXT);
 
+	// @see https://github.com/lxn/win
+
 	return SUCCESS;
 }
 
