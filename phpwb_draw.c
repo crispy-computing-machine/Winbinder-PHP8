@@ -45,7 +45,7 @@ ZEND_FUNCTION(wb_get_pixel)
 		zend_long x, y;
 		unsigned char *pixdata;
 		size_t pixdata_len;
-		BOOL compress4to3 = FALSE;
+		zend_bool compress4to3 = FALSE;
 
 		// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "slll", &pixdata, &pixdata_len, &x, &y, &compress4to3) == FAILURE)
 		// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
