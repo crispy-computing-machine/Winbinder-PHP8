@@ -208,7 +208,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	LONG_PTR pwbparent = (LONG_PTR)NULL;
 	char *title = "";
 	char *name = "";
-	int height = 0, color = 0, flags = 0;
+	__int64 height = 0, color = 0, flags = 0;
 	size_t title_len = 0, name_len = 0;
 	int font = 0;
 	zend_bool pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
