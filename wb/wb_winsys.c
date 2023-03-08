@@ -354,7 +354,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		// Must NOT use the value returned from from SetCursor()
 		return (hCursor != 0);
 	}
-	else if (wbIsValidClass((UINT)pwbo))
+	else if (wbIsValidClass((UINT64)pwbo))
 	{
 
 		// Stores class ((UINT)pwbo) mouse cursor in array hClassCursor
@@ -366,7 +366,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		else // Cursor name
 			hCursor = GetSysCursor(pszCursor);
 
-		hClassCursor[(UINT)pwbo] = hCursor;
+		hClassCursor[(UINT64)pwbo] = hCursor;
 		return TRUE;
 	}
 	else
