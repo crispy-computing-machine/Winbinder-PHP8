@@ -70,7 +70,7 @@ extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
-					   int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, LONG_PTR lParam, int nTab)
+					   int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWBStyle, LONG_PTR lParam, int nTab)
 {
 	PWBOBJ pwbo;
 	LPTSTR pszClass;

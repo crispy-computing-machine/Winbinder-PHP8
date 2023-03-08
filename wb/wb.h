@@ -447,7 +447,7 @@ COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bComp
 
 // WB_CONTROL.C
 
-PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWinBinderStyle, LONG_PTR lParam, int nTab);
+PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWinBinderStyle, LONG_PTR lParam, int nTab);
 BOOL wbDestroyControl(PWBOBJ pwbo);
 PWBOBJ wbGetControl(PWBOBJ pwboParent, int id);
 BOOL wbCreateItem(PWBOBJ pwbo, LPCTSTR pszItemText);
