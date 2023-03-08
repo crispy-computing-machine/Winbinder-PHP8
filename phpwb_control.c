@@ -90,7 +90,7 @@ ZEND_FUNCTION(wb_create_control)
 	}
 
 	// Convert line breaks for the caption and tooltip
-	RETURN_LONG((LONG)wbCreateControl((PWBOBJ)pwboparent, wbclass, wcsCaption, wcsTooltip, x, y, w, h, id, style, param, ntab));
+	RETURN_LONG((LONG_PTR)wbCreateControl((PWBOBJ)pwboparent, wbclass, wcsCaption, wcsTooltip, x, y, w, h, id, style, param, ntab));
 }
 
 ZEND_FUNCTION(wb_destroy_control)
@@ -236,22 +236,22 @@ ZEND_FUNCTION(wb_get_parent)
 	{
 		if (item)
 		{
-			RETURN_LONG((LONG)wbGetTreeViewItemParent((PWBOBJ)pwbo, (HTREEITEM)item));
+			RETURN_LONG((LONG_PTR)wbGetTreeViewItemParent((PWBOBJ)pwbo, (HTREEITEM)item));
 		}
 		else
 		{
-			RETURN_LONG((LONG)((PWBOBJ)pwbo)->parent);
+			RETURN_LONG((LONG_PTR)((PWBOBJ)pwbo)->parent);
 		}
 	}
 	else
 	{
-		RETURN_LONG((LONG)((PWBOBJ)pwbo)->parent);
+		RETURN_LONG((LONG_PTR)((PWBOBJ)pwbo)->parent);
 	}
 }
 
 ZEND_FUNCTION(wb_get_focus){
 	
-	RETURN_LONG((LONG)wbGetFocus());
+	RETURN_LONG((LONG_PTR)wbGetFocus());
 
 }
 
@@ -436,7 +436,7 @@ ZEND_FUNCTION(wb_get_selected)
 	else if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // TreeView: returns the handle of the selected node
 
-		RETURN_LONG((LONG)wbGetTreeViewItemSelected((PWBOBJ)pwbo));
+		RETURN_LONG((LONG_PTR)wbGetTreeViewItemSelected((PWBOBJ)pwbo));
 	}
 	else{
 
@@ -604,7 +604,7 @@ ZEND_FUNCTION(wb_get_control)
 	if (!wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL();
 	}else{
-		RETURN_LONG((LONG)wbGetControl((PWBOBJ)pwboparent, id));
+		RETURN_LONG((LONG_PTR)wbGetControl((PWBOBJ)pwboparent, id));
 	}
 }
 
@@ -918,7 +918,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		int nParts = 0;
 		int aWidths[255];
 		LPTSTR pszCaption;
-		LONG nWidth;
+		LONG_PTR nWidth;
 
 		// Count array elements
 		while ((zitem = process_array(zitems)) != NULL)
@@ -1044,7 +1044,7 @@ ZEND_FUNCTION(wb_set_text)
 /*
 ZEND_FUNCTION(wb_set_text)
 {
-	LONG pwbo, item = 0;
+	LONG_PTR pwbo, item = 0;
 	BOOL ret = TRUE;
     zval *zcaption;
 	char *caption = "";

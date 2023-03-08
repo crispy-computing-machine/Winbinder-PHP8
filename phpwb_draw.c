@@ -234,7 +234,7 @@ ZEND_FUNCTION(wb_draw_image)
 	// 	Z_PARAM_LONG(cy)
 	// ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_BOOL((LONG)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
+	RETURN_BOOL((LONG_PTR)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
 }
 
 //------------------------------------------------------------------ END OF FILE

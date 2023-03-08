@@ -128,7 +128,7 @@ ZEND_FUNCTION(wb_create_listview_column)
 ZEND_FUNCTION(wb_get_listview_column_widths)
 {
 	int i, cols;
-	long pwbo;
+	LONG_PTR pwbo;
 	int pwidths[MAX_LISTVIEWCOLS];
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
@@ -150,7 +150,7 @@ ZEND_FUNCTION(wb_get_listview_column_widths)
 /*ZEND_FUNCTION(wb_set_listview_column_widths)
 {
 	int i, nelem;
-	long pwbo;
+	LONG_PTR pwbo;
 	int pwidths[MAX_LISTVIEWCOLS];
 	zval *array, *entry;
 	HashTable *target_hash;
@@ -220,7 +220,7 @@ ZEND_FUNCTION(wb_get_listview_columns)
 /*
 ZEND_FUNCTION(wb_set_listview_item_image)
 {
-	long pwbo, nitem, ncol, nimage;
+	LONG_PTR pwbo, nitem, ncol, nimage;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "llll", &pwbo, &nitem, &ncol, &nimage) == FAILURE)

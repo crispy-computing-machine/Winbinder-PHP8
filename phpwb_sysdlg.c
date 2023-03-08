@@ -19,7 +19,7 @@
 
 ZEND_FUNCTION(wb_sys_dlg_open)
 {
-	zend_long pwboParent = (long)NULL;
+	zend_long pwboParent = (LONG_PTR)NULL;
 	char *title = "", *filter = "", *path = "";
 	size_t title_len = 0, filter_len = 0, path_len = 0;
 	int fileCount = 0;
@@ -91,7 +91,7 @@ ZEND_FUNCTION(wb_sys_dlg_open)
 
 ZEND_FUNCTION(wb_sys_dlg_save)
 {
-	zend_long pwboParent = (long)NULL;
+	zend_long pwboParent = (LONG_PTR)NULL;
 	char *title = "", *filter = "", *path = "", *file = "", *defext = "";
 	size_t title_len = 0, filter_len = 0, path_len = 0, file_len = 0, defext_len = 0;
 	TCHAR szFile[MAX_PATH] = TEXT("");
@@ -143,7 +143,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 
 ZEND_FUNCTION(wb_sys_dlg_path)
 {
-	zend_long pwboParent = (long)NULL;
+	zend_long pwboParent = (LONG_PTR)NULL;
 	char *title = "", *path = "";
 	size_t title_len = 0, path_len = 0;
 	TCHAR szSelPath[MAX_PATH] = TEXT("");
@@ -181,7 +181,7 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 
 ZEND_FUNCTION(wb_sys_dlg_color)
 {
-	zend_long pwboParent = (long)NULL;
+	zend_long pwboParent = (LONG_PTR)NULL;
 	zend_long color = NOCOLOR;
 	char *title = "";
 	size_t title_len = 0;
@@ -205,7 +205,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 
 ZEND_FUNCTION(wb_sys_dlg_font)
 {
-	long pwbparent = (long)NULL;
+	LONG_PTR pwbparent = (LONG_PTR)NULL;
 	char *title = "";
 	char *name = "";
 	int height = 0, color = 0, flags = 0;
@@ -231,7 +231,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 
 	font = wbCreateFont((LPCTSTR)name, height, color, flags);
 	RETURN_LONG(
-		(LONG)wbSysDlgFont(
+		(LONG_PTR)wbSysDlgFont(
 			(PWBOBJ)pwbparent,
 			 (LPTSTR)title,
 			  0

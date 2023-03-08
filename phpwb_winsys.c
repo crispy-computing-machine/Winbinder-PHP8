@@ -153,7 +153,7 @@ ZEND_FUNCTION(wb_set_cursor)
 ZEND_FUNCTION(wb_load_media)
 {
 	int filename_len;
-	LONG flags;
+	LONG_PTR flags;
 	char *filename;
     BOOL bRet;
 
@@ -339,7 +339,7 @@ ZEND_FUNCTION(wb_get_system_info)
 	char *s;
 	size_t s_len;
 	BOOL isstr;
-	LONG res;
+	LONG_PTR res;
 	char strval[1024];
 
 	TCHAR szVal[1024];
