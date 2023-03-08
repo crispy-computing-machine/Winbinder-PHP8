@@ -185,7 +185,7 @@ ZEND_FUNCTION(wb_destroy_media)
 
 ZEND_FUNCTION(wb_play_sound)
 {
-	int cmd_len;
+	size_t cmd_len;
 	char *cmd = "";
 	zval *source;
 
@@ -247,7 +247,7 @@ ZEND_FUNCTION(wb_play_sound)
 
 ZEND_FUNCTION(wb_stop_sound)
 {
-	int cmd_len;
+	size_t cmd_len;
 	char *cmd = "";
 
 	TCHAR *wcs = 0;
@@ -266,7 +266,8 @@ ZEND_FUNCTION(wb_message_box)
 {
 	char *msg, *title = NULL;
 	zend_long pwbo, style = 0;
-	int msg_len, title_len = 0, ret;
+	size_t msg_len, title_len = 0;
+	int ret;
 
 	TCHAR *szMsg = 0;
 	TCHAR *szTitle = 0;
@@ -314,7 +315,7 @@ ZEND_FUNCTION(wb_message_box)
 ZEND_FUNCTION(wb_exec)
 {
 	char *pgm, *parm = NULL;
-	int pgm_len, parm_len = 0;
+	size_t pgm_len, parm_len = 0;
 	zend_bool show = TRUE;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
@@ -336,7 +337,7 @@ ZEND_FUNCTION(wb_exec)
 ZEND_FUNCTION(wb_get_system_info)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	BOOL isstr;
 	LONG res;
 	char strval[1024];
@@ -406,7 +407,7 @@ return the complete path to it. If not, return filename.
 ZEND_FUNCTION(wb_find_file)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	char path[MAX_PATH * 4];
 
 	TCHAR *szPath = 0;
@@ -432,7 +433,7 @@ NOTE: maximum string is 1024 characters
 ZEND_FUNCTION(wb_get_registry_key)
 {
 	char *key, *subkey, *entry = NULL;
-	int key_len, subkey_len, entry_len;
+	size_t key_len, subkey_len, entry_len;
 	int buflen = 1024;
 	char sval[1024];
 	TCHAR szVal[1024];
@@ -475,7 +476,7 @@ ZEND_FUNCTION(wb_get_registry_key)
 ZEND_FUNCTION(wb_set_registry_key)
 {
 	char *key, *subkey, *entry;
-	int key_len, subkey_len, entry_len;
+	size_t key_len, subkey_len, entry_len;
 	zval *source = NULL;
 
 	TCHAR *szKey = 0;
@@ -620,7 +621,7 @@ ZEND_FUNCTION(wb_get_clipboard)
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
-	SIZE_T blen;
+	size_t blen;
 
 	BOOL success = FALSE;
 

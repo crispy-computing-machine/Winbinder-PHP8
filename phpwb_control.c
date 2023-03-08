@@ -773,7 +773,7 @@ ZEND_FUNCTION(wb_sort)
 ZEND_FUNCTION(wb_set_location)
 {
 	char *location;
-	zend_long location_len;
+	size_t location_len;
 	zend_long pwbo;
 
 	TCHAR *wcs = 0;
@@ -864,7 +864,7 @@ ZEND_FUNCTION(wb_set_range)
 ZEND_FUNCTION(wb_create_item)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	zend_long pwbo, param = 0;
 	TCHAR *wcs = 0;
 	zend_bool param_isnull;

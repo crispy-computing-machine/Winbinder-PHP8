@@ -21,7 +21,8 @@ ZEND_FUNCTION(wb_sys_dlg_open)
 {
 	zend_long pwboParent = (long)NULL;
 	char *title = "", *filter = "", *path = "";
-	int title_len = 0, filter_len = 0, path_len = 0, fileCount = 0;
+	size_t title_len = 0, filter_len = 0, path_len = 0;
+	int fileCount = 0;
 	zend_long style;
 	TCHAR szFile[MAX_PATH_BUFFER] = {0};
 	TCHAR szDir[MAX_PATH] = {0};
@@ -92,7 +93,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 {
 	zend_long pwboParent = (long)NULL;
 	char *title = "", *filter = "", *path = "", *file = "", *defext = "";
-	int title_len = 0, filter_len = 0, path_len = 0, file_len = 0, defext_len = 0;
+	size_t title_len = 0, filter_len = 0, path_len = 0, file_len = 0, defext_len = 0;
 	TCHAR szFile[MAX_PATH] = TEXT("");
 	TCHAR *szDefExt = 0;
 
@@ -144,7 +145,7 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 {
 	zend_long pwboParent = (long)NULL;
 	char *title = "", *path = "";
-	int title_len = 0, path_len = 0;
+	size_t title_len = 0, path_len = 0;
 	TCHAR szSelPath[MAX_PATH] = TEXT("");
 
 	TCHAR *szTitle = 0;
@@ -183,7 +184,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	zend_long pwboParent = (long)NULL;
 	zend_long color = NOCOLOR;
 	char *title = "";
-	int title_len = 0;
+	size_t title_len = 0;
 	TCHAR *szTitle = 0;
 	zend_bool color_isnull;
 	
@@ -208,7 +209,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *title = "";
 	char *name = "";
 	int height = 0, color = 0, flags = 0;
-	int title_len = 0, name_len = 0;
+	size_t title_len = 0, name_len = 0;
 	int font = 0;
 	zend_bool pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
 

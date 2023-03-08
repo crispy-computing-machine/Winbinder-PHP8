@@ -21,7 +21,7 @@ ZEND_FUNCTION(wb_create_font)
 {
 	zend_long height = 10, color = 0x000000, flags = 0;
 	char *name;
-	int name_len;
+	size_t name_len;
 	TCHAR *wcs = 0;
 	zend_bool color_isnull;
 	zend_bool flags_isnull;

@@ -17,7 +17,8 @@
 
 ZEND_FUNCTION(wb_create_toolbar)
 {
-	zend_long i, nelem, s_len = 0;
+	zend_long i, nelem; 
+	size_t s_len = 0;
 	zval *zarray = NULL, *entry = NULL;
 	HashTable *target_hash;
 	HANDLE hImage = NULL;

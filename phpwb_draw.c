@@ -44,7 +44,7 @@ ZEND_FUNCTION(wb_get_pixel)
 
 		zend_long x, y;
 		unsigned char *pixdata;
-		int pixdata_len;
+		size_t pixdata_len;
 		BOOL compress4to3 = FALSE;
 
 		// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "slll", &pixdata, &pixdata_len, &x, &y, &compress4to3) == FAILURE)
@@ -155,7 +155,7 @@ ZEND_FUNCTION(wb_draw_text)
 {
 	zend_long handle, x, y, width = 0, height = 0, nfont = -1, flags = 0;
 	char *text;
-	int text_len;
+	size_t text_len;
 	int nargs;
 	TCHAR *wcs = 0;
 	nargs = ZEND_NUM_ARGS();

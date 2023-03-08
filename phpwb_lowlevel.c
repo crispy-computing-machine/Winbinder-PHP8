@@ -94,7 +94,7 @@ ZEND_FUNCTION(wb_poke)
 {
 	zend_long address, bytes = 0;
 	char *contents;
-	int contents_len;
+	size_t contents_len;
 	void *ptr;
 	zend_bool bytes_isnull;
 
@@ -193,7 +193,7 @@ ZEND_FUNCTION(wb_get_address)
 ZEND_FUNCTION(wb_load_library)
 {
 	char *lib;
-	int lib_len;
+	size_t lib_len;
 	LONG hlib;
 
 	// low level functions disabled?
@@ -252,7 +252,7 @@ ZEND_FUNCTION(wb_release_library)
 ZEND_FUNCTION(wb_get_function_address)
 {
 	char *fun;
-	int fun_len;
+	size_t fun_len;
 	zend_long addr, hlib = (LONG)NULL;
 	zend_bool hlib_isnull;
 

@@ -9,6 +9,10 @@
 
 *******************************************************************************/
 
+// 64Bit
+// @see: https://pvs-studio.com/fr/blog/posts/cpp/a0042/
+// @see: https://docs.oracle.com/cd/E19205-01/819-5265/bjami/index.html
+
 #ifndef _PHP_WB_H
 #define _PHP_WB_H
 

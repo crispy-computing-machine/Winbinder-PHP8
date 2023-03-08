@@ -102,7 +102,7 @@ ZEND_FUNCTION(wb_destroy_window)
 ZEND_FUNCTION(wb_get_instance)
 {
 	char *caption = "";
-	zend_long caption_len = 0;
+	size_t caption_len = 0;
 	BOOL bringtofront = FALSE;
 	TCHAR *szCaption = 0;
 	zend_bool bringtofront_isnull;

@@ -73,7 +73,7 @@ ZEND_FUNCTION(wb_set_treeview_item_text)
 {
 	zend_long pwbo, item;
 	char *s;
-	int s_len;
+	size_t s_len;
 
 	TCHAR *wcs = 0;
 
@@ -168,7 +168,7 @@ ZEND_FUNCTION(wb_create_treeview_item)
 {
 	zend_long pwbo, where = 0, img1 = -1, img2 = -1, insertiontype = 0, lparam = 0;
 	char *str;
-	int str_len;
+	size_t str_len;
 	zval *zparam;
 	BOOL setlparam = FALSE;
 	TCHAR *wcs = 0;

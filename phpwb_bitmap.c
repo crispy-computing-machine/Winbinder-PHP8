@@ -24,7 +24,7 @@ ZEND wrapper for bitmap functions
 ZEND_FUNCTION(wb_load_image)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	zend_long index;
 	zend_long param = 0;
 	zend_bool index_isnull;
@@ -56,7 +56,7 @@ ZEND_FUNCTION(wb_save_image)
 {
 	zend_long hbm;
 	char *s;
-	int s_len;
+	size_t s_len;
 
 	TCHAR *wcs = 0;
 	BOOL ret;

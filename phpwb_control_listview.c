@@ -23,7 +23,8 @@ ZEND_FUNCTION(wb_create_listview_item)
 {
 	zend_long pwbo, nitem, nimage;
 	char *s;
-	int s_len, newitem;
+	size_t s_len;
+	int newitem;
 
 	TCHAR *wcs = 0;
 
@@ -57,7 +58,7 @@ ZEND_FUNCTION(wb_set_listview_item_text)
 {
 	zend_long pwbo, item, sub;
 	char *s;
-	int s_len;
+	size_t s_len;
 	TCHAR *wcs = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llls", &pwbo, &item, &sub, &s, &s_len) == FAILURE)
@@ -101,7 +102,7 @@ ZEND_FUNCTION(wb_create_listview_column)
 {
 	zend_long pwbo, ncol, w = 0, align = 0;
 	char *s;
-	int s_len;
+	size_t s_len;
 
 	TCHAR *wcs = 0;
 
