@@ -810,7 +810,7 @@ ZEND_FUNCTION(wb_is_mouse_over)
 	if(GetCursorPos(&pt)){
 
 		// Check if its within the rect
-		RETURN_BOOL(PtInRect(&controlrc, &pt));
+		RETURN_BOOL(PtInRect(&controlrc, pt));
 
 	}
 
