@@ -315,8 +315,8 @@ enum
 
 typedef struct
 { // ar
-	LONG width;
-	LONG height;
+	LONG_PTR width;
+	LONG_PTR height;
 } AREA;
 
 // WinBinder object (window, control, or menu), stored with SetWindowLong() / GWL_USERDATA
@@ -333,7 +333,7 @@ typedef struct _wbo
 	LPTSTR pszCallBackFn;   // Callback function
 	LPDWORD pszCallBackObj; // Object for callback method
 	LPARAM lparam;			// User-defined parameter
-	LONG lparams[8];		// General-purpose parameter array
+	LONG_PTR lparams[8];		// General-purpose parameter array
 	RECT rcTitle;			// Title area
 	AREA arMin;				// Minimum window area
 	AREA arMax;				// Maximum window area
@@ -447,7 +447,7 @@ COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bComp
 
 // WB_CONTROL.C
 
-PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWinBinderStyle, long lParam, int nTab);
+PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWinBinderStyle, LONG_PTR lParam, int nTab);
 BOOL wbDestroyControl(PWBOBJ pwbo);
 PWBOBJ wbGetControl(PWBOBJ pwboParent, int id);
 BOOL wbCreateItem(PWBOBJ pwbo, LPCTSTR pszItemText);
@@ -457,7 +457,7 @@ PWBOBJ wbGetFocus(void);
 BOOL wbSetFocus(PWBOBJ pwbo);
 DWORD wbGetValue(PWBOBJ pwbo);
 BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue);
-BOOL wbSetRange(PWBOBJ pwbo, LONG dwMin, LONG dwMax);
+BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR dwMin, LONG_PTR dwMax);
 BOOL wbGetVisible(PWBOBJ pwbo);
 BOOL wbSetVisible(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet);
@@ -577,7 +577,7 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
 
 // WB_WINDOW.C
 
-PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, long lParam);
+PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, LONG_PTR lParam);
 BOOL wbDestroyWindow(PWBOBJ pwbo);
 BOOL wbSetWindowHandler(PWBOBJ pwbo, LPDWORD pszObj, LPCTSTR pszHandler);
 BOOL wbSetWindowSize(PWBOBJ pwbo, int nWidth, int nHeight, int nShowMode);
