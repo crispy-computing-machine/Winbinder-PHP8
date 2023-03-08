@@ -98,7 +98,7 @@ ZEND_FUNCTION(wb_get_treeview_item_text)
 	TCHAR szItem[MAX_ITEM_STRING];
 
 	char *str = 0;
-	int str_len = 0;
+	__int64 str_len = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ll", &pwbo, &item) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.

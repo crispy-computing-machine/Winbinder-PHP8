@@ -93,7 +93,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	char *pszFName;
 	char *pszOName;
 	zend_string *funName;
-	int name_len = 0;
+	__int64 name_len = 0;
 
 	if (pszObject == NULL)
 	{

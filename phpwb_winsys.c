@@ -669,7 +669,7 @@ ZEND_FUNCTION(wb_set_clipboard)
 {
 	char *clip;
 	WCHAR *wclip;
-	int size;
+	size_t size;
 	BOOL success = FALSE;
 
 	HGLOBAL hdata;

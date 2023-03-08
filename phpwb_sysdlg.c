@@ -28,7 +28,7 @@ ZEND_FUNCTION(wb_sys_dlg_open)
 	TCHAR szDir[MAX_PATH] = {0};
 
 	char *file = 0;
-	int file_len = 0;
+	__int64 file_len = 0;
 
 	TCHAR *szTitle = 0;
 	TCHAR *szFilter = 0;
@@ -151,7 +151,7 @@ ZEND_FUNCTION(wb_sys_dlg_path)
 	TCHAR *szTitle = 0;
 	TCHAR *szPath = 0;
 	char *selPath = 0;
-	int sel_len = 0;
+	__int64 sel_len = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ss", &pwboParent, &title, &title_len, &path, &path_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
