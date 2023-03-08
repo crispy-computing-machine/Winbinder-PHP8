@@ -132,7 +132,7 @@ ZEND_FUNCTION(wb_poke)
 
 	if (IsBadWritePtr(ptr, bytes))
 	{
-		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (int)ptr);
+		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (__int64)ptr);
 		RETURN_BOOL(FALSE);
 	}
 
