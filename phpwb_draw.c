@@ -53,7 +53,7 @@ ZEND_FUNCTION(wb_get_pixel)
 			Z_PARAM_STRING(pixdata,pixdata_len)
 			Z_PARAM_LONG(x)
 			Z_PARAM_LONG(y)
-			Z_PARAM_LONG(compress4to3)
+			Z_PARAM_BOOL(compress4to3)
 		ZEND_PARSE_PARAMETERS_END();
 
 		RETURN_LONG(wbGetPixelDirect(pixdata, x, y, compress4to3));
@@ -203,7 +203,7 @@ ZEND_FUNCTION(wb_draw_text)
 ZEND_FUNCTION(wb_draw_image)
 {
 	zend_long handle, hbm, x = 0, y = 0, w = 0, h = 0, cx = 0, cy = 0;
-	COLORREF transpcolor = NOCOLOR;
+	zend_long transpcolor = NOCOLOR;
 	zend_bool transpcolor_isnull;
 	zend_bool x_isnull, y_isnull, w_isnull, h_isnull, cx_isnull, cy_isnull;
 
@@ -234,7 +234,7 @@ ZEND_FUNCTION(wb_draw_image)
 	// 	Z_PARAM_LONG(cy)
 	// ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_BOOL((LONG_PTR)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, transpcolor));
+	RETURN_BOOL((LONG_PTR)wbDrawBitmap((HANDLE)handle, (HBITMAP)hbm, x, y, w, h, cx, cy, (COLORREF)transpcolor));
 }
 
 //------------------------------------------------------------------ END OF FILE
