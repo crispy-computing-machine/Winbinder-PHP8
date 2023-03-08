@@ -801,16 +801,16 @@ ZEND_FUNCTION(wb_is_mouse_over)
 		LONG bottom;
 	} RECT, *PRECT, *NPRECT, *LPRECT;
      */
-	controlrc.left = left;
-	controlrc.top = top;
-	controlrc.right = right;
-	controlrc.bottom = bottom;
+	controlrc.left = left; // Specifies the x-coordinate of the upper-left corner of the rectangle.
+	controlrc.top = top; // Specifies the x-coordinate of the upper-left corner of the rectangle.
+	controlrc.right = right; // Specifies the x-coordinate of the lower-right corner of the rectangle.
+	controlrc.bottom = bottom; // Specifies the y-coordinate of the lower-right corner of the rectangle.
 
 	// Get current cursor pos
 	if(GetCursorPos(&pt)){
 
 		// Check if its within the rect
-		RETURN_BOOL(PtInRect(&controlrc, pt));
+		RETURN_BOOL(PtInRect(&controlrc, &pt));
 
 	}
 

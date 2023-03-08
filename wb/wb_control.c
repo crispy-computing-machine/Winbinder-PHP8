@@ -1363,7 +1363,7 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 		if (bSet)
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
-				SendMessage(pwbo->hwnd, TBM_SETTICFREQ, 10, 1);
+				SendMessage(pwbo->hwnd, TBM_SETTICFREQ, 1, 0);
 		}
 		else
 		{
