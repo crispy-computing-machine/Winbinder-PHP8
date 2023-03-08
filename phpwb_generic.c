@@ -267,7 +267,7 @@ char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen)
 	return str;
 }
 
-char *WideChar2Utf8(LPCTSTR wcs, int *plen)
+char *WideChar2Utf8(LPCTSTR wcs, __int64 *plen)
 {
 	char *str = 0;
 	int str_len = 0;
