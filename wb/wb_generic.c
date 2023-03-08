@@ -77,7 +77,7 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 PWBOBJ wbGetWBObj(HANDLE hwnd)
 {
 	if (IsWindow(hwnd))
-		return (PWBOBJ)GetWindowLong((HWND)hwnd, GWLP_USERDATA);
+		return (PWBOBJ)GetWindowLongPtr((HWND)hwnd, GWLP_USERDATA);
 	else
 		return NULL;
 }

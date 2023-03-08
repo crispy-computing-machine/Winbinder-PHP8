@@ -365,7 +365,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 	case StatusBar:
 		pszClass = STATUSCLASSNAME;
-		if (BITTEST(GetWindowLong(pwboParent->hwnd, GWL_STYLE), WS_THICKFRAME))
+		if (BITTEST(GetWindowLongPtr(pwboParent->hwnd, GWL_STYLE), WS_THICKFRAME))
 			dwStyle = WS_CHILD | CCS_BOTTOM | CCS_NOMOVEY | SBARS_SIZEGRIP | nVisible;
 		else
 			dwStyle = WS_CHILD | CCS_BOTTOM | CCS_NOMOVEY | nVisible;
@@ -440,7 +440,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case EditBox: // Subclasses edit box to process keyboard messages
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
-		lpfnEditProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)EditBoxProc);
+		lpfnEditProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)EditBoxProc);
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
@@ -448,7 +448,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		//			// Subclasses tab control to process WM_COMMAND
-		//			lpfnTabProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)TabProc);
+		//			lpfnTabProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)TabProc);
 		CreateToolTip(pwbo, pszTooltip);
 		wbSetTabControlText(pwbo, pszCaption);
 
@@ -462,12 +462,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		if (!wcsicmp(pszClass, TEXT("BUTTON"))) // Only for group boxes!
-			lpfnFrameProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)FrameProc);
+			lpfnFrameProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)FrameProc);
 		break;
 
 	case InvisibleArea: // Subclasses InvisibleArea to process WM_MOUSEMOVE
 		CreateToolTip(pwbo, pszTooltip);
-		lpfnInvisibleProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)InvisibleProc);
+		lpfnInvisibleProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)InvisibleProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		break;
 
@@ -522,7 +522,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case HyperLink:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)HyperLinkProc);
+		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)HyperLinkProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -530,7 +530,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case Label:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnLabelProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)LabelProc);
+		lpfnLabelProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)LabelProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -561,7 +561,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	if (pwboParent->uClass == TabControl)
 		RegisterControlInTab(pwboParent, pwbo, id, nTab);
 
-	SetWindowLong(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
+	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
 
 	return pwbo;
 }
@@ -664,7 +664,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 
 				if (IsWindow(hCtrl))
 				{
-					pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWLP_USERDATA);
+					pwbo = (PWBOBJ)GetWindowLongPtr(hCtrl, GWLP_USERDATA);
 				}
 				else
 				{
@@ -706,7 +706,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 
 							if (IsWindow(hCtrl))
 							{
-								pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWLP_USERDATA);
+								pwbo = (PWBOBJ)GetWindowLongPtr(hCtrl, GWLP_USERDATA);
 							}
 							else
 							{
@@ -1347,13 +1347,13 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 		if (bSet)
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
-				SetWindowLong(pwbo->hwnd, GWL_STYLE, GetWindowLong(pwbo->hwnd, GWL_STYLE) | (TVS_HASLINES));
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) | (TVS_HASLINES));
 		}
 		else
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
 			{
-				SetWindowLong(pwbo->hwnd, GWL_STYLE, GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(TVS_HASLINES));
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(TVS_HASLINES));
 			}
 		}
 		break;
@@ -1569,17 +1569,17 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 
 	case PushButton:
 
-		lStyle = GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(BS_ICON | BS_BITMAP);
+		lStyle = GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(BS_ICON | BS_BITMAP);
 		bRet = TRUE;
 		if (IsIcon(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | BS_ICON);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | BS_ICON);
 			SendMessage(pwbo->hwnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hImage);
 			break;
 		}
 		else if (IsBitmap(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | BS_BITMAP);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | BS_BITMAP);
 			bRet = SetTransparentBitmap(pwbo->hwnd, (HBITMAP)hImage, FALSE, clTransp);
 			break;
 		}
@@ -1608,18 +1608,18 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 
 	case Frame:
 
-		lStyle = GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(SS_ICON | SS_BITMAP);
+		lStyle = GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(SS_ICON | SS_BITMAP);
 		bRet = TRUE;
 		if (IsIcon(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | SS_ICON);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | SS_ICON);
 			SendMessage(pwbo->hwnd, STM_SETIMAGE, IMAGE_ICON, (LPARAM)hImage);
 			InvalidateRect(pwbo->hwnd, NULL, FALSE);
 			break;
 		}
 		else if (IsBitmap(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | SS_BITMAP);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | SS_BITMAP);
 			SetTransparentBitmap(pwbo->hwnd, (HBITMAP)hImage, TRUE, clTransp);
 			InvalidateRect(pwbo->hwnd, NULL, FALSE);
 			break;
