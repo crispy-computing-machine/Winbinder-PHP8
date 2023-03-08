@@ -84,7 +84,7 @@ ZEND_FUNCTION(wb_peek)
 			RETURN_STRINGL(ptr, bytes);
 		}
 	}
-	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
+	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (__int64)ptr);
 	RETURN_NULL();
 }
 
