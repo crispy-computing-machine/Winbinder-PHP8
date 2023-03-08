@@ -58,7 +58,6 @@ ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
 ZEND_FUNCTION(wb_empty_clipboard);
 ZEND_FUNCTION(wb_get_mouse_pos);
-ZEND_FUNCTION(wb_is_mouse_over);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -208,7 +207,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_clipboard,arginfo_wb_set_clipboard)
         ZEND_FE(wb_empty_clipboard,arginfo_wb_empty_clipboard)
         ZEND_FE(wb_get_mouse_pos,arginfo_wb_get_mouse_pos)
-        ZEND_FE(wb_is_mouse_over,arginfo_wb_is_mouse_over)
 
         // PHPWB_BITMAP.C
         ZEND_FE(wb_load_image,arginfo_wb_load_image)
