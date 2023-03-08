@@ -103,7 +103,7 @@ ZEND_FUNCTION(wb_get_instance)
 {
 	char *caption = "";
 	size_t caption_len = 0;
-	BOOL bringtofront = FALSE;
+	zend_bool bringtofront = FALSE;
 	TCHAR *szCaption = 0;
 	zend_bool bringtofront_isnull;
 
@@ -111,7 +111,7 @@ ZEND_FUNCTION(wb_get_instance)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(caption, caption_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(bringtofront, bringtofront_isnull)
+		Z_PARAM_BOOL_OR_NULL(bringtofront, bringtofront_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// This function could return the window handler instead of a BOOL,

@@ -66,7 +66,7 @@ LPTSTR MakeWinPath(LPTSTR pszPath);
 // External
 
 extern BOOL RegisterClasses(void);
-extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
+extern char *WideChar2Utf8(LPCTSTR wcs, __int64 *len);
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
