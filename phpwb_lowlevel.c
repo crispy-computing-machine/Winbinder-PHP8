@@ -214,7 +214,7 @@ ZEND_FUNCTION(wb_load_library)
 	//TCHAR *wcs = 0; // not sure if this is needed
 	//wcs = Utf82WideChar(lib, lib_len);
 	//printf("wb_load_library: After(wcs): %ls\n", wcs);
-	hlib = (LONG_PTR)wbLoadLibrary(lib);
+	hlib = (LONG_PTR)wbLoadLibrary(Utf82WideChar(lib, lib_len));
 	//hlib = (LONG_PTR)wbLoadLibrary(lib);
 	
 	printf("wb_load_library: After(lib): %hs\n", lib);
@@ -222,7 +222,7 @@ ZEND_FUNCTION(wb_load_library)
 		RETURN_LONG(hlib);
 	}else
 	{
-		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
+		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %ls"), lib);
 		RETURN_NULL();
 	}
 }
