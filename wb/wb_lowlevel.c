@@ -54,14 +54,17 @@ HMODULE wbLoadLibrary(LPCTSTR pszLibName)
 	if (!hLib)
 	{
 		wsprintf(szName, TEXT("%s32"), pszLibName);
+		printf("wbLoadLibrary: 1: %ls\n", pszLibName);
 		hLib = LoadLibrary(szName);
 		if (!hLib)
 		{
 			wsprintf(szName, TEXT("%s.exe"), pszLibName);
+			printf("wbLoadLibrary: 2: %ls\n", pszLibName);
 			hLib = LoadLibrary(szName);
 			if (!hLib)
 			{
 				wsprintf(szName, TEXT("%s32.exe"), pszLibName);
+				printf("wbLoadLibrary: 3: %ls\n", pszLibName);
 				hLib = LoadLibrary(szName);
 			}
 		}
