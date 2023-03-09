@@ -192,7 +192,7 @@ ZEND_FUNCTION(wb_get_address)
 
 ZEND_FUNCTION(wb_load_library)
 {
-	LPCTSTR *lib;
+	char *lib;
 	size_t lib_len;
 	LONG_PTR hlib;
 
@@ -203,14 +203,15 @@ ZEND_FUNCTION(wb_load_library)
 		return;
 	}
 
-	//TCHAR *wcs = 0; // not sure if this is needed
+	TCHAR *wcs = 0; // not sure if this is needed
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_STRING(lib,lib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	//hlib = (LONG_PTR)wbLoadLibrary(Utf82WideChar(lib, lib_len));
-	hlib = (LONG_PTR)wbLoadLibrary(lib);
+	wcs = Utf82WideChar(lib, lib_len)
+	hlib = (LONG_PTR)wbLoadLibrary(Utf82WideChar(wcs, lib_len));
+	//hlib = (LONG_PTR)wbLoadLibrary(lib);
 
 	if (hlib){
 		RETURN_LONG(hlib);
