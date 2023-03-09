@@ -211,7 +211,6 @@ ZEND_FUNCTION(wb_load_library)
 	printf("wb_load_library: Before(lib): %hs\n", lib);
 	hlib = (LONG_PTR)wbLoadLibrary(lib);
 	//hlib = (LONG_PTR)wbLoadLibrary(lib);
-	printf("wb_load_library: LONG_PTR: %ls\n", hlib);
 
 	if (hlib){
 		RETURN_LONG(hlib);
