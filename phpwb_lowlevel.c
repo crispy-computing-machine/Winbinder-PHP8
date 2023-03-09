@@ -192,7 +192,7 @@ ZEND_FUNCTION(wb_get_address)
 
 ZEND_FUNCTION(wb_load_library)
 {
-	wchar_t *lib;
+	char *lib;
 	size_t lib_len;
 	LONG_PTR hlib;
 
