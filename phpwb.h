@@ -76,7 +76,7 @@ void Utf82WideCharCopy(const char *str, __int64 str_len, TCHAR *wcs, __int64 wcs
 char *WideChar2Utf8(LPCTSTR wcs, __int64 *len);
 void WideCharCopy(LPCTSTR wcs, char *s, __int64 len);
 void dumptcs(TCHAR *str);
-char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
+char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, __int64 *plen);
 
 //------------------------------------------------------------------ END OF FILE
 

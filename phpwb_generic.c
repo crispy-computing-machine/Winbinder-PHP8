@@ -217,7 +217,7 @@ zval *process_array(zval *zitems)
 TCHAR *Utf82WideChar(const char *str, __int64 len)
 {
 	TCHAR *wstr;
-	int wlen = 0;
+	__int64 wlen = 0;
 	if (!str){
 		return NULL;
 	}
