@@ -203,19 +203,19 @@ ZEND_FUNCTION(wb_load_library)
 		return;
 	}
 
-	TCHAR *wcs = 0; // not sure if this is needed
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_STRING(lib,lib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	printf("wb_load_library: Before(lib): %s\n", lib);
+	printf("wb_load_library: Before(lib): %ls\n", lib);
 
-	wcs = Utf82WideChar(lib, lib_len);
-	hlib = (LONG_PTR)wbLoadLibrary(wcs);
+	//TCHAR *wcs = 0; // not sure if this is needed
+	//wcs = Utf82WideChar(lib, lib_len);
+	hlib = (LONG_PTR)wbLoadLibrary(lib);
 	//hlib = (LONG_PTR)wbLoadLibrary(lib);
-	printf("wb_load_library: After(wcs): %s\n", wcs);
-	printf("wb_load_library: After(lib): %s\n", lib);
+	printf("wb_load_library: After(wcs): %ls\n", wcs);
+	printf("wb_load_library: After(lib): %ls\n", lib);
 	if (hlib){
 		RETURN_LONG(hlib);
 	}else
