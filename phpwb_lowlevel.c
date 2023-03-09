@@ -209,6 +209,7 @@ ZEND_FUNCTION(wb_load_library)
 	ZEND_PARSE_PARAMETERS_END();
 
 	printf("wb_load_library: Before(lib): %hs\n", lib);
+	printf("wb_load_library: Utf82WideChar(lib): %s\n", Utf82WideChar(lib, lib_len));
 
 	//TCHAR *wcs = 0; // not sure if this is needed
 	//wcs = Utf82WideChar(lib, lib_len);
