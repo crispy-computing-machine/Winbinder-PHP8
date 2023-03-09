@@ -208,7 +208,7 @@ ZEND_FUNCTION(wb_load_library)
 		Z_PARAM_STRING(lib,lib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	printf("wb_load_library: Before(lib): %ls\n", lib);
+	printf("wb_load_library: Before(lib): %hs\n", lib);
 
 	//TCHAR *wcs = 0; // not sure if this is needed
 	//wcs = Utf82WideChar(lib, lib_len);
@@ -216,7 +216,7 @@ ZEND_FUNCTION(wb_load_library)
 	hlib = (LONG_PTR)wbLoadLibrary(lib);
 	//hlib = (LONG_PTR)wbLoadLibrary(lib);
 	
-	printf("wb_load_library: After(lib): %ls\n", lib);
+	printf("wb_load_library: After(lib): %hs\n", lib);
 	if (hlib){
 		RETURN_LONG(hlib);
 	}else
