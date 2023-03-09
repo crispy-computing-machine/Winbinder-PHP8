@@ -613,7 +613,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 			else
 			{
 
-				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Menu item #%d not found in menu #%d"), id, (int)pwboParent->hwnd);
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Menu item #%d not found in menu #%d"), id, (__int64)pwboParent->hwnd);
 				return NULL;
 			}
 		}
