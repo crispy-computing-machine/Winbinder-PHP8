@@ -52,7 +52,7 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 			{ // Attach a pop-up menu to a top-level menu
 				if (hPopup && pszLastPopup)
 				{
-					AppendMenu(hMenu, MF_POPUP, (UINT)hPopup, pszLastPopup);
+					AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
 				}
 				hPopup = CreateMenu();
 				pszLastPopup = pitem[i]->pszCaption;
@@ -83,7 +83,7 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 
 	if (hPopup && pszLastPopup)
 	{
-		AppendMenu(hMenu, MF_POPUP, (UINT)hPopup, pszLastPopup);
+		AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
 	}
 
 	// Attach the menu to the window
@@ -101,7 +101,7 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 	pwbo->parent = pwboParent;
 
 	// ********* DOESN'T WORK
-	mi.dwItemData = (DWORD)pwbo;
+	mi.dwItemData = (DWORD_PTR)pwbo;
 	SetMenuItemInfo((HMENU)pwbo->hwnd, 0, TRUE, &mi);
 	// ********* DOESN'T WORK
 
