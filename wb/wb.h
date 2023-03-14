@@ -344,8 +344,8 @@ typedef struct _wbo
 
 typedef struct
 { // wbi
-	UINT id;
-	UINT index;
+	UINT64 id;
+	UINT64 index;
 	LPCTSTR pszCaption;
 	LPCTSTR pszHint;
 	LPCTSTR pszImage;
