@@ -84,10 +84,14 @@ ZEND_FUNCTION(wb_create_toolbar)
 				printf("Toolbar: parse_array before \n");
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
 				printf("Toolbar: parse_array after \n");
+				
+				printf("Toolbar: Caption(before) %s \n", pitem[i]->pszCaption);
+				printf("Toolbar: Hint(before) %s \n", pitem[i]->pszHint);
 				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
-				printf("Toolbar: Caption %lls \n", pitem[i]->pszCaption);
-				printf("Toolbar: Hint %lls \n", pitem[i]->pszHint);
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0); 
+				printf("Toolbar: Caption(after) %s \n", pitem[i]->pszCaption);
+				printf("Toolbar: Hint(after) %s \n", pitem[i]->pszHint);
+
 				break;
 
 			case IS_NULL: // Separator
@@ -109,7 +113,7 @@ ZEND_FUNCTION(wb_create_toolbar)
 		wcs = Utf82WideChar(s, s_len);
 		hImage = wbLoadImage(wcs, 0, 0);
 		wbFree(wcs);
-		printf("Toolbar: Loaded image %lld \n", hImage);
+		printf("Toolbar: Loaded image %ld \n", hImage);
 		if (!hImage)
 		{
 			wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
