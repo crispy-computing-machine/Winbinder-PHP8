@@ -87,8 +87,8 @@ ZEND_FUNCTION(wb_create_toolbar)
 				
 				printf("Toolbar: Caption(before) %s \n", pitem[i]->pszCaption);
 				printf("Toolbar: Hint(before) %s \n", pitem[i]->pszHint);
-				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, Z_STRLEN_P((const char *)pitem[i]->pszCaption));
-				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, Z_STRLEN_P((const char *)pitem[i]->pszCaption)); 
+				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, Z_STRLEN_P(pitem[i]->pszCaption));
+				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, Z_STRLEN_P(pitem[i]->pszCaption)); 
 				printf("Toolbar: Caption(after) %s \n", pitem[i]->pszCaption);
 				printf("Toolbar: Hint(after) %s \n", pitem[i]->pszHint);
 
