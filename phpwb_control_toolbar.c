@@ -61,7 +61,7 @@ ZEND_FUNCTION(wb_create_toolbar)
 		pitem = emalloc(nelem * sizeof(PWBITEM));
 
 		// Loop to read array items
-		printf("Toolbar: Loop items %;;d", nelem);
+		printf("Toolbar: Loop items %lld \n", nelem);
 		for (i = 0; i < nelem; i++)
 		{
 
@@ -84,8 +84,8 @@ ZEND_FUNCTION(wb_create_toolbar)
 				
 				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
 				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
-				printf("Toolbar: Caption %lls", pitem[i]->pszCaption);
-				printf("Toolbar: Hint %lls", pitem[i]->pszHint);
+				printf("Toolbar: Caption %lls \n", pitem[i]->pszCaption);
+				printf("Toolbar: Hint %lls \n", pitem[i]->pszHint);
 				break;
 
 			case IS_NULL: // Separator
@@ -103,11 +103,11 @@ ZEND_FUNCTION(wb_create_toolbar)
 			}
 		}
 
-		printf("Toolbar: Loading image: %s", s);
+		printf("Toolbar: Loading image: %s \n", s);
 		wcs = Utf82WideChar(s, s_len);
 		hImage = wbLoadImage(wcs, 0, 0);
 		wbFree(wcs);
-		printf("Toolbar: Loaded image %lld", hImage);
+		printf("Toolbar: Loaded image %lld \n", hImage);
 		if (!hImage)
 		{
 			wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
