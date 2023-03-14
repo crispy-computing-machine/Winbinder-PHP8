@@ -61,11 +61,9 @@ ZEND_FUNCTION(wb_create_toolbar)
 		pitem = emalloc(nelem * sizeof(PWBITEM));
 
 		// Loop to read array items
-		printf("Toolbar: Loop items %lld \n", nelem);
 		for (i = 0; i < nelem; i++)
 		{
 
-			printf("Toolbar: zend_hash_get_current_data \n");
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
 				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
@@ -74,27 +72,18 @@ ZEND_FUNCTION(wb_create_toolbar)
 			}
 
 			// Allocate memory for item description
-			printf("Toolbar: Allocate memory for item description \n");
 			pitem[i] = emalloc(sizeof(WBITEM));
 
 			switch (Z_TYPE_P(entry))
 			{
 
 			case IS_ARRAY: // Toolbar button
-				printf("Toolbar: parse_array before \n");
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
-				printf("Toolbar: parse_array after \n");
-				
-				printf("Toolbar: Caption(before) %s \n", pitem[i]->pszCaption);
-				printf("Toolbar: Hint(before) %s \n", pitem[i]->pszHint);
 				//pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
 				//pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 
 				pitem[i]->pszCaption = (const char *)pitem[i]->pszCaption;
 				pitem[i]->pszHint = (const char *)pitem[i]->pszHint;
-
-				printf("Toolbar: Caption(after) %s \n", pitem[i]->pszCaption);
-				printf("Toolbar: Hint(after) %s \n", pitem[i]->pszHint);
 
 				break;
 
@@ -113,11 +102,9 @@ ZEND_FUNCTION(wb_create_toolbar)
 			}
 		}
 
-		printf("Toolbar: Loading image: %s \n", s);
 		wcs = Utf82WideChar(s, s_len);
 		hImage = wbLoadImage(wcs, 0, 0);
 		wbFree(wcs);
-		printf("Toolbar: Loaded image %ld \n", hImage);
 		if (!hImage)
 		{
 			wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
