@@ -20,7 +20,6 @@ const char *pszWbobjName = "WinBinder Object";
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
 /* Accepts a limited subset of the parameters accepted by zend_parse_parameters() */
-
 int parse_array(zval *array, const char *fmt, ...)
 {
 	int i, nelem;
@@ -60,7 +59,7 @@ int parse_array(zval *array, const char *fmt, ...)
 			{
 
 			case 'l':
-				*((LONG_PTR *)arg) = 0;
+				*((long *)arg) = 0;
 				break;
 
 			case 'd':
@@ -68,7 +67,7 @@ int parse_array(zval *array, const char *fmt, ...)
 				break;
 
 			case 's':
-				*((LONG_PTR *)arg) = (LONG_PTR)NULL;
+				*((long *)arg) = (long)NULL;
 				break;
 
 			default:
@@ -94,17 +93,17 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 'l':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((LONG_PTR *)arg) = (LONG_PTR)NULL;
+					*((long *)arg) = (long)NULL;
 				}
 				else{
-					*((LONG_PTR *)arg) = Z_LVAL_P(entry);
+					*((long *)arg) = Z_LVAL_P(entry);
 				}
 				break;
 
 			case 'd':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((LONG_PTR *)arg) = (LONG_PTR)NULL;
+					*((long *)arg) = (long)NULL;
 				}
 				else{
 					*((double *)arg) = Z_DVAL_P(entry);
@@ -114,14 +113,14 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 's':
 				if (Z_TYPE_P(entry) == IS_STRING)
 				{
-					*((LONG_PTR *)arg) = (LONG_PTR)(Z_STRVAL_P(entry));
+					*((long *)arg) = (long)(Z_STRVAL_P(entry));
 				}
 				else if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((LONG_PTR *)arg) = (LONG_PTR)NULL;
+					*((long *)arg) = (long)NULL;
 				}
 				else{
-					*((LONG_PTR *)arg) = (LONG_PTR)NULL;
+					*((long *)arg) = (long)NULL;
 				}
 				break;
 
