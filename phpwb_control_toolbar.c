@@ -35,7 +35,7 @@ ZEND_FUNCTION(wb_create_toolbar)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 5)
 		Z_PARAM_LONG(pwboParent)
-		Z_PARAM_ZVAL(zarray)
+		Z_PARAM_ZVAL_OR_NULL(zarray)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG_OR_NULL(width, width_isnull)
 		Z_PARAM_LONG_OR_NULL(height, height_isnull)
