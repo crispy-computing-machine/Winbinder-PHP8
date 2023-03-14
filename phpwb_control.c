@@ -1116,7 +1116,7 @@ ZEND_FUNCTION(wb_get_text)
 	zend_long len, index = -1;
 
 	char *str = 0;
-	__int64 str_len = 0;
+	int str_len = 0;
 	zend_bool index_isnull;
 
 	// NOTE: I don't quite understand why do I need all these
