@@ -1104,7 +1104,7 @@ BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTS
   If TRUE, the value is contained in pszString.
 */
 
-LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT64 uLen)
+LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT uLen)
 {
 	*pbIsString = FALSE;
 
