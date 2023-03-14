@@ -65,6 +65,7 @@ ZEND_FUNCTION(wb_create_toolbar)
 		for (i = 0; i < nelem; i++)
 		{
 
+			printf("Toolbar: zend_hash_get_current_data \n");
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
 				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
@@ -73,15 +74,16 @@ ZEND_FUNCTION(wb_create_toolbar)
 			}
 
 			// Allocate memory for item description
-
+			printf("Toolbar: Allocate memory for item description \n");
 			pitem[i] = emalloc(sizeof(WBITEM));
 
 			switch (Z_TYPE_P(entry))
 			{
 
 			case IS_ARRAY: // Toolbar button
+				printf("Toolbar: parse_array before \n");
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
-				
+				printf("Toolbar: parse_array after \n");
 				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
 				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 				printf("Toolbar: Caption %lls \n", pitem[i]->pszCaption);
