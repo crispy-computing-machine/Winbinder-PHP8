@@ -272,9 +272,9 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem)
 
 /* Return the level of a specified node */
 
-UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
+UINT64 wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	UINT nLevel;
+	UINT64 nLevel;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;

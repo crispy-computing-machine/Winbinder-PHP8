@@ -32,7 +32,7 @@ static BOOL bUnderline = FALSE;
 // Code adapted from Neal Stublen, thanks to Davide
 // http://www.codeguru.com/Cpp/controls/staticctrl/article.php/c5803/
 
-LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{

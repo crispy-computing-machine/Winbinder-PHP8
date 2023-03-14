@@ -234,7 +234,7 @@ WPARAM wbMainLoop(void)
 // Used in wb_wait()
 // Reference: API help, "Examining a Message Queue"
 
-UINT wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
+UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 {
 	HWND hwnd;
 	MSG msg;
@@ -357,7 +357,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 	else if (wbIsValidClass((UINT64)pwbo))
 	{
 
-		// Stores class ((UINT)pwbo) mouse cursor in array hClassCursor
+		// Stores class ((UINT64)pwbo) mouse cursor in array hClassCursor
 
 		if (handle) // Cursor handle
 			hCursor = handle;
@@ -391,7 +391,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 
 // Returns TRUE if uClass is a valid WinBinder class
 
-BOOL wbIsValidClass(UINT uClass)
+BOOL wbIsValidClass(UINT64 uClass)
 {
 	switch (uClass)
 	{
@@ -563,7 +563,7 @@ Error		-2
 
 */
 // @todo wb_quiet_message_box() (@see Fred)
-int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT nStyle)
+int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle)
 {
 	int nRet;
 
@@ -926,7 +926,7 @@ NOTE: Do not use SearchPath(), it may crash PHP (why?)
 
 */
 
-BOOL wbFindFile(LPTSTR pszFile, UINT uLen)
+BOOL wbFindFile(LPTSTR pszFile, UINT64 uLen)
 {
 	TCHAR szPath[MAX_PATH * 2];
 
@@ -1104,7 +1104,7 @@ BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTS
   If TRUE, the value is contained in pszString.
 */
 
-LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT uLen)
+LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT64 uLen)
 {
 	*pbIsString = FALSE;
 
@@ -1394,7 +1394,7 @@ LPTSTR MakeWinPath(LPTSTR pszPath)
 {
 	if (pszPath && *pszPath)
 	{
-		UINT i;
+		UINT64 i;
 
 		for (i = 0; i < wcslen(pszPath); i++)
 			if (*(pszPath + i) == '/')

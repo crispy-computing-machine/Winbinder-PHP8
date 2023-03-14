@@ -46,7 +46,7 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	TC_ITEM tcitem;
 	int nItems;
 	PTABDATA pTabData;
-	UINT i;
+	UINT64 i;
 	RECT rc;
 
 	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
@@ -115,7 +115,7 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem)
 {
 	int nSelTab = 0;
-	UINT i;
+	UINT64 i;
 	PTABDATA pTabData;
 
 	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
@@ -207,7 +207,7 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 	return TRUE;
 }
 
-/*LRESULT CALLBACK TabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*LRESULT CALLBACK TabProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) {
 
@@ -230,7 +230,7 @@ BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 
 // Insert the control data in its parent's TABDATA structure
 
-BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab)
+BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab)
 {
 	PWBOBJ pwboTab;
 	PTABDATA pTabData;
@@ -251,7 +251,7 @@ BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab)
 
 	pTabData->ctrl[pTabData->nCtrls].hwnd = pwbo->hwnd;
 	pTabData->ctrl[pTabData->nCtrls].id = id;
-	pTabData->ctrl[pTabData->nCtrls].nTab = MIN(MIN((UINT)nTab, pTabData->nPages - 1), MAX_TABS);
+	pTabData->ctrl[pTabData->nCtrls].nTab = MIN(MIN((UINT64)nTab, pTabData->nPages - 1), MAX_TABS);
 	pTabData->nCtrls++;
 
 	return TRUE;

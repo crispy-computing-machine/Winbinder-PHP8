@@ -42,7 +42,7 @@ ZEND_FUNCTION(wb_send_message)
 		Z_PARAM_LONG_OR_NULL(l, l_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
+	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT64)msg, (WPARAM)w, (LPARAM)l));
 }
 
 /* Get the contents of a memory area */
@@ -467,7 +467,7 @@ PWBOBJ pwndMain;
 // Midi callback
 void CALLBACK wbMidiInProc(
 	DWORD_PTR hMidiIn,
-	UINT wMsg,
+	UINT64 wMsg,
 	DWORD_PTR dwInstance,
 	DWORD_PTR dwParam1,
 	DWORD_PTR dwParam2)

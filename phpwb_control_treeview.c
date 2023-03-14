@@ -15,7 +15,7 @@
 
 //---------------------------------------------------------- EXTERNAL PROTOTYPES
 
-extern UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem);
+extern UINT64 wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 

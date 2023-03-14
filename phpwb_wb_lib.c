@@ -83,13 +83,13 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
 // *** The use of parameter pwboParent in wbCallUserFunction() is not clear
 
-UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
+UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
 	zval fname = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
-	UINT ret = 0;
+	UINT64 ret = 0;
 	char *pszFName;
 	char *pszOName;
 	zend_string *funName;
@@ -225,7 +225,7 @@ BOOL wbFree(void *ptr)
 	return TRUE;
 }
 
-UINT MemCheck(const char *message, BOOL mb){
+UINT64 MemCheck(const char *message, BOOL mb){
 	struct rusage r_usage;
 	int *p = 0;
 	p = (int*)malloc(sizeof(int)*1000);

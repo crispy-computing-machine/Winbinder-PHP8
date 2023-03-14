@@ -23,7 +23,7 @@ static HMODULE hLastDLL = NULL;
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
-LPARAM wbSendMessage(PWBOBJ pwbo, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if ((LONG_PTR)pwbo == (LONG_PTR)HWND_BROADCAST)
 		return SendMessage(HWND_BROADCAST, uMsg, wParam, lParam);

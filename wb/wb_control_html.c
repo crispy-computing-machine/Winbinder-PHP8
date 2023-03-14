@@ -1074,7 +1074,7 @@ static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height)
 
 // Message handler for the window that hosts the browser control.
 
-LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{

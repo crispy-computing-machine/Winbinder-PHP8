@@ -248,7 +248,7 @@ HDC wbCreateBitmapDC(HBITMAP hbm)
 
 /* Return the handle to the bitmap or icon from file pszImageFile. */
 
-HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
+HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam)
 {
 	TCHAR szFile[MAX_PATH]; // 256
 
