@@ -59,7 +59,7 @@ int parse_array(zval *array, const char *fmt, ...)
 			{
 
 			case 'l':
-				*((long *)arg) = 0;
+				*((long long *)arg) = 0;
 				break;
 
 			case 'd':
@@ -67,7 +67,7 @@ int parse_array(zval *array, const char *fmt, ...)
 				break;
 
 			case 's':
-				*((long *)arg) = (long)NULL;
+				*((long long *)arg) = (long long)NULL;
 				break;
 
 			default:
@@ -93,17 +93,17 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 'l':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
-					*((long *)arg) = Z_LVAL_P(entry);
+					*((long long *)arg) = Z_LVAL_P(entry);
 				}
 				break;
 
 			case 'd':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
 					*((double *)arg) = Z_DVAL_P(entry);
@@ -113,14 +113,14 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 's':
 				if (Z_TYPE_P(entry) == IS_STRING)
 				{
-					*((long *)arg) = (long)(Z_STRVAL_P(entry));
+					*((long long *)arg) = (long long)(Z_STRVAL_P(entry));
 				}
 				else if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				break;
 
