@@ -82,8 +82,8 @@ ZEND_FUNCTION(wb_create_toolbar)
 				//pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
 				//pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 
-				pitem[i]->pszCaption = (const char *)pitem[i]->pszCaption;
-				pitem[i]->pszHint = (const char *)pitem[i]->pszHint;
+				pitem[i]->pszCaption = (const char *)pitem[i]->pszCaption; // LPCTSTR?
+				pitem[i]->pszHint = (const char *)pitem[i]->pszHint; // LPCTSTR?
 
 				break;
 

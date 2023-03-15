@@ -294,9 +294,10 @@ ZEND_FUNCTION(wb_call_function)
 {
 	zend_long addr;
 	LONG_PTR retval = 0;
-	DWORD *param = NULL;
+	DWORDLONG *param = NULL;
 	zval *array = NULL, *entry = NULL;
-	int i, nelem = 0;
+	int i;
+	__int64 nelem = 0;
 	HashTable *target_hash;
 
 	// low level functions disabled?
@@ -334,7 +335,7 @@ ZEND_FUNCTION(wb_call_function)
 
 			// Allocate memory for argument array
 
-			param = emalloc(nelem * sizeof(DWORD));
+			param = emalloc(nelem * sizeof(DWORDLONG));
 			memset(param, nelem, 0);
 
 			// Loop to read array items
