@@ -117,7 +117,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 	}
 	if (*file){
 		//		strcpy(szFile, file);
-		Utf82WideCharCopy((const char)file, file_len, szFile, strlen(szFile));
+		Utf82WideCharCopy((const char *)file, file_len, szFile, strlen(szFile));
 	}
 
 	if (*defext){
@@ -133,7 +133,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 
 	if (*szFile)
 	{
-		file = WideChar2Utf8(szFile, strlen(szFile));
+		file = WideChar2Utf8((const char *)szFile, strlen(szFile));
 		RETURN_STRINGL(file, strlen(file));
 	}
 	else{
