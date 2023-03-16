@@ -316,7 +316,7 @@ ZEND_FUNCTION(wb_get_listview_text)
 	TCHAR szItem[MAX_ITEM_STRING];
 
 	char *str = 0;
-	__int64 len = 0;
+	int len = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pwbo, &nitem, &ncol) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
