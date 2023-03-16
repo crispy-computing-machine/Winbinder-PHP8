@@ -44,7 +44,7 @@ BOOL wbSetTreeViewItemSelected(PWBOBJ pwbo, HTREEITEM hItem)
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return 0;
 
-	if ((int)hItem < 0)
+	if ((__int64)hItem < 0)
 		return TreeView_SelectItem(pwbo->hwnd, NULL);
 	else if (hItem)
 		return TreeView_SelectItem(pwbo->hwnd, hItem);
