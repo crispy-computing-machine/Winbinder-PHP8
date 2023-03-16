@@ -117,7 +117,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 	}
 	if (*file){
 		//		strcpy(szFile, file);
-		Utf82WideCharCopy(file, file_len, szFile, strlen(szFile));
+		Utf82WideCharCopy((TCHAR)file, file_len, szFile, strlen(szFile));
 	}
 
 	if (*defext){
