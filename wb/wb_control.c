@@ -1035,8 +1035,11 @@ BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT64 nMaxChars, int nIndex)
 	}
 
 	default:
-
-		GetWindowText(pwbo->hwnd, pszText, nMaxChars);
+		// Window, tab control...
+		int winText;
+		winText = GetWindowText(pwbo->hwnd, pszText, nMaxChars);
+		printf("wb_get_text: %d", winText);
+		printf("wb_get_text: %ls", pszText);
 		return TRUE;
 	}
 }

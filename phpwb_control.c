@@ -1157,7 +1157,7 @@ ZEND_FUNCTION(wb_get_text)
 		else
 		{
 			wbGetText((PWBOBJ)pwbo, ptext, len, index);
-			printf("wb_get_text: %ls", ptext);
+			
 			if (*ptext)
 			{
 				str = WideChar2Utf8(ptext, &str_len);
