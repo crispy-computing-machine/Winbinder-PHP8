@@ -326,8 +326,8 @@ typedef struct _wbo
 	HWND hwnd;				// Control or window handle
 	UINT64 id;				// Control identifier
 	UINT64 uClass;			// Object class
-	int item;				// Item index
-	int subitem;			// Sub-item index
+	__int64 item;				// Item index
+	__int64 subitem;			// Sub-item index
 	DWORD style;			// WinBinder style
 	struct _wbo *parent;	// Parent window
 	LPTSTR pszCallBackFn;   // Callback function

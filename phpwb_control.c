@@ -207,7 +207,7 @@ ZEND_FUNCTION(wb_get_state)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}
-	
+
 	if (((PWBOBJ)pwbo)->uClass == TreeView)
 	{ // Get expanded / collapsed state
 		RETURN_BOOL(wbGetTreeViewItemState((PWBOBJ)pwbo, (HTREEITEM)item));
@@ -707,9 +707,12 @@ ZEND_FUNCTION(wb_delete_items)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_NULL();
 	}
-	if (!zitems){ // Delete all items
+
+	if (!zitems){ 
+		// Delete all items
 		RETURN_LONG(wbDeleteItems((PWBOBJ)pwbo, TRUE));
 	}
+
 	switch (Z_TYPE_P(zitems))
 	{
 
