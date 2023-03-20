@@ -33,7 +33,6 @@ BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText)
 	ptr = wcstok(szTitle, TEXT("\r\n,"), &next);
 	while (ptr)
 	{
-		printf("wbSetTabControlText: %lls", ptr);
 		wbCreateTabItem(pwboTab, ptr);
 		ptr = wcstok(NULL, TEXT("\r\n,"), &next);
 	}
