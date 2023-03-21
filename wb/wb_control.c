@@ -1375,27 +1375,6 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 			}
 		}
 		break;
-	case Frame:
-
-		if (bSet)
-		{
-			// image/invisible area
-			if (BITTEST(dwWBStyle, WBC_IMAGE))
-			{ 
-				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) | (SS_CENTERIMAGE));	
-			}
-		}
-		else
-		{
-			// groupbox
-			if (BITTEST(dwWBStyle, WBC_IMAGE))
-			{ 
-				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(SS_CENTERIMAGE));
-			}
-		}
-
-		break;
-
 	default:
 		return FALSE;
 	}
