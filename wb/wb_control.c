@@ -1382,13 +1382,7 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 			// image/invisible area
 			if (BITTEST(dwWBStyle, WBC_IMAGE))
 			{ 
-				pwbo->style = WS_CHILD | SS_WORDELLIPSIS | SS_CENTERIMAGE | WS_VISIBLE;
-				if (BITTEST(dwWBStyle, WBC_CENTER))
-					pwbo->style |= SS_CENTER;
-				else if (BITTEST(dwWBStyle, WBC_RIGHT))
-					pwbo->style |= SS_RIGHT;
-				else
-					pwbo->style |= SS_LEFT;
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) | (SS_CENTERIMAGE));	
 			}
 		}
 		else
@@ -1396,13 +1390,7 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 			// groupbox
 			if (BITTEST(dwWBStyle, WBC_IMAGE))
 			{ 
-				pwbo->style = WS_CHILD | WS_TABSTOP | BS_GROUPBOX | WS_VISIBLE;
-				if (BITTEST(dwWBStyle, WBC_CENTER))
-					pwbo->style |= SS_CENTER;
-				else if (BITTEST(dwWBStyle, WBC_RIGHT))
-					pwbo->style |= SS_RIGHT;
-				else
-					pwbo->style |= SS_LEFT;
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(SS_CENTERIMAGE));
 			}
 		}
 
