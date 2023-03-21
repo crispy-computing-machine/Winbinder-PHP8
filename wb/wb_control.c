@@ -1376,16 +1376,36 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 		}
 		break;
 	case Frame:
-		if (BITTEST(dwWBStyle, WBC_IMAGE))
-		{ // Image
-			pwbo->style = WS_CHILD | SS_WORDELLIPSIS | SS_CENTERIMAGE | WS_VISIBLE;
-			if (BITTEST(dwWBStyle, WBC_CENTER))
-				pwbo->style |= SS_CENTER;
-			else if (BITTEST(dwWBStyle, WBC_RIGHT))
-				pwbo->style |= SS_RIGHT;
-			else
-				pwbo->style |= SS_LEFT;
+
+		if (bSet)
+		{
+			// image/invisible area
+			if (BITTEST(dwWBStyle, WBC_IMAGE))
+			{ 
+				pwbo->style = WS_CHILD | SS_WORDELLIPSIS | SS_CENTERIMAGE | WS_VISIBLE;
+				if (BITTEST(dwWBStyle, WBC_CENTER))
+					pwbo->style |= SS_CENTER;
+				else if (BITTEST(dwWBStyle, WBC_RIGHT))
+					pwbo->style |= SS_RIGHT;
+				else
+					pwbo->style |= SS_LEFT;
+			}
 		}
+		else
+		{
+			// groupbox
+			if (BITTEST(dwWBStyle, WBC_IMAGE))
+			{ 
+				pwbo->style = WS_CHILD | WS_TABSTOP | BS_GROUPBOX | WS_VISIBLE;
+				if (BITTEST(dwWBStyle, WBC_CENTER))
+					pwbo->style |= SS_CENTER;
+				else if (BITTEST(dwWBStyle, WBC_RIGHT))
+					pwbo->style |= SS_RIGHT;
+				else
+					pwbo->style |= SS_LEFT;
+			}
+		}
+
 		break;
 
 	default:
