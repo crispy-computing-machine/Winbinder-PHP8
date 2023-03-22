@@ -42,7 +42,6 @@ int parse_array(zval *array, const char *fmt, ...)
 	zend_hash_internal_pointer_reset(target_hash);
 
 	// Parse loop
-
 	for (i = 0; i < (int)strlen(fmt); i++)
 	{
 
@@ -50,8 +49,8 @@ int parse_array(zval *array, const char *fmt, ...)
 		if (!arg){
 			break;
 		}
-		// Requested items past the length of the array must return NULL
 
+		// Requested items past the length of the array must return NULL
 		if (i >= nelem)
 		{
 
@@ -134,7 +133,7 @@ int parse_array(zval *array, const char *fmt, ...)
 
 		if (i < nelem - 1){
 			zend_hash_move_forward(target_hash);
-			}
+		}
 	}
 
 	va_end(ap);

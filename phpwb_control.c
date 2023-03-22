@@ -970,19 +970,20 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		wbSetStatusBarParts((PWBOBJ)pwbo, nParts, aWidths);
 
 		// Set the text of the various parts
-
 		i = 0;
 		while ((zitem = process_array(zitems)) != NULL)
 		{
 			parse_array(zitem, "sl", &pszCaption, NULL);
 
+			printf("wb_create_statusbar_items: %ls", pszCaption);
 			if (!wbSetText((PWBOBJ)pwbo, pszCaption, i, FALSE)){
 				bRet = FALSE;
 			}
 			i++;
 		}
 	}
-		RETURN_BOOL(bRet);
+	
+	RETURN_BOOL(bRet);
 
 	default:
 		wbError(TEXT("wb_create_statusbar_items"), MB_ICONWARNING, TEXT("Parameter 2 expected to be an array in wb_create_statusbar_items"));
