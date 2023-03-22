@@ -815,7 +815,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 
 		case StatusBar:
 			if (SendMessage(pwbo->hwnd, SB_GETPARTS, 0, 0) > 1)
-				return SendMessage(pwbo->hwnd, SB_SETTEXT, nItem | 0, pszText);
+				return SendMessage(pwbo->hwnd, SB_SETTEXT, nItem | 0, (LPARAM)(pszText ? pszText : TEXT("")));
 			else
 				return SetWindowText(pwbo->hwnd, pszText);
 
