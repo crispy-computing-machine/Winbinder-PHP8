@@ -422,13 +422,15 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
 		return 0;
 
+	printf("wbGetBitmapBits");
 	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
 	{
+		printf("wbGetBitmapBits: GotDIBits");
 		wbFree(lpBits);
 		DeleteDC(hdc);
 		return 0;
 	}
-
+	printf("wbGetBitmapBits: GetDIBits");
 	pix_cx = pbmi->bmiHeader.biWidth;
 	pix_cy = pbmi->bmiHeader.biHeight;
 
