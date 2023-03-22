@@ -974,7 +974,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		while ((zitem = process_array(zitems)) != NULL)
 		{
 			parse_array(zitem, "sl", &pszCaption, NULL);
-			wprintf("wb_create_statusbar_items: %ls", pszCaption);
+			cout << "wb_create_statusbar_items : " << pszCaption <<endl;
 			if (!wbSetText((PWBOBJ)pwbo, pszCaption, i, FALSE)){
 				bRet = FALSE;
 			}
