@@ -757,7 +757,9 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
 
+	printf("wbSetText: %s \n", (const char *)pszSourceText);
 	wbConvertLineBreaks(&pszText, pszSourceText);
+	printf("wbSetText: %s \n", (const char *)pszText);
 
 	if (bTooltip)
 	{
