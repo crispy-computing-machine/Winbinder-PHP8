@@ -422,20 +422,17 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
 		return 0;
 
-	printf("wbGetBitmapBits 1\n");
 	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
 	{
-		printf("wbGetBitmapBits 2\n");
 		wbFree(lpBits);
 		DeleteDC(hdc);
 		return 0;
 	}
-	printf("wbGetBitmapBits 3\n");
+	
 	pix_cx = pbmi->bmiHeader.biWidth;
 	pix_cy = pbmi->bmiHeader.biHeight;
 
 	DeleteDC(hdc);
-	printf("wbGetBitmapBits 4\n");
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
 	if (bCompress4to3)
@@ -450,12 +447,10 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
-		printf("wbGetBitmapBits 5\n");
-		//wbFree(lpBits);		
+		//wbFree(lpBits); // segfault	
 		return (nLen / 4) * 3;
 	} else {
-		printf("wbGetBitmapBits 6\n");
-		//wbFree(lpBits);	
+		//wbFree(lpBits); // segfault	
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }
