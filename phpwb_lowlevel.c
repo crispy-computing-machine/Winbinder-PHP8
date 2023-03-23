@@ -92,7 +92,8 @@ ZEND_FUNCTION(wb_peek)
 
 ZEND_FUNCTION(wb_poke)
 {
-	zend_long address, bytes = 0;
+	zend_long address;
+	UINT_PTR bytes = 0;
 	char *contents;
 	size_t contents_len;
 	void *ptr;
@@ -125,14 +126,14 @@ ZEND_FUNCTION(wb_poke)
 		RETURN_BOOL(FALSE);
 	}
 
-	if (!bytes){
+	if (bytes_isnull){
 		bytes = contents_len;
 	}
 	ptr = (void *)address;
 
 	if (IsBadWritePtr(ptr, bytes))
 	{
-		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), ptr);
+		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %ld"), ptr);
 		RETURN_BOOL(FALSE);
 	}
 
