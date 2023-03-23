@@ -451,11 +451,11 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
 		printf("wbGetBitmapBits 5\n");
-		wbFree(lpBits);		
+		//wbFree(lpBits);		
 		return (nLen / 4) * 3;
 	} else {
 		printf("wbGetBitmapBits 6\n");
-		wbFree(lpBits);	
+		//wbFree(lpBits);	
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }
