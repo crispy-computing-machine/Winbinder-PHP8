@@ -738,8 +738,8 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 		return FALSE;
 
 	// Free memory
-	wbFree(hp);
-	wbFree((HGLOBAL)lpBits);
+	//wbFree(hp);
+	//wbFree((HGLOBAL)lpBits);
 	return TRUE;
 }
 
