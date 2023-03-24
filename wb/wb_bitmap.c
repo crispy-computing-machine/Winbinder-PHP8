@@ -405,7 +405,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
+DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
@@ -428,29 +428,35 @@ DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 		DeleteDC(hdc);
 		return 0;
 	}
-	
+
 	pix_cx = pbmi->bmiHeader.biWidth;
 	pix_cy = pbmi->bmiHeader.biHeight;
 
 	DeleteDC(hdc);
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
+	printf('wbGetBitmapBits 1');
 	if (bCompress4to3)
 	{
-
-		int i, x, nLen = pbmi->bmiHeader.biSizeImage;
+		printf('wbGetBitmapBits 2');
+		__int64 i, x, nLen = pbmi->bmiHeader.biSizeImage;
 
 		// Remove every fourth byte from the original RGBQUAD data
+
 		for (i = 0, x = 0; i < nLen; i += 4, x += 3)
 		{
 			*((*lpBits) + x) = *((*lpBits) + i);
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
-		//wbFree(lpBits); // segfault	
+		printf('wbGetBitmapBits 3');
+		wbFree(lpBits);
+		printf('wbGetBitmapBits 4');
 		return (nLen / 4) * 3;
 	} else {
-		//wbFree(lpBits); // segfault	
+		printf('wbGetBitmapBits 5');
+		wbFree(lpBits);
+		printf('wbGetBitmapBits 6');
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }
