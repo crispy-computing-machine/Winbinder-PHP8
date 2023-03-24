@@ -435,10 +435,8 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	DeleteDC(hdc);
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
-	printf("wbGetBitmapBits 1");
 	if (bCompress4to3)
 	{
-		printf("wbGetBitmapBits 2");
 		__int64 i, x, nLen = pbmi->bmiHeader.biSizeImage;
 
 		// Remove every fourth byte from the original RGBQUAD data
@@ -449,14 +447,10 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
-		printf("wbGetBitmapBits 3");
-		wbFree(lpBits);
-		printf("wbGetBitmapBits 4");
+		//wbFree(lpBits);
 		return (nLen / 4) * 3;
 	} else {
-		printf("wbGetBitmapBits 5");
-		wbFree(lpBits);
-		printf("wbGetBitmapBits 6");
+		//wbFree(lpBits);
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }
