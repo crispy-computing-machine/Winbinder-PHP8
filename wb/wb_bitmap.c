@@ -396,7 +396,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 	if (!CreateBMPFile(pszFileName, pbmi, hbm, hdc))
 		return FALSE;
 
-	//wbFree(pbmi);
+	wbFree(pbmi);
 	DeleteDC(hdc);
 	return TRUE;
 }
