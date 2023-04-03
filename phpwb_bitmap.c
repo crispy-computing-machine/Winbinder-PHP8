@@ -123,11 +123,11 @@ ZEND_FUNCTION(wb_get_image_data)
 
 	lpBits = wbGetBitmapBits((HBITMAP)hbm);
 
-	int i;
+	int i = 0;
 	// ----------------- DEBUG --------------------------
 	while (i < sizeof(lpBits))
 	{
-		print("%02X",(int)lpBits[i]);
+		printf("%02X",(int)lpBits[i]);
 		i++;
 	}
 	// ----------------- DEBUG --------------------------
