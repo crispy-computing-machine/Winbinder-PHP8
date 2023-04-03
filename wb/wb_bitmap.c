@@ -422,7 +422,7 @@ BYTE* wbGetBitmapBits(HBITMAP hbm, int compress)
 	return (BYTE*)readHBitmap(hbm, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight, compress);
 }
 
-BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress) {
+BYTE* readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
@@ -430,8 +430,8 @@ BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress) {
 	int dataSize;
 
 	//  Store pointers for bmp w/h
-	int* bmpwidth;
-	int* bmpheight;
+	int *bmpwidth;
+	int *bmpheight;
 
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);

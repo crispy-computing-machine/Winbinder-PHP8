@@ -443,7 +443,7 @@ BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, 
 //HANDLE		wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex);
 HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam);
 BYTE* wbGetBitmapBits(HBITMAP hbm, int compress);
-BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress);
+BYTE* readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress);
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3);
 
 // WB_CONTROL.C
