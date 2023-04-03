@@ -419,7 +419,7 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm)
 	}
 	
 	// Return data, len
-	return readHBitmap(hbm, (int)pbmi->bmiHeader.biWidth, (int)pbmi->bmiHeader.biHeight);
+	return (DWORD64)readHBitmap(hbm, (int)pbmi->bmiHeader.biWidth, (int)pbmi->bmiHeader.biHeight);
 }
 
 unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
