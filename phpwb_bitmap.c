@@ -121,7 +121,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	Z_PARAM_BOOL_OR_NULL(compress4to3, compress4to3_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	lpBits = wbGetBitmapBits((HBITMAP)hbm);
+	lpBits = wbGetBitmapBits((HBITMAP)hbm, compress4to3);
 
 	VAR_DUMP(lpBits);
 
