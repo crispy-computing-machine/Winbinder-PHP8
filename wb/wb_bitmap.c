@@ -419,10 +419,10 @@ BYTE wbGetBitmapBits(HBITMAP hbm)
 	}
 	
 	// Return data, len
-	return (BYTE)readHBitmap(hbm, (int*)pbmi->bmiHeader.biWidth, (int*)pbmi->bmiHeader.biHeight);
+	return (BYTE)readHBitmap(hbm, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight);
 }
 
-BYTE readHBitmap(HBITMAP hBitmap, int* width, int* height) {
+BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
