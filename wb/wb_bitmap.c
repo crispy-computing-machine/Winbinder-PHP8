@@ -428,6 +428,8 @@ unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     HBITMAP hBitmapOld;
     unsigned char* data;
 
+	printf("readHBitmap"); // ??
+
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);
     *width = bmp.bmWidth;
@@ -447,7 +449,7 @@ unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     bmpInfo.bmiHeader.biBitCount = 24;
     bmpInfo.bmiHeader.biCompression = BI_RGB;
     HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &data, NULL, 0);
-	printf("readHBitmap %s", data);
+	
 
     // Select bitmaps into DCs
     hBitmapOld = (HBITMAP) SelectObject(hdcMem1, hBitmap);
