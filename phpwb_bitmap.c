@@ -124,7 +124,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	// lpBits long pointer to BYTE array
 	wbGetBitmapBits((HBITMAP)hbm, lpBits, compress4to3);
 
-	VAR_DUMP(lpBits);
+	//VAR_DUMP(lpBits);
 
 	if (!lpBits){
 		RETURN_NULL();
