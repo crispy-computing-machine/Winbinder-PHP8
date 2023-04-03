@@ -432,8 +432,8 @@ BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height) {
 
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);
-    *width = bmp.bmWidth;
-    *height = bmp.bmHeight;
+    width = bmp.bmWidth;
+    height = bmp.bmHeight;
 
     // Create compatible DCs
     hdcMem1 = CreateCompatibleDC(NULL);
@@ -443,8 +443,8 @@ BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height) {
     BITMAPINFO bmpInfo;
     ZeroMemory(&bmpInfo, sizeof(BITMAPINFO));
     bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmpInfo.bmiHeader.biWidth = *width;
-    bmpInfo.bmiHeader.biHeight = -*height;
+    bmpInfo.bmiHeader.biWidth = width;
+    bmpInfo.bmiHeader.biHeight = -height;
     bmpInfo.bmiHeader.biPlanes = 1;
     bmpInfo.bmiHeader.biBitCount = 24;
     bmpInfo.bmiHeader.biCompression = BI_RGB;
@@ -456,7 +456,7 @@ BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height) {
     (HBITMAP) SelectObject(hdcMem2, hDib);
 
     // Copy bitmap to DIB
-    BitBlt(hdcMem2, 0, 0, *width, *height, hdcMem1, 0, 0, SRCCOPY);
+    BitBlt(hdcMem2, 0, 0, width, height, hdcMem1, 0, 0, SRCCOPY);
 
     // Clean up
     SelectObject(hdcMem1, hBitmapOld);
