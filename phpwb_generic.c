@@ -310,4 +310,35 @@ void dumptcs(TCHAR *str)
 	printf("\n");
 }
 
+#define VAR_DUMP(var) _var_dump(#var, var)
+void _var_dump(const char *var_name, ...);
+void _var_dump(const char *var_name, ...) {
+    va_list args;
+    va_start(args, var_name);
+
+    char format_specifier = *va_arg(args, char *);
+
+    switch (format_specifier) {
+        case 'i':
+            printf("%s: int(%d)\n", var_name, va_arg(args, int));
+            break;
+        case 'f':
+            printf("%s: float(%f)\n", var_name, va_arg(args, double));
+            break;
+        case 'd':
+            printf("%s: double(%lf)\n", var_name, va_arg(args, double));
+            break;
+        case 'c':
+            printf("%s: char(%c)\n", var_name, va_arg(args, int));
+            break;
+        case 'b':
+            printf("%s: bool(%s)\n", var_name, va_arg(args, int) ? "true" : "false");
+            break;
+        default:
+            printf("%s: unknown type\n", var_name);
+            break;
+    }
+
+    va_end(args);
+}
 //------------------------------------------------------------------ END OF FILE
