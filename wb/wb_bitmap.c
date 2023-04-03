@@ -409,50 +409,62 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
+	int w, h;
 
-	if (!hbm)
-		return 0;
-
-	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
-		return 0;
-
-	if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
-		return 0;
-
-	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
-		return 0;
-
-	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
-	{
-		wbFree(lpBits);
-		DeleteDC(hdc);
+	if(!hbm){
 		return 0;
 	}
 
-	pix_cx = pbmi->bmiHeader.biWidth;
-	pix_cy = pbmi->bmiHeader.biHeight;
+	if(!(pbmi = CreateBitmapInfoStruct(hbm)))
+		return 0;
 
-	DeleteDC(hdc);
+	
+	w = pbmi->bmiHeader.biWidth;
+	h = pbmi->bmiHeader.biHeight;
 
-	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
-	if (bCompress4to3)
-	{
-		__int64 i, x, nLen = pbmi->bmiHeader.biSizeImage;
+	return readHBitmap(hbm, w, h);
+}
 
-		// Remove every fourth byte from the original RGBQUAD data
+unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
+    BITMAP bmp;
+    HDC hdcMem1, hdcMem2;
+    HBITMAP hBitmapOld;
+    unsigned char* data;
 
-		for (i = 0, x = 0; i < nLen; i += 4, x += 3)
-		{
-			*((*lpBits) + x) = *((*lpBits) + i);
-			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
-			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
-		}
-		//wbFree(lpBits);
-		return (nLen / 4) * 3;
-	} else {
-		//wbFree(lpBits);
-		return pbmi->bmiHeader.biSizeImage;
-	}
+    // Get bitmap information
+    GetObject(hBitmap, sizeof(bmp), &bmp);
+    *width = bmp.bmWidth;
+    *height = bmp.bmHeight;
+
+    // Create compatible DCs
+    hdcMem1 = CreateCompatibleDC(NULL);
+    hdcMem2 = CreateCompatibleDC(NULL);
+
+    // Create DIB section
+    BITMAPINFO bmpInfo;
+    ZeroMemory(&bmpInfo, sizeof(BITMAPINFO));
+    bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmpInfo.bmiHeader.biWidth = *width;
+    bmpInfo.bmiHeader.biHeight = -*height;
+    bmpInfo.bmiHeader.biPlanes = 1;
+    bmpInfo.bmiHeader.biBitCount = 24;
+    bmpInfo.bmiHeader.biCompression = BI_RGB;
+    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &data, NULL, 0);
+
+    // Select bitmaps into DCs
+    hBitmapOld = (HBITMAP) SelectObject(hdcMem1, hBitmap);
+    (HBITMAP) SelectObject(hdcMem2, hDib);
+
+    // Copy bitmap to DIB
+    BitBlt(hdcMem2, 0, 0, *width, *height, hdcMem1, 0, 0, SRCCOPY);
+
+    // Clean up
+    SelectObject(hdcMem1, hBitmapOld);
+    DeleteDC(hdcMem1);
+    DeleteDC(hdcMem2);
+    DeleteObject(hDib);
+
+    return data;
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
