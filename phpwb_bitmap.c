@@ -122,7 +122,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	ZEND_PARSE_PARAMETERS_END();
 
 	lpBits = wbGetBitmapBits((HBITMAP)hbm);
-	printf("wb_get_image_data %s", lpBits);
+	
 
 	if (!lpBits){
 		RETURN_NULL();
