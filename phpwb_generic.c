@@ -310,8 +310,7 @@ void dumptcs(TCHAR *str)
 	printf("\n");
 }
 
-#define VAR_DUMP(var) _var_dump(#var, var)
-void _var_dump(const char *var_name, ...);
+
 void _var_dump(const char *var_name, ...) {
     va_list args;
     va_start(args, var_name);

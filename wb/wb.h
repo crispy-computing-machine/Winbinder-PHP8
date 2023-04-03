@@ -628,7 +628,8 @@ void *wbRealloc(void *ptr, size_t size);
 char *wbStrDup(const char *string);
 char *wbStrnDup(const char *string, size_t size);
 UINT64 MemCheck(const char *message, BOOL mb);
-
+#define VAR_DUMP(var) _var_dump(#var, var)
+void _var_dump(const char *var_name, ...);
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _WB_H
