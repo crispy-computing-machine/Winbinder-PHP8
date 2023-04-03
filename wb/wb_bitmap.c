@@ -422,14 +422,14 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	w = pbmi->bmiHeader.biWidth;
 	h = pbmi->bmiHeader.biHeight;
 
-	return readHBitmap(hbm, w, h);
+	// Return data, len
+	return readHBitmap(hbm, w, h, lpBits);
 }
 
-unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
+unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
-    unsigned char* data;
 
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);
@@ -449,7 +449,7 @@ unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     bmpInfo.bmiHeader.biPlanes = 1;
     bmpInfo.bmiHeader.biBitCount = 24;
     bmpInfo.bmiHeader.biCompression = BI_RGB;
-    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &data, NULL, 0);
+    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &lpBits, NULL, 0);
 
     // Select bitmaps into DCs
     hBitmapOld = (HBITMAP) SelectObject(hdcMem1, hBitmap);
@@ -464,7 +464,7 @@ unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     DeleteDC(hdcMem2);
     DeleteObject(hDib);
 
-    return data;
+    return bmpInfo.bmiHeader.biSizeImage;
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
