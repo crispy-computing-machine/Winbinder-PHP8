@@ -405,7 +405,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-DWORD64 wbGetBitmapBits(HBITMAP hbm)
+BYTE wbGetBitmapBits(HBITMAP hbm)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
@@ -419,14 +419,14 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm)
 	}
 	
 	// Return data, len
-	return (DWORD64)readHBitmap(hbm, (int)pbmi->bmiHeader.biWidth, (int)pbmi->bmiHeader.biHeight);
+	return (BYTE)readHBitmap(hbm, (int*)pbmi->bmiHeader.biWidth, (int*)pbmi->bmiHeader.biHeight);
 }
 
-unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
+BYTE readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
-    unsigned char* data;
+    BYTE data;
 
 	printf("readHBitmap"); // ??
 
