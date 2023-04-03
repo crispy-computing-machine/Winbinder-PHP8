@@ -121,13 +121,13 @@ ZEND_FUNCTION(wb_get_image_data)
 	Z_PARAM_BOOL_OR_NULL(compress4to3, compress4to3_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
+	lpBits = wbGetBitmapBits((HBITMAP)hbm);
 
-	if (!size || !lpBits){
+	if (!lpBits){
 		RETURN_NULL();
 	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
-	RETVAL_STRINGL(lpBits, size);
+	RETVAL_STRINGL(lpBits, strelen(lpBits));
 	wbFree(lpBits);
 }
 

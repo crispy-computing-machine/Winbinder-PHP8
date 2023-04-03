@@ -405,7 +405,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
+DWORD64 wbGetBitmapBits(HBITMAP hbm)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
@@ -414,17 +414,19 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 		return 0;
 	}
 
-	if(!(pbmi = CreateBitmapInfoStruct(hbm)))
-		return 0;
-
+	if (!(pbmi = CreateBitmapInfoStruct(hbm))){
+		return FALSE;
+	}
+	
 	// Return data, len
-	return readHBitmap(hbm, (int)pbmi->bmiHeader.biWidth, (int)pbmi->bmiHeader.biHeight, lpBits);
+	return readHBitmap(hbm, (int)pbmi->bmiHeader.biWidth, (int)pbmi->bmiHeader.biHeight);
 }
 
-DWORD64 readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
+unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
+    unsigned char* data;
 
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);
@@ -444,7 +446,7 @@ DWORD64 readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
     bmpInfo.bmiHeader.biPlanes = 1;
     bmpInfo.bmiHeader.biBitCount = 24;
     bmpInfo.bmiHeader.biCompression = BI_RGB;
-    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &lpBits, NULL, 0);
+    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &data, NULL, 0);
 
     // Select bitmaps into DCs
     hBitmapOld = (HBITMAP) SelectObject(hdcMem1, hBitmap);
@@ -459,7 +461,7 @@ DWORD64 readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
     DeleteDC(hdcMem2);
     DeleteObject(hDib);
 
-    return bmpInfo.bmiHeader.biSizeImage;
+    return data;
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
