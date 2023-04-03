@@ -447,10 +447,10 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
-		wbFree(lpBits);
+		//wbFree(lpBits);
 		return (nLen / 4) * 3;
 	} else {
-		wbFree(lpBits);
+		//wbFree(lpBits);
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }

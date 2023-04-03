@@ -122,15 +122,15 @@ ZEND_FUNCTION(wb_get_image_data)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// lpBits long pointer to BYTE array
-	wbGetBitmapBits((HBITMAP)hbm, lpBits, compress4to3);
+	size = wbGetBitmapBits((HBITMAP)hbm, lpBits, compress4to3);
 
-	//VAR_DUMP(lpBits);
+	VAR_DUMP(lpBits);
 
 	if (!lpBits){
 		RETURN_NULL();
 	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
-	RETVAL_STRINGL(lpBits, strlen(lpBits));
+	RETVAL_STRINGL(lpBits, size);
 	//wbFree(lpBits);
 }
 
