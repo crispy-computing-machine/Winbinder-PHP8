@@ -405,84 +405,54 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-BYTE* wbGetBitmapBits(HBITMAP hbm, int compress)
+DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
 
-	if(!hbm){
+	if (!hbm)
+		return 0;
+
+	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
+		return 0;
+
+	if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
+		return 0;
+
+	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
+		return 0;
+
+	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
+	{
+		wbFree(lpBits);
+		DeleteDC(hdc);
 		return 0;
 	}
 
-	if (!(pbmi = CreateBitmapInfoStruct(hbm))){
-		return FALSE;
+	pix_cx = pbmi->bmiHeader.biWidth;
+	pix_cy = pbmi->bmiHeader.biHeight;
+
+	DeleteDC(hdc);
+
+	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
+	if (bCompress4to3)
+	{
+
+		int i, x, nLen = pbmi->bmiHeader.biSizeImage;
+
+		// Remove every fourth byte from the original RGBQUAD data
+		for (i = 0, x = 0; i < nLen; i += 4, x += 3)
+		{
+			*((*lpBits) + x) = *((*lpBits) + i);
+			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
+			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
+		}
+		wbFree(lpBits);
+		return (nLen / 4) * 3;
+	} else {
+		wbFree(lpBits);
+		return pbmi->bmiHeader.biSizeImage;
 	}
-	
-	// Return data, len
-	return (BYTE*)readHBitmap(hbm, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight, compress);
-}
-
-BYTE* readHBitmap(HBITMAP hBitmap, LONG width, LONG height, int compress) {
-    BITMAP bmp;
-    HDC hdcMem1, hdcMem2;
-    HBITMAP hBitmapOld;
-    BYTE* data;
-	int dataSize;
-
-	//  Store pointers for bmp w/h
-	int *bmpwidth;
-	int *bmpheight;
-
-    // Get bitmap information
-    GetObject(hBitmap, sizeof(bmp), &bmp);
-    *bmpwidth = bmp.bmWidth;
-    *bmpheight = bmp.bmHeight;
-
-	// Determine size of pixel data
-    int rowSize = (*bmpwidth * 3 + 3) & ~3; // row size must be a multiple of 4 bytes
-    dataSize = rowSize * *bmpheight;
-
-    // Create compatible DCs
-    hdcMem1 = CreateCompatibleDC(NULL);
-    hdcMem2 = CreateCompatibleDC(NULL);
-
-    // Create DIB section
-    BITMAPINFO bmpInfo;
-    ZeroMemory(&bmpInfo, sizeof(BITMAPINFO));
-    bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmpInfo.bmiHeader.biWidth = *bmpwidth;
-    bmpInfo.bmiHeader.biHeight = -*bmpwidth;
-    bmpInfo.bmiHeader.biPlanes = 1;
-    bmpInfo.bmiHeader.biBitCount = 24;
-    bmpInfo.bmiHeader.biCompression = BI_RGB;
-    HBITMAP hDib = CreateDIBSection(hdcMem1, &bmpInfo, DIB_RGB_COLORS, (void**) &data, NULL, 0);
-	
-
-    // Select bitmaps into DCs
-    hBitmapOld = (HBITMAP) SelectObject(hdcMem1, hBitmap);
-    (HBITMAP) SelectObject(hdcMem2, hDib);
-
-    // Copy bitmap to DIB
-    BitBlt(hdcMem2, 0, 0, *bmpwidth, *bmpheight, hdcMem1, 0, 0, SRCCOPY);
-
-    // Convert pixel data from 32-bit RGBQUAD to 24-bit RGB if requested
-    if (compress) {
-        for (int y = 0; y < *bmpheight; y++) {
-            for (int x = 0; x < *bmpwidth; x++) {
-                data[y*rowSize + x*3] = data[y*rowSize + x*4];
-                data[y*rowSize + x*3 + 1] = data[y*rowSize + x*4 + 1];
-                data[y*rowSize + x*3 + 2] = data[y*rowSize + x*4 + 2];
-            }
-        }
-    }
-
-    // Clean up
-    SelectObject(hdcMem1, hBitmapOld);
-    DeleteDC(hdcMem1);
-    DeleteDC(hdcMem2);
-    DeleteObject(hDib);
-
-    return data;
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)

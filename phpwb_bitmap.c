@@ -109,7 +109,7 @@ ZEND_FUNCTION(wb_get_image_data)
 {
 	zend_long hbm;
 	BYTE *lpBits = NULL;
-	DWORD64 size;
+	DWORDLONG size;
 	zend_bool compress4to3 = FALSE;
 	zend_bool compress4to3_isnull;
 
