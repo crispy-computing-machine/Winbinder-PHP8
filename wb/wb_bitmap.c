@@ -409,7 +409,6 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
 	HDC hdc;
 	PBITMAPINFO pbmi;
-	int w, h;
 
 	if(!hbm){
 		return 0;
@@ -418,15 +417,11 @@ DWORD64 wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 	if(!(pbmi = CreateBitmapInfoStruct(hbm)))
 		return 0;
 
-	
-	w = pbmi->bmiHeader.biWidth;
-	h = pbmi->bmiHeader.biHeight;
-
 	// Return data, len
-	return readHBitmap(hbm, w, h, lpBits);
+	return readHBitmap(hbm, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight, lpBits);
 }
 
-unsigned char* readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
+DWORD64 readHBitmap(HBITMAP hBitmap, int* width, int* height, BYTE ** lpBits) {
     BITMAP bmp;
     HDC hdcMem1, hdcMem2;
     HBITMAP hBitmapOld;
