@@ -428,8 +428,6 @@ BYTE readHBitmap(HBITMAP hBitmap, LONG width, LONG height) {
     HBITMAP hBitmapOld;
     BYTE data;
 
-	printf("readHBitmap"); // ??
-
     // Get bitmap information
     GetObject(hBitmap, sizeof(bmp), &bmp);
     width = bmp.bmWidth;
