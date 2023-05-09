@@ -407,32 +407,49 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
-	HDC hdc;
-	PBITMAPINFO pbmi;
+	    HDC hdc;
+    PBITMAPINFO pbmi;
 
-	if (!hbm)
-		return 0;
+    if (!hbm)
+    {
+        printf("Error: Invalid bitmap handle.\n");
+        return 0;
+    }
 
-	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
-		return 0;
+    if (!(pbmi = CreateBitmapInfoStruct(hbm)))
+    {
+        printf("Error: Failed to create bitmap info structure.\n");
+        return 0;
+    }
 
-	if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
-		return 0;
+    if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
+    {
+        printf("Error: Failed to allocate memory for bitmap data.\n");
+        wbFree(pbmi);
+        return 0;
+    }
 
-	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
-		return 0;
+    if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
+    {
+        printf("Error: Failed to create device context.\n");
+        wbFree(pbmi);
+        wbFree(*lpBits);
+        return 0;
+    }
 
-	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
-	{
-		wbFree(lpBits);
-		DeleteDC(hdc);
-		return 0;
-	}
+    if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
+    {
+        printf("Error: Failed to get DIB bits.\n");
+        wbFree(pbmi);
+        wbFree(*lpBits);
+        DeleteDC(hdc);
+        return 0;
+    }
 
-	pix_cx = pbmi->bmiHeader.biWidth;
-	pix_cy = pbmi->bmiHeader.biHeight;
+    pix_cx = pbmi->bmiHeader.biWidth;
+    pix_cy = pbmi->bmiHeader.biHeight;
 
-	DeleteDC(hdc);
+    DeleteDC(hdc);
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
 	if (bCompress4to3)
@@ -450,7 +467,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 		//wbFree(lpBits);
 		return (nLen / 4) * 3;
 	} else {
-		//wbFree(lpBits);
+		wbFree(pbmi);
 		return pbmi->bmiHeader.biSizeImage;
 	}
 }
