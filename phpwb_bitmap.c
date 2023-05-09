@@ -3,7 +3,7 @@
 WINBINDER - The native Windows binding for PHP for PHP
 
 Copyright  Hypervisual - see LICENSE.TXT for details
-Author: Rubem Pechansky (http://winbinder.org/contact.php)
+Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
 ZEND wrapper for bitmap functions
 
@@ -131,7 +131,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
 	RETVAL_STRINGL(lpBits, size);
-	//wbFree(lpBits);
+	wbFree(lpBits);
 }
 
 ZEND_FUNCTION(wb_create_mask)
