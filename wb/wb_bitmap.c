@@ -407,7 +407,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
-	    HDC hdc;
+	HDC hdc;
     PBITMAPINFO pbmi;
 
     if (!hbm)
