@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Functions for Windows controls
 
@@ -55,22 +55,22 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
 
 // External
 
 extern void SetStatusBarHandle(HWND hCtrl);
-extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab);
-extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab);
+extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
-					   int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, long lParam, int nTab)
+PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
+					   int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWBStyle, LONG_PTR lParam, int nTab)
 {
 	PWBOBJ pwbo;
 	LPTSTR pszClass;
@@ -102,7 +102,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	pwbo->pszCallBackFn = NULL;
 	pwbo->pszCallBackObj = NULL;
 	pwbo->lparam = lParam;
-	ZeroMemory(pwbo->lparams, sizeof(LONG) * 8);
+	ZeroMemory(pwbo->lparams, sizeof(LONG_PTR) * 8);
 	ZeroMemory(&pwbo->rcTitle, sizeof(RECT) + 2 * sizeof(AREA));
 	pwbo->pbuffer = NULL;
 
@@ -117,7 +117,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		// nTab is the page index
 
-		nTab = MIN(MIN((UINT)nTab, pTabData->nPages - 1), MAX_TABS);
+		nTab = MIN(MIN((UINT64)nTab, pTabData->nPages - 1), MAX_TABS);
 		hTab = pTabData->page[nTab].hwnd ? pTabData->page[nTab].hwnd : pwboParent->hwnd;
 	}
 
@@ -365,7 +365,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 	case StatusBar:
 		pszClass = STATUSCLASSNAME;
-		if (BITTEST(GetWindowLong(pwboParent->hwnd, GWL_STYLE), WS_THICKFRAME))
+		if (BITTEST(GetWindowLongPtr(pwboParent->hwnd, GWL_STYLE), WS_THICKFRAME))
 			dwStyle = WS_CHILD | CCS_BOTTOM | CCS_NOMOVEY | SBARS_SIZEGRIP | nVisible;
 		else
 			dwStyle = WS_CHILD | CCS_BOTTOM | CCS_NOMOVEY | nVisible;
@@ -440,7 +440,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case EditBox: // Subclasses edit box to process keyboard messages
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
-		lpfnEditProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)EditBoxProc);
+		lpfnEditProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)EditBoxProc);
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
@@ -448,7 +448,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		//			// Subclasses tab control to process WM_COMMAND
-		//			lpfnTabProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)TabProc);
+		//			lpfnTabProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)TabProc);
 		CreateToolTip(pwbo, pszTooltip);
 		wbSetTabControlText(pwbo, pszCaption);
 
@@ -462,12 +462,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		if (!wcsicmp(pszClass, TEXT("BUTTON"))) // Only for group boxes!
-			lpfnFrameProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)FrameProc);
+			lpfnFrameProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)FrameProc);
 		break;
 
 	case InvisibleArea: // Subclasses InvisibleArea to process WM_MOUSEMOVE
 		CreateToolTip(pwbo, pszTooltip);
-		lpfnInvisibleProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)InvisibleProc);
+		lpfnInvisibleProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)InvisibleProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		break;
 
@@ -522,7 +522,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case HyperLink:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)HyperLinkProc);
+		lpfnHyperLinkProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)HyperLinkProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -530,7 +530,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	case Label:
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		// Subclasses static control
-		lpfnLabelProcOld = (WNDPROC)SetWindowLong(pwbo->hwnd, GWL_WNDPROC, (LONG)LabelProc);
+		lpfnLabelProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)LabelProc);
 		wbSetCursor(pwbo, NULL, 0); // Assumes class cursor
 		CreateToolTip(pwbo, pszTooltip);
 		break;
@@ -561,7 +561,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszSourc
 	if (pwboParent->uClass == TabControl)
 		RegisterControlInTab(pwboParent, pwbo, id, nTab);
 
-	SetWindowLong(pwbo->hwnd, GWL_USERDATA, (LONG)pwbo);
+	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
 
 	return pwbo;
 }
@@ -613,7 +613,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 			else
 			{
 
-				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Menu item #%d not found in menu #%d"), id, (int)pwboParent->hwnd);
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Menu item #%d not found in menu #%d"), id, (__int64)pwboParent->hwnd);
 				return NULL;
 			}
 		}
@@ -664,7 +664,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 
 				if (IsWindow(hCtrl))
 				{
-					pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWL_USERDATA);
+					pwbo = (PWBOBJ)GetWindowLongPtr(hCtrl, GWLP_USERDATA);
 				}
 				else
 				{
@@ -693,20 +693,20 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 					// Yes, let's try to find it
 
 					PTABDATA pTabData;
-					UINT i;
+					UINT64 i;
 
 					pTabData = (PTABDATA)pwboParent->lparam;
 
 					for (i = 0; i < pTabData->nCtrls; i++)
 					{
-						if (pTabData->ctrl[i].id == (UINT)id)
+						if (pTabData->ctrl[i].id == (UINT64)id)
 						{
 
 							hCtrl = pTabData->ctrl[i].hwnd;
 
 							if (IsWindow(hCtrl))
 							{
-								pwbo = (PWBOBJ)GetWindowLong(hCtrl, GWL_USERDATA);
+								pwbo = (PWBOBJ)GetWindowLongPtr(hCtrl, GWLP_USERDATA);
 							}
 							else
 							{
@@ -758,6 +758,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		return FALSE;
 
 	wbConvertLineBreaks(&pszText, pszSourceText);
+	
 
 	if (bTooltip)
 	{
@@ -829,7 +830,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 	Limitation: Treeview items <= 1024 characters
 */
 
-UINT wbGetTextLength(PWBOBJ pwbo, int nIndex)
+UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex)
 {
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
@@ -912,7 +913,7 @@ UINT wbGetTextLength(PWBOBJ pwbo, int nIndex)
 	}
 }
 
-DWORD CALLBACK EditStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+DWORD CALLBACK EditStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG_PTR cb, LONG_PTR *pcb)
 {
 	char **rtf = (char **)dwCookie;
 	*rtf = wbMalloc(cb + 1);
@@ -943,7 +944,7 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc)
 	return FALSE;
 }
 
-BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT nMaxChars, int nIndex)
+BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT64 nMaxChars, int nIndex)
 {
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
@@ -1035,8 +1036,10 @@ BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT nMaxChars, int nIndex)
 	}
 
 	default:
+		// Window, tab control...
+		int winText;
+		winText = GetWindowText(pwbo->hwnd, pszText, (int)nMaxChars);
 
-		GetWindowText(pwbo->hwnd, pszText, nMaxChars);
 		return TRUE;
 	}
 }
@@ -1347,13 +1350,13 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 		if (bSet)
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
-				SetWindowLong(pwbo->hwnd, GWL_STYLE, GetWindowLong(pwbo->hwnd, GWL_STYLE) | (TVS_HASLINES));
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) | (TVS_HASLINES));
 		}
 		else
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
 			{
-				SetWindowLong(pwbo->hwnd, GWL_STYLE, GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(TVS_HASLINES));
+				SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(TVS_HASLINES));
 			}
 		}
 		break;
@@ -1363,7 +1366,7 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 		if (bSet)
 		{
 			if (BITTEST(dwWBStyle, WBC_LINES))
-				SendMessage(pwbo->hwnd, TBM_SETTICFREQ, 10, 1);
+				SendMessage(pwbo->hwnd, TBM_SETTICFREQ, 1, 0);
 		}
 		else
 		{
@@ -1373,7 +1376,6 @@ BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet)
 			}
 		}
 		break;
-
 	default:
 		return FALSE;
 	}
@@ -1441,7 +1443,7 @@ BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue)
 	return TRUE;
 }
 
-BOOL wbSetRange(PWBOBJ pwbo, LONG lMin, LONG lMax)
+BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR lMin, LONG_PTR lMax)
 {
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
@@ -1552,7 +1554,7 @@ DWORD wbGetValue(PWBOBJ pwbo)
 BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 {
 	BOOL bRet = TRUE;
-	LONG lStyle;
+	LONG_PTR lStyle;
 
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
@@ -1569,17 +1571,17 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 
 	case PushButton:
 
-		lStyle = GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(BS_ICON | BS_BITMAP);
+		lStyle = GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(BS_ICON | BS_BITMAP);
 		bRet = TRUE;
 		if (IsIcon(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | BS_ICON);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | BS_ICON);
 			SendMessage(pwbo->hwnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hImage);
 			break;
 		}
 		else if (IsBitmap(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | BS_BITMAP);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | BS_BITMAP);
 			bRet = SetTransparentBitmap(pwbo->hwnd, (HBITMAP)hImage, FALSE, clTransp);
 			break;
 		}
@@ -1608,18 +1610,18 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 
 	case Frame:
 
-		lStyle = GetWindowLong(pwbo->hwnd, GWL_STYLE) & ~(SS_ICON | SS_BITMAP);
+		lStyle = GetWindowLongPtr(pwbo->hwnd, GWL_STYLE) & ~(SS_ICON | SS_BITMAP);
 		bRet = TRUE;
 		if (IsIcon(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | SS_ICON);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | SS_ICON);
 			SendMessage(pwbo->hwnd, STM_SETIMAGE, IMAGE_ICON, (LPARAM)hImage);
 			InvalidateRect(pwbo->hwnd, NULL, FALSE);
 			break;
 		}
 		else if (IsBitmap(hImage))
 		{
-			SetWindowLong(pwbo->hwnd, GWL_STYLE, lStyle | SS_BITMAP);
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | SS_BITMAP);
 			SetTransparentBitmap(pwbo->hwnd, (HBITMAP)hImage, TRUE, clTransp);
 			InvalidateRect(pwbo->hwnd, NULL, FALSE);
 			break;
@@ -1637,7 +1639,7 @@ BOOL wbSetImage(PWBOBJ pwbo, HANDLE hImage, COLORREF clTransp, LPARAM lParam)
 	case TabControl:
 
 		lParam = MAX(1, lParam); // Image count
-		bRet = wbCreateTabControlImageList(pwbo, hImage, lParam, clTransp);
+		bRet = wbCreateTabControlImageList(pwbo, hImage, (int)lParam, clTransp);
 		break;
 
 	case TreeView:
@@ -1878,7 +1880,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	if (!SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM)&ti))
 		return NULL;
 
-	M_ToolTipWnd = (LONG)hwndTT;
+	M_ToolTipWnd = (LONG_PTR)hwndTT;
 	return hwndTT;
 }
 
@@ -1954,7 +1956,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 
 // Processing routine for Frame controls
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1979,7 +1981,7 @@ static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 // Processing routine for EditBoxes
 
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2035,7 +2037,7 @@ static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 // Processing routine for InvisibleAreas
 
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2086,7 +2088,7 @@ static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 // Processing routine for ImageButton
 
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo;
 
@@ -2100,9 +2102,9 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 			if (!(wParam & MK_LBUTTON))
 			{
 
+				// Mouseover
 				RECT rc;
 				POINT pt;
-
 				GetWindowRect(hwnd, &rc);
 				pt.x = LOWORD(lParam) + rc.left;
 				pt.y = HIWORD(lParam) + rc.top;

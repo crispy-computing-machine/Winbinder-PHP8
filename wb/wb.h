@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Common header for WinBinder: all exported functions and constants
 
@@ -67,6 +67,7 @@
 #include "wb_version.h"
 #include <windows.h>
 #include <commctrl.h>
+#include <WinUser.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
@@ -87,13 +88,11 @@
 //-------------------------------------------------------------------- CONSTANTS
 
 // May be missing in some headers
-
 #ifndef LVIS_CHECKED
 #define LVIS_CHECKED 0x2000
 #endif
 
 // Other constants
-
 #define MAX_TABS 16				 // Maximum number of tabs in a TabControl
 #define MAX_TABCONTROLS 512		 // Maximum number of controls in a TabControl
 #define MAX_LISTVIEWCOLS 256	 // Maximum columns in a ListView
@@ -104,17 +103,15 @@
 #define MAX_IMAGELIST_IMAGES 128 // Maximum images inside a ImageList
 #define REPEAT_TIMER 901		 // Timer identifier for ImageButtons
 #define NOCOLOR CLR_INVALID
-#define WINCOLOUR RGB(240, 240, 240) // https://stackoverflow.com/questions/9108323/whats-the-rgb-color-for-the-windows-color-window-or-color-background
+#define WINCOLOUR RGB(240, 240, 240)
 #define MAX_PATH_BUFFER 1024		 // Maximum size for selected files
 
 // Strings
-
 #define RICHEDITCONTROL TEXT("RichEdit20A")
 #define TAB_PAGE_CLASS TEXT("wbTabPage")
 #define WB_EXTENSION TEXT("phpw")
 
 // WinBinder window class names (must begin with "wb", lowercase)
-
 #define MAIN_WINDOW_CLASS TEXT("wbMainWnd")
 #define OWNERDRAWN_WINDOW_CLASS TEXT("wbOwnerdrawnWnd")
 #define OWNERDRAWN_NAKED_CLASS TEXT("wbOwnerdrawnNakedWnd")
@@ -125,7 +122,6 @@
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
 
 // Custom WinBinder messages
-
 #define WBWM_NOTIFYICON (WM_APP + 2)
 #define WBWM_KEYDOWN (WM_APP + 3)
 #define WBWM_KEYUP (WM_APP + 4)
@@ -319,25 +315,25 @@ enum
 
 typedef struct
 { // ar
-	LONG width;
-	LONG height;
+	LONG_PTR width;
+	LONG_PTR height;
 } AREA;
 
-// WinBinder object (window, control, or menu), stored with SetWindowLong() / GWL_USERDATA
+// WinBinder object (window, control, or menu), stored with SetWindowLongPtr() / GWL_USERDATA
 
 typedef struct _wbo
 {							// wbo
 	HWND hwnd;				// Control or window handle
-	UINT id;				// Control identifier
-	UINT uClass;			// Object class
-	int item;				// Item index
-	int subitem;			// Sub-item index
+	UINT64 id;				// Control identifier
+	UINT64 uClass;			// Object class
+	__int64 item;				// Item index
+	__int64 subitem;			// Sub-item index
 	DWORD style;			// WinBinder style
 	struct _wbo *parent;	// Parent window
 	LPTSTR pszCallBackFn;   // Callback function
 	LPDWORD pszCallBackObj; // Object for callback method
 	LPARAM lparam;			// User-defined parameter
-	LONG lparams[8];		// General-purpose parameter array
+	LONG_PTR lparams[8];		// General-purpose parameter array
 	RECT rcTitle;			// Title area
 	AREA arMin;				// Minimum window area
 	AREA arMax;				// Maximum window area
@@ -348,8 +344,8 @@ typedef struct _wbo
 
 typedef struct
 { // wbi
-	UINT id;
-	UINT index;
+	UINT64 id;
+	UINT64 index;
 	LPCTSTR pszCaption;
 	LPCTSTR pszHint;
 	LPCTSTR pszImage;
@@ -360,8 +356,8 @@ typedef struct
 
 typedef struct
 { // td
-	UINT nCtrls;
-	UINT nPages;
+	UINT64 nCtrls;
+	UINT64 nPages;
 	struct
 	{
 		HWND hwnd;
@@ -369,7 +365,7 @@ typedef struct
 	struct
 	{
 		HWND hwnd;
-		UINT id;
+		UINT64 id;
 		BYTE nTab;
 	} ctrl[MAX_TABCONTROLS];
 } TABDATA, *PTABDATA;
@@ -444,14 +440,14 @@ HDC wbCreateBitmapDC(HBITMAP hbm);
 BOOL wbCopyBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget);
 BOOL wbCopyPartialBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget, int nWidth, int nHeight, int xSource, int ySource);
 BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, int yTarget, int nWidth, int nHeight, int xSource, int ySource);
-//HANDLE		wbLoadImage(LPCTSTR pszImageFile, UINT nIndex);
-HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam);
-DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3);
+//HANDLE		wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex);
+HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam);
+DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3);
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3);
 
 // WB_CONTROL.C
 
-PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWinBinderStyle, long lParam, int nTab);
+PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWinBinderStyle, LONG_PTR lParam, int nTab);
 BOOL wbDestroyControl(PWBOBJ pwbo);
 PWBOBJ wbGetControl(PWBOBJ pwboParent, int id);
 BOOL wbCreateItem(PWBOBJ pwbo, LPCTSTR pszItemText);
@@ -461,17 +457,17 @@ PWBOBJ wbGetFocus(void);
 BOOL wbSetFocus(PWBOBJ pwbo);
 DWORD wbGetValue(PWBOBJ pwbo);
 BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue);
-BOOL wbSetRange(PWBOBJ pwbo, LONG dwMin, LONG dwMax);
+BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR dwMin, LONG_PTR dwMax);
 BOOL wbGetVisible(PWBOBJ pwbo);
 BOOL wbSetVisible(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet);
-BOOL wbIsValidClass(UINT uClass);
+BOOL wbIsValidClass(UINT64 uClass);
 BOOL wbGetEnabled(PWBOBJ pwbo);
 BOOL wbSetEnabled(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszText, int nItem, BOOL bTooltip);
-BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT nMaxChars, int nIndex);
+BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT64 nMaxChars, int nIndex);
 BOOL wbGetRtfText(PWBOBJ pwbo, char **unc);
-UINT wbGetTextLength(PWBOBJ pwbo, int nIndex);
+UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex);
 BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
 DWORD wbGetSelected(PWBOBJ pwbo);
@@ -484,7 +480,6 @@ BOOL wbCreateComboItem(PWBOBJ pwbol, LPCTSTR pszItem, BOOL bCombo);
 // WB_CONTROL_LISTVIEW.C
 
 int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText);
-//BOOL		wbDeleteListViewItem(PWBOBJ pwbo, int nItem);
 BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbCreateListViewColumn(PWBOBJ pwbo, int nCol, LPTSTR lpszItem, int nWidth, int nAlign);
 BOOL wbSetListViewItemText(PWBOBJ pwbo, int nItem, int nSubItem, LPCTSTR pszText);
@@ -537,23 +532,23 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
 BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText);
 BOOL wbCreateTabItem(PWBOBJ pwbo, LPCTSTR pszItem);
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem);
-BOOL wbCreateTabControlImageList(PWBOBJ pwboTab, int nItem);
+BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex);
 
 // WB_DRAW.C
 
 COLORREF wbGetPixel(HANDLE hImage, int xPos, int yPos);
 BOOL wbSetPixel(HANDLE hImage, int xPos, int yPos, COLORREF color);
-BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT nLineWidth, UINT nLineStyle);
-BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle);
-BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle);
+BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT64 nLineWidth, UINT64 nLineStyle);
+BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle);
+BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle);
 BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth, int nHeight, int nFont, DWORD dwFlags);
 BOOL wbDrawBitmap(HANDLE handle, HBITMAP hbmBits, int xPos, int yPos, int nWidth, int nHeight, int xOffset, int yOffset, COLORREF clTransparent);
 BOOL wbGetTextSize(PSIZE psizeText, LPCTSTR pszString, int nFont);
 
 // WB_LOWLEVEL.C
 
-LPARAM wbSendMessage(PWBOBJ pwbo, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
 HMODULE wbLoadLibrary(LPCTSTR pszLibName);
 FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction);
 BOOL wbReleaseLibrary(HMODULE hLib);
@@ -582,20 +577,20 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
 
 // WB_WINDOW.C
 
-PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, long lParam);
+PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip, int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWBStyle, LONG_PTR lParam);
 BOOL wbDestroyWindow(PWBOBJ pwbo);
 BOOL wbSetWindowHandler(PWBOBJ pwbo, LPDWORD pszObj, LPCTSTR pszHandler);
 BOOL wbSetWindowSize(PWBOBJ pwbo, int nWidth, int nHeight, int nShowMode);
 DWORD wbGetWindowSize(PWBOBJ pwbo, BOOL bClientRect);
 DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect);
 BOOL wbSetWindowPosition(PWBOBJ pwbo, int xPos, int yPos, PWBOBJ pwboParent);
-void *wbGetAppInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT uLen);
-BOOL wbSetAppInfo(LPCTSTR pszInfo, BOOL *pbString, DWORD dwValue);
-BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT uPeriod);
+// void *wbGetAppInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT64 uLen);
+// BOOL wbSetAppInfo(LPCTSTR pszInfo, BOOL *pbString, DWORD dwValue);
+BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod);
 BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending);
-UINT wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT nMaxControls);
+UINT64 wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT64 nMaxControls);
 HWND wbGetRequestedAppWindow(LPCTSTR pszCaption, BOOL bBringToFront);
-BOOL wbSetWindowArea(PWBOBJ pwbo, UINT type, int xPos, int yPos, int nWidth, int nHeight);
+BOOL wbSetWindowArea(PWBOBJ pwbo, UINT64 type, int xPos, int yPos, int nWidth, int nHeight);
 
 // WB_WINSYS.C
 
@@ -610,20 +605,20 @@ BOOL wbPlaySystemSound(int nStyle);
 BOOL wbPlaySound(LPCTSTR pszFileName, LPCTSTR pszCommand);
 BOOL wbStopSound(LPCTSTR pszCommand);
 BOOL wbShowLastError(LPCTSTR pszCaption, BOOL bMessageBox);
-int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT nStyle);
-BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
-BOOL wbFindFile(LPTSTR pszFileName, UINT uLen);
+int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle);
+DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
+BOOL wbFindFile(LPTSTR pszFileName, UINT64 uLen);
 BOOL wbReadRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPTSTR pszValue, int *pnBufLen);
 BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTSTR pszValue, DWORD dwValue, BOOL bString);
-LONG wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT uLen);
+LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbString, LPTSTR pszString, UINT uLen);
 BOOL wbSetAccelerators(PWBOBJ pwbo, LPACCEL paccels, int nCount);
 DWORD wbMakeAccelFromString(const char *pszAccel);
-UINT wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
+UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
 
 // Library-dependent functions
 
-UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
+UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
 BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...);
 void *wbMalloc(size_t size);
 void *wbCalloc(size_t nmemb, size_t size);
@@ -631,7 +626,9 @@ BOOL wbFree(void *ptr);
 void *wbRealloc(void *ptr, size_t size);
 char *wbStrDup(const char *string);
 char *wbStrnDup(const char *string, size_t size);
-
+UINT64 MemCheck(const char *message, BOOL mb);
+#define VAR_DUMP(var) _var_dump(#var, var)
+void _var_dump(const char *var_name, ...);
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _WB_H

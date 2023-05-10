@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Library of ZEND-specific functions for the WinBinder extension
 
@@ -12,7 +12,10 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
-
+#include "win32/getrusage.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 //-------------------------------------------------------------------- CONSTANTS
 
 #define CALLBACK_ARGS 6 // Number of arguments of the callback function
@@ -64,34 +67,33 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 	}
 
 	// Normal error with stack trace
-	php_error_docref(NULL TSRMLS_CC, messageType, str);
+	php_error_docref(NULL, messageType, str);
 
-	// if not debug mode show friendly error box (only for fatal errors)
+
+	/* if not debug mode show friendly error box (only for fatal errors)
 	if (INI_INT("winbinder.debug_level") == 0 && messageType == E_ERROR)
 	{
 		szMsg = Utf82WideChar(str, 0);
 		szTitle = Utf82WideChar("wbError", 0);
 		wbMessageBox(NULL, szMsg, szTitle, nType);
 	}
-
+	*/
 	return FALSE;
 }
 
 // *** The use of parameter pwboParent in wbCallUserFunction() is not clear
 
-UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
+UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
 	zval fname = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
-	UINT ret = 0;
+	UINT64 ret = 0;
 	char *pszFName;
 	char *pszOName;
 	zend_string *funName;
 	int name_len = 0;
-
-	TSRMLS_FETCH();
 
 	if (pszObject == NULL)
 	{
@@ -112,7 +114,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window '%s'"), title);
 		}
 		else
-			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG)pwboParent);
+			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG_PTR)pwboParent);
 		return FALSE;
 	}
 
@@ -134,40 +136,44 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	//}
 
 	// PWBOBJ pointer
-	ZVAL_LONG(&parms[0], (LONG)pwboParent);
+	ZVAL_LONG(&parms[0], (LONG_PTR)pwboParent);
 
 	// id
-	ZVAL_LONG(&parms[1], (LONG)id);
+	ZVAL_LONG(&parms[1], (LONG_PTR)id);
 
 	// control handle
-	ZVAL_LONG(&parms[2], (LONG)pctrl);
+	ZVAL_LONG(&parms[2], (LONG_PTR)pctrl);
 
 	// lparam1
-	ZVAL_LONG(&parms[3], (LONG)lParam1);
+	ZVAL_LONG(&parms[3], (LONG_PTR)lParam1);
 
 	// lparam2
-	ZVAL_LONG(&parms[4], (LONG)lParam2);
+	ZVAL_LONG(&parms[4], (LONG_PTR)lParam2);
 
 	// lparam3
-	ZVAL_LONG(&parms[5], (LONG)lParam3);
+	ZVAL_LONG(&parms[5], (LONG_PTR)lParam3);
 
 	// Call the user function
-	bRet = call_user_function_ex(
-		CG(function_table), // Hash value for the function table
-		&pszObject,			// Pointer to an object (may be NULL)
+	bRet = call_user_function(
+		NULL, // CG(function_table) Hash value for the function table
+		(zval *)&pszObject,			// Pointer to an object (may be NULL)
 		&fname,				// Function name
 		&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
-		parms,				// Parameter array
-		0,					// No separation flag (always 0)
-		NULL TSRMLS_CC);
+		parms				// Parameter array
+		);
 
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
 	{
 	    // supress if its null as the user function may not return anything
 	    if(bRet != IS_NULL){
-	        wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("User function call failed %s"), Z_TYPE(bRet));
+	        wbError(
+				TEXT("wbCallUserFunction"),
+				 MB_ICONWARNING,
+				  TEXT("User function call failed %s"),
+				   (BOOL)bRet
+				   );
 	    }
 	}
 
@@ -213,9 +219,29 @@ char *wbStrnDup(const char *string, size_t size)
 
 BOOL wbFree(void *ptr)
 {
-	if (ptr)
+	if (ptr){
 		efree(ptr);
+	}
 	return TRUE;
 }
+
+UINT64 MemCheck(const char *message, BOOL mb){
+	struct rusage r_usage;
+	int *p = 0;
+	p = (int*)malloc(sizeof(int)*1000);
+	int ret = getrusage(RUSAGE_SELF,&r_usage);
+	if(ret == 0){
+		if(mb){
+			printf("%s Memory: %lldMB\n", message, (r_usage.ru_maxrss/1024));
+		} else {
+			printf("%s Memory: %lldKB\n", message, r_usage.ru_maxrss);
+		}
+	} else {
+		printf("MemCheck Error in getrusage. errno = %d\n", errno);
+	}
+	return 0;
+}
+
+
 
 //------------------------------------------------------------------ END OF FILE

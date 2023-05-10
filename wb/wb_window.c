@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Window creation and manipulation functions
 
@@ -50,7 +50,7 @@ BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);
 
 extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHandler);
 extern DWORD GetCalendarTime(PWBOBJ pwbo);
-extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
@@ -61,21 +61,21 @@ static BOOL DeleteTaskBarIcon(HWND hwnd);
 static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-static void CALLBACK TimeProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
 
 // Procedures for WinBinder classes
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
 
 //----------------------------------------------------------------------- TYPES
 
@@ -105,8 +105,8 @@ LISTVIEWCOLOR test;
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
-PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip,
-					  int xPos, int yPos, int nWidth, int nHeight, UINT id, DWORD dwWBStyle, long lParam)
+PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCaption, LPCTSTR pszTooltip,
+					  int xPos, int yPos, int nWidth, int nHeight, UINT64 id, DWORD dwWBStyle, LONG_PTR lParam)
 {
 	TCHAR szWindowName[MAXWINNAME] = TEXT("");
 	LPTSTR pszClass;
@@ -129,7 +129,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 	pwbo->pszCallBackFn = NULL;
 	pwbo->pszCallBackObj = NULL;
 	pwbo->lparam = lParam;
-	ZeroMemory(pwbo->lparams, sizeof(LONG) * 8);
+	ZeroMemory(pwbo->lparams, sizeof(LONG_PTR) * 8);
 	ZeroMemory(&pwbo->rcTitle, sizeof(RECT) + 2 * sizeof(AREA));
 	pwbo->pbuffer = NULL;
 
@@ -219,7 +219,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT uWinBinderClass, LPCTSTR pszCaptio
 
 	CreateToolTip(pwbo, pszTooltip);
 
-	SetWindowLong(pwbo->hwnd, GWL_USERDATA, (LONG)pwbo);
+	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
 
 	// Is it a modal dialog?
 
@@ -375,9 +375,8 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 		return FALSE;
 
 	// pwboParent is ignored here
-
-	if (bClientRect)
-	{
+	// @todo seems to segfault when clientarea is set to true!
+	if (bClientRect){
 		RECT rcParent;
 
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
@@ -385,9 +384,9 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 
 		rc.left -= rcParent.left;
 		rc.top -= rcParent.top;
-	}
-	else
+	} else {
 		bRet = GetWindowRect(pwbo->hwnd, &rc);
+	}
 
 	if (!bRet)
 		return (DWORD)MAKELONG(WBC_CENTER, WBC_CENTER);
@@ -451,7 +450,7 @@ DWORD wbGetWindowSize(PWBOBJ pwbo, BOOL bClientRect)
 		return (DWORD)MAKELONG(rc.right - rc.left, rc.bottom - rc.top);
 }
 
-BOOL wbSetWindowArea(PWBOBJ pwbo, UINT type, int xPos, int yPos, int nWidth, int nHeight)
+BOOL wbSetWindowArea(PWBOBJ pwbo, UINT64 type, int xPos, int yPos, int nWidth, int nHeight)
 {
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
@@ -481,10 +480,10 @@ BOOL wbSetWindowArea(PWBOBJ pwbo, UINT type, int xPos, int yPos, int nWidth, int
 /* Fills an array with all controls and returns the number of controls found. If pwboList is NULL,
 	just returns the number of controls. */
 
-UINT wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT nMaxControls)
+UINT64 wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT64 nMaxControls)
 {
 	HWND hwnd;
-	UINT i = 0;
+	UINT64 i = 0;
 
 	if (!wbIsWBObj((void *)pwboParent, TRUE))
 		return 0;
@@ -527,7 +526,7 @@ BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending)
 
 /* Make uPeriod equal to zero to kill the timer. id < 0 means a hi-res timer */
 
-BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT uPeriod)
+BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod)
 {
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
@@ -734,7 +733,7 @@ BOOL RegisterClasses(void)
 
 */
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	static HWND hTBWnd = NULL; // Handle of toolbar window
 
@@ -795,7 +794,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))
 		{ // Tooltip
 
-			if (((LPNMHDR)lParam)->code == (UINT)TTN_NEEDTEXT)
+			if (((LPNMHDR)lParam)->code == (UINT64)TTN_NEEDTEXT)
 			{
 				if (hTBWnd)
 				{
@@ -828,7 +827,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 		case Spinner:
 
-			if (((LPNMHDR)lParam)->code == (UINT)UDN_DELTAPOS)
+			if (((LPNMHDR)lParam)->code == (UINT64)UDN_DELTAPOS)
 			{
 				CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
 			}
@@ -844,7 +843,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
 				break;
 
-			case (UINT)TVN_SELCHANGED:
+			case (UINT64)TVN_SELCHANGED:
 				CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
 				break;
 			}
@@ -852,7 +851,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 		case TabControl:
 
-			if (((LPNMHDR)lParam)->code == (UINT)TCN_SELCHANGE)
+			if (((LPNMHDR)lParam)->code == (UINT64)TCN_SELCHANGE)
 			{
 
 				HWND hTab = ((LPNMHDR)lParam)->hwndFrom;
@@ -885,7 +884,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 		case ListView:
 		{
-			//UINT c = ((LPNMHDR)lParam)->code;
+			//UINT64 c = ((LPNMHDR)lParam)->code;
 			switch (((LPNMHDR)lParam)->code)
 			{
 			//case 0xffffff4f:
@@ -901,7 +900,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					case CDDS_ITEMPREPAINT:
 					{
 						LISTVIEWCOLOR lvc = {0};
-						UINT ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, ((LPNMHDR)lParam)->idFrom, lplvcd->nmcd.lItemlParam, -1, &lvc);
+						UINT64 ret = wbCallUserFunction(
+									pwbobj->pszCallBackFn,
+									pwbobj->pszCallBackObj,
+									pwbobj->parent,
+									pwbobj,
+									((LPNMHDR)lParam)->idFrom,
+									lplvcd->nmcd.lItemlParam,
+									-1,
+									(LPARAM)&lvc
+								);
 
 						if (ret > 0)
 						{
@@ -930,7 +938,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 					case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
 					{
 						LISTVIEWCOLOR lvc = {0};
-						UINT ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, ((LPNMHDR)lParam)->idFrom, lplvcd->nmcd.lItemlParam, lplvcd->iSubItem, &lvc);
+						UINT64 ret = wbCallUserFunction(
+								pwbobj->pszCallBackFn,
+								pwbobj->pszCallBackObj,
+								pwbobj->parent,
+								pwbobj,
+								((LPNMHDR)lParam)->idFrom,
+								lplvcd->nmcd.lItemlParam,
+								lplvcd->iSubItem,
+								(LPARAM)&lvc
+							);
 						if (ret > 0)
 						{
 							switch (lvc.nMode)
@@ -1212,7 +1229,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE:
 	{
 		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
 		if (!pwbobj)
 			break;
 
@@ -1222,8 +1238,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
 
 			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-								   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
+				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 		}
 
 	}
@@ -1415,7 +1430,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
 /* Main window class processing */
 
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1563,7 +1578,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	// added by AF
 	case WBWM_MIDI:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 		//MessageBox(NULL, "midi", 0,0);
@@ -1580,13 +1595,13 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 			return TRUE;
 		}
-		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
+ */		//	return DefaultWBProc(hwnd, msg, wParam, lParam);
 	}
 	break;
 	// added by AF
 	case WBWM_ENUM:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 
 		pwbobj = wbGetWBObj(hwnd);
 
@@ -1598,13 +1613,13 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_ENUM, lParam, wParam, 0, 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 	// added by AF
 	case WBWM_HOOK:
 	{
-		PWBOBJ pwbobj;
+/* 		PWBOBJ pwbobj;
 		DWORD *ptr;
 		ptr = lParam;
 
@@ -1618,7 +1633,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, WBWM_HOOK, wParam, ptr[0], ptr[1], 0);
 
 			return TRUE;
-		}
+		} */
 	}
 	break;
 
@@ -1709,7 +1724,7 @@ LRESULT ProcessCustomDraw(LPARAM lParam)
 
 // Owner-drawn window class: subclasses MainWndProc
 
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1740,7 +1755,7 @@ static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			prcOld = wbMalloc(sizeof(RECT));
 			SetRect(prcOld, 0, 0, 0, 0);
 			// Store previous buffer size in the window parameters
-			pwbobj->lparams[1] = (LONG)prcOld;
+			pwbobj->lparams[1] = (LONG_PTR)prcOld;
 		}
 		else
 			prcOld = (LPRECT)pwbobj->lparams[1];
@@ -1813,7 +1828,7 @@ static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
 // Naked window class: subclasses MainWndProc
 
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1853,7 +1868,7 @@ static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
 // Owner-drawn naked window class: subclasses NakedWndProc, OwnerDrawnWndProc
 
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1868,7 +1883,7 @@ static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wPara
 
 // The word "modal" here is not quite true: these are not "real" modal dialog boxes
 
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1934,7 +1949,7 @@ static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 	return DefDlgProc(hwnd, msg, wParam, lParam);
 }
 
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1966,7 +1981,7 @@ static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
 // Processes messages for tab pages
 
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2000,7 +2015,7 @@ static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
   Attempts to call wbCallUserFunction() directly failed miserably: the app crashes when
   zend_is_callable() is called. */
 
-static void CALLBACK TimeProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
 {
 	PWBOBJ pwbo;
 
@@ -2033,11 +2048,11 @@ static HICON GetWindowIcon(HWND hwnd)
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICONSM);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICONSM);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCL_HICON);
+	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICON);
 	if (hIcon)
 		return hIcon;
 
@@ -2174,7 +2189,7 @@ static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPA
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed)
 {
 	RECT rcMovable, rcFixed;
-	LONG xPos, yPos;
+	LONG_PTR xPos, yPos;
 
 	// Get window size
 

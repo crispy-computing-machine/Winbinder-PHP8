@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Functions for common dialog boxes
 
@@ -27,8 +27,8 @@
 
 // Private
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
-static LPTSTR DeleteChars(LPTSTR pszMain, UINT nPos, UINT nLength);
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData);
+static LPTSTR DeleteChars(LPTSTR pszMain, UINT64 nPos, UINT64 nLength);
 static LPTSTR StripPath(LPTSTR pszFileName);
 
 // External
@@ -160,7 +160,7 @@ BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR p
 	bi.pidlRoot = 0;
 	bi.pszDisplayName = pszSelPath;
 	bi.lpszTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
-	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE; // BIF_NEWDIALOGSTYLE (new folder, status, label etc)
 	bi.lpfn = BrowseCallbackProc;
 	bi.lParam = 0;
 	bi.iImage = 0;
@@ -218,7 +218,8 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 	cf.lpLogFont = &lf;
 
 	if (pfont)
-	{ // A default font was specified
+	{ 
+		// A default font was specified
 		cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
 		cf.rgbColors = pfont->color;
 		lf.lfHeight = pfont->nHeight;
@@ -226,7 +227,7 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 		lf.lfWeight = (pfont->dwFlags & FTA_ITALIC) ? TRUE : FALSE;
 		lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
 		lf.lfCharSet = DEFAULT_CHARSET;
-		strncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE);
+		strncpy((char *)lf.lfFaceName, (char *)pfont->pszName, LF_FACESIZE);
 	}
 	else
 		cf.Flags = CF_TTONLY;
@@ -241,7 +242,7 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 
 /* Callback function for the dialog box Browse For Folder */
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData)
 {
 	switch (uMsg)
 	{
@@ -254,7 +255,7 @@ static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPAR
 
 /* Remove nLength characters from pszMain, at position nPos. Return pszMain. */
 
-static LPTSTR DeleteChars(LPTSTR pszMain, UINT nPos, UINT nLength)
+static LPTSTR DeleteChars(LPTSTR pszMain, UINT64 nPos, UINT64 nLength)
 {
 	LPTSTR pszInitialPos, pszPos;
 

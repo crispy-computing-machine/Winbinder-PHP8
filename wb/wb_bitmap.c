@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Bitmap functions
 
@@ -248,9 +248,9 @@ HDC wbCreateBitmapDC(HBITMAP hbm)
 
 /* Return the handle to the bitmap or icon from file pszImageFile. */
 
-HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
+HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam)
 {
-	TCHAR szFile[MAX_PATH];
+	TCHAR szFile[MAX_PATH]; // 256
 
 	if (!pszImageFile || !*pszImageFile)
 		return NULL;
@@ -263,8 +263,8 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 	}
 
 	if (wcsstr(szFile, TEXT(".bmp")))
-	{ // Load bitmap
-
+	{ 
+		// Load bitmap
 		int cxDib, cyDib;
 		HBMP hbmpData;
 		HBMP lpDIBBits;
@@ -278,7 +278,6 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 		}
 
 		// Reject old Windows bitmap format
-
 		if (DIBHDRSIZE(hbmpData) == sizeof(BITMAPCOREHEADER))
 			return NULL;
 
@@ -288,10 +287,11 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT nIndex, LPARAM lParam)
 			cxDib = DIBWIDTH(hbmpData);
 			cyDib = DIBHEIGHT(hbmpData);
 			hbm = SetBitmap((BITMAPINFO *)hbmpData, lpDIBBits, cxDib, cyDib);
+
 			return hbm;
-		}
-		else
+		} else {
 			return NULL;
+		}
 	}
 	else if (wcsstr(szFile, TEXT(".ico")) || wcsstr(szFile, TEXT(".icl")) ||
 			 wcsstr(szFile, TEXT(".dll")) || wcsstr(szFile, TEXT(".exe")))
@@ -405,54 +405,71 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-DWORD wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
+DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 {
 	HDC hdc;
-	PBITMAPINFO pbmi;
+    PBITMAPINFO pbmi;
 
-	if (!hbm)
-		return 0;
+    if (!hbm)
+    {
+        printf("Error: Invalid bitmap handle.\n");
+        return 0;
+    }
 
-	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
-		return 0;
+    if (!(pbmi = CreateBitmapInfoStruct(hbm)))
+    {
+        printf("Error: Failed to create bitmap info structure.\n");
+        return 0;
+    }
 
-	if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
-		return 0;
+    if (!(*lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage)))
+    {
+        printf("Error: Failed to allocate memory for bitmap data.\n");
+        wbFree(pbmi);
+        return 0;
+    }
 
-	if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
-		return 0;
+    if (!(hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL)))
+    {
+        printf("Error: Failed to create device context.\n");
+        wbFree(pbmi);
+        wbFree(*lpBits);
+        return 0;
+    }
 
-	if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
-	{
-		*lpBits = NULL;
-		DeleteDC(hdc);
-		return 0;
-	}
+    if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
+    {
+        printf("Error: Failed to get DIB bits.\n");
+        wbFree(pbmi);
+        wbFree(*lpBits);
+        DeleteDC(hdc);
+        return 0;
+    }
 
-	pix_cx = pbmi->bmiHeader.biWidth;
-	pix_cy = pbmi->bmiHeader.biHeight;
+    pix_cx = pbmi->bmiHeader.biWidth;
+    pix_cy = pbmi->bmiHeader.biHeight;
 
-	DeleteDC(hdc);
+    DeleteDC(hdc);
 
 	// Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
-
 	if (bCompress4to3)
 	{
 
 		int i, x, nLen = pbmi->bmiHeader.biSizeImage;
 
 		// Remove every fourth byte from the original RGBQUAD data
-
 		for (i = 0, x = 0; i < nLen; i += 4, x += 3)
 		{
 			*((*lpBits) + x) = *((*lpBits) + i);
 			*((*lpBits) + x + 1) = *((*lpBits) + i + 1);
 			*((*lpBits) + x + 2) = *((*lpBits) + i + 2);
 		}
+		//wbFree(lpBits);
 		return (nLen / 4) * 3;
-	}
-	else
+	} else {
+		wbFree(pbmi);
 		return pbmi->bmiHeader.biSizeImage;
+	}
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)
@@ -523,12 +540,16 @@ static HBMP ReadBitmap(LPCTSTR szBMPFileName)
 	if (!lpDIB)
 	{
 		_lclose(hFile);
+		wbFree(lpDIB);
 		return NULL;
 	}
 
 	dwOffset = 0;
 	while (dwDIBSize > 0)
 	{
+		// 32,768 is a positive integer equal to. 
+		// It is notable in computer science for being the absolute value of the maximum negative value of a 16-bit signed integer,
+		// which spans the range [-32768, 32767]. 
 		wDibRead = (WORD)min(32768, dwDIBSize);
 		if (wDibRead != _lread(hFile, (LPSTR)(lpDIB + dwOffset), wDibRead))
 		{
@@ -734,8 +755,8 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 		return FALSE;
 
 	// Free memory
-
-	wbFree((HGLOBAL)lpBits);
+	//wbFree(hp);
+	//wbFree((HGLOBAL)lpBits);
 	return TRUE;
 }
 

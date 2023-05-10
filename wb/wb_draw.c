@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Drawing functions
 
@@ -235,7 +235,7 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 /* Draws a line on the handle. (x0, y0) are the first point coordinates,
   (x1, y1) are the end point coordinates. cl is the line color. */
 
-BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT64 nLineWidth, UINT64 nLineStyle)
 {
 	HPEN hpen;
 	HGDIOBJ hOldObj;
@@ -263,7 +263,7 @@ BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT
   cl is the fill color of the filled rectangle or the line color of the hollow rectangle.
   */
 
-BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle)
 {
 	HGDIOBJ hOldObj;
 
@@ -315,7 +315,7 @@ BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLO
   cl is the fill color of the filled ellipse or the line color of the hollow ellipse.
   */
 
-BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle)
 {
 	if (cl == CLR_INVALID)
 		return FALSE;

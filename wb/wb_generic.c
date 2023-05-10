@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  General-purpose functions
 
@@ -21,8 +21,9 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 {
 	if (!pwbo)
 	{
-		if (bShowErrors)
+		if (bShowErrors){
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object"));
+		}
 		return FALSE;
 	}
 
@@ -46,22 +47,19 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 	}
 
 	// Does it have a valid handle?
-
+	PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
+	if (pwboTest)
 	{
-		PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
-		if (pwboTest)
-		{
-			CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
+		CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
 
-			if (!pwboTest->hwnd)
-			{
-				wbFree(pwboTest);
-				if (bShowErrors)
-					wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
-				return FALSE;
-			}
+		if (!pwboTest->hwnd)
+		{
 			wbFree(pwboTest);
+			if (bShowErrors)
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
+			return FALSE;
 		}
+		wbFree(pwboTest);
 	}
 
 	if (IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
@@ -79,7 +77,7 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 PWBOBJ wbGetWBObj(HANDLE hwnd)
 {
 	if (IsWindow(hwnd))
-		return (PWBOBJ)GetWindowLong((HWND)hwnd, GWL_USERDATA);
+		return (PWBOBJ)GetWindowLongPtr((HWND)hwnd, GWLP_USERDATA);
 	else
 		return NULL;
 }
