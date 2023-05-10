@@ -17,10 +17,10 @@ PHP Build Compatibility
   
 (For older PHP version compatibility please see PECL website for old .dll's)
 
-Further Information?
+Latest Features & Updates
 ========================
 
-See the [wiki](https://github.com/crispy-computing-machine/Winbinder/wiki)
+[Wiki - New features!](https://github.com/crispy-computing-machine/Winbinder/wiki/New-Features-Functions)
 
 Reporting Bugs
 ========================
