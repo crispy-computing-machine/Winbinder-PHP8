@@ -184,8 +184,11 @@ ZEND_FUNCTION(wb_sys_dlg_font);
 /* List of exported functions */
 zend_function_entry winbinder_functions[] =
 	{
-		// Namespace
-		// ZEND_FE(
+
+		// @todo Namespaces:
+		// ZEND_NS_FE(WB_NAMESPACE, 
+
+
 		// PHPWB_WINSYS.C
         ZEND_FE(wb_main_loop,arginfo_wb_main_loop)
         ZEND_FE(wb_find_file,arginfo_wb_find_file)
