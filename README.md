@@ -33,6 +33,5 @@ Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
 
 **Updated for PHP 8 compatibility - I have no idea what I am doing, but it seems to work!**
 
-⚠️ DO NOT USE IN PRODUCTION!
-⚠️ No warranty provided!
-========================
+# ⚠️ DO NOT USE IN PRODUCTION!
+# ⚠️ No warranty provided!
