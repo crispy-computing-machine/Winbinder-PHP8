@@ -606,7 +606,7 @@ BOOL wbPlaySound(LPCTSTR pszFileName, LPCTSTR pszCommand);
 BOOL wbStopSound(LPCTSTR pszCommand);
 BOOL wbShowLastError(LPCTSTR pszCaption, BOOL bMessageBox);
 int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle);
-lDWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
+DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
 BOOL wbFindFile(LPTSTR pszFileName, UINT64 uLen);
 BOOL wbReadRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPTSTR pszValue, int *pnBufLen);
 BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTSTR pszValue, DWORD dwValue, BOOL bString);
