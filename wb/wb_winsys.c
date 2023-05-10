@@ -836,12 +836,11 @@ BOOL wbPlaySystemSound(int nStyle)
 
 //---------------------------------------------------------- END SOUND FUNCTIONS
 
-BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
+int wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 {
-	BOOL bRet;
+	int bRet;
 
-	// Is pszPgm a WinBinder script?
-
+	// Is pszPgm a WinBinder script? PHPW
 	if (wcsstr(pszPgm, TEXT(".") WB_EXTENSION) == pszPgm + wcslen(pszPgm) - sizeof(WB_EXTENSION))
 	{
 
@@ -876,17 +875,38 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 		// Shell execute
 		// If the function succeeds, it returns a value greater than 32.
-		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
-							 szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
+		bRet = ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
 	}
 	else
 	{
 
 	Execute:
 		// Shell execute
-		// If the function succeeds, it returns a value greater than 32.
-		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
-							 pszPgm, pszParm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
+		// If the function succeeds, return PID
+		SHELLEXECUTEINFO ShExInfo = {0};
+		ShExInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		ShExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		ShExInfo.hwnd = GetActiveWindow();
+		ShExInfo.lpVerb = TEXT("open");
+		ShExInfo.lpFile = pszPgm;
+		ShExInfo.lpParameters = pszParm;
+		ShExInfo.nShow = bShowWindow ? SW_SHOWNORMAL : SW_HIDE;
+		BOOL bRet = ShellExecuteEx(&ShExInfo);
+		if (bRet)
+		{
+			// The process was launched successfully
+			// Retrieve the process ID (PID)
+			DWORD dwPid = GetProcessId(ShExInfo.hProcess);
+			
+			// Do something with the PID...
+			bRet = (int)dwPid;
+
+		}
+		else
+		{
+			// Failed to launch the process
+			bRet = 0;
+		}
 	}
 
 	if (!bRet)

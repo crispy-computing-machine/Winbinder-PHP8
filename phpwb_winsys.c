@@ -331,7 +331,7 @@ ZEND_FUNCTION(wb_exec)
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
 	szParm = Utf82WideChar(parm, parm_len);
-	RETURN_BOOL(wbExec(szPgm, szParm, show));
+	RETURN_LONG(wbExec(szPgm, szParm, show));
 }
 
 ZEND_FUNCTION(wb_get_system_info)
