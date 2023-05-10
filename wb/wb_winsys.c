@@ -836,9 +836,9 @@ BOOL wbPlaySystemSound(int nStyle)
 
 //---------------------------------------------------------- END SOUND FUNCTIONS
 
-int wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
+long long wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 {
-	int bRet;
+	long long bRet;
 
 	// Is pszPgm a WinBinder script? PHPW
 	if (wcsstr(pszPgm, TEXT(".") WB_EXTENSION) == pszPgm + wcslen(pszPgm) - sizeof(WB_EXTENSION))
@@ -897,9 +897,9 @@ int wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 			// The process was launched successfully
 			// Retrieve the process ID (PID)
 			DWORD dwPid = GetProcessId(ShExInfo.hProcess);
-			
+			printf("Process ID: %lu\n", dwPid);
 			// Do something with the PID...
-			bRet = (int)dwPid;
+			bRet = (long long)dwPid;
 
 		}
 		else
