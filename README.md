@@ -1,6 +1,6 @@
 WinBinder
 ========================
-WinBinder - The native Windows binding for PHP 7.
+WinBinder - The native Windows binding for PHP 8.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8) PHP 8 x64
 
