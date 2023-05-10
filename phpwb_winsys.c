@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ZEND wrapper for Windows system functions
 
@@ -33,7 +33,7 @@ ZEND_FUNCTION(wb_main_loop)
 	RETURN_LONG(wbMainLoop());
 }
 
-ZEND_FUNCTION(wbtemp_set_accel_table)
+ZEND_FUNCTION(wb_set_accel_table)
 {
 	int i, nelem;
 	zval *zarray = NULL, *entry = NULL;
@@ -56,7 +56,7 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 
 		target_hash = HASH_OF(zarray);
 		if (!target_hash){
-			RETURN_NULL();
+			RETURN_BOOL(FALSE);
 		}
 		nelem = zend_hash_num_elements(target_hash);
 		zend_hash_internal_pointer_reset(target_hash);
@@ -67,8 +67,8 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 		{
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
-				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
-				RETURN_NULL();
+				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+				RETURN_BOOL(FALSE);
 			}
 
 			switch (Z_TYPE_P(entry))
@@ -87,8 +87,8 @@ ZEND_FUNCTION(wbtemp_set_accel_table)
 				break;
 
 			default:
-				wbError(TEXT("wbtemp_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
-				RETURN_NULL();
+				wbError(TEXT("wb_set_accel_table"), MB_ICONWARNING, TEXT("Accelerator table must be an array of arrays with two elements"));
+				RETURN_BOOL(FALSE);
 				break;
 			}
 
@@ -143,7 +143,7 @@ ZEND_FUNCTION(wb_set_cursor)
 	else
 	{
 		wbError(TEXT("wb_set_cursor"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor));
@@ -153,7 +153,7 @@ ZEND_FUNCTION(wb_set_cursor)
 ZEND_FUNCTION(wb_load_media)
 {
 	int filename_len;
-	LONG flags;
+	LONG_PTR flags;
 	char *filename;
     BOOL bRet;
 
@@ -185,7 +185,7 @@ ZEND_FUNCTION(wb_destroy_media)
 
 ZEND_FUNCTION(wb_play_sound)
 {
-	int cmd_len;
+	size_t cmd_len;
 	char *cmd = "";
 	zval *source;
 
@@ -197,7 +197,7 @@ ZEND_FUNCTION(wb_play_sound)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_ZVAL(source)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd,cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd,cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!source){
@@ -247,7 +247,7 @@ ZEND_FUNCTION(wb_play_sound)
 
 ZEND_FUNCTION(wb_stop_sound)
 {
-	int cmd_len;
+	size_t cmd_len;
 	char *cmd = "";
 
 	TCHAR *wcs = 0;
@@ -255,7 +255,7 @@ ZEND_FUNCTION(wb_stop_sound)
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &cmd, &cmd_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(cmd, cmd_len)
+		Z_PARAM_STRING_OR_NULL(cmd, cmd_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	wcs = Utf82WideChar(cmd, cmd_len);
@@ -266,7 +266,8 @@ ZEND_FUNCTION(wb_message_box)
 {
 	char *msg, *title = NULL;
 	zend_long pwbo, style = 0;
-	int msg_len, title_len = 0, ret;
+	size_t msg_len, title_len = 0;
+	int ret;
 
 	TCHAR *szMsg = 0;
 	TCHAR *szTitle = 0;
@@ -314,31 +315,31 @@ ZEND_FUNCTION(wb_message_box)
 ZEND_FUNCTION(wb_exec)
 {
 	char *pgm, *parm = NULL;
-	int pgm_len, parm_len = 0;
-	zend_long show;
-
+	size_t pgm_len, parm_len = 0;
+	zend_bool show = TRUE;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
+	zend_bool show_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(parm,parm_len)
-		Z_PARAM_LONG(show)
+		Z_PARAM_STRING_OR_NULL(parm, parm_len)
+		Z_PARAM_BOOL_OR_NULL(show, show_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
 	szParm = Utf82WideChar(parm, parm_len);
-	RETURN_BOOL(wbExec(szPgm, szParm, show));
+	RETURN_LONG(wbExec(szPgm, szParm, show));
 }
 
 ZEND_FUNCTION(wb_get_system_info)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	BOOL isstr;
-	LONG res;
+	LONG_PTR res;
 	char strval[1024];
 
 	TCHAR szVal[1024];
@@ -346,7 +347,7 @@ ZEND_FUNCTION(wb_get_system_info)
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &s_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_STRING_OR_NULL(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!stricmp(s, "extensionpath"))
@@ -406,7 +407,7 @@ return the complete path to it. If not, return filename.
 ZEND_FUNCTION(wb_find_file)
 {
 	char *s;
-	int s_len;
+	size_t s_len;
 	char path[MAX_PATH * 4];
 
 	TCHAR *szPath = 0;
@@ -432,7 +433,7 @@ NOTE: maximum string is 1024 characters
 ZEND_FUNCTION(wb_get_registry_key)
 {
 	char *key, *subkey, *entry = NULL;
-	int key_len, subkey_len, entry_len;
+	size_t key_len, subkey_len, entry_len;
 	int buflen = 1024;
 	char sval[1024];
 	TCHAR szVal[1024];
@@ -447,7 +448,7 @@ ZEND_FUNCTION(wb_get_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szKey = Utf82WideChar(key, key_len);
@@ -475,7 +476,7 @@ ZEND_FUNCTION(wb_get_registry_key)
 ZEND_FUNCTION(wb_set_registry_key)
 {
 	char *key, *subkey, *entry;
-	int key_len, subkey_len, entry_len;
+	size_t key_len, subkey_len, entry_len;
 	zval *source = NULL;
 
 	TCHAR *szKey = 0;
@@ -489,8 +490,8 @@ ZEND_FUNCTION(wb_set_registry_key)
 		Z_PARAM_STRING(key, key_len)
 		Z_PARAM_STRING(subkey, subkey_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(entry, entry_len)
-		Z_PARAM_ZVAL(source)
+		Z_PARAM_STRING_OR_NULL(entry, entry_len)
+		Z_PARAM_ZVAL_OR_NULL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
 	zend_uchar sourcetype = Z_TYPE_P(source);
@@ -560,7 +561,7 @@ ZEND_FUNCTION(wb_create_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, MAX(1, ms)));
 }
@@ -577,7 +578,7 @@ ZEND_FUNCTION(wb_destroy_timer)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbSetTimer((PWBOBJ)pwbo, id, 0));
 }
@@ -585,13 +586,14 @@ ZEND_FUNCTION(wb_destroy_timer)
 ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
+	zend_bool pwbo_isnull, pause_isnull, flags_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lll", &pwbo, &pause, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 3)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(pause)
-		Z_PARAM_LONG(flags)
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
+		Z_PARAM_LONG_OR_NULL(pause, pause_isnull)
+		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE)){
@@ -619,7 +621,7 @@ ZEND_FUNCTION(wb_get_clipboard)
 	//char *wText;
 	char *wGlobal;
 	HANDLE hdata;
-	SIZE_T blen;
+	size_t blen;
 
 	BOOL success = FALSE;
 
@@ -667,7 +669,7 @@ ZEND_FUNCTION(wb_set_clipboard)
 {
 	char *clip;
 	WCHAR *wclip;
-	int size;
+	size_t size;
 	BOOL success = FALSE;
 
 	HGLOBAL hdata;
@@ -729,53 +731,39 @@ ZEND_FUNCTION(wb_empty_clipboard)
 }
 
 // get mouse pos else return false
+// https://learn.microsoft.com/en-us/windows/win32/inputdev/using-mouse-input?source=recommendations#tracking-the-mouse-cursor
 ZEND_FUNCTION(wb_get_mouse_pos)
 {
 	POINT cursor;
 
+	zend_long pwbo;
+	zend_long id;
+	zend_bool pwbo_isnull;
+
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+
     // New return array
     array_init(return_value);
 
+	// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
     if (GetCursorPos(&cursor)) {
+
+		// A handle to the window whose client area will be used for the conversion.
+		if(!pwbo_isnull && ((PWBOBJ)pwbo)->hwnd){
+			// converts the screen coordinates of a specified point on the screen to client-area coordinates
+			// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-screentoclients
+			ScreenToClient(((PWBOBJ)pwbo)->hwnd, &cursor);	
+		}
+
         add_index_long(return_value, 0, cursor.x);
         add_index_long(return_value, 1, cursor.y);
-        //cout << cursor.x << "," << cursor.y << "\n";
         return;
     }
     RETURN_BOOL(0);
 }
 
-ZEND_FUNCTION(wb_is_mouse_over)
-{
-    zend_long pwbo;
-    RECT rc;
-    POINT pt;
-
-    // control wbobj
-	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &pwbo) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_LONG(pwbo)
-	ZEND_PARSE_PARAMETERS_END();
-
-    // no control handle?
-    if(!((PWBOBJ)pwbo)->hwnd){
-        RETURN_BOOL(0);
-    }
-
-    // Get controls rect
-    if(GetWindowRect(((PWBOBJ)pwbo)->hwnd, &rc)){
-
-        // Get current cursor pos
-        if(GetCursorPos(&pt)){
-
-            // Check if its within the rect
-            RETURN_BOOL(PtInRect(&rc, pt));
-
-        }
-
-    }
-
-    RETURN_BOOL(0);
-
-}
 //------------------------------------------------------------------ END OF FILE

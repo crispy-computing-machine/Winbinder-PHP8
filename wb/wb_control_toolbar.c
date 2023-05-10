@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Toolbar control
 
@@ -65,7 +65,7 @@ PWBOBJ wbCreateToolbar(PWBOBJ pwboParent, PWBITEM pitem[], int nItems, int nBtnW
 			CreateToolbarButton(hToolbar, pitem[i]->id, pitem[i]->index, pitem[i]->pszHint);
 	}
 
-	SetWindowLong(pwbo->hwnd, GWLP_USERDATA, (LONG)pwbo);
+	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
 
 	return pwbo;
 }
@@ -130,7 +130,7 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		if (pszHint && *pszHint)
 		{
-			tbb.dwData = (DWORD)_wcsdup(pszHint);
+			tbb.dwData = (DWORD_PTR)_wcsdup(pszHint);
 		}
 		else
 			tbb.dwData = 0;

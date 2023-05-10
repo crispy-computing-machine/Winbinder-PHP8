@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Implements HTML control
 
@@ -299,13 +299,13 @@ BOOL EmbedBrowserObject(PWBOBJ pwbo)
 
 		*((IOleObject **)ptr) = browserObject;
 
-		// The original code uses SetWindowLong/GetWindowLong with GWLP_USERDATA to store the
+		// The original code uses SetWindowLongPtr/GetWindowLongPtr with GWLP_USERDATA to store the
 		// browser object pointer. we use pwbo->lparams[0] because the former is already used
 		// to store the WinBinder object.
 
-		pwbo->lparams[0] = (LONG)ptr;
+		pwbo->lparams[0] = (LONG_PTR)ptr;
 
-		//		SetWindowLong(hwnd, GWLP_USERDATA, (LONG)ptr);
+		//		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ptr);
 
 		browserObject->lpVtbl->SetHostNames(browserObject, L"My Host Name", 0);
 
@@ -350,7 +350,7 @@ BOOL DisplayHTMLString(PWBOBJ pwbo, LPCTSTR string)
 		return FALSE;
 
 	browserObject = *((IOleObject **)pwbo->lparams[0]);
-	//	browserObject = *((IOleObject **)GetWindowLong(hwnd, GWLP_USERDATA));
+	//	browserObject = *((IOleObject **)GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	bstr = 0;
 
 	if (!browserObject->lpVtbl->QueryInterface(browserObject, (IID *)&IID_IWebBrowser2, (void **)&webBrowser2))
@@ -445,7 +445,7 @@ BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName)
 
 	// Normal page
 
-	//	browserObject = *((IOleObject **)GetWindowLong(hwnd, GWLP_USERDATA));
+	//	browserObject = *((IOleObject **)GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	browserObject = *((IOleObject **)pwbo->lparams[0]);
 
 	if (!browserObject)
@@ -1034,14 +1034,14 @@ static BOOL UnEmbedBrowserObject(HWND hwnd)
 
 	pwbo = wbGetWBObj(hwnd);
 
-	//	if(NULL != (browserHandle = (IOleObject **)GetWindowLong(hwnd, GWLP_USERDATA))) {
+	//	if(NULL != (browserHandle = (IOleObject **)GetWindowLongPtr(hwnd, GWLP_USERDATA))) {
 	browserHandle = ((IOleObject **)pwbo->lparams[0]);
 	if (browserHandle)
 	{
 		browserObject = *browserHandle;
 		browserObject->lpVtbl->Close(browserObject, OLECLOSE_NOSAVE);
 		browserObject->lpVtbl->Release(browserObject);
-		//		SetWindowLong(hwnd, GWLP_USERDATA, 0);
+		//		SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
 		pwbo->lparams[0] = 0;
 	}
 	return TRUE;
@@ -1062,7 +1062,7 @@ static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height)
 		return;
 
 	browserObject = *((IOleObject **)pwbo->lparams[0]);
-	//	browserObject = *((IOleObject **)GetWindowLong(hwnd, GWLP_USERDATA));
+	//	browserObject = *((IOleObject **)GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
 	if (!browserObject->lpVtbl->QueryInterface(browserObject, (IID *)&IID_IWebBrowser2, (void **)&webBrowser2))
 	{
@@ -1074,7 +1074,7 @@ static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height)
 
 // Message handler for the window that hosts the browser control.
 
-LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{

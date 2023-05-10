@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  General-purpose functions (not exported to the ZEND engine)
 
@@ -20,7 +20,6 @@ const char *pszWbobjName = "WinBinder Object";
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
 /* Accepts a limited subset of the parameters accepted by zend_parse_parameters() */
-
 int parse_array(zval *array, const char *fmt, ...)
 {
 	int i, nelem;
@@ -43,7 +42,6 @@ int parse_array(zval *array, const char *fmt, ...)
 	zend_hash_internal_pointer_reset(target_hash);
 
 	// Parse loop
-
 	for (i = 0; i < (int)strlen(fmt); i++)
 	{
 
@@ -51,8 +49,8 @@ int parse_array(zval *array, const char *fmt, ...)
 		if (!arg){
 			break;
 		}
-		// Requested items past the length of the array must return NULL
 
+		// Requested items past the length of the array must return NULL
 		if (i >= nelem)
 		{
 
@@ -60,7 +58,7 @@ int parse_array(zval *array, const char *fmt, ...)
 			{
 
 			case 'l':
-				*((long *)arg) = 0;
+				*((long long *)arg) = 0;
 				break;
 
 			case 'd':
@@ -68,7 +66,7 @@ int parse_array(zval *array, const char *fmt, ...)
 				break;
 
 			case 's':
-				*((long *)arg) = (long)NULL;
+				*((long long *)arg) = (long long)NULL;
 				break;
 
 			default:
@@ -94,17 +92,17 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 'l':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
-					*((long *)arg) = Z_LVAL_P(entry);
+					*((long long *)arg) = Z_LVAL_P(entry);
 				}
 				break;
 
 			case 'd':
 				if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
 					*((double *)arg) = Z_DVAL_P(entry);
@@ -114,14 +112,14 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 's':
 				if (Z_TYPE_P(entry) == IS_STRING)
 				{
-					*((long *)arg) = (long)(Z_STRVAL_P(entry));
+					*((long long *)arg) = (long long)(Z_STRVAL_P(entry));
 				}
 				else if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				else{
-					*((long *)arg) = (long)NULL;
+					*((long long *)arg) = (long long)NULL;
 				}
 				break;
 
@@ -135,7 +133,7 @@ int parse_array(zval *array, const char *fmt, ...)
 
 		if (i < nelem - 1){
 			zend_hash_move_forward(target_hash);
-			}
+		}
 	}
 
 	va_end(ap);
@@ -312,4 +310,34 @@ void dumptcs(TCHAR *str)
 	printf("\n");
 }
 
+
+void _var_dump(const char *var_name, ...) {
+    va_list args;
+    va_start(args, var_name);
+
+    char format_specifier = *va_arg(args, char *);
+
+    switch (format_specifier) {
+        case 'i':
+            printf("%s: int(%d)\n", var_name, va_arg(args, int));
+            break;
+        case 'f':
+            printf("%s: float(%f)\n", var_name, va_arg(args, double));
+            break;
+        case 'd':
+            printf("%s: double(%lf)\n", var_name, va_arg(args, double));
+            break;
+        case 'c':
+            printf("%s: char(%c)\n", var_name, va_arg(args, int));
+            break;
+        case 'b':
+            printf("%s: bool(%s)\n", var_name, va_arg(args, int) ? "true" : "false");
+            break;
+        default:
+            printf("%s: unknown type\n", var_name);
+            break;
+    }
+
+    va_end(args);
+}
 //------------------------------------------------------------------ END OF FILE

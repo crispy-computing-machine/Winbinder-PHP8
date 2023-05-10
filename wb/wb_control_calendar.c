@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Calendar control
 
@@ -20,7 +20,7 @@
 
 static DWORD FileTimeToUnixTime(FILETIME *filetime);
 static FILETIME UnixTimeToFileTime(DWORD dwTime);
-static LONG GetCorrectUtcUnixTime(void);
+static LONG_PTR GetCorrectUtcUnixTime(void);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -70,11 +70,11 @@ structure to correct UnixTime to UTC.
 
 */
 
-static LONG GetCorrectUtcUnixTime(void)
+static LONG_PTR GetCorrectUtcUnixTime(void)
 {
 	DWORD InfoTimeResult;
 	LPTIME_ZONE_INFORMATION ptrTimeZoneInfo;
-	LONG lBias;
+	LONG_PTR lBias;
 
 	ptrTimeZoneInfo = wbMalloc(sizeof(TIME_ZONE_INFORMATION));
 	InfoTimeResult = GetTimeZoneInformation(ptrTimeZoneInfo);
@@ -94,11 +94,11 @@ static LONG GetCorrectUtcUnixTime(void)
 
 static DWORD FileTimeToUnixTime(FILETIME *pfiletime)
 {
-	long long int t;
+	LONG_PTR t;
 
 	t = pfiletime->dwHighDateTime;
 	t <<= 32;
-	t += (unsigned long)pfiletime->dwLowDateTime;
+	t += (ULONG_PTR)pfiletime->dwLowDateTime;
 	t -= 116444736000000000LL;
 
 	return (DWORD)(t / 10000000);
@@ -114,9 +114,9 @@ static DWORD FileTimeToUnixTime(FILETIME *pfiletime)
 static FILETIME UnixTimeToFileTime(DWORD dwTime)
 {
 	FILETIME retf;
-	long long int ll;
+	LONG_PTR ll;
 
-	ll = ((long long)dwTime * 10000000LL);
+	ll = ((LONG_PTR)dwTime * 10000000LL);
 	ll += 116444736000000000LL;
 	retf.dwHighDateTime = (DWORD)(ll >> 32);
 	retf.dwLowDateTime = (DWORD)(ll & 0x00000000FFFFFFFF);

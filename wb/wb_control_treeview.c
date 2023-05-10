@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Treeview control
 
@@ -44,7 +44,7 @@ BOOL wbSetTreeViewItemSelected(PWBOBJ pwbo, HTREEITEM hItem)
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return 0;
 
-	if ((int)hItem < 0)
+	if ((__int64)hItem < 0)
 		return TreeView_SelectItem(pwbo->hwnd, NULL);
 	else if (hItem)
 		return TreeView_SelectItem(pwbo->hwnd, hItem);
@@ -272,9 +272,9 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem)
 
 /* Return the level of a specified node */
 
-UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
+UINT64 wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	UINT nLevel;
+	UINT64 nLevel;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;

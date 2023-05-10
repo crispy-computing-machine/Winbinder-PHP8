@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ZEND wrapper for ListView control
 
@@ -19,11 +19,12 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_create_listview_item)
+ZEND_FUNCTION(wb_create_listview_item)
 {
 	zend_long pwbo, nitem, nimage;
 	char *s;
-	int s_len, newitem;
+	size_t s_len;
+	int newitem;
 
 	TCHAR *wcs = 0;
 
@@ -44,7 +45,7 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 
 	if (newitem == -1)
 	{
-		wbError(TEXT("wbtemp_create_listview_item"), MB_ICONWARNING, TEXT("Cannot insert item #%ld ('%s') in ListView in function"), nitem, s);
+		wbError(TEXT("wb_create_listview_item"), MB_ICONWARNING, TEXT("Cannot insert item #%ld ('%s') in ListView in function"), nitem, s);
 		RETURN_LONG(-1);
 		return;
 	}
@@ -53,39 +54,11 @@ ZEND_FUNCTION(wbtemp_create_listview_item)
 		}
 }
 
-/*ZEND_FUNCTION(wbtemp_delete_listview_item)
-{
-	long pwbo, nitem;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "ll", &pwbo, &nitem) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_BOOL(wbDeleteListViewItem((PWBOBJ)pwbo, nitem));
-}
-*/
-/*ZEND_FUNCTION(wbtemp_create_listview_images)
-{
-	long pwbo, hbm, n, color;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-	  "llll", &pwbo, &hbm, &n, &color) == FAILURE)
-		return;
-
-	if(!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_NULL()
-
-	RETURN_LONG((LONG)wbCreateListViewImages((PWBOBJ)pwbo, (HBITMAP)hbm, n, color));
-}*/
-
-ZEND_FUNCTION(wbtemp_set_listview_item_text)
+ZEND_FUNCTION(wb_set_listview_item_text)
 {
 	zend_long pwbo, item, sub;
 	char *s;
-	int s_len;
+	size_t s_len;
 	TCHAR *wcs = 0;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "llls", &pwbo, &item, &sub, &s, &s_len) == FAILURE)
@@ -98,13 +71,13 @@ ZEND_FUNCTION(wbtemp_set_listview_item_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	wcs = Utf82WideChar(s, s_len); /// ahhhhhhh
 	RETURN_BOOL(wbSetListViewItemText((PWBOBJ)pwbo, item, sub, wcs));
 }
 
-ZEND_FUNCTION(wbtemp_set_listview_item_checked)
+ZEND_FUNCTION(wb_set_listview_item_checked)
 {
 	zend_long pwbo, item, checked;
 
@@ -117,7 +90,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_checked)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	RETURN_BOOL(wbSetListViewItemChecked((PWBOBJ)pwbo, item, checked));
@@ -125,11 +98,11 @@ ZEND_FUNCTION(wbtemp_set_listview_item_checked)
 
 /* If w is negative, calculate width automatically */
 
-ZEND_FUNCTION(wbtemp_create_listview_column)
+ZEND_FUNCTION(wb_create_listview_column)
 {
 	zend_long pwbo, ncol, w = 0, align = 0;
 	char *s;
-	int s_len;
+	size_t s_len;
 
 	TCHAR *wcs = 0;
 
@@ -144,7 +117,7 @@ ZEND_FUNCTION(wbtemp_create_listview_column)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	wcs = Utf82WideChar(s, s_len);
 	RETURN_BOOL(wbCreateListViewColumn((PWBOBJ)pwbo, ncol, wcs, w, align));
@@ -152,10 +125,10 @@ ZEND_FUNCTION(wbtemp_create_listview_column)
 
 /* Returns an array with the column widths of control pwbo */
 /*
-ZEND_FUNCTION(wbtemp_get_listview_column_widths)
+ZEND_FUNCTION(wb_get_listview_column_widths)
 {
 	int i, cols;
-	long pwbo;
+	LONG_PTR pwbo;
 	int pwidths[MAX_LISTVIEWCOLS];
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
@@ -174,10 +147,10 @@ ZEND_FUNCTION(wbtemp_get_listview_column_widths)
 }
 */
 
-/*ZEND_FUNCTION(wbtemp_set_listview_column_widths)
+/*ZEND_FUNCTION(wb_set_listview_column_widths)
 {
 	int i, nelem;
-	long pwbo;
+	LONG_PTR pwbo;
 	int pwidths[MAX_LISTVIEWCOLS];
 	zval *array, *entry;
 	HashTable *target_hash;
@@ -229,7 +202,7 @@ ZEND_FUNCTION(wbtemp_get_listview_column_widths)
 
 /* Returns the number of columns of control pwbo */
 
-ZEND_FUNCTION(wbtemp_get_listview_columns)
+ZEND_FUNCTION(wb_get_listview_columns)
 {
 	zend_long pwbo;
 
@@ -245,9 +218,9 @@ ZEND_FUNCTION(wbtemp_get_listview_columns)
 	RETURN_LONG(wbGetListViewColumnWidths((PWBOBJ)pwbo, NULL));
 }
 /*
-ZEND_FUNCTION(wbtemp_set_listview_item_image)
+ZEND_FUNCTION(wb_set_listview_item_image)
 {
-	long pwbo, nitem, ncol, nimage;
+	LONG_PTR pwbo, nitem, ncol, nimage;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
 	  "llll", &pwbo, &nitem, &ncol, &nimage) == FAILURE)
@@ -262,7 +235,7 @@ ZEND_FUNCTION(wbtemp_set_listview_item_image)
 
 /* Return TRUE if the item's checkbox is checked */
 
-ZEND_FUNCTION(wbtemp_get_listview_item_checked)
+ZEND_FUNCTION(wb_get_listview_item_checked)
 {
 	zend_long pwbo, item;
 
@@ -274,12 +247,12 @@ ZEND_FUNCTION(wbtemp_get_listview_item_checked)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbGetListViewItemChecked((PWBOBJ)pwbo, item));
 }
 
-ZEND_FUNCTION(wbtemp_clear_listview_columns)
+ZEND_FUNCTION(wb_clear_listview_columns)
 {
 	zend_long pwbo;
 
@@ -291,12 +264,12 @@ ZEND_FUNCTION(wbtemp_clear_listview_columns)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 	RETURN_BOOL(wbClearListViewColumns((PWBOBJ)pwbo));
 }
 
-ZEND_FUNCTION(wbtemp_select_listview_item)
+ZEND_FUNCTION(wb_select_listview_item)
 {
 	zend_long pwbo, nitem, state;
 
@@ -309,14 +282,14 @@ ZEND_FUNCTION(wbtemp_select_listview_item)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSelectListViewItem((PWBOBJ)pwbo, nitem, state));
 }
 
 /* Selects / deselects all items */
 
-ZEND_FUNCTION(wbtemp_select_all_listview_items)
+ZEND_FUNCTION(wb_select_all_listview_items)
 {
 	zend_long pwbo, state;
 
@@ -328,16 +301,17 @@ ZEND_FUNCTION(wbtemp_select_all_listview_items)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSelectAllListViewItems((PWBOBJ)pwbo, state));
 }
 
 /* Returns an array of strings */
 
-ZEND_FUNCTION(wbtemp_get_listview_text)
+ZEND_FUNCTION(wb_get_listview_text)
 {
-	int ncols, nitems;
+	int ncols = 0, nitems = 0;
+	zend_bool nitems_isnull, ncol_isnull;
 	zend_long pwbo, nitem = -1, ncol = -1;
 	TCHAR szItem[MAX_ITEM_STRING];
 
@@ -349,8 +323,8 @@ ZEND_FUNCTION(wbtemp_get_listview_text)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(nitem)
-		Z_PARAM_LONG(ncol)
+		Z_PARAM_LONG_OR_NULL(nitem, nitems_isnull)
+		Z_PARAM_LONG_OR_NULL(ncol, ncol_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){

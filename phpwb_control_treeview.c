@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ZEND wrapper for treeview control
 
@@ -15,7 +15,7 @@
 
 //---------------------------------------------------------- EXTERNAL PROTOTYPES
 
-extern UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem);
+extern UINT64 wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -52,7 +52,7 @@ ZEND_FUNCTION(wb_get_level)
 	}
 }
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
+ZEND_FUNCTION(wb_set_treeview_item_selected)
 {
 	zend_long pwbo, item;
 
@@ -64,16 +64,16 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_selected)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	RETURN_BOOL(wbSetTreeViewItemSelected((PWBOBJ)pwbo, (HTREEITEM)item));
 }
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_text)
+ZEND_FUNCTION(wb_set_treeview_item_text)
 {
 	zend_long pwbo, item;
 	char *s;
-	int s_len;
+	size_t s_len;
 
 	TCHAR *wcs = 0;
 
@@ -86,13 +86,13 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_text)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	wcs = Utf82WideChar(s, s_len);
 	RETURN_BOOL(wbSetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, wcs));
 }
 
-ZEND_FUNCTION(wbtemp_get_treeview_item_text)
+ZEND_FUNCTION(wb_get_treeview_item_text)
 {
 	zend_long pwbo, item = 0;
 	TCHAR szItem[MAX_ITEM_STRING];
@@ -109,7 +109,7 @@ ZEND_FUNCTION(wbtemp_get_treeview_item_text)
 
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	wbGetTreeViewItemText((PWBOBJ)pwbo, (HTREEITEM)item, szItem, MAX_ITEM_STRING - 1);
 	str = WideChar2Utf8(szItem, &str_len);
@@ -123,7 +123,7 @@ If zparam is NULL, does not change associated value (does nothing).
 
 */
 
-ZEND_FUNCTION(wbtemp_set_treeview_item_value)
+ZEND_FUNCTION(wb_set_treeview_item_value)
 {
 	zend_long pwbo, item, lparam = 0;
 	zval *zparam, zcopy;
@@ -137,7 +137,7 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_value)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	 }
 	switch (Z_TYPE_P(zparam))
 	{
@@ -157,23 +157,23 @@ ZEND_FUNCTION(wbtemp_set_treeview_item_value)
 
 /*
 
-int wbtemp_create_treeview_item( int wbobject, string caption [, mixed param [, int where [, int image [, int selectedimage [, insertiontype]]]]])
+int wb_create_treeview_item( int wbobject, string caption [, mixed param [, int where [, int image [, int selectedimage [, insertiontype]]]]])
 
 Create a new treeview item and returns the HTREEITEM handle to it.
 If zparam is NULL, does not change associated value.
 
 */
 
-ZEND_FUNCTION(wbtemp_create_treeview_item)
+ZEND_FUNCTION(wb_create_treeview_item)
 {
 	zend_long pwbo, where = 0, img1 = -1, img2 = -1, insertiontype = 0, lparam = 0;
 	char *str;
-	int str_len;
+	size_t str_len;
 	zval *zparam;
 	BOOL setlparam = FALSE;
-
 	TCHAR *wcs = 0;
-	LONG ret;
+	LONG_PTR ret;
+	zend_bool where_isnull ,img1_isnull, img2_isnull, insertiontype_isnull;
 
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|zllll", &pwbo, &str, &str_len, &zparam, &where, &img1, &img2, &insertiontype) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
@@ -181,11 +181,11 @@ ZEND_FUNCTION(wbtemp_create_treeview_item)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(str,str_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL(zparam)
-		Z_PARAM_LONG(where)
-		Z_PARAM_LONG(img1)
-		Z_PARAM_LONG(img2)
-		Z_PARAM_LONG(insertiontype)
+		Z_PARAM_ZVAL_OR_NULL(zparam)
+		Z_PARAM_LONG_OR_NULL(where, where_isnull)
+		Z_PARAM_LONG_OR_NULL(img1, img1_isnull)
+		Z_PARAM_LONG_OR_NULL(img2, img2_isnull)
+		Z_PARAM_LONG_OR_NULL(insertiontype, insertiontype_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
@@ -210,13 +210,13 @@ ZEND_FUNCTION(wbtemp_create_treeview_item)
 	{
 	case 0: // 'where' is the level of insertion
 	default:
-		ret = (LONG)wbAddTreeViewItemLevel((PWBOBJ)pwbo, where, wcs, lparam, setlparam, img1, img2);
+		ret = (LONG_PTR)wbAddTreeViewItemLevel((PWBOBJ)pwbo, where, wcs, lparam, setlparam, img1, img2);
 		break;
 	case 1: // 'where' is the sibling of the new node
-		ret = (LONG)wbAddTreeViewItemSibling((PWBOBJ)pwbo, (HTREEITEM)where, wcs, lparam, setlparam, img1, img2);
+		ret = (LONG_PTR)wbAddTreeViewItemSibling((PWBOBJ)pwbo, (HTREEITEM)where, wcs, lparam, setlparam, img1, img2);
 		break;
 	case 2: // 'where' is the parent of the new node
-		ret = (LONG)wbAddTreeViewItemChild((PWBOBJ)pwbo, (HTREEITEM)where, wcs, lparam, setlparam, img1, img2);
+		ret = (LONG_PTR)wbAddTreeViewItemChild((PWBOBJ)pwbo, (HTREEITEM)where, wcs, lparam, setlparam, img1, img2);
 		break;
 	}
 	RETURN_LONG(ret);

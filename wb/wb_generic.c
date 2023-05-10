@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  General-purpose functions
 
@@ -77,7 +77,7 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 PWBOBJ wbGetWBObj(HANDLE hwnd)
 {
 	if (IsWindow(hwnd))
-		return (PWBOBJ)GetWindowLong((HWND)hwnd, GWLP_USERDATA);
+		return (PWBOBJ)GetWindowLongPtr((HWND)hwnd, GWLP_USERDATA);
 	else
 		return NULL;
 }

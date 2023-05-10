@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Library of ZEND-specific functions for the WinBinder extension
 
@@ -83,13 +83,13 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 
 // *** The use of parameter pwboParent in wbCallUserFunction() is not clear
 
-UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
+UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
 	zval fname = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	BOOL bRet;
-	UINT ret = 0;
+	UINT64 ret = 0;
 	char *pszFName;
 	char *pszOName;
 	zend_string *funName;
@@ -114,7 +114,7 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window '%s'"), title);
 		}
 		else
-			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG)pwboParent);
+			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window #%ld"), (LONG_PTR)pwboParent);
 		return FALSE;
 	}
 
@@ -136,22 +136,22 @@ UINT wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboP
 	//}
 
 	// PWBOBJ pointer
-	ZVAL_LONG(&parms[0], (LONG)pwboParent);
+	ZVAL_LONG(&parms[0], (LONG_PTR)pwboParent);
 
 	// id
-	ZVAL_LONG(&parms[1], (LONG)id);
+	ZVAL_LONG(&parms[1], (LONG_PTR)id);
 
 	// control handle
-	ZVAL_LONG(&parms[2], (LONG)pctrl);
+	ZVAL_LONG(&parms[2], (LONG_PTR)pctrl);
 
 	// lparam1
-	ZVAL_LONG(&parms[3], (LONG)lParam1);
+	ZVAL_LONG(&parms[3], (LONG_PTR)lParam1);
 
 	// lparam2
-	ZVAL_LONG(&parms[4], (LONG)lParam2);
+	ZVAL_LONG(&parms[4], (LONG_PTR)lParam2);
 
 	// lparam3
-	ZVAL_LONG(&parms[5], (LONG)lParam3);
+	ZVAL_LONG(&parms[5], (LONG_PTR)lParam3);
 
 	// Call the user function
 	bRet = call_user_function(
@@ -225,16 +225,16 @@ BOOL wbFree(void *ptr)
 	return TRUE;
 }
 
-UINT MemCheck(const char *message, BOOL mb){
+UINT64 MemCheck(const char *message, BOOL mb){
 	struct rusage r_usage;
 	int *p = 0;
 	p = (int*)malloc(sizeof(int)*1000);
 	int ret = getrusage(RUSAGE_SELF,&r_usage);
 	if(ret == 0){
 		if(mb){
-			printf("%s Memory: %ldMB\n", message, (r_usage.ru_maxrss/1024));
+			printf("%s Memory: %lldMB\n", message, (r_usage.ru_maxrss/1024));
 		} else {
-			printf("%s Memory: %ldKB\n", message, r_usage.ru_maxrss);
+			printf("%s Memory: %lldKB\n", message, r_usage.ru_maxrss);
 		}
 	} else {
 		printf("MemCheck Error in getrusage. errno = %d\n", errno);

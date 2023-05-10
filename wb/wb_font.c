@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Font functions
 
@@ -28,7 +28,10 @@ static int nLastFont = 0; // Zero means no font
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /* Sets the font of control pwbobj. Returns the index of the created font or
-  zero if failed. */
+  zero if failed. 
+  
+  @TODO debug, this segfaults...
+  */
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 {

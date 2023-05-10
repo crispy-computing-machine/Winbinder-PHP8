@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ZEND wrapper for toolbar control
 
@@ -15,18 +15,19 @@
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
-ZEND_FUNCTION(wbtemp_create_toolbar)
+ZEND_FUNCTION(wb_create_toolbar)
 {
-	zend_long i, nelem, s_len = 0;
+	zend_long i, nelem; 
+	size_t s_len = 0;
 	zval *zarray = NULL, *entry = NULL;
 	HashTable *target_hash;
 	HANDLE hImage = NULL;
-	LONG l;
+	LONG_PTR l;
 	zend_long pwboParent, width = 0, height = 0;
 	char *s = "";
 	PWBITEM *pitem;
-
 	TCHAR *wcs = 0;
+	zend_bool width_isnull, height_isnull;
 
 	// Get function parameters
 
@@ -34,11 +35,11 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 5)
 		Z_PARAM_LONG(pwboParent)
-		Z_PARAM_ZVAL(zarray)
+		Z_PARAM_ZVAL_OR_NULL(zarray)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(width)
-		Z_PARAM_LONG(height)
-		Z_PARAM_STRING(s,s_len)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+		Z_PARAM_STRING_OR_NULL(s,s_len)
 
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -60,19 +61,17 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 		pitem = emalloc(nelem * sizeof(PWBITEM));
 
 		// Loop to read array items
-
 		for (i = 0; i < nelem; i++)
 		{
 
 			if ((entry = zend_hash_get_current_data(target_hash)) == NULL)
 			{
-				wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
+				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Could not retrieve element %d from array in function"), i);
 				efree(pitem);
 				RETURN_NULL();
 			}
 
 			// Allocate memory for item description
-
 			pitem[i] = emalloc(sizeof(WBITEM));
 
 			switch (Z_TYPE_P(entry))
@@ -80,8 +79,12 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 			case IS_ARRAY: // Toolbar button
 				parse_array(entry, "lssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->index);
-				pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
-				pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
+				//pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
+				//pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
+
+				pitem[i]->pszCaption = (LPCTSTR)pitem[i]->pszCaption; // LPCTSTR?
+				pitem[i]->pszHint = (LPCTSTR)pitem[i]->pszHint; // LPCTSTR?
+
 				break;
 
 			case IS_NULL: // Separator
@@ -89,7 +92,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 				break;
 
 			default:
-				wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("Invalid element type in array: must be an array or null in function"));
+				wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("Invalid element type in array: must be an array or null in function"));
 				efree(pitem);
 				RETURN_NULL();
 			}
@@ -102,10 +105,9 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 		wcs = Utf82WideChar(s, s_len);
 		hImage = wbLoadImage(wcs, 0, 0);
 		wbFree(wcs);
-
 		if (!hImage)
 		{
-			wbError(TEXT("wbtemp_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
+			wbError(TEXT("wb_create_toolbar"), MB_ICONWARNING, TEXT("%s is an invalid image file or has an unrecognizable format in function"), s);
 		}
 	}
 	else
@@ -116,7 +118,7 @@ ZEND_FUNCTION(wbtemp_create_toolbar)
 
 	// Create toolbar and attach it to window
 
-	l = (LONG)wbCreateToolbar((PWBOBJ)pwboParent, pitem, nelem, width, height, hImage);
+	l = (LONG_PTR)wbCreateToolbar((PWBOBJ)pwboParent, pitem, nelem, width, height, hImage);
 
 	if (pitem){
 		efree(pitem);

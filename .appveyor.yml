@@ -40,22 +40,22 @@ environment:
   PTHREADS_VER: 2.9.1
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      ARCH: x86
+      ARCH: x64
       VC: vs16
-      PHP_VER: 8.2.1
+      PHP_VER: 8.2.3
       TS: 1
 
 build_script:
   ps: |
 
-    echo "Download PHP8 development pack from release"
     $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+    echo "Download PHP8 development pack from release http://windows.php.net/downloads/releases/archives/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
-            Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+            Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
             if (-not (Test-Path c:\build-cache\$bname)) {
-                    Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+                    Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
             }
     }
     
@@ -73,7 +73,7 @@ build_script:
     $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
     echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
-    $conf_cmd = 'call configure --with-winbinder=shared --enable-debug-pack 2>&1'
+    $conf_cmd = 'call configure --with-winbinder=shared --enable-debug 2>&1'
     echo $conf_cmd | Out-File -Encoding "ASCII" -Append task.bat
     echo "nmake /nologo 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
     echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat
@@ -105,11 +105,11 @@ test_script:
     $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-' + $env:PHP_VER + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
-    echo "Release file URL http://windows.php.net/downloads/releases/$bname"
+    echo "Release file URL http://windows.php.net/downloads/releases/archives/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
-      Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+      Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
       if (-not (Test-Path c:\build-cache\$bname)) {
-        Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+        Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
       }
     }
 

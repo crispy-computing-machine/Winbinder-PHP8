@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ListView control
 
@@ -47,16 +47,7 @@ int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText)
 	return ListView_InsertItem(pwbo->hwnd, &lvi);
 }
 
-/*BOOL wbDeleteListViewItem(PWBOBJ pwbo, int nItem)
-{
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
-		return FALSE;
-
-	return ListView_DeleteItem(pwbo->hwnd, nItem);
-}*/
-
 /* Create or destroy an ImageList for the ListView */
-
 BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent)
 {
 	HBITMAP hbmMask;
@@ -162,7 +153,7 @@ int wbGetListViewCheckedItems(PWBOBJ pwbo, int *pbItems)
 
 int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems)
 {
-	int i, nCount, nSel;
+	int i, nCount, nSel = 0;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;

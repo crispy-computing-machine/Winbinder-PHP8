@@ -3,11 +3,15 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Common header for WinBinder for PHP
 
 *******************************************************************************/
+
+// 64Bit
+// @see: https://pvs-studio.com/fr/blog/posts/cpp/a0042/
+// @see: https://docs.oracle.com/cd/E19205-01/819-5265/bjami/index.html
 
 #ifndef _PHP_WB_H
 #define _PHP_WB_H
@@ -19,6 +23,8 @@
 #define APPNAME "WinBinder-PHP"
 #define MODULENAME "winbinder" // For phpinfo() and extension_loaded()
 #define LIBVERSION WINBINDER_VERSION
+#define WB_NAMESPACE "Wb" // Function namespace
+
 
 // ZEND constants
 

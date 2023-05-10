@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  ZEND wrapper for low-level functions
 
@@ -23,6 +23,7 @@ ZEND_FUNCTION(wb_send_message)
 {
 	zend_long msg, w, l;
 	zend_long pwbo;
+	zend_bool w_isnull, l_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -37,11 +38,11 @@ ZEND_FUNCTION(wb_send_message)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(msg)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(w)
-		Z_PARAM_LONG(l)
+		Z_PARAM_LONG_OR_NULL(w, w_isnull)
+		Z_PARAM_LONG_OR_NULL(l, l_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
+	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT64)msg, (WPARAM)w, (LPARAM)l));
 }
 
 /* Get the contents of a memory area */
@@ -50,6 +51,7 @@ ZEND_FUNCTION(wb_peek)
 {
 	zend_long address, bytes = 0;
 	char *ptr;
+	zend_bool bytes_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -63,7 +65,7 @@ ZEND_FUNCTION(wb_peek)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(address)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(bytes)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address){
@@ -82,7 +84,7 @@ ZEND_FUNCTION(wb_peek)
 			RETURN_STRINGL(ptr, bytes);
 		}
 	}
-	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (int)ptr);
+	wbError(TEXT("wb_peek"), MB_ICONWARNING, TEXT("Cannot read from location %d"), (__int64)ptr);
 	RETURN_NULL();
 }
 
@@ -90,10 +92,12 @@ ZEND_FUNCTION(wb_peek)
 
 ZEND_FUNCTION(wb_poke)
 {
-	zend_long address, bytes = 0;
+	zend_long address;
+	UINT_PTR bytes = 0;
 	char *contents;
-	int contents_len;
+	size_t contents_len;
 	void *ptr;
+	zend_bool bytes_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -107,30 +111,30 @@ ZEND_FUNCTION(wb_poke)
 		Z_PARAM_LONG(address)
 		Z_PARAM_STRING(contents, contents_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(bytes)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Invalid address"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
 	if (!contents_len)
 	{
 		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Zero length contents"));
-		RETURN_NULL();
+		RETURN_BOOL(FALSE);
 	}
 
-	if (!bytes){
+	if (bytes_isnull){
 		bytes = contents_len;
 	}
 	ptr = (void *)address;
 
 	if (IsBadWritePtr(ptr, bytes))
 	{
-		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %d"), (int)ptr);
-		RETURN_NULL();
+		wbError(TEXT("wb_poke"), MB_ICONWARNING, TEXT("Cannot write to location %ld"), ptr);
+		RETURN_BOOL(FALSE);
 	}
 
 	memcpy(ptr, contents, bytes);
@@ -164,34 +168,34 @@ ZEND_FUNCTION(wb_get_address)
 	zend_uchar sourcetype = Z_TYPE_P(source);
 	if (sourcetype == IS_LONG)
 	{
-		RETURN_LONG((LONG)(void *)&Z_LVAL_P(source));
+		RETURN_LONG((LONG_PTR)(void *)&Z_LVAL_P(source));
 	}
 	else if (sourcetype == IS_TRUE)
 	{
-		RETURN_LONG((LONG)(void *)&Z_LVAL_P(source));
+		RETURN_LONG((LONG_PTR)(void *)&Z_LVAL_P(source));
 	}
 	else if (sourcetype == IS_FALSE)
 	{
-		RETURN_LONG((LONG)(void *)&Z_LVAL_P(source));
+		RETURN_LONG((LONG_PTR)(void *)&Z_LVAL_P(source));
 	}
 	else if (sourcetype == IS_DOUBLE)
 	{
-		RETURN_LONG((LONG)(void *)&Z_DVAL_P(source));
+		RETURN_LONG((LONG_PTR)(void *)&Z_DVAL_P(source));
 	}
 	else if (sourcetype == IS_STRING)
 	{
-		RETURN_LONG((LONG)(void *)Z_STRVAL_P(source));
+		RETURN_LONG((LONG_PTR)(void *)Z_STRVAL_P(source));
 	}
 	else{
-		RETURN_LONG((LONG)(void *)source);
+		RETURN_LONG((LONG_PTR)(void *)source);
 	}
 }
 
 ZEND_FUNCTION(wb_load_library)
 {
 	char *lib;
-	int lib_len;
-	LONG hlib;
+	size_t lib_len;
+	LONG_PTR hlib;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -200,20 +204,21 @@ ZEND_FUNCTION(wb_load_library)
 		return;
 	}
 
-	//TCHAR *wcs = 0; // not sure if this is needed
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &lib, &lib_len) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_STRING(lib,lib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	hlib = (LONG)wbLoadLibrary(Utf82WideChar(lib, lib_len));
-	//hlib = (LONG)wbLoadLibrary(lib);
+	TCHAR *wcs = 0;
+	wcs = Utf82WideChar(lib, lib_len);
+	hlib = (LONG_PTR)wbLoadLibrary(wcs);
+	//hlib = (LONG_PTR)wbLoadLibrary(lib);
 
 	if (hlib){
 		RETURN_LONG(hlib);
 	}else
 	{
-		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), lib);
+		wbError(TEXT("wb_load_library"), MB_ICONWARNING, TEXT("Unable to locate library %s"), wcs);
 		RETURN_NULL();
 	}
 }
@@ -249,8 +254,9 @@ ZEND_FUNCTION(wb_release_library)
 ZEND_FUNCTION(wb_get_function_address)
 {
 	char *fun;
-	int fun_len;
-	zend_long addr, hlib = (LONG)NULL;
+	size_t fun_len;
+	zend_long addr, hlib = (LONG_PTR)NULL;
+	zend_bool hlib_isnull;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -263,7 +269,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(fun, fun_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(hlib)
+		Z_PARAM_LONG_OR_NULL(hlib, hlib_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the library handle valid?
@@ -274,7 +280,7 @@ ZEND_FUNCTION(wb_get_function_address)
 		RETURN_NULL();
 	}
 
-	addr = (LONG)wbGetLibraryFunction((HMODULE)hlib, fun);
+	addr = (LONG_PTR)wbGetLibraryFunction((HMODULE)hlib, fun);
 
 	if (addr){
 		RETURN_LONG(addr);
@@ -288,10 +294,11 @@ ZEND_FUNCTION(wb_get_function_address)
 ZEND_FUNCTION(wb_call_function)
 {
 	zend_long addr;
-	LONG retval = 0;
-	DWORD *param = NULL;
+	LONG_PTR retval = 0;
+	DWORDLONG *param = NULL;
 	zval *array = NULL, *entry = NULL;
-	int i, nelem = 0;
+	int i;
+	__int64 nelem = 0;
 	HashTable *target_hash;
 
 	// low level functions disabled?
@@ -305,7 +312,7 @@ ZEND_FUNCTION(wb_call_function)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(addr)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ARRAY(array)
+		Z_PARAM_ARRAY_OR_NULL(array)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the address valid?
@@ -329,7 +336,7 @@ ZEND_FUNCTION(wb_call_function)
 
 			// Allocate memory for argument array
 
-			param = emalloc(nelem * sizeof(DWORD));
+			param = emalloc(nelem * sizeof(DWORDLONG));
 			memset(param, nelem, 0);
 
 			// Loop to read array items
@@ -347,15 +354,15 @@ ZEND_FUNCTION(wb_call_function)
 				case IS_ARRAY: // Invalid types
 				case IS_OBJECT:
 				case IS_RESOURCE:
-					param[i] = (LONG)NULL;
+					param[i] = (LONG_PTR)NULL;
 					break;
 
 				case IS_NULL:
-					param[i] = (LONG)NULL;
+					param[i] = (LONG_PTR)NULL;
 					break;
 
 				case IS_STRING:
-					param[i] = (LONG)Z_STRVAL_P(entry);
+					param[i] = (LONG_PTR)Z_STRVAL_P(entry);
 					break;
 
 				case IS_DOUBLE:
@@ -462,7 +469,7 @@ PWBOBJ pwndMain;
 // Midi callback
 void CALLBACK wbMidiInProc(
 	DWORD_PTR hMidiIn,
-	UINT wMsg,
+	UINT64 wMsg,
 	DWORD_PTR dwInstance,
 	DWORD_PTR dwParam1,
 	DWORD_PTR dwParam2)
@@ -493,6 +500,7 @@ void CALLBACK wbMidiInProc(
 ZEND_FUNCTION(wb_get_midi_callback)
 {
 	// wbMidiInProc;
+	//return 0;
 }
 
 // Enum callback
@@ -512,7 +520,7 @@ void CALLBACK wbEnumProc(
 
 ZEND_FUNCTION(wb_get_enum_callback)
 {
-
+	//return 0;
 	// wbEnumProc;
 }
 

@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Window system functions
 
@@ -66,7 +66,7 @@ LPTSTR MakeWinPath(LPTSTR pszPath);
 // External
 
 extern BOOL RegisterClasses(void);
-extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
+extern char *WideChar2Utf8(LPCTSTR wcs, __int64 *len);
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -234,7 +234,7 @@ WPARAM wbMainLoop(void)
 // Used in wb_wait()
 // Reference: API help, "Examining a Message Queue"
 
-UINT wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
+UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 {
 	HWND hwnd;
 	MSG msg;
@@ -354,10 +354,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		// Must NOT use the value returned from from SetCursor()
 		return (hCursor != 0);
 	}
-	else if (wbIsValidClass((UINT)pwbo))
+	else if (wbIsValidClass((UINT64)pwbo))
 	{
 
-		// Stores class ((UINT)pwbo) mouse cursor in array hClassCursor
+		// Stores class ((UINT64)pwbo) mouse cursor in array hClassCursor
 
 		if (handle) // Cursor handle
 			hCursor = handle;
@@ -366,7 +366,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		else // Cursor name
 			hCursor = GetSysCursor(pszCursor);
 
-		hClassCursor[(UINT)pwbo] = hCursor;
+		hClassCursor[(UINT64)pwbo] = hCursor;
 		return TRUE;
 	}
 	else
@@ -384,14 +384,14 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		else // Cursor name
 			hCursor = GetSysCursor(pszCursor);
 
-		M_nMouseCursor = (LONG)hCursor;
+		M_nMouseCursor = (LONG_PTR)hCursor;
 		return (hCursor != 0);
 	}
 }
 
 // Returns TRUE if uClass is a valid WinBinder class
 
-BOOL wbIsValidClass(UINT uClass)
+BOOL wbIsValidClass(UINT64 uClass)
 {
 	switch (uClass)
 	{
@@ -562,8 +562,8 @@ IDYES		 1
 Error		-2
 
 */
-
-int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT nStyle)
+// @todo wb_quiet_message_box() (@see Fred)
+int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle)
 {
 	int nRet;
 
@@ -836,12 +836,11 @@ BOOL wbPlaySystemSound(int nStyle)
 
 //---------------------------------------------------------- END SOUND FUNCTIONS
 
-BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
+DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 {
-	BOOL bRet;
+	DWORD bRet;
 
-	// Is pszPgm a WinBinder script?
-
+	// Is pszPgm a WinBinder script? PHPW
 	if (wcsstr(pszPgm, TEXT(".") WB_EXTENSION) == pszPgm + wcslen(pszPgm) - sizeof(WB_EXTENSION))
 	{
 
@@ -876,17 +875,37 @@ BOOL wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 		// Shell execute
 		// If the function succeeds, it returns a value greater than 32.
-		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
-							 szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
+		bRet = ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
 	}
 	else
 	{
 
 	Execute:
 		// Shell execute
-		// If the function succeeds, it returns a value greater than 32.
-		bRet = (ShellExecute(GetActiveWindow(), TEXT("open"),
-							 pszPgm, pszParm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE) > (HINSTANCE)32);
+		// If the function succeeds, return PID
+		SHELLEXECUTEINFO ShExInfo = {0};
+		ShExInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		ShExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		ShExInfo.hwnd = GetActiveWindow();
+		ShExInfo.lpVerb = TEXT("open");
+		ShExInfo.lpFile = pszPgm;
+		ShExInfo.lpParameters = pszParm;
+		ShExInfo.nShow = bShowWindow ? SW_SHOWNORMAL : SW_HIDE;
+		bRet = ShellExecuteEx(&ShExInfo);
+		if (bRet)
+		{
+			// The process was launched successfully
+			// Retrieve the process ID (PID)
+			DWORD dwPid = GetProcessId(ShExInfo.hProcess);
+			// Do something with the PID...
+			bRet = dwPid;
+
+		}
+		else
+		{
+			// Failed to launch the process
+			bRet = 0;
+		}
 	}
 
 	if (!bRet)
@@ -926,7 +945,7 @@ NOTE: Do not use SearchPath(), it may crash PHP (why?)
 
 */
 
-BOOL wbFindFile(LPTSTR pszFile, UINT uLen)
+BOOL wbFindFile(LPTSTR pszFile, UINT64 uLen)
 {
 	TCHAR szPath[MAX_PATH * 2];
 
@@ -1096,15 +1115,15 @@ BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTS
 }
 
 /*
-  Returns various system data (long or string)
+  Returns various system data (LONG_PTR or string)
 
   To get the value, must check the value of pbString:
 
-  If FALSE, the value is a LONG returned by the function;
+  If FALSE, the value is a LONG_PTR returned by the function;
   If TRUE, the value is contained in pszString.
 */
 
-LONG wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT uLen)
+LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT uLen)
 {
 	*pbIsString = FALSE;
 
@@ -1124,7 +1143,7 @@ LONG wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UINT u
 	{
 
 		*pbIsString = FALSE;
-		return (LONG)hAppInstance;
+		return (LONG_PTR)hAppInstance;
 	}
 	else if (!lstrcmpi(pszInfo, L"ospath"))
 	{
@@ -1394,7 +1413,7 @@ LPTSTR MakeWinPath(LPTSTR pszPath)
 {
 	if (pszPath && *pszPath)
 	{
-		UINT i;
+		UINT64 i;
 
 		for (i = 0; i < wcslen(pszPath); i++)
 			if (*(pszPath + i) == '/')
@@ -1605,7 +1624,7 @@ static BOOL _GetOSVersionString(LPTSTR pszString)
 			HKEY hKey;
 			TCHAR szProductType[80];
 			DWORD dwBufLen = 80;
-			LONG lRet;
+			LONG_PTR lRet;
 
 			lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\ProductOptions", 0, KEY_QUERY_VALUE, &hKey);
 			if (lRet != ERROR_SUCCESS)
@@ -1632,7 +1651,7 @@ static BOOL _GetOSVersionString(LPTSTR pszString)
 		if (osvi.dwMajorVersion == 4 && lstrcmpi(osvi.szCSDVersion, L"Service Pack 6") == 0)
 		{
 			HKEY hKey;
-			LONG lRet;
+			LONG_PTR lRet;
 
 			// Test for SP6 versus SP6a.
 			lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009", 0, KEY_QUERY_VALUE, &hKey);

@@ -3,7 +3,7 @@
  WINBINDER - The native Windows binding for PHP
 
  Copyright  Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Implements Label control
 
@@ -32,7 +32,7 @@ static BOOL bUnderline = FALSE;
 // Code adapted from Neal Stublen, thanks to Davide
 // http://www.codeguru.com/Cpp/controls/staticctrl/article.php/c5803/
 
-LRESULT CALLBACK LabelProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
