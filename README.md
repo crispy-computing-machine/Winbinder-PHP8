@@ -10,6 +10,8 @@ What is WinBinder?
 
 WinBinder is an open source extension to PHP, the script programming language. It allows PHP programmers to easily build native Windows applications, producing quick and rewarding results with minimum effort. Even short scripts with a few dozen lines can generate a useful program, thanks to the power and flexibility of PHP.
 
+[Examples](https://github.com/crispy-computing-machine/Winbinder-Examples)
+
 PHP Build Compatibility
 ========================
   - PHP 7.* ❌ (unsupported)
