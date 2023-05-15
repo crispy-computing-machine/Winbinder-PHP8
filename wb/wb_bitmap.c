@@ -763,65 +763,177 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 	return TRUE;
 }
 
-BOOL SaveBitmap(LPCTSTR filename, HBITMAP bmp, HDC hdc) {
-    BITMAPFILEHEADER hdr;
-    BITMAPINFO_1 bi;
+// This function will save the captured image to a bitmap file
+BOOL SaveBitmap(LPCWSTR filename, HDC hdc, HBITMAP hBitmap) {
+    BITMAP bmp;
+    PBITMAPINFO pbmi;
+    WORD cClrBits;
 
-    ZeroMemory(&bi, sizeof(BITMAPINFO_1));
+    // Retrieve the bitmap's color format, width, and height.
+    if (!GetObject(hBitmap, sizeof(BITMAP), (LPSTR)&bmp)) {
+        return FALSE;
+    }
 
-    bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    GetDIBits(hdc, bmp, 0, 0, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
-    bi.bmiHeader.biCompression = BI_RGB;
+    // Convert the color format to a count of bits.
+    cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
+    if (cClrBits == 1) {
+        cClrBits = 1;
+    }
+    else if (cClrBits <= 4) {
+        cClrBits = 4;
+    }
+    else if (cClrBits <= 8) {
+        cClrBits = 8;
+    }
+    else if (cClrBits <= 16) {
+        cClrBits = 16;
+    }
+    else if (cClrBits <= 24) {
+        cClrBits = 24;
+    }
+    else cClrBits = 32;
 
-    DWORD dwBmpSize = ((bi.bmiHeader.biWidth * bi.bmiHeader.biBitCount + 31) / 32) * 4 * bi.bmiHeader.biHeight;
+    // Allocate memory for the BITMAPINFO structure. (This structure
+    // contains a BITMAPINFOHEADER structure and an array of RGBQUAD
+    // data structures.)
+    if (cClrBits < 24) {
+        pbmi = (PBITMAPINFO) LocalAlloc(LPTR,
+            sizeof(BITMAPINFOHEADER) +
+            sizeof(RGBQUAD) * (1 << cClrBits));
+    }
+    else {
+        pbmi = (PBITMAPINFO) LocalAlloc(LPTR,
+            sizeof(BITMAPINFOHEADER));
+    }
 
-    HANDLE hDIB = GlobalAlloc(GHND, dwBmpSize);
-    char *lpbitmap = (char*)GlobalLock(hDIB);
-    GetDIBits(hdc, bmp, 0, bi.bmiHeader.biHeight, lpbitmap, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+    // Initialize the fields in the BITMAPINFO structure.
+    pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    pbmi->bmiHeader.biWidth = bmp.bmWidth;
+    pbmi->bmiHeader.biHeight = bmp.bmHeight;
+    pbmi->bmiHeader.biPlanes = bmp.bmPlanes;
+    pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel;
+    if (cClrBits < 24) {
+        pbmi->bmiHeader.biClrUsed = (1 << cClrBits);
+    }
 
-    hdr.bfType = 0x4D42;
-    hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dwBmpSize);
+    // If the bitmap is not compressed, set the BI_RGB flag.
+    pbmi->bmiHeader.biCompression = BI_RGB;
+
+    // Compute the number of bytes in the array of color
+    // indices and store the result in biSizeImage.
+    pbmi->bmiHeader.biSizeImage = ((pbmi->bmiHeader.biWidth * cClrBits +31) & ~31) /8
+        * pbmi->bmiHeader.biHeight;
+
+    // Set biClrImportant to 0, indicating that all of the
+    // device colors are important.
+    pbmi->bmiHeader.biClrImportant = 0;
+
+    HANDLE hf;                 // file handle
+    BITMAPFILEHEADER hdr;       // bitmap file-header
+    PBITMAPINFOHEADER pbih;     // bitmap info-header
+    LPBYTE lpBits;              // memory pointer
+    DWORD dwTotal;              // total count of bytes
+    DWORD cb;                   // incremental count of bytes
+    BYTE *hp;                   // byte pointer
+	    pbih = (PBITMAPINFOHEADER) pbmi;
+    lpBits = (LPBYTE) GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
+
+    if (!lpBits) {
+        return FALSE;
+    }
+
+    // Retrieve the color table (RGBQUAD array) and the bits
+    // (array of palette indices) from the DIB.
+    if (!GetDIBits(hdc, hBitmap, 0, (WORD) pbih->biHeight, lpBits, pbmi, DIB_RGB_COLORS)) {
+        return FALSE;
+    }
+
+    // Create the .BMP file.
+    hf = CreateFileW(filename, 
+        (DWORD) GENERIC_READ | GENERIC_WRITE, 
+        (DWORD) 0, 
+        NULL, 
+        CREATE_ALWAYS, 
+        FILE_ATTRIBUTE_NORMAL, 
+        (HANDLE) NULL);
+
+    if (hf == INVALID_HANDLE_VALUE) {
+        return FALSE;
+    }
+
+    hdr.bfType = 0x4D42;        // 0x42 = "B" 0x4d = "M"
+    // Compute the size of the entire file.
+    hdr.bfSize = (DWORD) (sizeof(BITMAPFILEHEADER) + 
+        pbih->biSize + pbih->biClrUsed 
+        * sizeof(RGBQUAD) + pbih->biSizeImage);
     hdr.bfReserved1 = 0;
     hdr.bfReserved2 = 0;
-    hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
 
-    HANDLE hFile = CreateFileW(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    // Compute the offset to the array of color indices.
+    hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + 
+        pbih->biSize + pbih->biClrUsed 
+        * sizeof (RGBQUAD);
 
-    DWORD dwBytesWritten = 0;
-    WriteFile(hFile, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPVOID)&bi, sizeof(BITMAPINFOHEADER), &dwBytesWritten, NULL);
-    WriteFile(hFile, (LPVOID)lpbitmap, dwBmpSize, &dwBytesWritten, NULL);
+    // Copy the BITMAPFILEHEADER into the .BMP file.
+    if (!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), 
+        (LPDWORD) &dwTotal,  NULL)) {
+        return FALSE;
+    }
 
-    GlobalUnlock(hDIB);
-    GlobalFree(hDIB);
-    CloseHandle(hFile);
+    // Copy the BITMAPINFOHEADER and RGBQUAD array into the file.
+    if (!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) 
+        + pbih->biClrUsed * sizeof (RGBQUAD), 
+        (LPDWORD) &dwTotal, ( NULL))) {
+        return FALSE;
+    }
+
+    // Copy the array of color indices into the .BMP file.
+    dwTotal = cb = pbih->biSizeImage;
+    hp = lpBits;
+    if (!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTotal, NULL)) {
+        return FALSE;
+    }
+
+    // Close the .BMP file.
+    if (!CloseHandle(hf)) {
+        return FALSE;
+    }
+
+    // Free memory.
+    GlobalFree((HGLOBAL)lpBits);
+    LocalFree(pbmi);
 
     return TRUE;
 }
-
-void* CaptureScreen(BOOL save_to_file, LPCTSTR filename) {
-    HDC hScreenDC = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);     
+void* CaptureScreen(BOOL save_to_file, LPCWSTR filename) {
+    HDC hScreenDC = GetDC(NULL);
     HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
 
-    int width = GetDeviceCaps(hScreenDC, HORZRES);
-    int height = GetDeviceCaps(hScreenDC, VERTRES);
+    int width = GetSystemMetrics(SM_CXSCREEN);
+    int height = GetSystemMetrics(SM_CYSCREEN);
 
     HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, width, height);
 
     HBITMAP hOldBitmap = SelectObject(hMemoryDC, hBitmap);
 
-    BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0, 0, SRCCOPY); 
-
-    SelectObject(hMemoryDC, hOldBitmap);
+    BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0,
+    0, SRCCOPY);
+    hBitmap = SelectObject(hMemoryDC, hOldBitmap);
 
     if (save_to_file) {
-        SaveBitmap(filename, hBitmap, hScreenDC);
+        // Save the bitmap to a file
+        if (!SaveBitmap(filename, hMemoryDC, hBitmap)) {
+            MessageBox(NULL, L"Save image failed", L"Error", MB_OK | MB_ICONERROR);
+        }
     }
 
+    // Clean up
     DeleteDC(hMemoryDC);
-    DeleteDC(hScreenDC);
-    DeleteObject(hOldBitmap);
+    ReleaseDC(NULL, hScreenDC);
 
+    // Return the bitmap handle
     return hBitmap;
 }
-//------------------------------------------------------------------ END OF FILE
+
+	
+	//------------------------------------------------------------------ END OF FILE
