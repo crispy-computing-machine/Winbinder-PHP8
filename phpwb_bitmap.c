@@ -158,14 +158,16 @@ ZEND_FUNCTION(wb_screenshot)
 	char *filename;
 	size_t filename_len;
 	zend_bool save_to_file = false, save_to_file_isnull;
-	
+	TCHAR *wcs;
 	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hbm) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 	Z_PARAM_STRING_OR_NULL(filename, filename_len)
 	Z_PARAM_BOOL_OR_NULL(save_to_file, save_to_file_isnull)
 	ZEND_PARSE_PARAMETERS_END();
+
+	wcs = Utf82WideChar(filename, filename_len);
 	
-	RETURN_STRING(CaptureScreen((BOOL)save_to_file, (LPCSTR) filename));
+	RETURN_STRING(CaptureScreen((BOOL)save_to_file, (LPCSTR) wcs));
 }
 
 
