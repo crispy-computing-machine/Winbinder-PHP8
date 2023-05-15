@@ -169,7 +169,7 @@ ZEND_FUNCTION(wb_screenshot)
     wchar_t* wstr = malloc(wchars_num * sizeof(wchar_t));
     MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
 	
-	RETURN_LONG(CaptureScreen((BOOL)save_to_file, (LPCSTR) wstr));
+	RETURN_LONG((LONG_PTR)CaptureScreen((BOOL)save_to_file, (LPCSTR) wstr));
 }
 
 
