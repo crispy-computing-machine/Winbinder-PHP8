@@ -155,7 +155,7 @@ ZEND_FUNCTION(wb_create_mask)
 
 ZEND_FUNCTION(wb_screenshot)
 {
-	char *s filename;
+	char *filename;
 	size_t filename_len;
 	zend_bool save_to_file = false, save_to_file_isnull;
 	
@@ -165,7 +165,7 @@ ZEND_FUNCTION(wb_screenshot)
 	Z_PARAM_BOOL_OR_NULL(save_to_file, save_to_file_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 	
-	RETURN_STRING(CaptureScreen(BOOL save_to_file, LPCSTR filename));
+	RETURN_STRING(CaptureScreen((BOOL)save_to_file, (LPCSTR)filename));
 }
 
 
