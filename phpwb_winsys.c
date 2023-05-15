@@ -771,7 +771,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_set_mouse_pos)
 {
 	POINT p;
-	zend_long x, y;
+	zend_long x = 0, y = 0;
 
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 	Z_PARAM_LONG(x)
