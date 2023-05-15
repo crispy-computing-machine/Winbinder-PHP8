@@ -30,7 +30,10 @@
 //---------------------------------------------------------------- PRIVATE TYPES
 
 typedef BYTE *HBMP;
-
+typedef struct {
+    BITMAPINFOHEADER bmiHeader;
+    RGBQUAD bmiColors[1];
+} BITMAPINFO_1;
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
 // Private
@@ -41,9 +44,10 @@ static void *DIBGetAddress(HBMP lpDIB);
 static void *SetBitmap(BITMAPINFO *hbmpData, void *lpDIBBits, int nWidth, int nHeight);
 static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp);
 static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC);
+static BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
+static void* CaptureScreen(BOOL save_to_file, LPCSTR filename);
 
 // External
-
 extern BOOL IsIcon(HANDLE handle);
 extern BOOL IsBitmap(HANDLE handle);
 extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
@@ -760,4 +764,67 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 	return TRUE;
 }
 
+// This function will save the captured image to a bitmap file
+BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc) {
+    BITMAPFILEHEADER hdr;
+    BITMAPINFO_1 bi;
+
+    ZeroMemory(&bi, sizeof(BITMAPINFO_1));
+
+    bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    GetDIBits(hdc, bmp, 0, 0, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+    bi.bmiHeader.biCompression = BI_RGB;
+
+    DWORD dwBmpSize = ((bi.bmiHeader.biWidth * bi.bmiHeader.biBitCount + 31) / 32) * 4 * bi.bmiHeader.biHeight;
+
+    HANDLE hDIB = GlobalAlloc(GHND, dwBmpSize);
+    char *lpbitmap = (char*)GlobalLock(hDIB);
+    GetDIBits(hdc, bmp, 0, bi.bmiHeader.biHeight, lpbitmap, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+
+    hdr.bfType = 0x4D42;        // 0x42 = "B" 0x4d = "M"
+    hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dwBmpSize);
+    hdr.bfReserved1 = 0;
+    hdr.bfReserved2 = 0;
+    hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
+
+    HANDLE hFile = CreateFile(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    DWORD dwBytesWritten = 0;
+    WriteFile(hFile, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
+    WriteFile(hFile, (LPVOID)&bi, sizeof(BITMAPINFOHEADER), &dwBytesWritten, NULL);
+    WriteFile(hFile, (LPVOID)lpbitmap, dwBmpSize, &dwBytesWritten, NULL);
+
+    GlobalUnlock(hDIB);
+    GlobalFree(hDIB);
+    CloseHandle(hFile);
+
+    return TRUE;
+}
+
+// This function will capture the screen
+void* CaptureScreen(BOOL save_to_file, LPCSTR filename) {
+    HDC hScreenDC = CreateDC("DISPLAY", NULL, NULL, NULL);     
+    HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+
+    int width = GetDeviceCaps(hScreenDC, HORZRES);
+    int height = GetDeviceCaps(hScreenDC, VERTRES);
+
+    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, width, height);
+
+    HBITMAP hOldBitmap = SelectObject(hMemoryDC, hBitmap);
+
+    BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0, 0, SRCCOPY); 
+
+    SelectObject(hMemoryDC, hOldBitmap);
+
+    if (save_to_file) {
+        SaveBitmap(filename, hBitmap, hScreenDC);
+    }
+
+    DeleteDC(hMemoryDC);
+    DeleteDC(hScreenDC);
+    DeleteObject(hOldBitmap);
+
+    return hBitmap;
+}
 //------------------------------------------------------------------ END OF FILE

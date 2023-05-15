@@ -152,6 +152,23 @@ ZEND_FUNCTION(wb_create_mask)
 	RETURN_LONG((LONG_PTR)wbCreateMask((HBITMAP)hbm, c));
 }
 
+
+ZEND_FUNCTION(wb_screenshot)
+{
+	char *s filename;
+	size_t filename_len;
+	zend_bool save_to_file = false, save_to_file_isnull;
+	
+	//if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &hbm) == FAILURE)
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+	Z_PARAM_STRING_OR_NULL(filename, filename_len)
+	Z_PARAM_BOOL_OR_NULL(save_to_file, save_to_file_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+	
+	RETURN_STRING(CaptureScreen(BOOL save_to_file, LPCSTR filename));
+}
+
+
 ZEND_FUNCTION(wb_destroy_image)
 {
 	zend_long hbm;

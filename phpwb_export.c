@@ -109,6 +109,8 @@ ZEND_FUNCTION(wb_save_image);
 ZEND_FUNCTION(wb_create_image);
 ZEND_FUNCTION(wb_create_mask);
 ZEND_FUNCTION(wb_destroy_image);
+ZEND_FUNCTION(wb_screenshot);
+ZEND_FUNCTION(wb_screenshot);
 ZEND_FUNCTION(wb_get_image_data);
 
 // PHPWB_CONTROL_LISTVIEW.C
@@ -217,6 +219,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_image,arginfo_wb_create_image)
         ZEND_FE(wb_create_mask,arginfo_wb_create_mask)
         ZEND_FE(wb_destroy_image,arginfo_wb_destroy_image)
+		ZEND_FE(wb_screenshot,arginfo_wb_screenshot)
         ZEND_FE(wb_get_image_data,arginfo_wb_get_image_data)
 
         // PHPWB_DRAW.C
