@@ -44,10 +44,9 @@ static void *DIBGetAddress(HBMP lpDIB);
 static void *SetBitmap(BITMAPINFO *hbmpData, void *lpDIBBits, int nWidth, int nHeight);
 static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp);
 static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC);
-static BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
-static void* CaptureScreen(BOOL save_to_file, LPCSTR filename);
 
 // External
+
 extern BOOL IsIcon(HANDLE handle);
 extern BOOL IsBitmap(HANDLE handle);
 extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
