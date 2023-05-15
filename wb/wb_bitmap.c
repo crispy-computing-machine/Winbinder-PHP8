@@ -905,6 +905,7 @@ BOOL SaveBitmap(LPCWSTR filename, HDC hdc, HBITMAP hBitmap) {
 
     return TRUE;
 }
+
 void* CaptureScreen(BOOL save_to_file, LPCWSTR filename) {
     HDC hScreenDC = GetDC(NULL);
     HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
