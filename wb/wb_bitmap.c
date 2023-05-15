@@ -763,8 +763,7 @@ static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hD
 	return TRUE;
 }
 
-// This function will save the captured image to a bitmap file
-BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc) {
+BOOL SaveBitmap(LPCTSTR filename, HBITMAP bmp, HDC hdc) {
     BITMAPFILEHEADER hdr;
     BITMAPINFO_1 bi;
 
@@ -780,13 +779,13 @@ BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc) {
     char *lpbitmap = (char*)GlobalLock(hDIB);
     GetDIBits(hdc, bmp, 0, bi.bmiHeader.biHeight, lpbitmap, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 
-    hdr.bfType = 0x4D42;        // 0x42 = "B" 0x4d = "M"
+    hdr.bfType = 0x4D42;
     hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dwBmpSize);
     hdr.bfReserved1 = 0;
     hdr.bfReserved2 = 0;
     hdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
 
-    HANDLE hFile = CreateFile(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE hFile = CreateFileW(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     DWORD dwBytesWritten = 0;
     WriteFile(hFile, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
@@ -800,9 +799,8 @@ BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc) {
     return TRUE;
 }
 
-// This function will capture the screen
-void* CaptureScreen(BOOL save_to_file, LPCSTR filename) {
-    HDC hScreenDC = CreateDC("DISPLAY", NULL, NULL, NULL);     
+void* CaptureScreen(BOOL save_to_file, LPCTSTR filename) {
+    HDC hScreenDC = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);     
     HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
 
     int width = GetDeviceCaps(hScreenDC, HORZRES);
