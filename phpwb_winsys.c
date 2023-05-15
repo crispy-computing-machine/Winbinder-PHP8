@@ -782,12 +782,14 @@ ZEND_FUNCTION(wb_set_mouse_pos)
         int startX = p.x;
         int startY = p.y;
 
-        for (int i = 0; i < STEPS; i++) {
-            int x = startX + (i * (x - startX)) / STEPS;
-            int y = startY + (i * (y - startY)) / STEPS;
+        for (int i = 1; i <= STEPS; i++) {
+            double fraction = (double)i / STEPS;
+
+            int x = startX + round(fraction * (targetX - startX));
+            int y = startY + round(fraction * (targetY - startY));
 
             if (!SetCursorPos(x, y)) {
-                RETURN_BOOL(FALSE);
+                return FALSE;
             }
 
             Sleep(SLEEP_TIME);
