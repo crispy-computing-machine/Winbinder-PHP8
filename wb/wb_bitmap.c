@@ -924,7 +924,7 @@ HBITMAP CaptureScreen(BOOL save_to_file, LPCWSTR filename) {
     if (save_to_file) {
         // Save the bitmap to a file
         if (!SaveBitmap(filename, hMemoryDC, hBitmap)) {
-            MessageBox(NULL, L"Save image failed", L"Error", MB_OK | MB_ICONERROR);
+			wbError(TEXT("CaptureScreen"), MB_ICONWARNING, TEXT("Failed to save image to disk!"));
         }
     }
 
