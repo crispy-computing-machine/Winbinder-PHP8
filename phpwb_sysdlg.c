@@ -92,7 +92,7 @@ ZEND_FUNCTION(wb_sys_dlg_open)
 ZEND_FUNCTION(wb_sys_dlg_save)
 {
 	zend_long pwboParent = (LONG_PTR)NULL;
-	char *title = "", *filter = "", *path = "", *file = "", *defext = "";
+	const char *title = "", *filter = "", *path = "", *file = "", *defext = "";
 	size_t title_len = 0, filter_len = 0, path_len = 0, file_len = 0, defext_len = 0;
 	TCHAR szFile[MAX_PATH] = TEXT("");
 	TCHAR *szDefExt = 0;
