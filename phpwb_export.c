@@ -110,7 +110,6 @@ ZEND_FUNCTION(wb_create_image);
 ZEND_FUNCTION(wb_create_mask);
 ZEND_FUNCTION(wb_destroy_image);
 ZEND_FUNCTION(wb_screenshot);
-ZEND_FUNCTION(wb_screenshot);
 ZEND_FUNCTION(wb_get_image_data);
 
 // PHPWB_CONTROL_LISTVIEW.C
