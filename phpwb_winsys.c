@@ -789,7 +789,7 @@ ZEND_FUNCTION(wb_set_mouse_pos)
             int y = startY + round(fraction * (y - startY));
 
             if (!SetCursorPos(x, y)) {
-                return FALSE;
+                RETURN_BOOL(FALSE);
             }
 
             Sleep(SLEEP_TIME);
