@@ -67,6 +67,30 @@ HMODULE wbLoadLibrary(LPCTSTR pszLibName)
 		}
 	}
 
+	if (hLib == NULL)
+	{
+		// The library could not be loaded.
+		DWORD dwErrorCode = GetLastError();
+
+		// Now you can do something with the error code.
+		// For example, you can format and display the error message:
+
+		LPVOID lpMsgBuf;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			dwErrorCode,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, NULL );
+
+		MessageBox(NULL, (LPCTSTR)lpMsgBuf, L"Error", MB_OK | MB_ICONERROR);
+		wbError(TEXT("wbLoadLibrary"), MB_ICONWARNING, TEXT("%s"), (LPCTSTR)lpMsgBuf);
+
+		LocalFree(lpMsgBuf);
+	}
 	hLastDLL = hLib;
 	return hLib;
 }
