@@ -86,7 +86,6 @@ HMODULE wbLoadLibrary(LPCTSTR pszLibName)
 			(LPTSTR) &lpMsgBuf,
 			0, NULL );
 
-		MessageBox(NULL, (LPCTSTR)lpMsgBuf, L"Error", MB_OK | MB_ICONERROR);
 		wbError(TEXT("wbLoadLibrary"), MB_ICONWARNING, TEXT("%s"), (LPCTSTR)lpMsgBuf);
 
 		LocalFree(lpMsgBuf);
