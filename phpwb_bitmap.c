@@ -155,17 +155,31 @@ ZEND_FUNCTION(wb_create_mask)
 
 ZEND_FUNCTION(wb_screenshot)
 {
-	char *filename;
-	size_t filename_len;
-	wchar_t* wstr;
+    char *filename = NULL;
+    size_t filename_len;
+    wchar_t* wstr = NULL;
 
-	ZEND_PARSE_PARAMETERS_START(0, 1)
-	Z_PARAM_OPTIONAL
-	Z_PARAM_STRING_OR_NULL(filename, filename_len)
-	ZEND_PARSE_PARAMETERS_END();
-	
-	RETURN_LONG((LONG_PTR)CaptureScreen((LPCWSTR)filename));
+    ZEND_PARSE_PARAMETERS_START(0, 1)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_STRING_OR_NULL(filename, filename_len)
+    ZEND_PARSE_PARAMETERS_END();
+
+    // If filename is not NULL, convert it to wide string
+    if(filename != NULL) {
+        int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+        wstr = malloc(wchars_num * sizeof(wchar_t));
+        MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
+    }
+
+    // Pass filename (as wide string) or NULL to CaptureScreen
+    RETURN_LONG((LONG_PTR)CaptureScreen(wstr));
+
+    // If wstr was allocated, free it
+    if(wstr != NULL) {
+        free(wstr);
+    }
 }
+
 
 
 ZEND_FUNCTION(wb_destroy_image)

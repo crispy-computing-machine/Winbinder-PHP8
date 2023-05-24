@@ -920,7 +920,7 @@ HBITMAP CaptureScreen(LPCWSTR filename) {
     BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0, 0, SRCCOPY);
     hBitmap = SelectObject(hMemoryDC, hOldBitmap);
 
-	if(filename){
+	if(filename  != NULL){
         // Save the bitmap to a file
         if (!SaveBitmap(filename, hMemoryDC, hBitmap)) {
 			wbError(TEXT("CaptureScreen"), MB_ICONWARNING, TEXT("Failed to save image (%s) to disk!"), filename);
