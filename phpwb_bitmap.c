@@ -167,13 +167,15 @@ ZEND_FUNCTION(wb_screenshot)
     
 	// Check if filename is NULL or empty string
     if(filename == NULL || filename[0] == '\0'){
-        filename = "";
-    }
+        wstr = L"";
+    } else {
+		// Convert the filename to a wide string
+		int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+		wstr = malloc(wchars_num * sizeof(wchar_t));
+		MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
 
-	// Convert the filename to a wide string
-	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-	wstr = malloc(wchars_num * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
+	}
+
 	
 	RETURN_LONG((LONG_PTR)CaptureScreen((LPCSTR) wstr));
 }
