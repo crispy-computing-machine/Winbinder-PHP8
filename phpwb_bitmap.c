@@ -159,7 +159,7 @@ ZEND_FUNCTION(wb_screenshot)
 	size_t filename_len;
 	zend_bool save_to_file = false, save_to_file_isnull;
 
-	ZEND_PARSE_PARAMETERS_START(1, 2)
+	ZEND_PARSE_PARAMETERS_START(0, 2)
 	Z_PARAM_STRING_OR_NULL(filename, filename_len)
 	Z_PARAM_BOOL_OR_NULL(save_to_file, save_to_file_isnull)
 	ZEND_PARSE_PARAMETERS_END();
