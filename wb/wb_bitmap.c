@@ -394,11 +394,11 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 	hdc = CreateCompatibleDC(NULL);
 
 	if (!(pbmi = CreateBitmapInfoStruct(hbm)))
-		wbShowLastError(TEXT("CreateBitmapInfoStruct: "), FALSE)
+		wbShowLastError(TEXT("CreateBitmapInfoStruct: "), FALSE);
 		return FALSE;
 
 	if (!CreateBMPFile(pszFileName, pbmi, hbm, hdc))
-		wbShowLastError(TEXT("CreateBMPFile: "), FALSE)
+		wbShowLastError(TEXT("CreateBMPFile: "), FALSE);
 		return FALSE;
 
 	wbFree(pbmi);
