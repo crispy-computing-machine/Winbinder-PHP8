@@ -906,7 +906,7 @@ BOOL SaveBitmap(LPCWSTR filename, HDC hdc, HBITMAP hBitmap) {
     return TRUE;
 }
 
-HBITMAP CaptureScreen(BOOL save_to_file, LPCWSTR filename) {
+HBITMAP CaptureScreen(LPCWSTR filename) {
     HDC hScreenDC = GetDC(NULL);
     HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
 
@@ -921,7 +921,7 @@ HBITMAP CaptureScreen(BOOL save_to_file, LPCWSTR filename) {
     0, SRCCOPY);
     hBitmap = SelectObject(hMemoryDC, hOldBitmap);
 
-    if (save_to_file) {
+	if(filename !== NULL || filename[0] !== '\0'){
         // Save the bitmap to a file
         if (!SaveBitmap(filename, hMemoryDC, hBitmap)) {
 			wbError(TEXT("CaptureScreen"), MB_ICONWARNING, TEXT("Failed to save image to disk!"));

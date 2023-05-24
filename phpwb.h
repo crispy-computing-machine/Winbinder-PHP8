@@ -78,7 +78,7 @@ void WideCharCopy(LPCTSTR wcs, char *s, int len);
 void dumptcs(TCHAR *str);
 char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
 BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
-HBITMAP CaptureScreen(BOOL save_to_file, LPCSTR filename);
+HBITMAP CaptureScreen(LPCSTR filename);
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _PHP_WB_H
