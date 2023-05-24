@@ -157,20 +157,23 @@ ZEND_FUNCTION(wb_screenshot)
 {
 	char *filename;
 	size_t filename_len;
+	wchar_t* wstr;
 
-	ZEND_PARSE_PARAMETERS_START(0, 2)
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+	Z_PARAM_OPTIONAL
 	Z_PARAM_STRING_OR_NULL(filename, filename_len)
 	ZEND_PARSE_PARAMETERS_END();
 
     
 	// Check if filename is NULL or empty string
     if(filename == NULL || filename[0] == '\0'){
-        filename = "";
-    }
-	// Convert the filename to a wide string
-    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-    wchar_t* wstr = malloc(wchars_num * sizeof(wchar_t));
-    MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
+        wstr = "";
+    } else {
+		// Convert the filename to a wide string
+		int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+		wstr = malloc(wchars_num * sizeof(wchar_t));
+		MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
+	}
 	
 	RETURN_LONG((LONG_PTR)CaptureScreen((LPCSTR) wstr));
 }
