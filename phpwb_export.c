@@ -555,6 +555,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
 
 	// Additional @todo refactor to WBC constants
+	#include "phpwb_export_constants" // For Windows constants as PHP constants
 
 	// Button control
 	WB_ZEND_CONST(LONG, "BM_SETCHECK",			BM_SETCHECK);
