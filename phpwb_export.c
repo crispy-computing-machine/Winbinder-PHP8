@@ -17,12 +17,13 @@
 #define WB_ZEND_CONST(type, str, val) \
 do { \
     zval result; \
-    if (!zend_get_constant((str), sizeof(str)-1, &result)) { \
+    if (!zend_get_constant_str((str), strlen(str), &result)) { \
         REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT); \
     } else { \
         zval_ptr_dtor(&result); \
     } \
 } while (0)
+
 
 // ---------------------------------------------------------- INI SETTINGS
 PHP_INI_BEGIN()
