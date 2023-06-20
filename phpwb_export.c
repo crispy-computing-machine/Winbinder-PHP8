@@ -529,6 +529,18 @@ ZEND_MINIT_FUNCTION(winbinder)
 	// RTFEditBox
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
 
+	// Draw Styles
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_SOLID", 0); // 0 Solid line (the default style)
+	WB_ZEND_CONST(LONG, "WBC_DRAW_DOTTED", 1); // 1 Dotted line
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_1", 2); // 2-7 Dashed lines with increasing lengths
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_2", 3);
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_3", 4);
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_4", 5);
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_5", 6);
+ 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_6", 7);
+	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_DOTTED", 8); // 8 Line with alternating dashes and dots
+	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_DOT_DASH", 9); // 9 Line with alternating dashes and double dots
+ 
 	// Additional
 	#include "phpwb_export_constants.c" // For Windows constants as PHP constants
 
