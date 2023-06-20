@@ -535,13 +535,6 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_LV_DRAW", WBC_LV_DRAW);
 	WB_ZEND_CONST(LONG, "WBC_LV_COLUMNS", WBC_LV_COLUMNS);
 
-	// Listview styles
-	$style .= !$this->bitTest($controlStyle, LVS_NOSORTHEADER) ? ' | WBC_SORT' : '';
-	$style .= $this->bitTest($controlStyle, LVS_GRIDLINES) ? ' | WBC_LINES' : '';
-	$style .= $this->bitTest($controlStyle, LVS_CHECKBOXES) ? ' | WBC_CHECKBOXES' : '';
-	$style .= $this->bitTest($controlStyle, LVS_SINGLESEL) ? ' | WBC_SINGLE' : '';
-TBS_AUTOTICKS
-
 	// RTFEditBox
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
 
