@@ -771,7 +771,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_set_mouse_pos)
 {
 	POINT p;
-	zend_long x = 0, y = 0;
+	int x = 0, y = 0;
 
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 	Z_PARAM_LONG(x)
@@ -785,8 +785,8 @@ ZEND_FUNCTION(wb_set_mouse_pos)
         for (int i = 1; i <= STEPS; i++) {
             double fraction = (double)i / STEPS;
 
-            int x = startX + round(fraction * (x - startX));
-            int y = startY + round(fraction * (y - startY));
+            x = startX + round(fraction * (x - startX));
+            y = startY + round(fraction * (y - startY));
 
             if (!SetCursorPos(x, y)) {
                 RETURN_BOOL(FALSE);
