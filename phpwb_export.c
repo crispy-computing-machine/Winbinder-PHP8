@@ -14,7 +14,15 @@
 #include "ext/standard/info.h" // For ZEND_MINFO_FUNCTION
 
 //----------------------------------------------------------------------- MACROS
-#define WB_ZEND_CONST(type, str, val) REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT);
+#define WB_ZEND_CONST(type, str, val) \
+do { \
+    zval result; \
+    if (!zend_get_constant((str), sizeof(str)-1, &result)) { \
+        REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT); \
+    } else { \
+        zval_ptr_dtor(&result); \
+    } \
+} while (0)
 
 // ---------------------------------------------------------- INI SETTINGS
 PHP_INI_BEGIN()
@@ -525,6 +533,13 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_LV_DEFAULT", WBC_LV_DEFAULT);
 	WB_ZEND_CONST(LONG, "WBC_LV_DRAW", WBC_LV_DRAW);
 	WB_ZEND_CONST(LONG, "WBC_LV_COLUMNS", WBC_LV_COLUMNS);
+
+	// Listview styles
+	$style .= !$this->bitTest($controlStyle, LVS_NOSORTHEADER) ? ' | WBC_SORT' : '';
+	$style .= $this->bitTest($controlStyle, LVS_GRIDLINES) ? ' | WBC_LINES' : '';
+	$style .= $this->bitTest($controlStyle, LVS_CHECKBOXES) ? ' | WBC_CHECKBOXES' : '';
+	$style .= $this->bitTest($controlStyle, LVS_SINGLESEL) ? ' | WBC_SINGLE' : '';
+TBS_AUTOTICKS
 
 	// RTFEditBox
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
