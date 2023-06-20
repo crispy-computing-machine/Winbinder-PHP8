@@ -16,11 +16,11 @@
 //----------------------------------------------------------------------- MACROS
 #define WB_ZEND_CONST(type, str, val) \
 do { \
-    zval result; \
-    if (!zend_get_constant_str((str), strlen(str), &result)) { \
+    zval* result = zend_get_constant_str((str), strlen(str)); \
+    if (result == NULL) { \
         REGISTER_##type##_CONSTANT((str), (val), CONST_CS | CONST_PERSISTENT); \
     } else { \
-        zval_ptr_dtor(&result); \
+        zval_ptr_dtor(result); \
     } \
 } while (0)
 
