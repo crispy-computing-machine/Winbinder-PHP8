@@ -24,7 +24,6 @@
     } \
 }
 
-
 // ---------------------------------------------------------- INI SETTINGS
 PHP_INI_BEGIN()
 PHP_INI_ENTRY("winbinder.debug_level", "0", PHP_INI_ALL, NULL)
@@ -550,6 +549,19 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_DOTTED", 8); // 8 Line with alternating dashes and dots
 	WB_ZEND_CONST(LONG, "WBC_DRAW_DASH_DOT_DASH", 9); // 9 Line with alternating dashes and double dots
  
+ 	// Default params/styles for window
+ 	WB_ZEND_CONST(LONG, "WBC_DEFAULT_STYLES", WBC_VISIBLE|WBC_CUSTOMDRAW|WBC_TASKBAR|WBC_NOTIFY|WBC_ALT|WBC_CONTROL|WBC_SHIFT|WBC_LBUTTON|WBC_MBUTTON|WBC_RBUTTON);
+	WB_ZEND_CONST(LONG, "WBC_DEFAULT_PARAMS", WBC_DBLCLICK | WBC_MOUSEMOVE | WBC_MOUSEDOWN | WBC_MOUSEUP | WBC_KEYDOWN | WBC_KEYUP | WBC_GETFOCUS | WBC_REDRAW | WBC_RESIZE | WBC_HEADERSEL);
+
+	// Limits
+	WB_ZEND_CONST(LONG, "WBC_MAX_TABS", 16); // Maximum number of tabs in a TabControl
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_TABCONTROLS", 512); // Maximum number of controls in a TabControl
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_LISTVIEWCOLS", 256); // Maximum columns in a ListView
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_ACCELS", 256); // Maximum number of keyboard accelerators
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_ITEM_STRING", 1024); // Maximum string in a ListView / TreeView
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_TREEVIEW_LEVELS", 25); // Maximum treeview levels
+ 	WB_ZEND_CONST(LONG, "WBC_MAX_IMAGELIST_IMAGES", 128); // Maximum images inside a ImageList
+
 	// Additional
 	#include "phpwb_export_constants.c" // For Windows constants as PHP constants
 
