@@ -1,6 +1,8 @@
 // @todo add more: https://wiki.winehq.org/List_Of_Windows_Messages
 WB_ZEND_CONST(LONG, "PBS_MARQUEE", 0x08);
 WB_ZEND_CONST(LONG, "PBM_SETMARQUEE", WM_USER + 10);
+WB_ZEND_CONST(LONG, "PBM_GETPOS", PBM_GETPOS);
+
 
 // Trackbar ticks
 WB_ZEND_CONST(LONG, "TBS_AUTOTICKS", TBS_AUTOTICKS);
