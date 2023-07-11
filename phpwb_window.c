@@ -455,7 +455,7 @@ ZEND_FUNCTION(wb_set_handler)
 	// Error checking
 	if (!zend_is_callable(zparam, 0, &fname))
 	{
-		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("%s handler is not a function or cannot be called"), );
+		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("%s handler is not a function or cannot be called"), fname);
 		RETURN_BOOL(FALSE);
 	}
 	else
