@@ -582,8 +582,8 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_release_library, 0, 1, _IS_BO
 	ZEND_ARG_TYPE_INFO(0, library, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_midi_callback, 0, 0, _IS_BOOL, 0)
-ZEND_END_ARG_INFO()
+//ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_midi_callback, 0, 0, _IS_BOOL, 0)
+//ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_enum_callback, 0, 0, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()

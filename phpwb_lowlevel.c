@@ -497,11 +497,11 @@ void CALLBACK wbMidiInProc(
 	return;
 }
 
-ZEND_FUNCTION(wb_get_midi_callback)
-{
+//ZEND_FUNCTION(wb_get_midi_callback)
+//{
 	// wbMidiInProc;
 	//return 0;
-}
+//}
 
 // Enum callback
 void CALLBACK wbEnumProc(
@@ -518,11 +518,13 @@ void CALLBACK wbEnumProc(
 	return;
 }
 
+/*
 ZEND_FUNCTION(wb_get_enum_callback)
 {
-	//return 0;
-	// wbEnumProc;
+	return 0;
+	 wbEnumProc;
 }
+
 
 DWORD WINAPI wbHookProc(
 	int code,
@@ -553,5 +555,6 @@ ZEND_FUNCTION(wb_get_hook_callback)
 {
 	//wbHookProc;
 }
+*/
 
 //------------------------------------------------------------------ END OF FILE

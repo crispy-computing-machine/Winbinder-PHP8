@@ -167,9 +167,9 @@ ZEND_FUNCTION(wb_load_library);
 ZEND_FUNCTION(wb_release_library);
 ZEND_FUNCTION(wb_get_function_address);
 ZEND_FUNCTION(wb_call_function);
-ZEND_FUNCTION(wb_get_midi_callback);
-ZEND_FUNCTION(wb_get_enum_callback);
-ZEND_FUNCTION(wb_get_hook_callback);
+//ZEND_FUNCTION(wb_get_midi_callback);
+//ZEND_FUNCTION(wb_get_enum_callback);
+//ZEND_FUNCTION(wb_get_hook_callback);
 
 // PHPWB_WINDOW.C
 ZEND_FUNCTION(wb_get_size);
@@ -321,9 +321,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_release_library,arginfo_wb_release_library)
         ZEND_FE(wb_get_function_address,arginfo_wb_get_function_address)
         ZEND_FE(wb_call_function,arginfo_wb_call_function)
-        ZEND_FE(wb_get_midi_callback,arginfo_wb_get_midi_callback)
-        ZEND_FE(wb_get_enum_callback,arginfo_wb_get_enum_callback)
-        ZEND_FE(wb_get_hook_callback,arginfo_wb_get_hook_callback)
+        //ZEND_FE(wb_get_midi_callback,arginfo_wb_get_midi_callback)
+        //ZEND_FE(wb_get_enum_callback,arginfo_wb_get_enum_callback)
+        //ZEND_FE(wb_get_hook_callback,arginfo_wb_get_hook_callback)
 
         // PHPWB_WINDOW.C
         ZEND_FE(wb_destroy_window,arginfo_wb_destroy_window)
