@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Drawing functions
 
@@ -29,14 +29,14 @@ static HPEN CreatePenFromStyle(COLORREF cl, int nLineWidth, int nLineStyle, DWOR
 
 BOOL wbSetPixel(HANDLE handle, int xPos, int yPos, COLORREF color)
 {
-    BOOL bResult;
+	BOOL bResult;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
 	bResult = (SetPixel(hdcMain, xPos, yPos, color) != (COLORREF)-1);
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 	return bResult;
 }
@@ -47,12 +47,12 @@ COLORREF wbGetPixel(HANDLE handle, int xPos, int yPos)
 {
 	COLORREF clResult;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return CLR_INVALID;
 
 	clResult = GetPixel(hdcMain, xPos, yPos);
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return CLR_INVALID;
 	return clResult;
 }
@@ -65,13 +65,14 @@ BOOL wbDrawBitmap(HANDLE handle, HBITMAP hbmBits, int xPos, int yPos, int nWidth
 	HDC hdcMem;
 	HBITMAP hbmMask = NULL;
 
-	if(!hbmBits)
+	if (!hbmBits)
 		return FALSE;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
-	if(nWidth < 1 && nHeight < 1) {
+	if (nWidth < 1 && nHeight < 1)
+	{
 		DWORD dwDim;
 
 		dwDim = wbGetImageDimensions(hbmBits);
@@ -79,31 +80,33 @@ BOOL wbDrawBitmap(HANDLE handle, HBITMAP hbmBits, int xPos, int yPos, int nWidth
 		nHeight = HIWORD(dwDim);
 	}
 
-	if(clTransp != CLR_INVALID)
+	if (clTransp != CLR_INVALID)
 		hbmMask = wbCreateMask(hbmBits, clTransp);
 
 	hdcMem = CreateCompatibleDC(hdcMain);
 	SelectObject(hdcMem, hbmBits);
 
-	if(clTransp != CLR_INVALID) {
+	if (clTransp != CLR_INVALID)
+	{
 
 		bRet = MaskBlt(hdcMain,
-			xPos, yPos, nWidth, nHeight,
-			hdcMem,
-			xOffset, yOffset,
-			hbmMask,
-			xOffset, yOffset,
-			MAKEROP4(SRCPAINT, SRCCOPY));
-
-	} else {
+					   xPos, yPos, nWidth, nHeight,
+					   hdcMem,
+					   xOffset, yOffset,
+					   hbmMask,
+					   xOffset, yOffset,
+					   MAKEROP4(SRCPAINT, SRCCOPY));
+	}
+	else
+	{
 		bRet = BitBlt(hdcMain, xPos, yPos, nWidth, nHeight, hdcMem, xOffset, yOffset, SRCCOPY);
 	}
 	DeleteDC(hdcMem);
 
-	if((clTransp != CLR_INVALID) && hbmMask)
+	if ((clTransp != CLR_INVALID) && hbmMask)
 		DeleteObject(hbmMask);
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 
 	return bRet;
@@ -116,11 +119,11 @@ BOOL wbGetTextSize(PSIZE psizeText, LPCTSTR pszString, int nFont)
 	HFONT hfOld;
 	BOOL bRet;
 
-	if(!psizeText)
+	if (!psizeText)
 		return FALSE;
 
 	pfont = wbGetFont(nFont);
-	if(!pfont)
+	if (!pfont)
 		return FALSE;
 
 	hdcTest = CreateCompatibleDC(hdcMain);
@@ -144,14 +147,14 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 	PFONT pfont;
 	DWORD dwWinFlags;
 
-	if(!pszString || !*pszString)
+	if (!pszString || !*pszString)
 		return FALSE;
 
 	pfont = wbGetFont(nFont);
-	if(!pfont)
+	if (!pfont)
 		return FALSE;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
 	clOld = SetTextColor(hdcMain, pfont->color);
@@ -159,7 +162,8 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 	hfOld = SelectObject(hdcMain, pfont->hFont);
 	nLen = wcslen(pszString);
 
-	if(nWidth > 0 && nHeight > 0) {
+	if (nWidth > 0 && nHeight > 0)
+	{
 		rc.left = xPos;
 		rc.right = xPos + nWidth;
 		rc.top = yPos;
@@ -167,47 +171,54 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 
 		// Text flags
 
-		if(dwFlags == 0) {												// No flags: default font
+		if (dwFlags == 0)
+		{ // No flags: default font
 
 			dwWinFlags = DT_LEFT | DT_SINGLELINE | DT_VCENTER;
-
-		} else if(BITTEST(dwFlags, WBC_MULTILINE)) {					// Multi-line
+		}
+		else if (BITTEST(dwFlags, WBC_MULTILINE))
+		{ // Multi-line
 
 			dwWinFlags = DT_EDITCONTROL | DT_WORDBREAK;
+		}
+		else if (BITTEST(dwFlags, WBC_TOP))
+		{ // Top
 
-		} else if(BITTEST(dwFlags, WBC_TOP)) {							// Top
-
-			if(BITTEST(dwFlags, WBC_CENTER))
+			if (BITTEST(dwFlags, WBC_CENTER))
 				dwWinFlags = DT_CENTER | DT_SINGLELINE | DT_TOP;
-			else if(BITTEST(dwFlags, WBC_RIGHT))
+			else if (BITTEST(dwFlags, WBC_RIGHT))
 				dwWinFlags = DT_RIGHT | DT_SINGLELINE | DT_TOP;
 			else // WBC_LEFT == 0
 				dwWinFlags = DT_LEFT | DT_SINGLELINE | DT_TOP;
+		}
+		else if (BITTEST(dwFlags, WBC_BOTTOM))
+		{ // Bottom
 
-		} else if(BITTEST(dwFlags, WBC_BOTTOM)) {						// Bottom
-
-			if(BITTEST(dwFlags, WBC_CENTER))
+			if (BITTEST(dwFlags, WBC_CENTER))
 				dwWinFlags = DT_CENTER | DT_SINGLELINE | DT_BOTTOM;
-			else if(BITTEST(dwFlags, WBC_RIGHT))
+			else if (BITTEST(dwFlags, WBC_RIGHT))
 				dwWinFlags = DT_RIGHT | DT_SINGLELINE | DT_BOTTOM;
 			else // WBC_LEFT == 0
 				dwWinFlags = DT_LEFT | DT_SINGLELINE | DT_BOTTOM;
+		}
+		else
+		{ // Middle (WBC_MIDDLE == 0)
 
-		} else {														// Middle (WBC_MIDDLE == 0)
-
-			if(BITTEST(dwFlags, WBC_CENTER))
+			if (BITTEST(dwFlags, WBC_CENTER))
 				dwWinFlags = DT_CENTER | DT_SINGLELINE | DT_VCENTER;
-			else if(BITTEST(dwFlags, WBC_RIGHT))
+			else if (BITTEST(dwFlags, WBC_RIGHT))
 				dwWinFlags = DT_RIGHT | DT_SINGLELINE | DT_VCENTER;
 			else // WBC_LEFT == 0
 				dwWinFlags = DT_LEFT | DT_SINGLELINE | DT_VCENTER;
 		}
 
-		if(BITTEST(dwFlags, WBC_ELLIPSIS))
+		if (BITTEST(dwFlags, WBC_ELLIPSIS))
 			dwWinFlags |= DT_END_ELLIPSIS | DT_PATH_ELLIPSIS;
 
 		bRet = DrawTextEx(hdcMain, (LPTSTR)pszString, nLen, &rc, dwWinFlags, NULL);
-	} else {
+	}
+	else
+	{
 		bRet = TextOut(hdcMain, xPos, yPos, (LPTSTR)pszString, nLen);
 	}
 
@@ -215,7 +226,7 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 	SetBkMode(hdcMain, OPAQUE);
 	SetTextColor(hdcMain, clOld);
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 
 	return bRet;
@@ -224,15 +235,15 @@ BOOL wbDrawText(HANDLE handle, LPCTSTR pszString, int xPos, int yPos, int nWidth
 /* Draws a line on the handle. (x0, y0) are the first point coordinates,
   (x1, y1) are the end point coordinates. cl is the line color. */
 
-BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT64 nLineWidth, UINT64 nLineStyle)
 {
 	HPEN hpen;
 	HGDIOBJ hOldObj;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
-	if(cl == CLR_INVALID)
+	if (cl == CLR_INVALID)
 		return FALSE;
 
 	hpen = CreatePenFromStyle(cl, nLineWidth, nLineStyle, PS_ENDCAP_ROUND | PS_JOIN_ROUND);
@@ -242,7 +253,7 @@ BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT
 	SelectObject(hdcMain, hOldObj);
 	DeleteObject(hpen);
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 	return TRUE;
 }
@@ -252,30 +263,32 @@ BOOL wbDrawLine(HANDLE handle, int x0, int y0, int x1, int y1, COLORREF cl, UINT
   cl is the fill color of the filled rectangle or the line color of the hollow rectangle.
   */
 
-BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle)
 {
 	HGDIOBJ hOldObj;
 
-	if(cl == CLR_INVALID)
+	if (cl == CLR_INVALID)
 		return FALSE;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
-	if(bFilled) {
+	if (bFilled)
+	{
 
 		HBRUSH hbr;
 
 		hbr = CreateSolidBrush(cl);
 		hOldObj = SelectObject(hdcMain, hbr);
 
-		PatBlt(hdcMain, xPos, yPos, nWidth,	nHeight, PATCOPY); // Faster than FillRect()
+		PatBlt(hdcMain, xPos, yPos, nWidth, nHeight, PATCOPY); // Faster than FillRect()
 
 		SelectObject(hdcMain, hOldObj);
 
 		DeleteObject(hbr);
-
-	} else {
+	}
+	else
+	{
 
 		HPEN hpen;
 
@@ -292,7 +305,7 @@ BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLO
 		DeleteObject(hpen);
 	}
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 	return TRUE;
 }
@@ -302,15 +315,16 @@ BOOL wbDrawRect(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLO
   cl is the fill color of the filled ellipse or the line color of the hollow ellipse.
   */
 
-BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT nLineWidth, UINT nLineStyle)
+BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, COLORREF cl, BOOL bFilled, UINT64 nLineWidth, UINT64 nLineStyle)
 {
-	if(cl == CLR_INVALID)
+	if (cl == CLR_INVALID)
 		return FALSE;
 
-	if(!DrawStart(handle))
+	if (!DrawStart(handle))
 		return FALSE;
 
-	if(bFilled) {
+	if (bFilled)
+	{
 
 		HBRUSH hbr;
 		HBRUSH hbrOld;
@@ -322,14 +336,14 @@ BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, C
 
 		SelectObject(hdcMain, hbrOld);
 		DeleteObject(hbr);
-
-	} else {
+	}
+	else
+	{
 
 		HPEN hpen;
 		HBRUSH hbr;
 		HPEN hpenOld;
 		HBRUSH hbrOld;
-
 
 		hbr = GetStockObject(NULL_BRUSH);
 		hpen = CreatePenFromStyle(cl, nLineWidth, nLineStyle, PS_ENDCAP_ROUND | PS_JOIN_ROUND);
@@ -344,7 +358,7 @@ BOOL wbDrawEllipse(HANDLE handle, int xPos, int yPos, int nWidth, int nHeight, C
 		DeleteObject(hbr);
 	}
 
-	if(!DrawEnd(handle))
+	if (!DrawEnd(handle))
 		return FALSE;
 	return TRUE;
 }
@@ -357,13 +371,14 @@ static HDC GetBitmapDC(HBITMAP hbm)
 {
 	HDC handle, hdcBmp;
 
-	if(!hbm)
+	if (!hbm)
 		return NULL;
 	handle = GetDC(NULL);
-	if(!handle)
+	if (!handle)
 		return NULL;
 	hdcBmp = CreateCompatibleDC(handle);
-	if(!hdcBmp) {
+	if (!hdcBmp)
+	{
 		ReleaseDC(NULL, handle);
 		return NULL;
 	}
@@ -376,47 +391,54 @@ static HDC GetBitmapDC(HBITMAP hbm)
 
 static HANDLE DrawStart(HANDLE handle)
 {
-	if(!handle)
+	if (!handle)
 		return NULL;
 
-	if(wbIsWBObj(handle, FALSE)) {				// Is the handle a PWBOBJ?
+	if (wbIsWBObj(handle, FALSE))
+	{ // Is the handle a PWBOBJ?
 		handle = ((PWBOBJ)handle)->hwnd;
 	}
-	if(IsWindow((HWND)handle)) {				// Is the handle a window?
+	if (IsWindow((HWND)handle))
+	{ // Is the handle a window?
 		hdcMain = GetDC((HWND)handle);
-		if(hdcMain)
+		if (hdcMain)
 			return hdcMain;
 	}
-	if(GetDeviceCaps(handle, RASTERCAPS)) {		// Is it a DC?
+	if (GetDeviceCaps(handle, RASTERCAPS))
+	{ // Is it a DC?
 		hdcMain = handle;
 		return hdcMain;
 	}
-	hdcMain = GetBitmapDC((HBITMAP)handle);		// Is it a bitmap?
-	if(hdcMain)
+	hdcMain = GetBitmapDC((HBITMAP)handle); // Is it a bitmap?
+	if (hdcMain)
 		return hdcMain;
-	return NULL;								// Unknown
+	return NULL; // Unknown
 }
 
 static BOOL DrawEnd(HANDLE handle)
 {
-	if(!handle || !hdcMain)
+	if (!handle || !hdcMain)
 		return FALSE;
 
-//	if(wbIsWBObj(handle, FALSE))				// Is the handle a PWBOBJ?
-//		return TRUE;
+	//	if(wbIsWBObj(handle, FALSE))				// Is the handle a PWBOBJ?
+	//		return TRUE;
 
-	if(IsWindow((HWND)handle)) {				// Is the handle a window?
+	if (IsWindow((HWND)handle))
+	{ // Is the handle a window?
 
-		if(!hdcMain)
+		if (!hdcMain)
 			return FALSE;
 		return ReleaseDC((HWND)handle, hdcMain);
+	}
+	else
+	{ // Must be a DC
 
-	} else {									// Must be a DC
-
-		if(DeleteDC(hdcMain)) {	// *** Should it always delete the DC?
-			hdcMain = NULL;		// *** What about a DC that was passed to DrawStart()?
+		if (DeleteDC(hdcMain))
+		{					// *** Should it always delete the DC?
+			hdcMain = NULL; // *** What about a DC that was passed to DrawStart()?
 			return TRUE;
-		} else
+		}
+		else
 			return FALSE;
 	}
 }
@@ -431,59 +453,60 @@ static HPEN CreatePenFromStyle(COLORREF cl, int nLineWidth, int nLineStyle, DWOR
 	lb.lbColor = cl;
 	lb.lbHatch = 0;
 
-	switch(nLineStyle) {
-		case 0:
-		default:
-			return ExtCreatePen(PS_GEOMETRIC | PS_SOLID | dwCaps,
-			  MAX(1, nLineWidth), &lb, 0, NULL);
+	switch (nLineStyle)
+	{
+	case 0:
+	default:
+		return ExtCreatePen(PS_GEOMETRIC | PS_SOLID | dwCaps,
+							MAX(1, nLineWidth), &lb, 0, NULL);
 
-		case 1:
-			return ExtCreatePen(PS_COSMETIC | PS_ALTERNATE | dwCaps,
-			  MAX(1, 1), &lb, 0, NULL);
+	case 1:
+		return ExtCreatePen(PS_COSMETIC | PS_ALTERNATE | dwCaps,
+							MAX(1, 1), &lb, 0, NULL);
 
-		case 2:
-			return ExtCreatePen(PS_COSMETIC | PS_DOT | dwCaps,
-			  MAX(1, 1), &lb, 0, NULL);
+	case 2:
+		return ExtCreatePen(PS_COSMETIC | PS_DOT | dwCaps,
+							MAX(1, 1), &lb, 0, NULL);
 
-		case 3:				// Custom style
-			{
-				DWORD dwStyle[] = {2, 1};
-				return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
-				  MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
-			}
+	case 3: // Custom style
+	{
+		DWORD dwStyle[] = {2, 1};
+		return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
+							MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
+	}
 
-		case 4:				// Custom style
-			{
-				DWORD dwStyle[] = {2, 2};
-				return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
-				  MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
-			}
+	case 4: // Custom style
+	{
+		DWORD dwStyle[] = {2, 2};
+		return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
+							MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
+	}
 
-		case 5:				// Custom style
-			{
-				DWORD dwStyle[] = {3, 1};
-				return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
-				  MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
-			}
+	case 5: // Custom style
+	{
+		DWORD dwStyle[] = {3, 1};
+		return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
+							MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
+	}
 
-		case 6:				// Custom style
-			{
-				DWORD dwStyle[] = {4, 1};
-				return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
-				  MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
-			}
+	case 6: // Custom style
+	{
+		DWORD dwStyle[] = {4, 1};
+		return ExtCreatePen(PS_COSMETIC | PS_USERSTYLE | dwCaps,
+							MAX(1, 1), &lb, 2, (CONST DWORD *)&dwStyle);
+	}
 
-		case 7:
-			return ExtCreatePen(PS_COSMETIC | PS_DASH | dwCaps,
-			  MAX(1, 1), &lb, 0, NULL);
+	case 7:
+		return ExtCreatePen(PS_COSMETIC | PS_DASH | dwCaps,
+							MAX(1, 1), &lb, 0, NULL);
 
-		case 8:
-			return ExtCreatePen(PS_COSMETIC | PS_DASHDOT | dwCaps,
-			  MAX(1, 1), &lb, 0, NULL);
+	case 8:
+		return ExtCreatePen(PS_COSMETIC | PS_DASHDOT | dwCaps,
+							MAX(1, 1), &lb, 0, NULL);
 
-		case 9:
-			return ExtCreatePen(PS_COSMETIC | PS_DASHDOTDOT | dwCaps,
-			  MAX(1, 1), &lb, 0, NULL);
+	case 9:
+		return ExtCreatePen(PS_COSMETIC | PS_DASHDOTDOT | dwCaps,
+							MAX(1, 1), &lb, 0, NULL);
 	}
 }
 

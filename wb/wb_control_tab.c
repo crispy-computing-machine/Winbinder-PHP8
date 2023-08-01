@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Tab control
 
@@ -20,19 +20,21 @@
 BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText)
 {
 	TCHAR *szTitle = _wcsdup(pszText);
-	TCHAR *ptr;
+	TCHAR *ptr = NULL;
+	TCHAR *next = NULL;
 
-	if(!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
 		return FALSE;
 
-	if(!pszText || !*pszText)
+	if (!pszText || !*pszText)
 		return FALSE;
 
 	SendMessage(pwboTab->hwnd, TCM_DELETEALLITEMS, 0, 0);
-	ptr = wcstok(szTitle, TEXT("\r\n,"));
-	while(ptr) {
+	ptr = wcstok(szTitle, TEXT("\r\n,"), &next);
+	while (ptr)
+	{
 		wbCreateTabItem(pwboTab, ptr);
-		ptr = wcstok(NULL, TEXT("\r\n,"));
+		ptr = wcstok(NULL, TEXT("\r\n,"), &next);
 	}
 	return TRUE;
 }
@@ -44,13 +46,13 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	TC_ITEM tcitem;
 	int nItems;
 	PTABDATA pTabData;
-	UINT i;
+	UINT64 i;
 	RECT rc;
 
-	if(!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
 		return FALSE;
 
-	if(!pszItem || !*pszItem)
+	if (!pszItem || !*pszItem)
 		return FALSE;
 
 	tcitem.mask = TCIF_TEXT;
@@ -62,7 +64,7 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	// Create the tab
 
 	nItems = SendMessage(pwboTab->hwnd, TCM_GETITEMCOUNT, 0, 0);
-	SendMessage(pwboTab->hwnd, TCM_INSERTITEM, nItems, (LPARAM) &tcitem);
+	SendMessage(pwboTab->hwnd, TCM_INSERTITEM, nItems, (LPARAM)&tcitem);
 
 	// Create the container page
 
@@ -71,14 +73,13 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	pTabData->page[pTabData->nPages].hwnd = CreateWindow(
 		TAB_PAGE_CLASS,
 		TEXT(""),
-//			WS_CHILD | WS_TABSTOP | DS_3DLOOK | DS_SETFONT | DS_CONTROL,
+		//			WS_CHILD | WS_TABSTOP | DS_3DLOOK | DS_SETFONT | DS_CONTROL,
 		WS_CHILD,
 		0, 0, CW_USEDEFAULT, CW_USEDEFAULT,
 		pwboTab->hwnd,
 		NULL,
 		hAppInstance,
-		NULL
-	);
+		NULL);
 
 	GetClientRect(pwboTab->hwnd, &rc);
 	TabCtrl_AdjustRect(pwboTab->hwnd, FALSE, &rc);
@@ -86,21 +87,23 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	// Adjust page size and visibility
 
 	SetWindowPos(pTabData->page[pTabData->nPages].hwnd, NULL,
-	  rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
-	  SWP_NOACTIVATE| SWP_NOCOPYBITS| SWP_NOOWNERZORDER| SWP_NOREDRAW);
+				 rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+				 SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_NOOWNERZORDER | SWP_NOREDRAW);
 
 	ShowWindow(pTabData->page[pTabData->nPages].hwnd, pTabData->nPages == 0 ? SW_SHOW : SW_HIDE);
 
 	// Requests all existing child controls that belong to this tab / page
 
-	for(i = 0; i < pTabData->nCtrls; i++) {
-		if(pTabData->ctrl[i].nTab == pTabData->nPages) {
+	for (i = 0; i < pTabData->nCtrls; i++)
+	{
+		if (pTabData->ctrl[i].nTab == pTabData->nPages)
+		{
 			SetParent(pTabData->ctrl[i].hwnd, pTabData->page[pTabData->nPages].hwnd);
 		}
 	}
 
-//	if(!pTabData->nPages)
-//		SetFocus(pTabData->page[0].hwnd);
+	//	if(!pTabData->nPages)
+	//		SetFocus(pTabData->page[0].hwnd);
 
 	pTabData->nPages++;
 
@@ -112,31 +115,99 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem)
 {
 	int nSelTab = 0;
-	UINT i;
+	UINT64 i;
 	PTABDATA pTabData;
 
-	if(!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
 		return FALSE;
 
 	nSelTab = TabCtrl_GetCurSel(pwboTab->hwnd);
 
-	if(nSelTab != nItem)
+	if (nSelTab != nItem)
 		TabCtrl_SetCurSel(pwboTab->hwnd, nItem);
 
-	nSelTab = TabCtrl_GetCurSel(pwboTab->hwnd);	// New tab index
+	nSelTab = TabCtrl_GetCurSel(pwboTab->hwnd); // New tab index
 
 	// Show / hide pages
 
 	pTabData = (PTABDATA)pwboTab->lparam;
-	if(!pTabData)
+	if (!pTabData)
 		return FALSE;
-	for(i = 0; i < pTabData->nPages; i++)
+	for (i = 0; i < pTabData->nPages; i++)
 		ShowWindow(pTabData->page[i].hwnd, (int)i == nSelTab ? SW_SHOW : SW_HIDE);
 
 	return TRUE;
 }
 
-/*LRESULT CALLBACK TabProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/* Sets an image list for tab control */
+BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent)
+{
+	HBITMAP hbmMask;
+	static HIMAGELIST hi;
+	BITMAP bm;
+
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+		return FALSE;
+
+	if (hbmImage && nImages)
+	{
+
+		GetObject(hbmImage, sizeof(BITMAP), (LPSTR)&bm);
+		if ((bm.bmWidth == 0) | (bm.bmHeight == 0))
+			return FALSE;
+
+		nImages = MAX(1, MIN(nImages, MIN(bm.bmWidth, MAX_IMAGELIST_IMAGES)));
+
+		if (clTransparent != NOCOLOR)
+		{
+			hbmMask = wbCreateMask(hbmImage, clTransparent);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
+			ImageList_Add(hi, hbmImage, hbmMask);
+			TabCtrl_SetImageList(pwbo->hwnd, hi);
+			DeleteObject(hbmMask);
+		}
+		else
+		{
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
+			ImageList_Add(hi, hbmImage, NULL);
+			TabCtrl_SetImageList(pwbo->hwnd, hi);
+		}
+	}
+	else
+	{
+		TabCtrl_SetImageList(pwbo->hwnd, NULL);
+		ImageList_Destroy(hi);
+	}
+	return TRUE;
+}
+
+/* Change the two images of the specified node */
+
+BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
+{
+	TC_ITEM tabItemToUpdate;
+
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+		return FALSE;
+
+	TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
+	tabItemToUpdate.mask = TCIF_IMAGE;
+
+	if (nImageIndex >= 0)
+	{
+		tabItemToUpdate.mask |= TCIF_IMAGE;
+		tabItemToUpdate.mask |= TCS_FIXEDWIDTH;
+		tabItemToUpdate.mask |= TCS_FORCEICONLEFT;
+	}
+
+	tabItemToUpdate.iImage = nImageIndex; // image index
+
+	TabCtrl_SetItem(pwbo->hwnd, item, &tabItemToUpdate);
+
+	return TRUE;
+}
+
+/*LRESULT CALLBACK TabProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) {
 
@@ -159,28 +230,28 @@ BOOL wbSelectTab(PWBOBJ pwboTab, int nItem)
 
 // Insert the control data in its parent's TABDATA structure
 
-BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab)
+BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab)
 {
 	PWBOBJ pwboTab;
 	PTABDATA pTabData;
 
-	if(pwboParent == pwbo)
+	if (pwboParent == pwbo)
 		return FALSE;
 
-	pwboTab = (PWBOBJ)GetWindowLong(pwboParent->hwnd, GWL_USERDATA);
-	if(!pwboTab)
+	pwboTab = (PWBOBJ)GetWindowLongPtr(pwboParent->hwnd, GWLP_USERDATA);
+	if (!pwboTab)
 		return FALSE;
 
-	if(pwboTab == pwbo)
+	if (pwboTab == pwbo)
 		return FALSE;
 
 	pTabData = (PTABDATA)pwboTab->lparam;
-	if(!pTabData)
+	if (!pTabData)
 		return FALSE;
 
 	pTabData->ctrl[pTabData->nCtrls].hwnd = pwbo->hwnd;
 	pTabData->ctrl[pTabData->nCtrls].id = id;
-	pTabData->ctrl[pTabData->nCtrls].nTab = MIN(MIN((UINT)nTab, pTabData->nPages - 1), MAX_TABS);
+	pTabData->ctrl[pTabData->nCtrls].nTab = MIN(MIN((UINT64)nTab, pTabData->nPages - 1), MAX_TABS);
 	pTabData->nCtrls++;
 
 	return TRUE;
@@ -188,7 +259,7 @@ BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT id, UINT nTab)
 
 // Look for children tab controls and assign the handler to them
 
-PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPCTSTR pszObjName, LPCTSTR pszHandler)
+PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHandler)
 {
 	HWND hChild = NULL;
 	PWBOBJ poChild = NULL;
@@ -196,37 +267,39 @@ PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPCTSTR pszObjName, LPCTSTR pszHandl
 
 	// Find the first tab control, if any
 
-	while((hChild = FindWindowEx(hwndParent, hChild, WC_TABCONTROL, NULL)) != NULL) {
+	while ((hChild = FindWindowEx(hwndParent, hChild, WC_TABCONTROL, NULL)) != NULL)
+	{
 
 		// Found a tab control: assign the handler to it
 
 		poChild = wbGetWBObj(hChild);
-		if(!poChild)
+		if (!poChild)
 			break;
 
 		// An object name was passed
 
-		if(pszObjName && *pszObjName) {
-			poChild->pszCallBackObj = (LPTSTR)pszObjName;
-		} else
+		if (pszObj != NULL)
+		{
+			poChild->pszCallBackObj = pszObj;
+		}
+		else
 			poChild->pszCallBackObj = NULL;
 
 		poChild->pszCallBackFn = (LPTSTR)pszHandler;
 
-//		printf("> %08X\n", poChild);
+		//		printf("> %08X\n", poChild);
 
 		// Now, find its child window (must be a TAB_PAGE_CLASS)
 
 		hTabPage = FindWindowEx(poChild->hwnd, NULL, TAB_PAGE_CLASS, NULL);
-		if(!hTabPage)
+		if (!hTabPage)
 			return NULL;
 
 		// ...and call this function recursively
 
-		AssignHandlerToTabs(hTabPage, pszObjName, pszHandler);
+		AssignHandlerToTabs(hTabPage, pszObj, pszHandler);
 	}
 	return poChild;
 }
-
 
 //------------------------------------------------------------------ END OF FILE

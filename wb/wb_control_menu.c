@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Menu functions
 
@@ -17,8 +17,7 @@
 
 /*
  Receive an array of WBITEM items
-
- TODO: Allow any bitmap or icon. Today it shows only the "checked" image,
+ Today it shows only the "checked" image,
  with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
  Solution: use owner-drawn menus
 */
@@ -31,39 +30,49 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 	HMENU hMenu, hPopup = NULL;
 	LPCTSTR pszLastPopup = NULL;
 
-	if(!pwboParent || !pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+	if (!pwboParent || !pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
 		return NULL;
 
 	// Start building the menu
 
 	hMenu = CreateMenu();
 
-	for(i = 0; i < nItems; i++) {
+	for (i = 0; i < nItems; i++)
+	{
 
-		if(!pitem[i]) {
+		if (!pitem[i])
+		{
 
 			AppendMenu(hPopup, MF_SEPARATOR, 0, NULL);
+		}
+		else if (!pitem[i]->id)
+		{
 
-		} else if(!pitem[i]->id) {
-
-			if(pitem[i]->pszCaption && *pitem[i]->pszCaption) {		// Attach a pop-up menu to a top-level menu
-				if(hPopup && pszLastPopup) {
-					AppendMenu(hMenu, MF_POPUP, (UINT)hPopup, pszLastPopup);
+			if (pitem[i]->pszCaption && *pitem[i]->pszCaption)
+			{ // Attach a pop-up menu to a top-level menu
+				if (hPopup && pszLastPopup)
+				{
+					AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
 				}
 				hPopup = CreateMenu();
 				pszLastPopup = pitem[i]->pszCaption;
-			} else {												// Separator
+			}
+			else
+			{ // Separator
 				AppendMenu(hPopup, MF_SEPARATOR, 0, NULL);
 			}
+		}
+		else
+		{
 
-		} else {
-
-			if(pitem[i]->pszCaption && *pitem[i]->pszCaption) {		// Create a submenu item
+			if (pitem[i]->pszCaption && *pitem[i]->pszCaption)
+			{ // Create a submenu item
 				AppendMenu(hPopup, MF_STRING, pitem[i]->id, pitem[i]->pszCaption);
-				if(pitem[i]->pszImage && *pitem[i]->pszImage) {
+				if (pitem[i]->pszImage && *pitem[i]->pszImage)
+				{
 					HBITMAP hImage = wbLoadImage(pitem[i]->pszImage, 0, 0);
 
-					if(hImage)
+					if (hImage)
 						SetMenuItemBitmaps(hPopup, pitem[i]->id, MF_BYCOMMAND, hImage, hImage);
 				}
 			}
@@ -72,8 +81,9 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 
 	// Create last first-level menu
 
-	if(hPopup && pszLastPopup) {
-		AppendMenu(hMenu, MF_POPUP, (UINT)hPopup, pszLastPopup);
+	if (hPopup && pszLastPopup)
+	{
+		AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
 	}
 
 	// Attach the menu to the window
@@ -91,7 +101,7 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 	pwbo->parent = pwboParent;
 
 	// ********* DOESN'T WORK
-	mi.dwItemData = (DWORD)pwbo;
+	mi.dwItemData = (DWORD_PTR)pwbo;
 	SetMenuItemInfo((HMENU)pwbo->hwnd, 0, TRUE, &mi);
 	// ********* DOESN'T WORK
 
@@ -103,10 +113,10 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 
 BOOL wbSetMenuItemText(PWBOBJ pwbo, LPCTSTR pszText)
 {
-	if(!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
 
-	if(pszText && *pszText)
+	if (pszText && *pszText)
 		return ModifyMenu((HMENU)pwbo->hwnd, pwbo->id, MF_BYCOMMAND | MF_STRING, pwbo->id, pszText);
 	else
 		return FALSE;
@@ -116,7 +126,7 @@ BOOL wbGetMenuItemChecked(PWBOBJ pwbo)
 {
 	MENUITEMINFO mi;
 
-	if(!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
 
 	mi.cbSize = sizeof(MENUITEMINFO);
@@ -128,7 +138,7 @@ BOOL wbGetMenuItemChecked(PWBOBJ pwbo)
 
 BOOL wbSetMenuItemChecked(PWBOBJ pwbo, BOOL bState)
 {
-	if(!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
 
 	/*
@@ -146,7 +156,7 @@ BOOL wbSetMenuItemChecked(PWBOBJ pwbo, BOOL bState)
 
 BOOL wbSetMenuItemSelected(PWBOBJ pwbo)
 {
-	if(!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
 
 	return CheckMenuRadioItem((HMENU)pwbo->hwnd, pwbo->id, pwbo->id, pwbo->id, MF_BYCOMMAND);
@@ -154,21 +164,20 @@ BOOL wbSetMenuItemSelected(PWBOBJ pwbo)
 
 /* Insert an image on a menu
 
- TODO: Allow any bitmap or icon. Today it shows only the "checked" image,
+ Today it shows only the "checked" image,
  with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
  Solution: use owner-drawn menus
 */
 
 BOOL wbSetMenuItemImage(PWBOBJ pwbo, HANDLE hImage)
 {
-	if(!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
 
-	if(hImage)
+	if (hImage)
 		return SetMenuItemBitmaps((HMENU)pwbo->hwnd, pwbo->id, MF_BYCOMMAND, (HBITMAP)hImage, (HBITMAP)hImage);
 	else
 		return FALSE;
 }
-
 
 //------------------------------------------------------------------ END OF FILE

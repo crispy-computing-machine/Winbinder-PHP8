@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Low-level functions
 
@@ -23,12 +23,12 @@ static HMODULE hLastDLL = NULL;
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
-LPARAM wbSendMessage(PWBOBJ pwbo, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if((LONG)pwbo == (LONG)HWND_BROADCAST)
+	if ((LONG_PTR)pwbo == (LONG_PTR)HWND_BROADCAST)
 		return SendMessage(HWND_BROADCAST, uMsg, wParam, lParam);
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return 0;
 
 	return SendMessage((HWND)pwbo->hwnd, uMsg, wParam, lParam);
@@ -45,25 +45,51 @@ HMODULE wbLoadLibrary(LPCTSTR pszLibName)
 	HMODULE hLib = NULL;
 	TCHAR szName[256];
 
-	if(!pszLibName || !*pszLibName)
+	if (!pszLibName || !*pszLibName)
 		return NULL;
 
 	// "DLL" is automatically appended by LoadLibrary()
 
 	hLib = LoadLibrary(pszLibName);
-	if(!hLib) {
+	if (!hLib)
+	{
 		wsprintf(szName, TEXT("%s32"), pszLibName);
 		hLib = LoadLibrary(szName);
-		if(!hLib) {
+		if (!hLib)
+		{
 			wsprintf(szName, TEXT("%s.exe"), pszLibName);
 			hLib = LoadLibrary(szName);
-			if(!hLib) {
+			if (!hLib)
+			{
 				wsprintf(szName, TEXT("%s32.exe"), pszLibName);
 				hLib = LoadLibrary(szName);
 			}
 		}
 	}
 
+	if (hLib == NULL)
+	{
+		// The library could not be loaded.
+		DWORD dwErrorCode = GetLastError();
+
+		// Now you can do something with the error code.
+		// For example, you can format and display the error message:
+
+		LPVOID lpMsgBuf;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			dwErrorCode,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, NULL );
+
+		wbError(TEXT("wbLoadLibrary"), MB_ICONWARNING, TEXT("%s"), (LPCTSTR)lpMsgBuf);
+
+		LocalFree(lpMsgBuf);
+	}
 	hLastDLL = hLib;
 	return hLib;
 }
@@ -80,17 +106,17 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	char szName[256];
 	int i;
 
-	if(!hLib)
-		if(hLastDLL)
+	if (!hLib)
+		if (hLastDLL)
 			hLib = hLastDLL;
 
-	if(!hLib)
+	if (!hLib)
 		return NULL;
 
 	// Try to obtain the function address "as is"
 
 	pFn = GetProcAddress(hLib, pszFunction);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try appending an 'A' to the function name
@@ -98,7 +124,7 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	strcpy(szName, pszFunction);
 	strcat(szName, "A");
 	pFn = GetProcAddress(hLib, szName);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try appending a 'W' to the function name
@@ -106,7 +132,7 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	strcpy(szName, pszFunction);
 	strcat(szName, "W");
 	pFn = GetProcAddress(hLib, szName);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try prepending a '_' to the function name
@@ -114,7 +140,7 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	strcpy(szName, "_");
 	strcat(szName, pszFunction);
 	pFn = GetProcAddress(hLib, szName);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try prepending a '_' and appending an 'A' to the function name
@@ -123,7 +149,7 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	strcat(szName, pszFunction);
 	strcat(szName, "A");
 	pFn = GetProcAddress(hLib, szName);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try prepending a '_' and appending a 'W' to the function name
@@ -132,24 +158,27 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 	strcat(szName, pszFunction);
 	strcat(szName, "W");
 	pFn = GetProcAddress(hLib, szName);
-	if(pFn)
+	if (pFn)
 		return pFn;
 
 	// Try appending '@' plus the number of parameters
 
-	for(i = 0; i <= 20; i++) {
+	for (i = 0; i <= 20; i++)
+	{
+		// 2016_08_12 - Jared Allard: be safe with sprintf_s, add support later.
 		sprintf(szName, "%s@%d", pszFunction, i * 4);
 		pFn = GetProcAddress(hLib, szName);
-		if(pFn)
+		if (pFn)
 			return pFn;
 	}
 
 	// Try prepending a '_' and appending '@' plus the number of parameters
 
-	for(i = 0; i <= 20; i++) {
+	for (i = 0; i <= 20; i++)
+	{
 		sprintf(szName, "_%s@%d", pszFunction, i * 4);
 		pFn = GetProcAddress(hLib, szName);
-		if(pFn)
+		if (pFn)
 			return pFn;
 	}
 
@@ -162,11 +191,14 @@ FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction)
 
 BOOL wbReleaseLibrary(HMODULE hLib)
 {
-	if(hLib) {
+	if (hLib)
+	{
 		FreeLibrary(hLib);
 		hLastDLL = NULL;
 		return TRUE;
-	} else {
+	}
+	else
+	{
 		return FALSE;
 	}
 }

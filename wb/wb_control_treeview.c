@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Treeview control
 
@@ -21,15 +21,16 @@ HTREEITEM wbGetTreeViewItemSelected(PWBOBJ pwbo)
 {
 	TV_ITEM tvi;
 
-	if(!wbIsWBObj(pwbo, TRUE))					// Is it a valid control?
+	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return 0;
 
 	tvi.hItem = TreeView_GetSelection(pwbo->hwnd);
-	if(!tvi.hItem)
+	if (!tvi.hItem)
 		return 0;
-	else {
+	else
+	{
 		tvi.mask = TVIF_HANDLE;
-		if(TreeView_GetItem(pwbo->hwnd, &tvi))
+		if (TreeView_GetItem(pwbo->hwnd, &tvi))
 			return tvi.hItem;
 		else
 			return 0;
@@ -40,12 +41,12 @@ HTREEITEM wbGetTreeViewItemSelected(PWBOBJ pwbo)
 
 BOOL wbSetTreeViewItemSelected(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	if(!wbIsWBObj(pwbo, TRUE))					// Is it a valid control?
+	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return 0;
 
-	if((int)hItem < 0)
+	if ((__int64)hItem < 0)
 		return TreeView_SelectItem(pwbo->hwnd, NULL);
-	else if(hItem)
+	else if (hItem)
 		return TreeView_SelectItem(pwbo->hwnd, hItem);
 	else
 		return TreeView_SelectItem(pwbo->hwnd, TreeView_GetNextItem(pwbo->hwnd, 0, TVGN_ROOT));
@@ -59,29 +60,35 @@ BOOL wbCreateTreeViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 	static HIMAGELIST hi;
 	BITMAP bm;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(hbmImage && nImages) {
+	if (hbmImage && nImages)
+	{
 
-		GetObject(hbmImage, sizeof(BITMAP), (LPSTR) &bm);
-		if((bm.bmWidth == 0) | (bm.bmHeight == 0))
+		GetObject(hbmImage, sizeof(BITMAP), (LPSTR)&bm);
+		if ((bm.bmWidth == 0) | (bm.bmHeight == 0))
 			return FALSE;
 
 		nImages = MAX(1, MIN(nImages, MIN(bm.bmWidth, MAX_IMAGELIST_IMAGES)));
 
-		if(clTransparent != NOCOLOR) {
+		if (clTransparent != NOCOLOR)
+		{
 			hbmMask = wbCreateMask(hbmImage, clTransparent);
 			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
 			ImageList_Add(hi, hbmImage, hbmMask);
 			TreeView_SetImageList(pwbo->hwnd, hi, TVSIL_NORMAL);
 			DeleteObject(hbmMask);
-		} else {
+		}
+		else
+		{
 			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
 			ImageList_Add(hi, hbmImage, NULL);
 			TreeView_SetImageList(pwbo->hwnd, hi, TVSIL_NORMAL);
 		}
-	} else {
+	}
+	else
+	{
 		TreeView_SetImageList(pwbo->hwnd, NULL, TVSIL_NORMAL);
 		ImageList_Destroy(hi);
 	}
@@ -94,10 +101,10 @@ BOOL wbSetTreeViewItemText(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem)
 {
 	TV_ITEM tvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	// Change the item
@@ -105,10 +112,13 @@ BOOL wbSetTreeViewItemText(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem)
 	tvi.hItem = hItem;
 	tvi.mask = TVIF_HANDLE | TVIF_TEXT;
 
-	if(lpszItem && *lpszItem) {
+	if (lpszItem && *lpszItem)
+	{
 		tvi.pszText = lpszItem;
 		tvi.cchTextMax = wcslen(lpszItem);
-	} else {
+	}
+	else
+	{
 		tvi.pszText = TEXT("");
 		tvi.cchTextMax = 0;
 	}
@@ -124,13 +134,13 @@ BOOL wbGetTreeViewItemText(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR pszText, int nCh
 {
 	TV_ITEM tvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!pszText || !nChar)
+	if (!pszText || !nChar)
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	// Change the item
@@ -149,17 +159,17 @@ BOOL wbGetTreeViewItemText(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR pszText, int nCh
 
 LPARAM wbGetTreeViewItemValue(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	TV_ITEM tvi;
+	TV_ITEM tvi = {0};
 
-	if(!wbIsWBObj(pwbo, TRUE))					// Is it a valid control?
+	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return 0;
 
-	if(!hItem)
+	if (!hItem)
 		return 0;
 
 	tvi.hItem = hItem;
 	tvi.mask = TVIF_PARAM;
-	if(TreeView_GetItem(pwbo->hwnd, &tvi))
+	if (TreeView_GetItem(pwbo->hwnd, &tvi))
 		return tvi.lParam;
 	else
 		return 0;
@@ -171,10 +181,10 @@ BOOL wbSetTreeViewItemValue(PWBOBJ pwbo, HTREEITEM hItem, int lParam)
 {
 	TV_ITEM tvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	// Change the item
@@ -192,13 +202,13 @@ BOOL wbSetTreeViewItemValue(PWBOBJ pwbo, HTREEITEM hItem, int lParam)
 
 BOOL wbSetTreeViewItemState(PWBOBJ pwbo, HTREEITEM hItem, BOOL bExpand)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
-//	return TreeView_Expand(pwbo->hwnd, hItem, TVE_TOGGLE);//bExpand ? TVE_EXPAND : TVE_COLLAPSE);
+	//	return TreeView_Expand(pwbo->hwnd, hItem, TVE_TOGGLE);//bExpand ? TVE_EXPAND : TVE_COLLAPSE);
 	return TreeView_Expand(pwbo->hwnd, hItem, bExpand ? TVE_EXPAND : TVE_COLLAPSE);
 }
 
@@ -208,17 +218,17 @@ BOOL wbGetTreeViewItemState(PWBOBJ pwbo, HTREEITEM hItem)
 {
 	TV_ITEM tvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	// Get item data
 
 	tvi.hItem = hItem;
 	tvi.mask = TVIF_HANDLE | TVIF_STATE;
-//	tvi.state = TVIS_EXPANDED;
+	//	tvi.state = TVIS_EXPANDED;
 	tvi.stateMask = TVIS_EXPANDED;
 
 	TreeView_GetItem(pwbo->hwnd, &tvi);
@@ -262,18 +272,19 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem)
 
 /* Return the level of a specified node */
 
-UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
+UINT64 wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	UINT nLevel;
+	UINT64 nLevel;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	nLevel = 0;
-	while(hItem) {
+	while (hItem)
+	{
 		hItem = TreeView_GetParent(pwbo->hwnd, hItem);
 		nLevel++;
 	}
@@ -285,10 +296,10 @@ UINT wbGetTreeViewItemLevel(PWBOBJ pwbo, HTREEITEM hItem)
 
 HTREEITEM wbGetTreeViewItemParent(PWBOBJ pwbo, HTREEITEM hItem)
 {
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	return TreeView_GetParent(pwbo->hwnd, hItem);
@@ -313,16 +324,16 @@ BOOL wbSetTreeViewItemImages(PWBOBJ pwbo, HTREEITEM hItem, int nImageIndex, int 
 {
 	TV_ITEM tvi;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if(!hItem)
+	if (!hItem)
 		return FALSE;
 
 	tvi.mask = TVIF_HANDLE;
-	if(nImageIndex >= 0)
+	if (nImageIndex >= 0)
 		tvi.mask |= TVIF_IMAGE;
-	if(nSelectedImageIndex >= 0)
+	if (nSelectedImageIndex >= 0)
 		tvi.mask |= TVIF_SELECTEDIMAGE;
 
 	tvi.hItem = hItem;
@@ -338,12 +349,12 @@ HTREEITEM wbAddTreeViewItemSibling(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem
 {
 	TV_ITEM tvi;
 	TV_INSERTSTRUCT tvins;
-	PTREEDATA ptrdt	= (PTREEDATA)pwbo->lparam;
+	PTREEDATA ptrdt = (PTREEDATA)pwbo->lparam;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if((!lpszItem || !*lpszItem))
+	if ((!lpszItem || !*lpszItem))
 		return NULL;
 
 	// Add the item
@@ -352,10 +363,10 @@ HTREEITEM wbAddTreeViewItemSibling(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem
 	tvi.pszText = lpszItem;
 	tvi.cchTextMax = wcslen(lpszItem);
 	tvi.lParam = lParam;
-	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4);	// Default image indices: 4, 5
+	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4); // Default image indices: 4, 5
 	tvi.iSelectedImage = (nSelectedImageIndex >= 0 ? nSelectedImageIndex : 5);
 
-	if(!hItem)
+	if (!hItem)
 		tvins.hParent = TVI_ROOT;
 	else
 		tvins.hParent = TreeView_GetParent(pwbo->hwnd, hItem);
@@ -375,12 +386,12 @@ HTREEITEM wbAddTreeViewItemChild(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem, 
 {
 	TV_ITEM tvi;
 	TV_INSERTSTRUCT tvins;
-	PTREEDATA ptrdt	= (PTREEDATA)pwbo->lparam;
+	PTREEDATA ptrdt = (PTREEDATA)pwbo->lparam;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if((!lpszItem || !*lpszItem))
+	if ((!lpszItem || !*lpszItem))
 		return NULL;
 
 	// Add the item
@@ -389,10 +400,10 @@ HTREEITEM wbAddTreeViewItemChild(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem, 
 	tvi.pszText = lpszItem;
 	tvi.cchTextMax = wcslen(lpszItem);
 	tvi.lParam = lParam;
-	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4);	// Default image indices: 4, 5
+	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4); // Default image indices: 4, 5
 	tvi.iSelectedImage = (nSelectedImageIndex >= 0 ? nSelectedImageIndex : 5);
 
-	if(!hItem)
+	if (!hItem)
 		tvins.hParent = TVI_ROOT;
 	else
 		tvins.hParent = hItem;
@@ -412,12 +423,12 @@ HTREEITEM wbAddTreeViewItemLevel(PWBOBJ pwbo, int nLevel, LPTSTR lpszItem, int l
 {
 	TV_ITEM tvi;
 	TV_INSERTSTRUCT tvins;
-	PTREEDATA ptrdt	= (PTREEDATA)pwbo->lparam;
+	PTREEDATA ptrdt = (PTREEDATA)pwbo->lparam;
 
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if((!lpszItem || !*lpszItem))
+	if ((!lpszItem || !*lpszItem))
 		return NULL;
 
 	// Add the item
@@ -426,27 +437,30 @@ HTREEITEM wbAddTreeViewItemLevel(PWBOBJ pwbo, int nLevel, LPTSTR lpszItem, int l
 	tvi.pszText = lpszItem;
 	tvi.cchTextMax = wcslen(lpszItem);
 	tvi.lParam = lParam;
-	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4);	// Default image indices: 4, 5
+	tvi.iImage = (nImageIndex >= 0 ? nImageIndex : 4); // Default image indices: 4, 5
 	tvi.iSelectedImage = (nSelectedImageIndex >= 0 ? nSelectedImageIndex : 5);
 
 	// Where to insert the new item?
 
-	nLevel = MAX(0, nLevel);	// Negative levels don't make sense
+	nLevel = MAX(0, nLevel); // Negative levels don't make sense
 
-	if(nLevel == 0) {							//----------- At root level
+	if (nLevel == 0)
+	{ //----------- At root level
 
 		tvins.hParent = TVI_ROOT;
 		tvins.hInsertAfter = TVI_LAST;
 		ptrdt->hParent[nLevel] = tvins.hParent;
+	}
+	else if (nLevel > ptrdt->nLastLevel)
+	{ //----------- As a child item
 
-	} else if(nLevel > ptrdt->nLastLevel) {		//----------- As a child item
-
-		nLevel = ptrdt->nLastLevel + 1;	// Can't skip levels
+		nLevel = ptrdt->nLastLevel + 1; // Can't skip levels
 		tvins.hParent = ptrdt->hLast;
 		tvins.hInsertAfter = TVI_LAST;
 		ptrdt->hParent[nLevel] = tvins.hParent;
 
-		if(tvins.hParent && !ptrdt->bCustomImages[ptrdt->nLastLevel]) {
+		if (tvins.hParent && !ptrdt->bCustomImages[ptrdt->nLastLevel])
+		{
 
 			TV_ITEM tviParent;
 
@@ -455,31 +469,31 @@ HTREEITEM wbAddTreeViewItemLevel(PWBOBJ pwbo, int nLevel, LPTSTR lpszItem, int l
 
 			tviParent.mask = TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 			tviParent.hItem = tvins.hParent;
-			tviParent.iImage = 0;	// Default image indices
+			tviParent.iImage = 0; // Default image indices
 			tviParent.iSelectedImage = 1;
 			TreeView_SetItem(pwbo->hwnd, &tviParent);
 		}
-
-	} else if(nLevel == ptrdt->nLastLevel) {	//----------- As a sibling
+	}
+	else if (nLevel == ptrdt->nLastLevel)
+	{ //----------- As a sibling
 
 		tvins.hParent = ptrdt->hParent[nLevel];
 		tvins.hInsertAfter = TVI_LAST;
 		ptrdt->hParent[nLevel] = tvins.hParent;
-
-	} else {									//----------- Back up 1 or more levels
+	}
+	else
+	{ //----------- Back up 1 or more levels
 
 		tvins.hParent = ptrdt->hParent[(ptrdt->nLastLevel > nLevel)];
 		tvins.hInsertAfter = TVI_LAST;
 		ptrdt->hParent[nLevel] = tvins.hParent;
-
 	}
 
 	tvins.item = tvi;
 	ptrdt->nLastLevel = nLevel;
-	ptrdt->bCustomImages[nLevel] = (nImageIndex >= 0);	// Flags custom images
+	ptrdt->bCustomImages[nLevel] = (nImageIndex >= 0); // Flags custom images
 
 	// Insert the item
-
 	ptrdt->hLast = TreeView_InsertItem(pwbo->hwnd, &tvins);
 	return ptrdt->hLast;
 }

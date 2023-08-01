@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  Calendar control
 
@@ -20,7 +20,7 @@
 
 static DWORD FileTimeToUnixTime(FILETIME *filetime);
 static FILETIME UnixTimeToFileTime(DWORD dwTime);
-static LONG GetCorrectUtcUnixTime(void);
+static LONG_PTR GetCorrectUtcUnixTime(void);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -34,14 +34,14 @@ time_t GetCalendarTime(PWBOBJ pwbo)
 	ptrFileTime = wbMalloc(sizeof(FILETIME));
 
 	SendMessage(pwbo->hwnd, MCM_GETCURSEL, 0, (LPARAM)lpSysTime);
-	if(!lpSysTime)
+	if (!lpSysTime)
 		return FALSE;
 
 	lpSysTime->wHour = 0;
 	lpSysTime->wMinute = 0;
 	lpSysTime->wSecond = 0;
 	lpSysTime->wMilliseconds = 0;
-	SystemTimeToFileTime(lpSysTime,ptrFileTime);
+	SystemTimeToFileTime(lpSysTime, ptrFileTime);
 	UnixTime = FileTimeToUnixTime(ptrFileTime);
 	UnixTime += 60 * GetCorrectUtcUnixTime();
 	return UnixTime;
@@ -56,11 +56,10 @@ BOOL SetCalendarTime(PWBOBJ pwbo, time_t UnixTime)
 
 	UnixTime -= 60 * GetCorrectUtcUnixTime();
 	fileTime = UnixTimeToFileTime(UnixTime);
-	FileTimeToSystemTime(&fileTime,ptrSystemTime);
+	FileTimeToSystemTime(&fileTime, ptrSystemTime);
 	SendMessage(pwbo->hwnd, MCM_SETCURSEL, 0, (LPARAM)ptrSystemTime);
 	return TRUE;
 }
-
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
@@ -71,16 +70,16 @@ structure to correct UnixTime to UTC.
 
 */
 
-static LONG GetCorrectUtcUnixTime(void)
+static LONG_PTR GetCorrectUtcUnixTime(void)
 {
 	DWORD InfoTimeResult;
 	LPTIME_ZONE_INFORMATION ptrTimeZoneInfo;
-	LONG lBias;
+	LONG_PTR lBias;
 
 	ptrTimeZoneInfo = wbMalloc(sizeof(TIME_ZONE_INFORMATION));
 	InfoTimeResult = GetTimeZoneInformation(ptrTimeZoneInfo);
-	lBias = ptrTimeZoneInfo->Bias ;
-	if(InfoTimeResult == TIME_ZONE_ID_DAYLIGHT)
+	lBias = ptrTimeZoneInfo->Bias;
+	if (InfoTimeResult == TIME_ZONE_ID_DAYLIGHT)
 		lBias += ptrTimeZoneInfo->DaylightBias;
 
 	return lBias;
@@ -95,12 +94,12 @@ static LONG GetCorrectUtcUnixTime(void)
 
 static DWORD FileTimeToUnixTime(FILETIME *pfiletime)
 {
-	long long int t;
+	LONG_PTR t;
 
 	t = pfiletime->dwHighDateTime;
-    t <<= 32;
-    t += (unsigned long)pfiletime->dwLowDateTime;
-    t -= 116444736000000000LL;
+	t <<= 32;
+	t += (ULONG_PTR)pfiletime->dwLowDateTime;
+	t -= 116444736000000000LL;
 
 	return (DWORD)(t / 10000000);
 }
@@ -115,9 +114,9 @@ static DWORD FileTimeToUnixTime(FILETIME *pfiletime)
 static FILETIME UnixTimeToFileTime(DWORD dwTime)
 {
 	FILETIME retf;
-	long long int ll;
+	LONG_PTR ll;
 
-	ll = ((long long)dwTime * 10000000LL);
+	ll = ((LONG_PTR)dwTime * 10000000LL);
 	ll += 116444736000000000LL;
 	retf.dwHighDateTime = (DWORD)(ll >> 32);
 	retf.dwLowDateTime = (DWORD)(ll & 0x00000000FFFFFFFF);

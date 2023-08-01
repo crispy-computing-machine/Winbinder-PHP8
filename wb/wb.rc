@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  rc file for winbinder
 
@@ -23,7 +23,7 @@
 
 #define FILE_DESCRIPTION "WinBinder extension for PHP."
 #define PRODUCT_NAME "WinBinder"
-#define P_VERSION "5.3"
+#define P_VERSION "7.2"
 #define FILE_NAME "php_winbinder.dll"
 
 //#include "winres.h"
@@ -63,7 +63,7 @@ BEGIN
             VALUE "FileDescription", FILE_DESCRIPTION "\0"
             VALUE "FileVersion", STRVER3(WB_MAJ,WB_MIN,WB_REL) "\0"
             VALUE "InternalName", WINBINDER_VERSION "\0"
-            VALUE "LegalCopyright", "Copyright © 1997-2010 Rubem Pechansky\0"
+            VALUE "LegalCopyright", "Copyright  1997-2010 Rubem Pechansky\0"
             VALUE "LegalTrademarks", "PHP " P_VERSION "\0"
             VALUE "OriginalFilename", FILE_NAME "\0"
 			VALUE "PrivateBuild", "WinBinder\0"

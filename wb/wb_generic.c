@@ -2,8 +2,8 @@
 
  WINBINDER - The native Windows binding for PHP
 
- Copyright © Hypervisual - see LICENSE.TXT for details
- Author: Rubem Pechansky (http://winbinder.org/contact.php)
+ Copyright  Hypervisual - see LICENSE.TXT for details
+ Author: Rubem Pechansky (https://github.com/crispy-computing-machine/Winbinder)
 
  General-purpose functions
 
@@ -19,69 +19,68 @@
 
 BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 {
-	if(!pwbo) {
-		if(bShowErrors)
+	if (!pwbo)
+	{
+		if (bShowErrors){
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object"));
+		}
 		return FALSE;
 	}
 
 	// Is pwbo a valid memory address?
 
-	if(IsBadReadPtr(pwbo, sizeof(WBOBJ))) {
-		if(bShowErrors)
+	if (IsBadReadPtr(pwbo, sizeof(WBOBJ)))
+	{
+		if (bShowErrors)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid memory address"));
-//		printf("%d\n", pwbo);
+		//		printf("%d\n", pwbo);
 		return FALSE;
 	}
 
 	// A Windows or menu handle is not a WinBinder object
 
-	if(IsWindow(pwbo) || IsMenu(pwbo)) {
-		if(bShowErrors)
+	if (IsWindow(pwbo) || IsMenu(pwbo))
+	{
+		if (bShowErrors)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Not a WinBinder object"));
 		return FALSE;
 	}
 
 	// Does it have a valid handle?
-
+	PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
+	if (pwboTest)
 	{
-		PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
-		if(pwboTest) {
-			CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
+		CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
 
-			if(!pwboTest->hwnd) {
-				wbFree(pwboTest);
-				if(bShowErrors)
-					wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
-				return FALSE;
-			}
+		if (!pwboTest->hwnd)
+		{
 			wbFree(pwboTest);
+			if (bShowErrors)
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
+			return FALSE;
 		}
+		wbFree(pwboTest);
 	}
 
-	if(IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
+	if (IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
-	if(IsWindow((HWND)((PWBOBJ)pwbo)->hwnd))
+	if (IsWindow((HWND)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
-	if(bShowErrors)
+	if (bShowErrors)
 		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid WinBinder object"));
 
 	return FALSE;
 }
 
-
-/* TODO: Return PWBOBJ from menus */
-
 PWBOBJ wbGetWBObj(HANDLE hwnd)
 {
-	if(IsWindow(hwnd))
-		return (PWBOBJ)GetWindowLong((HWND)hwnd, GWL_USERDATA);
+	if (IsWindow(hwnd))
+		return (PWBOBJ)GetWindowLongPtr((HWND)hwnd, GWLP_USERDATA);
 	else
 		return NULL;
 }
-
 
 /* Convert line breaks for Windows use. Allocs memory for ppszTarget. */
 
@@ -89,35 +88,39 @@ BOOL wbConvertLineBreaks(TCHAR **ppszTarget, const TCHAR *pszSource)
 {
 	int i, src, tgt, nLen;
 
-	if(!pszSource || !*pszSource) {			// Zero-length or NULL source
+	if (!pszSource || !*pszSource)
+	{ // Zero-length or NULL source
 
 		nLen = 1;
 		*ppszTarget = wbMalloc(sizeof(TCHAR));
 		**ppszTarget = NUL;
 		return FALSE;
-
-	} else {
+	}
+	else
+	{
 
 		nLen = wcslen(pszSource);
-		*ppszTarget = wbMalloc((nLen * 2 + 1) * sizeof(TCHAR));	// At the maximum, converts all chars
+		*ppszTarget = wbMalloc((nLen * 2 + 1) * sizeof(TCHAR)); // At the maximum, converts all chars
 
-		for(i = 0, src = 0, tgt = 0; i < nLen; src++, i++) {
-			switch(*(pszSource + src)) {
+		for (i = 0, src = 0, tgt = 0; i < nLen; src++, i++)
+		{
+			switch (*(pszSource + src))
+			{
 
-				case '\r':
-					break;
+			case '\r':
+				break;
 
-				case '\n':
-					*(*ppszTarget + tgt) = '\r';
-					tgt++;
-					*(*ppszTarget + tgt) = '\n';
-					tgt++;
-					break;
+			case '\n':
+				*(*ppszTarget + tgt) = '\r';
+				tgt++;
+				*(*ppszTarget + tgt) = '\n';
+				tgt++;
+				break;
 
-				default:
-					*(*ppszTarget + tgt) = *(pszSource + src);
-					tgt++;
-					break;
+			default:
+				*(*ppszTarget + tgt) = *(pszSource + src);
+				tgt++;
+				break;
 			}
 		}
 
@@ -126,7 +129,6 @@ BOOL wbConvertLineBreaks(TCHAR **ppszTarget, const TCHAR *pszSource)
 	}
 }
 
-
 /* Local stristr() replacement to solve MSVC compilation problems
    Thanks to the SNIPPETS C source code archives (http://c.snippets.org/) */
 
@@ -134,26 +136,28 @@ LPTSTR wbStriStr(LPCTSTR String, LPCTSTR Pattern)
 {
 	TCHAR *pptr, *sptr, *start;
 
-	for(start = (TCHAR *)String; *start != NUL; start++) {
+	for (start = (TCHAR *)String; *start != NUL; start++)
+	{
 
 		/* Find start of pattern in string */
 
-		for(; ((*start != NUL) && (towupper(*start) != towupper(*Pattern))); start++)
+		for (; ((*start != NUL) && (towupper(*start) != towupper(*Pattern))); start++)
 			;
 
-		if(NUL == *start)
+		if (NUL == *start)
 			return NULL;
 
 		pptr = (TCHAR *)Pattern;
 		sptr = start;
 
-		while(towupper(*sptr) == towupper(*pptr)) {
+		while (towupper(*sptr) == towupper(*pptr))
+		{
 			sptr++;
 			pptr++;
 
 			/* If end of pattern then pattern was found */
 
-			if(NUL == *pptr)
+			if (NUL == *pptr)
 				return (start);
 		}
 	}
