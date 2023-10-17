@@ -969,26 +969,27 @@ HANDLE wbRotateBitmap(HANDLE hBitmap, float angle)
     // Select the destination bitmap into the destination DC
     SelectObject(hdcDest, hbmDest);
 
-    // Set up the rotation
-    float radian = angle * 3.14159265358979323846 / 180.0;
-    int centerX = bm.bmWidth / 2;
-    int centerY = bm.bmHeight / 2;
+    // Calculate the center of the image
+    float centerX = bm.bmWidth / 2.0f;
+    float centerY = bm.bmHeight / 2.0f;
 
-    // Rotate each pixel
+    // Convert angle to radians
+    float radian = angle * 3.14159265358979323846 / 180.0f;
+
+    // Loop through each pixel of the destination image
     for (int x = 0; x < bm.bmWidth; x++)
     {
         for (int y = 0; y < bm.bmHeight; y++)
         {
-            int oldX = x - centerX;
-            int oldY = y - centerY;
+            // Apply inverse transformation
+            int oldX = (int)((x - centerX) * cos(-radian) - (y - centerY) * sin(-radian) + centerX);
+            int oldY = (int)((x - centerX) * sin(-radian) + (y - centerY) * cos(-radian) + centerY);
 
-            int newX = (int)(oldX * cos(radian) - oldY * sin(radian)) + centerX;
-            int newY = (int)(oldX * sin(radian) + oldY * cos(radian)) + centerY;
-
-            if (newX >= 0 && newX < bm.bmWidth && newY >= 0 && newY < bm.bmHeight)
+            // Check bounds and set pixel
+            if (oldX >= 0 && oldX < bm.bmWidth && oldY >= 0 && oldY < bm.bmHeight)
             {
-                COLORREF clrPixel = GetPixel(hdcSrc, x, y);
-                SetPixel(hdcDest, newX, newY, clrPixel);
+                COLORREF clrPixel = GetPixel(hdcSrc, oldX, oldY);
+                SetPixel(hdcDest, x, y, clrPixel);
             }
         }
     }

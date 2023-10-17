@@ -431,7 +431,7 @@ extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
 // WB_BITMAP.C
 
 BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName);
-HANDLE wbRotateBitmap(HANDLE hBitmap, int angle);
+HANDLE wbRotateBitmap(HANDLE hBitmap, float angle)
 DWORD wbGetImageDimensions(HBITMAP hbm);
 HBITMAP wbReplaceColors(HDC cvTarget, HBITMAP hbm, COLORREF clTransparent, COLORREF clNew);
 HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDIBBits);
