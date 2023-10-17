@@ -935,4 +935,95 @@ HBITMAP CaptureScreen(LPCWSTR filename) {
     return hBitmap;
 }
 
+// Function to rotate a bitmap by a specified angle
+HANDLE wbRotateBitmap(HANDLE hBitmap, int angle)
+{
+    if (hBitmap == NULL)
+        return NULL;
+
+    if (angle % 90 != 0)
+    {
+        // Unsupported rotation angle
+        return NULL;
+    }
+
+    // Get the original bitmap information
+    BITMAP bm;
+    if (GetObject(hBitmap, sizeof(BITMAP), &bm) == 0)
+    {
+        // Failed to retrieve bitmap information
+        return NULL;
+    }
+
+    HDC hdcSrc = NULL, hdcDest = NULL;
+    HBITMAP hbmDest = NULL;
+
+    // Create device contexts
+    hdcSrc = CreateCompatibleDC(NULL);
+    if (hdcSrc == NULL)
+    {
+        // Failed to create source DC
+        goto cleanup;
+    }
+
+    hdcDest = CreateCompatibleDC(NULL);
+    if (hdcDest == NULL)
+    {
+        // Failed to create destination DC
+        goto cleanup;
+    }
+
+    // Select the original bitmap into the source DC
+    SelectObject(hdcSrc, hBitmap);
+
+    // Create a destination bitmap
+    if (angle == 180)
+    {
+        hbmDest = CreateCompatibleBitmap(hdcSrc, bm.bmWidth, bm.bmHeight);
+    }
+    else
+    {
+        hbmDest = CreateCompatibleBitmap(hdcSrc, bm.bmHeight, bm.bmWidth);
+    }
+
+    if (hbmDest == NULL)
+    {
+        // Failed to create destination bitmap
+        goto cleanup;
+    }
+
+    // Select the destination bitmap into the destination DC
+    SelectObject(hdcDest, hbmDest);
+
+    // Rotate the bitmap
+    for (int x = 0; x < bm.bmWidth; x++)
+    {
+        for (int y = 0; y < bm.bmHeight; y++)
+        {
+            COLORREF clrPixel = GetPixel(hdcSrc, x, y);
+            switch (angle)
+            {
+                case 90:
+                    SetPixel(hdcDest, bm.bmHeight - y - 1, x, clrPixel);
+                    break;
+                case 180:
+                    SetPixel(hdcDest, bm.bmWidth - x - 1, bm.bmHeight - y - 1, clrPixel);
+                    break;
+                case 270:
+                    SetPixel(hdcDest, y, bm.bmWidth - x - 1, clrPixel);
+                    break;
+            }
+        }
+    }
+
+cleanup:
+    if (hdcSrc != NULL)
+        DeleteDC(hdcSrc);
+    if (hdcDest != NULL)
+        DeleteDC(hdcDest);
+
+    return hbmDest;
+}
+
+
 //------------------------------------------------------------------ END OF FILE
