@@ -971,20 +971,23 @@ HANDLE wbRotateBitmap(HANDLE hBitmap, float angle)
 
     // Set up the rotation
     float radian = angle * 3.14159265358979323846 / 180.0;
-    int newX, newY;
+    int centerX = bm.bmWidth / 2;
+    int centerY = bm.bmHeight / 2;
 
     // Rotate each pixel
     for (int x = 0; x < bm.bmWidth; x++)
     {
         for (int y = 0; y < bm.bmHeight; y++)
         {
-            COLORREF clrPixel = GetPixel(hdcSrc, x, y);
-            
-            newX = (int)(x * cos(radian) - y * sin(radian));
-            newY = (int)(x * sin(radian) + y * cos(radian));
+            int oldX = x - centerX;
+            int oldY = y - centerY;
+
+            int newX = (int)(oldX * cos(radian) - oldY * sin(radian)) + centerX;
+            int newY = (int)(oldX * sin(radian) + oldY * cos(radian)) + centerY;
 
             if (newX >= 0 && newX < bm.bmWidth && newY >= 0 && newY < bm.bmHeight)
             {
+                COLORREF clrPixel = GetPixel(hdcSrc, x, y);
                 SetPixel(hdcDest, newX, newY, clrPixel);
             }
         }
@@ -998,6 +1001,4 @@ cleanup:
 
     return hbmDest;
 }
-
-
 //------------------------------------------------------------------ END OF FILE
