@@ -118,7 +118,7 @@ ZEND_FUNCTION(wb_resize_image)
     ZEND_PARSE_PARAMETERS_START(3, 3)
     Z_PARAM_LONG(hbm)
     Z_PARAM_LONG(newWidth)
-	Z_PARAM_LONG(newHeight), 
+	Z_PARAM_LONG(newHeight) 
     ZEND_PARSE_PARAMETERS_END();
 
     if (!hbm) {
