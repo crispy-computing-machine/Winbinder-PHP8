@@ -1002,4 +1002,54 @@ cleanup:
 
     return hbmDest;
 }
+
+
+// Function to resize an image
+// This function uses the StretchBlt function to resize the image. The new width and height are passed as parameters to the function.
+HBITMAP wbResizeBitmap(HBITMAP hBitmap, int newWidth, int newHeight)
+{
+    if (hBitmap == NULL)
+        return NULL;
+
+    // Get the original bitmap information
+    BITMAP bm;
+    if (GetObject(hBitmap, sizeof(BITMAP), &bm) == 0)
+        return NULL;
+
+    HDC hdcSrc = NULL, hdcDest = NULL;
+    HBITMAP hbmDest = NULL;
+
+    // Create device contexts
+    hdcSrc = CreateCompatibleDC(NULL);
+    if (hdcSrc == NULL)
+        goto cleanup;
+
+    hdcDest = CreateCompatibleDC(NULL);
+    if (hdcDest == NULL)
+        goto cleanup;
+
+    // Select the original bitmap into the source DC
+    SelectObject(hdcSrc, hBitmap);
+
+    // Create a destination bitmap with the new width and height
+    hbmDest = CreateCompatibleBitmap(hdcSrc, newWidth, newHeight);
+    if (hbmDest == NULL)
+        goto cleanup;
+
+    // Select the destination bitmap into the destination DC
+    SelectObject(hdcDest, hbmDest);
+
+    // Stretch the image to the new size
+    StretchBlt(hdcDest, 0, 0, newWidth, newHeight, hdcSrc, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+
+cleanup:
+    if (hdcSrc != NULL)
+        DeleteDC(hdcSrc);
+    if (hdcDest != NULL)
+        DeleteDC(hdcDest);
+
+    return hbmDest;
+}
+
+
 //------------------------------------------------------------------ END OF FILE

@@ -116,6 +116,7 @@ ZEND_FUNCTION(wb_draw_image);
 ZEND_FUNCTION(wb_load_image);
 ZEND_FUNCTION(wb_save_image);
 ZEND_FUNCTION(wb_rotate_image);
+ZEND_FUNCTION(wb_resize_image);
 ZEND_FUNCTION(wb_create_image);
 ZEND_FUNCTION(wb_create_mask);
 ZEND_FUNCTION(wb_destroy_image);
@@ -227,6 +228,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_load_image,arginfo_wb_load_image)
         ZEND_FE(wb_save_image,arginfo_wb_save_image)
 		ZEND_FE(wb_rotate_image,arginfo_wb_rotate_image)
+		ZEND_FE(wb_resize_image,arginfo_wb_resize_image)
         ZEND_FE(wb_create_image,arginfo_wb_create_image)
         ZEND_FE(wb_create_mask,arginfo_wb_create_mask)
         ZEND_FE(wb_destroy_image,arginfo_wb_destroy_image)

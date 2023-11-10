@@ -107,6 +107,36 @@ ZEND_FUNCTION(wb_rotate_image)
     }
 }
 
+// Zend function to wrap wbResizeBitmap
+ZEND_FUNCTION(wb_resize_image)
+{
+    zend_long hbm;
+    zend_long angle;
+    HANDLE ret;
+
+    // Parse parameters
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+    Z_PARAM_LONG(hbm)
+    Z_PARAM_LONG(newWidth)
+	Z_PARAM_LONG(newHeight), 
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (!hbm) {
+        RETURN_NULL();
+    }
+
+    // Call the wbResizeBitmap function
+    ret = wbResizeBitmap((HBITMAP)hbm, newWidth, newHeight);
+
+    // Return the rotated image handle or NULL
+    if (ret != NULL) {
+        RETURN_LONG((zend_long)ret);
+    } else {
+        RETURN_NULL();
+    }
+}
+
+
 ZEND_FUNCTION(wb_create_image)
 {
 	zend_long w, h, bmi = 0, bits = 0;
