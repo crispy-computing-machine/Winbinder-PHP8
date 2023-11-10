@@ -111,11 +111,11 @@ ZEND_FUNCTION(wb_rotate_image)
 ZEND_FUNCTION(wb_resize_image)
 {
     zend_long hbm;
-    zend_long angle;
+    zend_long newWidth, newHeight;
     HANDLE ret;
 
     // Parse parameters
-    ZEND_PARSE_PARAMETERS_START(2, 2)
+    ZEND_PARSE_PARAMETERS_START(3, 3)
     Z_PARAM_LONG(hbm)
     Z_PARAM_LONG(newWidth)
 	Z_PARAM_LONG(newHeight), 
