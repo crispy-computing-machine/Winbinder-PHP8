@@ -76,8 +76,13 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.Flags |= BITTEST(dwWBStyle, WBC_MULTISELECT) ? OFN_ALLOWMULTISELECT | OFN_EXPLORER : 0;
 
 	bRet = GetOpenFileName(&ofn);
-	if (!bRet && pszFileName)
+	
+	if (!bRet && pszFileName){
+		DWORD dwError = CommDlgExtendedError();
 		*pszFileName = '\0';
+		printf("wbSysDlgOpen Error: %lu\n", dwError);
+
+	}
 
 	if (pszCopy)
 		free(pszCopy);
