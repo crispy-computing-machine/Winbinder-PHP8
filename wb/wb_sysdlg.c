@@ -80,7 +80,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	if (!bRet && pszFileName){
 		DWORD dwError = CommDlgExtendedError();
 		*pszFileName = '\0';
-		printf("wbSysDlgOpen Error: %lu\n", dwError);
+		//printf("wbSysDlgOpen Error: %lu\n", dwError);
 
 	}
 
