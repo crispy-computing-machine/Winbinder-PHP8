@@ -2027,10 +2027,15 @@ static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 
 	PWBOBJ pwbo = (PWBOBJ)lpParameter;
 
-	if (!pwbo || !(pwbo->pszCallBackFn))
-		return;
+    // Example: Print debug information
+    printf("TimeProc: Timer fired!\n");
 
-	SendMessage(pwbo->hwnd, WM_TIMER, M_nTimerId, 0);
+    UNREFERENCED_PARAMETER(TimerOrWaitFired);
+
+//	if (!pwbo || !(pwbo->pszCallBackFn)){
+//		return;
+//    }
+//	SendMessage(pwbo->hwnd, WM_TIMER, M_nTimerId, 0);
 }
 
 /* Try several methods to retrieve the icon from an application window
