@@ -61,7 +61,7 @@ static BOOL DeleteTaskBarIcon(HWND hwnd);
 static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
