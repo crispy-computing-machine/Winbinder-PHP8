@@ -544,6 +544,7 @@ BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod)
 	else
 	{
 
+        HANDLE M_hTimer = NULL;
         HANDLE hTimer = NULL;
 
         // If uPeriod is 0, kill the existing timer
@@ -2021,11 +2022,10 @@ static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
   Attempts to call wbCallUserFunction() directly failed miserably: the app crashes when
   zend_is_callable() is called. */
 
-static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 {
-	PWBOBJ pwbo;
 
-	pwbo = (PWBOBJ)dwUser;
+	PWBOBJ pwbo = (PWBOBJ)lpParameter;
 
 	if (!pwbo || !(pwbo->pszCallBackFn))
 		return;
