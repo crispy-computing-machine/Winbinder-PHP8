@@ -544,23 +544,29 @@ BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod)
 	else
 	{
 
-		MMRESULT mmId;
+        HANDLE hTimer = NULL;
 
-		if (!uPeriod)
-			return (timeKillEvent(M_nMMTimerId) == TIMERR_NOERROR);
+        // If uPeriod is 0, kill the existing timer
+        if (!uPeriod)
+        {
+            if (hTimer)
+                DeleteTimerQueueTimer(NULL, hTimer, NULL);
+            return TRUE;
+        }
 
-		mmId = timeSetEvent(uPeriod, 0, TimeProc, (DWORD_PTR)pwbo, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);
-		if (mmId != (MMRESULT)NULL)
-		{
-			M_nTimerId = id;
-			M_nMMTimerId = mmId;
-			return TRUE;
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
+        // Set the timer using CreateTimerQueueTimer
+        if (CreateTimerQueueTimer(&hTimer, NULL, TimeProc, (PVOID)pwbo, (DWORD)uPeriod, (DWORD)uPeriod, 0))
+        {
+            // Store timer handle for future reference
+            M_hTimer = hTimer;
+            M_nTimerId = id;
+            return TRUE;
+        }
+        else
+        {
+            return FALSE;
+        }
+     }
 }
 
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
