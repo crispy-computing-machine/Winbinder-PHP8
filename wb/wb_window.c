@@ -1357,13 +1357,17 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 		PWBOBJ pwbobj;
 
 		pwbobj = wbGetWBObj(hwnd);
-
+        printf("TimeProc: WM_TIMER 1\n");
 		if (!pwbobj || !pwbobj->pszCallBackFn)
 			break;
 
-		if (pwbobj->pszCallBackFn)
-			//					wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
-			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
+		if (pwbobj->pszCallBackFn){
+		    printf("TimeProc: WM_TIMER 2\n");
+            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
+            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
+
+		}
+
 		return 0;
 	}
 	break;
@@ -2030,11 +2034,8 @@ static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 	if (!pwbo || !(pwbo->pszCallBackFn)){
 		return;
     }
+
 	SendMessage(pwbo->hwnd, WM_TIMER, M_nTimerId, 0);
-
-    // Example: Print debug information
-    printf("TimeProc: Timer fired!\n");
-
     UNREFERENCED_PARAMETER(TimerOrWaitFired);
 
 }
