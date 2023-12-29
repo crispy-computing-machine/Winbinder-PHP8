@@ -107,7 +107,7 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	{
 		TCHAR szTitle[256];
 		char title[256];
-
+        efree(pszFName);  // Free memory allocated for pszFName
 		if (GetWindowText(pwboParent->hwnd, szTitle, 256))
 		{
 			WideCharCopy(szTitle, title, 256);
@@ -163,6 +163,8 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 		parms				// Parameter array
 		);
 
+
+
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
 	{
@@ -178,7 +180,8 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	}
 
 	// Free everything we can
-	//if (funName) efree(funName);
+	if (funName) efree(funName);
+    efree(pszFName);
 	switch (Z_TYPE(return_value))
 	{
 	case IS_LONG:
