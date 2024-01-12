@@ -1754,6 +1754,9 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 			// We use the callback function to let the user do the drawing
 			// *** Should probably use pwbo->parent for child controls, but the
 			// *** use of parameter pwboParent in wbCallUserFunction() is not clear
+			printf("Calling wbCallUserFunction: function=%s, object=%p, param1=%p, param2=%p, ...)\n",
+                   pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo->pbuffer);
+
 			wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo,
 							   IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
             printf("wbRefreshControl 5.2\n");
