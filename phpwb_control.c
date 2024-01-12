@@ -689,10 +689,12 @@ ZEND_FUNCTION(wb_start_async_refresh)
     }
 
     // Start asynchronous refresh
-    HANDLE hThread = StartAsyncRefresh((PWBOBJ)pwbo, fps);
+    AsyncRefreshThread* threadInfo = StartAsyncRefresh((PWBOBJ)pwbo, fps, 0, 0, 0, 0, TRUE);
 
-    if (hThread != NULL) {
-        RETURN_RES(zend_register_resource(hThread, le_async_refresh_thread));
+    if (threadInfo != NULL) {
+        // Create a new resource using zend_register_resource
+        zend_resource *res = zend_register_resource(threadInfo, le_async_refresh_thread);
+        RETURN_RES(res);
     } else {
         RETURN_FALSE;
     }

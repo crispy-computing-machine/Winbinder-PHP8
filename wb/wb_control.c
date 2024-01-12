@@ -1791,60 +1791,65 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 
 
 
-// Function to refresh the control asynchronously
 unsigned __stdcall AsyncRefreshControl(void* params)
 {
-    AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)params;
+    AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)params;
 
-    // Calculate the delay between frames based on the desired FPS
-    int delay = 1000 / refreshParams->fps;
-
-    while (!refreshParams->stopRefresh)
+    // Your existing logic for asynchronous refresh
+    while (!threadInfo->stopRefresh)
     {
-        // Refresh the control using the provided function
-        wbRefreshControl(refreshParams->pwbo, 0, 0, 0, 0, FALSE);
+        // Call wbRefreshControl with the provided parameters
+        wbRefreshControl(threadInfo->pwbo, threadInfo->xpos, threadInfo->ypos, threadInfo->nWidth, threadInfo->nHeight, threadInfo->bNow);
 
-        // Sleep for the calculated delay
-        Sleep(delay);
+        // Sleep for a while
+        Sleep(1000 / threadInfo->fps);
     }
 
     _endthreadex(0);
     return 0;
 }
 
-// Function to start asynchronous refresh
-HANDLE StartAsyncRefresh(PWBOBJ pwbo, int fps)
+
+AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow)
 {
-    // Create parameters for the asynchronous refresh function
-    AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)malloc(sizeof(AsyncRefreshParams));
-    refreshParams->pwbo = pwbo;
-    refreshParams->fps = fps;
-    refreshParams->stopRefresh = FALSE;
+    AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)malloc(sizeof(AsyncRefreshThread));
+    if (threadInfo != NULL)
+    {
+        threadInfo->stopRefresh = FALSE;
+        threadInfo->pwbo = pwbo;
+        threadInfo->xpos = xpos;
+        threadInfo->ypos = ypos;
+        threadInfo->nWidth = nWidth;
+        threadInfo->nHeight = nHeight;
+        threadInfo->bNow = bNow;
+        threadInfo->hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)threadInfo, 0, NULL);
+        if (threadInfo->hThread == NULL)
+        {
+            free(threadInfo);
+            return NULL;
+        }
+    }
 
-    // Create a new thread for asynchronous refresh
-    unsigned int threadID;
-    HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)refreshParams, 0, &threadID);
-
-    return hThread;
+    return threadInfo;
 }
 
+
 // Function to stop asynchronous refresh
-void StopAsyncRefresh(HANDLE hThread)
+void StopAsyncRefresh(AsyncRefreshThread* threadInfo)
 {
-    if (hThread != NULL)
+    if (threadInfo != NULL)
     {
         // Signal the thread to stop
-        AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)_beginthreadex(NULL, 0, &AsyncRefreshControl, NULL, 0, NULL);
-        refreshParams->stopRefresh = TRUE;
+        threadInfo->stopRefresh = TRUE;
 
         // Wait for the thread to finish
-        WaitForSingleObject(hThread, INFINITE);
+        WaitForSingleObject(threadInfo->hThread, INFINITE);
 
         // Close the thread handle
-        CloseHandle(hThread);
+        CloseHandle(threadInfo->hThread);
 
-        // Free the allocated parameters
-        free(refreshParams);
+        // Free the allocated structure
+        free(threadInfo);
     }
 }
 
