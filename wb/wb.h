@@ -474,7 +474,7 @@ BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
 
 // Function to refresh the control asynchronously
-static int le_async_refresh_thread; // Declare the resource type identifier globally
+le_async_refresh_thread = zend_register_list_destructors_ex(NULL, NULL, "AsyncRefreshThread", 0); // Declare the resource type identifier globally
 // Define a structure to pass parameters to the asynchronous refresh function
 
 typedef struct
