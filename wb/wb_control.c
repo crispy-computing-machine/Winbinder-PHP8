@@ -1794,20 +1794,24 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 unsigned __stdcall AsyncRefreshControl(void* params)
 {
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)params;
-    printf("AsyncRefreshControl 1");
+    printf("AsyncRefreshControl 1\n");
     // Your existing logic for asynchronous refresh
     while (!threadInfo->stopRefresh)
     {
 
-        printf("AsyncRefreshControl 2");
+        printf("AsyncRefreshControl 2\n");
         // Call wbRefreshControl with the provided parameters
+
+        printf("Calling wbRefreshControl: pwbo=%p, xpos=%d, ypos=%d, nWidth=%d, nHeight=%d, bNow=%d\n",
+                           threadInfo->pwbo, threadInfo->xpos, threadInfo->ypos, threadInfo->nWidth, threadInfo->nHeight, threadInfo->bNow);
+
         wbRefreshControl(threadInfo->pwbo, threadInfo->xpos, threadInfo->ypos, threadInfo->nWidth, threadInfo->nHeight, threadInfo->bNow);
 
-        printf("AsyncRefreshControl 3");
+        printf("AsyncRefreshControl 3\n");
         // Sleep for a while
         Sleep(1000 / threadInfo->fps);
     }
-    printf("AsyncRefreshControl 4");
+    printf("AsyncRefreshControl 4\n");
     _endthreadex(0);
     return 0;
 }
@@ -1815,11 +1819,11 @@ unsigned __stdcall AsyncRefreshControl(void* params)
 
 AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow)
 {
-    printf("StartAsyncRefresh 1");
+    printf("StartAsyncRefresh 1\n");
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)malloc(sizeof(AsyncRefreshThread));
     if (threadInfo != NULL)
     {
-        printf("StartAsyncRefresh 2");
+        printf("StartAsyncRefresh 2\n");
         threadInfo->stopRefresh = FALSE;
         threadInfo->pwbo = pwbo;
         threadInfo->xpos = xpos;
@@ -1831,12 +1835,12 @@ AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, 
         threadInfo->hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)threadInfo, 0, NULL);
         if (threadInfo->hThread == NULL)
         {
-            printf("StartAsyncRefresh 3");
+            printf("StartAsyncRefresh 3\n");
             free(threadInfo);
             return NULL;
         }
     }
-    printf("StartAsyncRefresh 4");
+    printf("StartAsyncRefresh 4\n");
     return threadInfo;
 }
 
