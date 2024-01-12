@@ -84,8 +84,8 @@ ZEND_FUNCTION(wb_get_value);
 ZEND_FUNCTION(wb_get_visible);
 ZEND_FUNCTION(wb_refresh);
 
-ZEND_FUNCTION(wb_start_async_refresh)
-ZEND_FUNCTION(wb_stop_async_refresh)
+ZEND_FUNCTION(wb_start_async_refresh);
+ZEND_FUNCTION(wb_stop_async_refresh);
 
 ZEND_FUNCTION(wb_set_cursor);
 ZEND_FUNCTION(wb_set_enabled);
