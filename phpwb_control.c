@@ -692,7 +692,7 @@ ZEND_FUNCTION(wb_start_async_refresh)
     HANDLE hThread = StartAsyncRefresh((PWBOBJ)pwbo, fps);
 
     if (hThread != NULL) {
-        zend_register_resource(return_value, hThread, le_async_refresh_thread);
+        RETURN_RES(zend_register_resource(hThread, le_async_refresh_thread));
     } else {
         RETURN_FALSE;
     }
