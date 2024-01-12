@@ -21,6 +21,7 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 {
 	if (!pwbo)
 	{
+	    printf("wbIsWBObj 1\n");
 		if (bShowErrors){
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object"));
 		}
@@ -28,9 +29,9 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 	}
 
 	// Is pwbo a valid memory address?
-
 	if (IsBadReadPtr(pwbo, sizeof(WBOBJ)))
 	{
+	    printf("wbIsWBObj 2\n");
 		if (bShowErrors)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid memory address"));
 		//		printf("%d\n", pwbo);
@@ -38,22 +39,24 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 	}
 
 	// A Windows or menu handle is not a WinBinder object
-
 	if (IsWindow(pwbo) || IsMenu(pwbo))
 	{
+	    printf("wbIsWBObj 3\n");
 		if (bShowErrors)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Not a WinBinder object"));
 		return FALSE;
 	}
 
 	// Does it have a valid handle?
+	printf("wbIsWBObj 4\n");
 	PWBOBJ pwboTest = wbMalloc(sizeof(WBOBJ));
 	if (pwboTest)
 	{
+	    printf("wbIsWBObj 5\n");
 		CopyMemory(pwboTest, pwbo, sizeof(WBOBJ));
-
 		if (!pwboTest->hwnd)
 		{
+		    printf("wbIsWBObj 6\n");
 			wbFree(pwboTest);
 			if (bShowErrors)
 				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("NULL WinBinder object handle"));
@@ -62,15 +65,18 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 		wbFree(pwboTest);
 	}
 
+    printf("wbIsWBObj 7\n");
 	if (IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
+    printf("wbIsWBObj 8\n");
 	if (IsWindow((HWND)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
 	if (bShowErrors)
 		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid WinBinder object"));
 
+    printf("wbIsWBObj 9\n");
 	return FALSE;
 }
 

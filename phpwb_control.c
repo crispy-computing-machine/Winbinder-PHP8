@@ -688,8 +688,6 @@ ZEND_FUNCTION(wb_start_async_refresh)
         RETURN_BOOL(FALSE);
     }
 
-    printf("wb_start_async_refresh %p\n", (PWBOBJ)pwbo);
-
     // Start asynchronous refresh
     AsyncRefreshThread* threadInfo = StartAsyncRefresh((PWBOBJ)pwbo, fps);
 
