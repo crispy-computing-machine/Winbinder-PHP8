@@ -488,7 +488,7 @@ typedef struct
 } AsyncRefreshThread;
 
 unsigned __stdcall AsyncRefreshControl(void* params);
-HANDLE StartAsyncRefresh(void* pwbo, int fps);
+AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
 void StopAsyncRefresh(HANDLE hThread);
 
 DWORD wbGetSelected(PWBOBJ pwbo);
