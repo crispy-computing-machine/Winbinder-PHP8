@@ -68,6 +68,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <WinUser.h>
+#include <process.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
@@ -471,6 +472,12 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc);
 UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex);
 BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
+
+// Function to refresh the control asynchronously
+unsigned __stdcall AsyncRefreshControl(void* params);
+HANDLE StartAsyncRefresh(void* pwbo, int fps);
+void StopAsyncRefresh(HANDLE hThread);
+
 DWORD wbGetSelected(PWBOBJ pwbo);
 BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths);
 

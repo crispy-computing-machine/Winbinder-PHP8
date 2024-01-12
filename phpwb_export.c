@@ -83,6 +83,10 @@ ZEND_FUNCTION(wb_get_state);
 ZEND_FUNCTION(wb_get_value);
 ZEND_FUNCTION(wb_get_visible);
 ZEND_FUNCTION(wb_refresh);
+
+ZEND_FUNCTION(wb_start_async_refresh)
+ZEND_FUNCTION(wb_stop_async_refresh)
+
 ZEND_FUNCTION(wb_set_cursor);
 ZEND_FUNCTION(wb_set_enabled);
 ZEND_FUNCTION(wb_set_focus);
@@ -248,6 +252,10 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_destroy_control,arginfo_wb_destroy_control)
         ZEND_FE(wb_get_value,arginfo_wb_get_value)
         ZEND_FE(wb_refresh,arginfo_wb_refresh)
+
+        ZEND_FE(wb_start_async_refresh, arginfo_wb_start_async_refresh)
+        ZEND_FE(wb_stop_async_refresh, arginfo_wb_stop_async_refresh)
+
         ZEND_FE(wb_set_enabled,arginfo_wb_set_enabled)
         ZEND_FE(wb_set_image,arginfo_wb_set_image)
         ZEND_FE(wb_set_item_image,arginfo_wb_set_item_image)

@@ -1789,6 +1789,70 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 	return bRet;
 }
 
+// Define a structure to pass parameters to the asynchronous refresh function
+struct AsyncRefreshParams {
+    PWBOBJ pwbo;
+    int fps;
+    volatile BOOL stopRefresh;  // volatile for thread safety
+};
+
+// Function to refresh the control asynchronously
+unsigned __stdcall AsyncRefreshControl(void* params)
+{
+    AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)params;
+
+    // Calculate the delay between frames based on the desired FPS
+    int delay = 1000 / refreshParams->fps;
+
+    while (!refreshParams->stopRefresh)
+    {
+        // Refresh the control using the provided function
+        wbRefreshControl(refreshParams->pwbo, 0, 0, 0, 0, FALSE);
+
+        // Sleep for the calculated delay
+        Sleep(delay);
+    }
+
+    _endthreadex(0);
+    return 0;
+}
+
+// Function to start asynchronous refresh
+HANDLE StartAsyncRefresh(PWBOBJ pwbo, int fps)
+{
+    // Create parameters for the asynchronous refresh function
+    AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)malloc(sizeof(AsyncRefreshParams));
+    refreshParams->pwbo = pwbo;
+    refreshParams->fps = fps;
+    refreshParams->stopRefresh = FALSE;
+
+    // Create a new thread for asynchronous refresh
+    unsigned int threadID;
+    HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)refreshParams, 0, &threadID);
+
+    return hThread;
+}
+
+// Function to stop asynchronous refresh
+void StopAsyncRefresh(HANDLE hThread)
+{
+    if (hThread != NULL)
+    {
+        // Signal the thread to stop
+        AsyncRefreshParams* refreshParams = (AsyncRefreshParams*)_beginthreadex(NULL, 0, &AsyncRefreshControl, NULL, 0, NULL);
+        refreshParams->stopRefresh = TRUE;
+
+        // Wait for the thread to finish
+        WaitForSingleObject(hThread, INFINITE);
+
+        // Close the thread handle
+        CloseHandle(hThread);
+
+        // Free the allocated parameters
+        free(refreshParams);
+    }
+}
+
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
 
 BOOL IsIcon(HANDLE handle)

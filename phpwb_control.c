@@ -673,6 +673,52 @@ ZEND_FUNCTION(wb_refresh)
 	}
 }
 
+ZEND_FUNCTION(wb_start_async_refresh)
+{
+    zend_long pwbo;
+    zend_long fps;
+
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_LONG(pwbo)
+        Z_PARAM_LONG(fps)
+    ZEND_PARSE_PARAMETERS_END();
+
+    // Check if it's a valid control
+    if (!wbIsWBObj((void*)pwbo, TRUE)) {
+        RETURN_BOOL(FALSE);
+    }
+
+    // Start asynchronous refresh
+    HANDLE hThread = StartAsyncRefresh((PWBOBJ)pwbo, fps);
+
+    if (hThread != NULL) {
+        ZEND_REGISTER_RESOURCE(return_value, hThread, le_async_refresh_thread);
+    } else {
+        RETURN_FALSE;
+    }
+}
+
+ZEND_FUNCTION(wb_stop_async_refresh)
+{
+    zend_resource *res;
+    HANDLE hThread;
+
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_RESOURCE(res)
+    ZEND_PARSE_PARAMETERS_END();
+
+    hThread = (HANDLE)res->ptr;
+
+    // Stop asynchronous refresh
+    StopAsyncRefresh(hThread);
+
+    // Unregister the resource
+    zend_list_close(res);
+
+    RETURN_TRUE;
+}
+
+
 ZEND_FUNCTION(wb_get_item_count)
 {
 	zend_long pwbo;

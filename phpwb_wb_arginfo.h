@@ -258,6 +258,15 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_refresh, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_MASK(0, height, MAY_BE_LONG|MAY_BE_NULL, "0")
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO(arginfo_wb_start_async_refresh, 0)
+    ZEND_ARG_INFO(0, pwbo)
+    ZEND_ARG_INFO(0, fps)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(arginfo_wb_stop_async_refresh, 0)
+    ZEND_ARG_INFO(0, thread)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_enabled, 0, 2, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, state, _IS_BOOL, 0)
