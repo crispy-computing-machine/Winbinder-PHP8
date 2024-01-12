@@ -1802,8 +1802,8 @@ unsigned __stdcall AsyncRefreshControl(void* params)
         printf("AsyncRefreshControl 2\n");
         // Call wbRefreshControl with the provided parameters
 
-        printf("Calling wbRefreshControl: pwbo=%p, xpos=%d, ypos=%d, nWidth=%d, nHeight=%d, bNow=%d\n",
-                           threadInfo->pwbo, threadInfo->xpos, threadInfo->ypos, threadInfo->nWidth, threadInfo->nHeight, threadInfo->bNow);
+        printf("Calling wbRefreshControl: pwbo=%p\n",
+                           threadInfo->pwbo);
 
         printf("Calling wbRefreshControl: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
                    threadInfo->pwbo->hwnd, threadInfo->pwbo->id, threadInfo->pwbo->uClass, threadInfo->pwbo->item, threadInfo->pwbo->subitem, threadInfo->pwbo->style);
