@@ -474,6 +474,7 @@ BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
 
 // Function to refresh the control asynchronously
+static int le_async_refresh_thread; // Declare the resource type identifier globally
 unsigned __stdcall AsyncRefreshControl(void* params);
 HANDLE StartAsyncRefresh(void* pwbo, int fps);
 void StopAsyncRefresh(HANDLE hThread);
