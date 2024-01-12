@@ -484,7 +484,7 @@ typedef struct
     PWBOBJ pwbo;
     int xpos, ypos, nWidth, nHeight;
     BOOL bNow;
-    // Add other members as needed
+    int fps;
 } AsyncRefreshThread;
 
 unsigned __stdcall AsyncRefreshControl(void* params);

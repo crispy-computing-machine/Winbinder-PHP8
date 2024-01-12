@@ -1822,6 +1822,7 @@ AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, 
         threadInfo->nWidth = nWidth;
         threadInfo->nHeight = nHeight;
         threadInfo->bNow = bNow;
+        threadInfo->fps = fps;
         threadInfo->hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)threadInfo, 0, NULL);
         if (threadInfo->hThread == NULL)
         {
