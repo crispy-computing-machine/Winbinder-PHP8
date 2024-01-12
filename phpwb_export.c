@@ -577,6 +577,9 @@ ZEND_MINIT_FUNCTION(winbinder)
 	// Additional
 	#include "phpwb_export_constants.c" // For Windows constants as PHP constants
 
+    // Register the resource type for asynchronous refresh thread
+    le_async_refresh_thread = zend_register_list_destructors_ex(NULL, NULL, "AsyncRefreshThread", module_number);
+
 	return SUCCESS;
 }
 
