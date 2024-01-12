@@ -482,13 +482,11 @@ typedef struct
     HANDLE hThread;
     volatile BOOL stopRefresh;
     PWBOBJ pwbo;
-    int xpos, ypos, nWidth, nHeight;
-    BOOL bNow;
     int fps;
 } AsyncRefreshThread;
 
 unsigned __stdcall AsyncRefreshControl(void* params);
-AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
+AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps);
 void StopAsyncRefresh(HANDLE hThread);
 
 DWORD wbGetSelected(PWBOBJ pwbo);

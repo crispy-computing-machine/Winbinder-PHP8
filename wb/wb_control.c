@@ -1808,7 +1808,7 @@ unsigned __stdcall AsyncRefreshControl(void* params)
         printf("Calling wbRefreshControl: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
                    threadInfo->pwbo->hwnd, threadInfo->pwbo->id, threadInfo->pwbo->uClass, threadInfo->pwbo->item, threadInfo->pwbo->subitem, threadInfo->pwbo->style);
 
-        //wbRefreshControl(threadInfo->pwbo, threadInfo->xpos, threadInfo->ypos, threadInfo->nWidth, threadInfo->nHeight, threadInfo->bNow);
+        wbRefreshControl(threadInfo->pwbo, 0, 0, 0, 0, TRUE);
 
         printf("AsyncRefreshControl 3\n");
         // Sleep for a while
@@ -1820,7 +1820,7 @@ unsigned __stdcall AsyncRefreshControl(void* params)
 }
 
 
-AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow)
+AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps)
 {
     printf("StartAsyncRefresh 1\n");
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)malloc(sizeof(AsyncRefreshThread));
@@ -1829,11 +1829,6 @@ AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, int xpos, int ypos, 
         printf("StartAsyncRefresh 2\n");
         threadInfo->stopRefresh = FALSE;
         threadInfo->pwbo = pwbo;
-        threadInfo->xpos = xpos;
-        threadInfo->ypos = ypos;
-        threadInfo->nWidth = nWidth;
-        threadInfo->nHeight = nHeight;
-        threadInfo->bNow = bNow;
         threadInfo->fps = fps;
         threadInfo->hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)threadInfo, 0, NULL);
         if (threadInfo->hThread == NULL)
