@@ -477,13 +477,15 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 static int le_async_refresh_thread; // Declare the resource type identifier globally
 // Define a structure to pass parameters to the asynchronous refresh function
 
-struct AsyncRefreshThread {
+typedef struct
+{
     HANDLE hThread;
     volatile BOOL stopRefresh;
-    PWBOBJ pwbo;  // Add the control object
-    int xpos, ypos, nWidth, nHeight;  // Add parameters for wbRefreshControl
-    BOOL bNow;  // Add parameters for wbRefreshControl
-};
+    PWBOBJ pwbo;
+    int xpos, ypos, nWidth, nHeight;
+    BOOL bNow;
+    // Add other members as needed
+} AsyncRefreshThread;
 
 unsigned __stdcall AsyncRefreshControl(void* params);
 HANDLE StartAsyncRefresh(void* pwbo, int fps);
