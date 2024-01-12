@@ -1789,12 +1789,7 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 	return bRet;
 }
 
-// Define a structure to pass parameters to the asynchronous refresh function
-struct AsyncRefreshParams {
-    PWBOBJ pwbo;
-    int fps;
-    volatile BOOL stopRefresh;  // volatile for thread safety
-};
+
 
 // Function to refresh the control asynchronously
 unsigned __stdcall AsyncRefreshControl(void* params)
