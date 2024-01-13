@@ -270,15 +270,22 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 	char *str = 0;
 	int str_len = 0;
 
+    printf("WideChar2Utf8 1\n");
 	if (!wcs){
 		return NULL;
 	}
+
+	printf("WideChar2Utf8 2\n");
 	str_len = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, 0, NULL, NULL);
 	if (str_len == 0){
+	    printf("WideChar2Utf8 3\n");
 		return NULL;
 	}
+	printf("WideChar2Utf8 4\n");
 	str = wbMalloc(str_len);
+	printf("WideChar2Utf8 5\n");
 	int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
+	printf("WideChar2Utf8 6\n");
 	str[str_len - 1] = '\0';
 	if (plen)
 	{
@@ -286,7 +293,10 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 			size--;
 		}
 		*plen = size;
+		printf("WideChar2Utf8 7\n");
 	}
+
+	printf("WideChar2Utf8 8\n");
 	return str;
 }
 

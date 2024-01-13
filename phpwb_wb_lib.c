@@ -184,7 +184,6 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 
     printf("wbCallUserFunction 9\n");
 	// Free everything we can
-	if (funName) efree(funName);
     efree(pszFName);
 	switch (Z_TYPE(return_value))
 	{
