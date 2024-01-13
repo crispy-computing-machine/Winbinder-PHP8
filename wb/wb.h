@@ -473,23 +473,6 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc);
 UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex);
 BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
-
-// Function to refresh the control asynchronously
-static int le_async_refresh_thread; // Declare the resource type identifier globally
-// Define a structure to pass parameters to the asynchronous refresh function
-
-typedef struct _AsyncRefreshThread {
-    HANDLE hThread;
-    BOOL stopRefresh;
-    PWBOBJ pwbo;
-    int fps;
-    zval callback;  // Added member to store the PHP callback
-} AsyncRefreshThread;
-
-unsigned __stdcall AsyncRefreshControl(void* params);
-AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps);
-void StopAsyncRefresh(HANDLE hThread);
-
 DWORD wbGetSelected(PWBOBJ pwbo);
 BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths);
 
