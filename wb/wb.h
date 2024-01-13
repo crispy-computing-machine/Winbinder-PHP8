@@ -624,7 +624,6 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
 UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
 BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...);
 void *wbMalloc(size_t size);
-void async_callback(uv_async_t* handle);
 void *wbCalloc(size_t nmemb, size_t size);
 BOOL wbFree(void *ptr);
 void *wbRealloc(void *ptr, size_t size);
