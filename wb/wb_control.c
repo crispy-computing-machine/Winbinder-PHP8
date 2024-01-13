@@ -1757,8 +1757,7 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
             printf("wbRefreshControl 5.1: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
                    pwbo->hwnd, pwbo->id, pwbo->uClass, pwbo->item, pwbo->subitem, pwbo->style);
 
-			wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo,
-							   IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
+			wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
             printf("wbRefreshControl 5.2\n");
 			bRet = InvalidateRect(pwbo->hwnd, NULL, TRUE);
 

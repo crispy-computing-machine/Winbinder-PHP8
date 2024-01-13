@@ -101,15 +101,17 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	}
 
 	// Is there a callback function assigned to the window?
-
+    printf("wbCallUserFunction 1\n");
 	pszFName = WideChar2Utf8(pszFunctionName, &name_len);
 	if (!pszFName || !*pszFName)
 	{
+	    printf("wbCallUserFunction 2\n");
 		TCHAR szTitle[256];
 		char title[256];
         efree(pszFName);  // Free memory allocated for pszFName
 		if (GetWindowText(pwboParent->hwnd, szTitle, 256))
 		{
+		    printf("wbCallUserFunction 3\n");
 			WideCharCopy(szTitle, title, 256);
 			wbError(TEXT("wbCallUserFunction"), MB_ICONWARNING, TEXT("No callback function assigned to window '%s'"), title);
 		}
@@ -118,6 +120,7 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 		return FALSE;
 	}
 
+    printf("wbCallUserFunction 4\n");
 	ZVAL_STRING(&fname, pszFName);
 
 	/* why we test again ??? GYW
@@ -153,6 +156,7 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	// lparam3
 	ZVAL_LONG(&parms[5], (LONG_PTR)lParam3);
 
+    printf("wbCallUserFunction 5\n");
 	// Call the user function
 	bRet = call_user_function(
 		NULL, // CG(function_table) Hash value for the function table
@@ -163,33 +167,31 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 		parms				// Parameter array
 		);
 
-
-
+    printf("wbCallUserFunction 6\n");
     // Check if its NOT FAILURE (NULL is okay as user functions may return void)
 	if (bRet != SUCCESS)
 	{
+	    printf("wbCallUserFunction 7\n");
 	    // supress if its null as the user function may not return anything
 	    if(bRet != IS_NULL){
-	        wbError(
-				TEXT("wbCallUserFunction"),
-				 MB_ICONWARNING,
-				  TEXT("User function call failed %s"),
-				   (BOOL)bRet
-				   );
+	        printf("wbCallUserFunction 8\n");
+	        wbError(TEXT("wbCallUserFunction"),MB_ICONWARNING,TEXT("User function call failed %s"),(BOOL)bRet);
 	    }
 	}
 
+    printf("wbCallUserFunction 9\n");
 	// Free everything we can
 	if (funName) efree(funName);
     efree(pszFName);
 	switch (Z_TYPE(return_value))
 	{
-	case IS_LONG:
-	case IS_TRUE:
-	case IS_FALSE:
-		ret = Z_LVAL(return_value);
-		break;
+        case IS_LONG:
+        case IS_TRUE:
+        case IS_FALSE:
+            ret = Z_LVAL(return_value);
+            break;
 	}
+	printf("wbCallUserFunction 10\n");
 	return ret;
 }
 
