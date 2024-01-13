@@ -282,7 +282,7 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
         return NULL;
     }
 
-	printf("WideChar2Utf8 4\n");
+	printf("WideChar2Utf8 4 str_len=%d\n", str_len);
 	str = wbMalloc(str_len);
 	printf("WideChar2Utf8 5\n");
 	int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
