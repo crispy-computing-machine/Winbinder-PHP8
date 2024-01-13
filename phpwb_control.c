@@ -677,10 +677,12 @@ ZEND_FUNCTION(wb_start_async_refresh)
 {
     zend_long pwbo;
     zend_long fps;
+    zval *callback;
 
-    ZEND_PARSE_PARAMETERS_START(2, 2)
+    ZEND_PARSE_PARAMETERS_START(3, 3)
         Z_PARAM_LONG(pwbo)
         Z_PARAM_LONG(fps)
+        Z_PARAM_ZVAL(callback)
     ZEND_PARSE_PARAMETERS_END();
 
     // Check if it's a valid control
@@ -689,7 +691,7 @@ ZEND_FUNCTION(wb_start_async_refresh)
     }
 
     // Start asynchronous refresh
-    AsyncRefreshThread* threadInfo = StartAsyncRefresh((PWBOBJ)pwbo, fps);
+    AsyncRefreshThread* threadInfo = StartAsyncRefresh((PWBOBJ)pwbo, fps, callback);
 
     if (threadInfo != NULL) {
         // Create a new resource using zend_register_resource

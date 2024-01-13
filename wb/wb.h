@@ -477,12 +477,12 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 static int le_async_refresh_thread; // Declare the resource type identifier globally
 // Define a structure to pass parameters to the asynchronous refresh function
 
-typedef struct
-{
+typedef struct _AsyncRefreshThread {
     HANDLE hThread;
-    volatile BOOL stopRefresh;
+    BOOL stopRefresh;
     PWBOBJ pwbo;
     int fps;
+    zval callback;  // Added member to store the PHP callback
 } AsyncRefreshThread;
 
 unsigned __stdcall AsyncRefreshControl(void* params);

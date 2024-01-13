@@ -1705,28 +1705,22 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 	BOOL bRet;
 	RECT rc;
 
-    printf("wbRefreshControl 1\n");
 	if (!wbIsWBObj(pwbo, TRUE)) // Is it a valid control?
 		return FALSE;
 
-    printf("wbRefreshControl 2\n");
 	if (!IsWindow(pwbo->hwnd))
 		return FALSE;
 
-    printf("wbRefreshControl 3\n");
 	if (!((pwbo->style & WBC_NOTIFY) && (pwbo->lparam & WBC_REDRAW) && pwbo->pszCallBackFn && *pwbo->pszCallBackFn))
 	{
 
-        printf("wbRefreshControl 4\n");
 		// Not custom drawn
 		if (nWidth <= 0 || nHeight <= 0)
 		{
-		    printf("wbRefreshControl 4.1\n");
 			bRet = InvalidateRect(pwbo->hwnd, NULL, TRUE); // Whole control
 		}
 		else
 		{
-		    printf("wbRefreshControl 4.2\n");
 			rc.left = xpos;
 			rc.top = ypos;
 			rc.right = xpos + nWidth;
@@ -1738,33 +1732,27 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 
 		if (bNow)
 		{
-		    printf("wbRefreshControl 4.3\n");
 			bRet = UpdateWindow(pwbo->hwnd);
 		}
 	}
 	else
 	{
 
-        printf("wbRefreshControl 5\n");
 		// Custom drawn
 		if (nWidth <= 0 || nHeight <= 0)
 		{
 
-            printf("wbRefreshControl 5.1\n");
 			// We use the callback function to let the user do the drawing
 			// *** Should probably use pwbo->parent for child controls, but the
 			// *** use of parameter pwboParent in wbCallUserFunction() is not clear
-            printf("wbRefreshControl 5.1: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
-                   pwbo->hwnd, pwbo->id, pwbo->uClass, pwbo->item, pwbo->subitem, pwbo->style);
+//            printf("wbRefreshControl 5.1: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
+//                   pwbo->hwnd, pwbo->id, pwbo->uClass, pwbo->item, pwbo->subitem, pwbo->style);
 
 			wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
-            printf("wbRefreshControl 5.2\n");
 			bRet = InvalidateRect(pwbo->hwnd, NULL, TRUE);
-
 			// Force an immediate update
 			if (bNow)
 			{
-			    printf("wbRefreshControl 5.3\n");
 				bRet = UpdateWindow(pwbo->hwnd);
 			}
 		}
@@ -1775,78 +1763,61 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 			rc.top = ypos;
 			rc.right = xpos + nWidth;
 			rc.bottom = ypos + nHeight;
-            printf("wbRefreshControl 6\n");
 			// We use the callback function to let the user do the drawing
 			// *** Should probably use pwbo->parent for child controls, but the
 			// *** use of parameter pwboParent in wbCallUserFunction() is not clear
 			wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo,
 							   IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer,
 							   (LPARAM)&rc);
-            printf("wbRefreshControl 6.1\n");
 			bRet = InvalidateRect(pwbo->hwnd, &rc, TRUE);
 
 			// Force an immediate update
 			if (bNow)
 			{
-			    printf("wbRefreshControl 6.2\n");
 				bRet = UpdateWindow(pwbo->hwnd);
 			}
 		}
 	}
-	printf("wbRefreshControl 7\n");
 	return bRet;
 }
-
-
 
 unsigned __stdcall AsyncRefreshControl(void* params)
 {
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)params;
-    printf("AsyncRefreshControl 1\n");
     // Your existing logic for asynchronous refresh
     while (!threadInfo->stopRefresh)
     {
 
-        printf("AsyncRefreshControl 2\n");
         // Call wbRefreshControl with the provided parameters
-
-        printf("Calling wbRefreshControl: pwbo=%p\n",
-                           threadInfo->pwbo);
-
-        printf("Calling wbRefreshControl: hwnd=%p, id=%llu, uClass=%llu, item=%lld, subitem=%lld, style=%lu\n",
-                   threadInfo->pwbo->hwnd, threadInfo->pwbo->id, threadInfo->pwbo->uClass, threadInfo->pwbo->item, threadInfo->pwbo->subitem, threadInfo->pwbo->style);
-
         wbRefreshControl(threadInfo->pwbo, 0, 0, 0, 0, TRUE);
 
-        printf("AsyncRefreshControl 3\n");
         // Sleep for a while
         Sleep(1000 / threadInfo->fps);
     }
-    printf("AsyncRefreshControl 4\n");
     _endthreadex(0);
     return 0;
 }
 
-
-AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps)
+AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, zval *callback)
 {
-    printf("StartAsyncRefresh 1\n");
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)malloc(sizeof(AsyncRefreshThread));
     if (threadInfo != NULL)
     {
-        printf("StartAsyncRefresh 2\n");
         threadInfo->stopRefresh = FALSE;
         threadInfo->pwbo = pwbo;
         threadInfo->fps = fps;
+
+        // Store the PHP callback in the threadInfo
+        threadInfo->callback = *callback;
+        Z_TRY_ADDREF(threadInfo->callback);
+
         threadInfo->hThread = (HANDLE)_beginthreadex(NULL, 0, &AsyncRefreshControl, (void*)threadInfo, 0, NULL);
         if (threadInfo->hThread == NULL)
         {
-            printf("StartAsyncRefresh 3\n");
             free(threadInfo);
             return NULL;
         }
     }
-    printf("StartAsyncRefresh 4\n");
     return threadInfo;
 }
 
