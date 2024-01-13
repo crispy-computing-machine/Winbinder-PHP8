@@ -250,7 +250,6 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_destroy_control,arginfo_wb_destroy_control)
         ZEND_FE(wb_get_value,arginfo_wb_get_value)
         ZEND_FE(wb_refresh,arginfo_wb_refresh)
-        ZEND_FE(wb_refresh_async,arginfo_wb_refresh_async)
 
         ZEND_FE(wb_set_enabled,arginfo_wb_set_enabled)
         ZEND_FE(wb_set_image,arginfo_wb_set_image)

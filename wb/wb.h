@@ -68,8 +68,6 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <WinUser.h>
-#include <process.h>
-#include <Zend/zend_interfaces.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
