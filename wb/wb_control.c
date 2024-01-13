@@ -1784,19 +1784,27 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 unsigned __stdcall AsyncRefreshControl(void* params)
 {
     AsyncRefreshThread* threadInfo = (AsyncRefreshThread*)params;
+
     // Your existing logic for asynchronous refresh
     while (!threadInfo->stopRefresh)
     {
+        // Call the PHP callback function for refreshing
+        zval retval;
+        call_user_function_ex(EG(function_table), NULL, &threadInfo->callback, &retval, 0, NULL, 0, NULL);
 
-        // Call wbRefreshControl with the provided parameters
-        wbRefreshControl(threadInfo->pwbo, 0, 0, 0, 0, TRUE);
+        // Handle the return value or errors if needed
 
         // Sleep for a while
         Sleep(1000 / threadInfo->fps);
     }
+
+    // Release the stored callback
+    zval_dtor(&threadInfo->callback);
+
     _endthreadex(0);
     return 0;
 }
+
 
 AsyncRefreshThread* StartAsyncRefresh(PWBOBJ pwbo, int fps, zval *callback)
 {
