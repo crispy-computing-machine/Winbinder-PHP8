@@ -198,10 +198,14 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 }
 
 // Memory-allocation functions
-
 void *wbMalloc(size_t size)
 {
-	return emalloc(size);
+    printf("Allocating %zu bytes\n", size);
+    void *ptr = emalloc(size);
+    if (!ptr) {
+        printf("Memory allocation failed\n");
+    }
+    return ptr;
 }
 
 void *wbCalloc(size_t nmemb, size_t size)
