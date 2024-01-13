@@ -711,7 +711,7 @@ ZEND_FUNCTION(wb_refresh_async)
         memcpy(params_copy, params, sizeof(zval) * 6);
 
         // Schedule the asynchronous operation using non-blocking sleep
-        zend_set_timeout(0);
+        zend_set_timeout(0,1);
         zend_register_callback(params_copy, scheduled_refresh);
         RETURN_TRUE;
     }

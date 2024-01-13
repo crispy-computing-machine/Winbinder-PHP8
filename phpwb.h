@@ -79,6 +79,9 @@ void dumptcs(TCHAR *str);
 char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
 BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
+void scheduled_refresh(zend_execute_data *execute_data, zval *return_value);
+void async_refresh_control(zend_long pwbo, zend_bool now, zend_long x, zend_long y, zend_long width, zend_long height);
+
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _PHP_WB_H
