@@ -102,6 +102,8 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 
 	// Is there a callback function assigned to the window?
     printf("wbCallUserFunction 1\n");
+    printf("wbCallUserFunction Debug: functionName=%s, object=%p, pwboParent=%p, pctrl=%p, id=%llu, lParam1=%lld, lParam2=%lld, lParam3=%lld\n",
+               pszFunctionName, pszObject, pwboParent, pctrl, id, lParam1, lParam2, lParam3);
 	pszFName = WideChar2Utf8(pszFunctionName, &name_len);
 	if (!pszFName || !*pszFName)
 	{
