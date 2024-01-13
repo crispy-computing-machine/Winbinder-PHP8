@@ -69,8 +69,6 @@
 #include <commctrl.h>
 #include <WinUser.h>
 #include <process.h>
-#include "php.h"
-#include "ext/standard/php_var.h"
 
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")

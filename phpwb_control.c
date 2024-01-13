@@ -673,55 +673,35 @@ ZEND_FUNCTION(wb_refresh)
 	}
 }
 
-ZEND_FUNCTION(wb_start_async_refresh)
+ZEND_FUNCTION(wb_refresh_async)
 {
-    zend_long pwbo;
-    zend_long fps;
-    zval *callback;
+	zend_long pwbo;
+	zend_bool now = TRUE;
+	zend_long x = 0, y = 0, width = 0, height = 0;
+	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
 
-    ZEND_PARSE_PARAMETERS_START(3, 3)
-        Z_PARAM_LONG(pwbo)
-        Z_PARAM_LONG(fps)
-        Z_PARAM_ZVAL(callback)
-    ZEND_PARSE_PARAMETERS_END();
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL // Everything after optional
+		Z_PARAM_BOOL_OR_NULL(now, now_isnull)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+	ZEND_PARSE_PARAMETERS_END();
 
-    // Check if it's a valid control
-    if (!wbIsWBObj((void*)pwbo, TRUE)) {
-        RETURN_BOOL(FALSE);
-    }
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_BOOL(FALSE);
+	}else{
+		while(1){
 
-    // Start asynchronous refresh
-    AsyncRefreshThread* threadInfo = StartAsyncRefresh((PWBOBJ)pwbo, fps, callback);
+		    wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now);
 
-    if (threadInfo != NULL) {
-        // Create a new resource using zend_register_resource
-        zend_resource *res = zend_register_resource(threadInfo, le_async_refresh_thread);
-        RETURN_RES(res);
-    } else {
-        RETURN_FALSE;
-    }
+		}
+	}
 }
-
-ZEND_FUNCTION(wb_stop_async_refresh)
-{
-    zend_resource *res;
-    HANDLE hThread;
-
-    ZEND_PARSE_PARAMETERS_START(1, 1)
-        Z_PARAM_RESOURCE(res)
-    ZEND_PARSE_PARAMETERS_END();
-
-    hThread = (HANDLE)res->ptr;
-
-    // Stop asynchronous refresh
-    StopAsyncRefresh(hThread);
-
-    // Unregister the resource
-    zend_list_close(res);
-
-    RETURN_TRUE;
-}
-
 
 ZEND_FUNCTION(wb_get_item_count)
 {
