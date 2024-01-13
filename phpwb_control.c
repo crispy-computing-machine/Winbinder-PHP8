@@ -695,24 +695,28 @@ ZEND_FUNCTION(wb_refresh_async)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}else{
-        // Create uv_async_t to handle asynchronous operations
-        uv_async_t async;
-        async.data = (void*) pwbo;
+        // Create an array to store parameters
+        zval params[6];
 
-        // Initialize uv loop
-        uv_loop_t *loop = uv_default_loop();
+        // Initialize parameters
+        ZVAL_LONG(&params[0], pwbo);
+        ZVAL_BOOL(&params[1], now);
+        ZVAL_LONG(&params[2], x);
+        ZVAL_LONG(&params[3], y);
+        ZVAL_LONG(&params[4], width);
+        ZVAL_LONG(&params[5], height);
 
-        // Initialize uv async handle
-        uv_async_init(loop, &async, async_callback);
+        // Duplicate the parameters to avoid issues with references
+        zval *params_copy = (zval *)emalloc(sizeof(params));
+        memcpy(params_copy, params, sizeof(params));
 
-        // Start the asynchronous loop
-        uv_async_send(&async);
+        // Create a thread to run the asynchronous operation
+        pthread_t tid;
+        pthread_create(&tid, NULL, async_refresh_control, params_copy);
 
         RETURN_TRUE;
 	}
 }
-
-
 
 ZEND_FUNCTION(wb_get_item_count)
 {
