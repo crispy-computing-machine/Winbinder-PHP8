@@ -695,13 +695,24 @@ ZEND_FUNCTION(wb_refresh_async)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}else{
-		while(1){
+        // Create uv_async_t to handle asynchronous operations
+        uv_async_t async;
+        async.data = (void*) pwbo;
 
-		    wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now);
+        // Initialize uv loop
+        uv_loop_t *loop = uv_default_loop();
 
-		}
+        // Initialize uv async handle
+        uv_async_init(loop, &async, async_callback);
+
+        // Start the asynchronous loop
+        uv_async_send(&async);
+
+        RETURN_TRUE;
 	}
 }
+
+
 
 ZEND_FUNCTION(wb_get_item_count)
 {

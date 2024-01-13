@@ -186,6 +186,14 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	return ret;
 }
 
+// Asynchronous callback function
+void async_callback(uv_async_t* handle)
+{
+    // Perform asynchronous operations here
+    // Call the function to refresh the control
+    wbRefreshControl((PWBOBJ)handle->data, x, y, width, height, now);
+}
+
 // Memory-allocation functions
 void *wbMalloc(size_t size)
 {
