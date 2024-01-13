@@ -277,6 +277,7 @@ char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 
 	printf("WideChar2Utf8 2\n");
 	str_len = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, 0, NULL, NULL);
+	printf("WideChar2Utf8 2.1\n");
 	if (str_len == 0){
 	    printf("WideChar2Utf8 3\n");
 		return NULL;
