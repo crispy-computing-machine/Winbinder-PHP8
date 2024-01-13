@@ -267,7 +267,7 @@ char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen)
 
 char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 {
-	char *str = 0;
+	char *str = NULL;
 	int str_len = 0;
 
     printf("WideChar2Utf8 1\n");
