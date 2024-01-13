@@ -69,7 +69,6 @@
 #include <commctrl.h>
 #include <WinUser.h>
 #include <process.h>
-#include <pthread.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
