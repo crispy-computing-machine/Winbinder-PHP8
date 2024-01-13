@@ -186,25 +186,6 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	return ret;
 }
 
-void *async_refresh_control(void *data) {
-    zval *params = (zval *)data;
-
-    // Extract parameters
-    zend_long pwbo = Z_LVAL(params[0]);
-    zend_bool now = Z_BVAL(params[1]);
-    zend_long x = Z_LVAL(params[2]);
-    zend_long y = Z_LVAL(params[3]);
-    zend_long width = Z_LVAL(params[4]);
-    zend_long height = Z_LVAL(params[5]);
-
-    // Simulate asynchronous refresh
-    wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now);
-
-    // Clean up
-    efree(params);
-    pthread_exit(NULL);
-}
-
 // Memory-allocation functions
 void *wbMalloc(size_t size)
 {

@@ -696,7 +696,7 @@ ZEND_FUNCTION(wb_refresh_async)
 		RETURN_BOOL(FALSE);
 	}else{
         // Create an array to store parameters
-        zval params[6];
+        zval *params = (zval *)emalloc(sizeof(zval) * 6);
 
         // Initialize parameters
         ZVAL_LONG(&params[0], pwbo);
@@ -707,15 +707,36 @@ ZEND_FUNCTION(wb_refresh_async)
         ZVAL_LONG(&params[5], height);
 
         // Duplicate the parameters to avoid issues with references
-        zval *params_copy = (zval *)emalloc(sizeof(params));
-        memcpy(params_copy, params, sizeof(params));
+        zval *params_copy = (zval *)emalloc(sizeof(zval) * 6);
+        memcpy(params_copy, params, sizeof(zval) * 6);
 
-        // Create a thread to run the asynchronous operation
-        pthread_t tid;
-        pthread_create(&tid, NULL, async_refresh_control, params_copy);
-
+        // Schedule the asynchronous operation using non-blocking sleep
+        zend_set_timeout(0);
+        zend_register_callback(params_copy, scheduled_refresh);
         RETURN_TRUE;
-	}
+    }
+}
+
+// Function to simulate asynchronous refresh
+void async_refresh_control(zend_long pwbo, zend_bool now, zend_long x, zend_long y, zend_long width, zend_long height) {
+    // Simulate asynchronous refresh
+    wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now);
+}
+
+// Function to execute the asynchronous refresh after a non-blocking sleep
+void scheduled_refresh(zend_execute_data *execute_data, zval *return_value) {
+    zval *params = (zval *)execute_data->func->op_array.opcodes[execute_data->opline->op2.num].extended_value;
+
+    async_refresh_control(
+        Z_LVAL(params[0]),
+        Z_BVAL(params[1]),
+        Z_LVAL(params[2]),
+        Z_LVAL(params[3]),
+        Z_LVAL(params[4]),
+        Z_LVAL(params[5])
+    );
+
+    efree(params);
 }
 
 ZEND_FUNCTION(wb_get_item_count)
