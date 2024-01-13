@@ -1789,10 +1789,7 @@ unsigned __stdcall AsyncRefreshControl(void* params)
     while (!threadInfo->stopRefresh)
     {
         // Call the PHP callback function for refreshing
-        zval retval;
-        call_user_function_ex(EG(function_table), NULL, &threadInfo->callback, &retval, 0, NULL, 0, NULL);
-
-        // Handle the return value or errors if needed
+        wbCallUserFunction(threadInfo->pwbo->pszCallBackFn, threadInfo->pwbo->pszCallBackObj, threadInfo->pwbo, threadInfo->pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)threadInfo->pwbo->pbuffer, 0);
 
         // Sleep for a while
         Sleep(1000 / threadInfo->fps);
