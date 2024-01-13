@@ -267,28 +267,43 @@ char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen)
 
 char *WideChar2Utf8(LPCTSTR wcs, int *plen)
 {
-	char *str = 0;
-	int str_len = 0;
+    char *str = NULL;
+    int str_len = 0;
 
-	if (!wcs){
-		return NULL;
-	}
-	str_len = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, 0, NULL, NULL);
-	if (str_len == 0){
-		return NULL;
-	}
-	str = wbMalloc(str_len);
-	int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
-	str[str_len - 1] = '\0';
-	if (plen)
-	{
-		if (size > 0){
-			size--;
-		}
-		*plen = size;
-	}
-	return str;
+    if (!wcs) {
+        return NULL;
+    }
+
+    // Calculate the required buffer size
+    str_len = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, NULL, 0, NULL, NULL);
+    if (str_len == 0) {
+        return NULL;
+    }
+
+    // Allocate memory for the UTF-8 string
+    str = wbMalloc(str_len);
+    if (!str) {
+        return NULL;
+    }
+
+    // Convert the wide character string to UTF-8
+    int size = WideCharToMultiByte(CP_UTF8, 0, wcs, -1, str, str_len, NULL, NULL);
+    if (size == 0) {
+        wbFree(str);
+        return NULL;
+    }
+
+    // Ensure the last character is null-terminated
+    str[size - 1] = '\0';
+
+    // Update the length if requested
+    if (plen) {
+        *plen = size - 1;  // Exclude the null terminator
+    }
+
+    return str;
 }
+
 
 void WideCharCopy(LPCTSTR wcs, char *s, int len)
 {
