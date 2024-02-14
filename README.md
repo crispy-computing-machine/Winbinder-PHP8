@@ -1,7 +1,3 @@
-Archived
-========================
-See: https://github.com/crispy-computing-machine/WinBinder
-
 WinBinder
 ========================
 WinBinder - The native Windows binding for PHP 8.
