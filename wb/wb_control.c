@@ -1792,10 +1792,6 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps, NULL) == 0)
         return FALSE;
 
-//    wbSetTimer not available?
-//    if (wbSetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps) == FALSE)
-//        return FALSE;
-
     // Invalidate the control to trigger the initial redraw
     InvalidateRect(pwbo->hwnd, NULL, TRUE);
 
