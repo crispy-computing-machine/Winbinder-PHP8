@@ -1370,12 +1370,12 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
         if (wParam == REFRESH_TIMER_ID)
         {
-            printf("Timer ID matched: %d\n", wParam);
+            //printf("Timer ID matched: %d\n", wParam);
             // Get the control object associated with the window
             PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if (pwbo != NULL)
             {
-                printf("Control object retrieved\n");
+                //printf("Control object retrieved\n");
                 // Get the dimensions of the control
                 RECT rc;
                 GetClientRect(hwnd, &rc);
@@ -1383,16 +1383,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 int height = rc.bottom - rc.top;
 
                 // Refresh the control
-                printf("Refreshing control...\n");
+                //printf("Refreshing control...\n");
                 BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
-                if (result)
-                    printf("Control refreshed successfully\n");
-                else
-                    printf("Failed to refresh control\n");
+                //if (result)
+                    //printf("Control refreshed successfully\n");
+                //else
+                    //printf("Failed to refresh control\n");
             }
             else
             {
-                printf("Failed to retrieve control object\n");
+                //printf("Failed to retrieve control object\n");
             }
         }
 
