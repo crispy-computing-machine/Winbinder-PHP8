@@ -682,7 +682,7 @@ ZEND_FUNCTION(wb_refresh_fps)
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
-	ZEND_PARSE_PARAMETERS_START(1, 6)
+	ZEND_PARSE_PARAMETERS_START(1, 7)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
 		Z_PARAM_BOOL_OR_NULL(now, now_isnull)
