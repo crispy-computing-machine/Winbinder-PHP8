@@ -62,7 +62,6 @@ static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
-static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
@@ -2041,22 +2040,6 @@ static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 
 }
 
-// Timer callback function to refresh the control
-static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
-{
-    PWBOBJ pwbo = (PWBOBJ)lpParameter;
-    if (pwbo != NULL)
-    {
-        // Get the dimensions of the control
-        RECT rc;
-        GetClientRect(pwbo->hwnd, &rc);
-        int width = rc.right - rc.left;
-        int height = rc.bottom - rc.top;
-
-        // Refresh the control
-        wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
-    }
-}
 
 /* Try several methods to retrieve the icon from an application window
  Adapted from from http://groups.google.com/groups?hl=en&lr=&selm=38BC4F60.11F62F%40thematic.com

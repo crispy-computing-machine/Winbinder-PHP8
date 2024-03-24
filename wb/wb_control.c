@@ -67,6 +67,8 @@ extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT
 extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
 
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
@@ -1806,6 +1808,23 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     InvalidateRect(pwbo->hwnd, NULL, TRUE);
 
     return TRUE;
+}
+
+// Timer callback function to refresh the control
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+{
+    PWBOBJ pwbo = (PWBOBJ)lpParameter;
+    if (pwbo != NULL)
+    {
+        // Get the dimensions of the control
+        RECT rc;
+        GetClientRect(pwbo->hwnd, &rc);
+        int width = rc.right - rc.left;
+        int height = rc.bottom - rc.top;
+
+        // Refresh the control
+        wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
+    }
 }
 
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
