@@ -677,7 +677,7 @@ ZEND_FUNCTION(wb_refresh_fps)
 {
 	zend_long pwbo;
 	zend_bool now = TRUE;
-	zend_long x = 0, y = 0, width = 0, height = 0, fps_isnull = 0;
+	zend_long x = 0, y = 0, width = 0, height = 0, fps = 0, fps_isnull = 0;
 	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
