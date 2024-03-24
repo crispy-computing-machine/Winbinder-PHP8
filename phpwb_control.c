@@ -673,6 +673,33 @@ ZEND_FUNCTION(wb_refresh)
 	}
 }
 
+ZEND_FUNCTION(wb_refresh_fps)
+{
+	zend_long pwbo;
+	zend_bool now = TRUE;
+	zend_long x = 0, y = 0, width = 0, height = 0, fps_isnull = 0;
+	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
+
+	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
+	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
+	ZEND_PARSE_PARAMETERS_START(1, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL // Everything after optional
+		Z_PARAM_BOOL_OR_NULL(now, now_isnull)
+		Z_PARAM_LONG_OR_NULL(x, x_isnull)
+		Z_PARAM_LONG_OR_NULL(y, y_isnull)
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+		Z_PARAM_LONG_OR_NULL(height, height_isnull)
+		Z_PARAM_LONG_OR_NULL(fps, fps_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_BOOL(FALSE);
+	}else{
+		RETURN_BOOL(wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now));
+	}
+}
+
 ZEND_FUNCTION(wb_get_item_count)
 {
 	zend_long pwbo;

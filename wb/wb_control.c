@@ -1781,6 +1781,26 @@ BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, 
 	return bRet;
 }
 
+// Modify the signature of the function to include the desired FPS
+BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, int fps)
+{
+    // Validate parameters
+    if (!wbIsWBObj(pwbo, TRUE) || !IsWindow(pwbo->hwnd))
+        return FALSE;
+
+    // Calculate the time interval in milliseconds based on the desired FPS
+    int interval = 1000 / fps;
+
+    // Set up a timer to periodically refresh the control
+    if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, interval, NULL) == 0)
+        return FALSE;
+
+    // Invalidate the control to trigger the initial redraw
+    InvalidateRect(pwbo->hwnd, NULL, TRUE);
+
+    return TRUE;
+}
+
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
 
 BOOL IsIcon(HANDLE handle)
@@ -2263,6 +2283,24 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 				}
 			}
 		}
+
+        if (wParam == REFRESH_TIMER_ID)
+        {
+            // Get the control object associated with the window
+            PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if (pwbo != NULL)
+            {
+                // Get the dimensions of the control
+                RECT rc;
+                GetClientRect(hwnd, &rc);
+                int width = rc.right - rc.left;
+                int height = rc.bottom - rc.top;
+
+                // Refresh the control
+                wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
+            }
+        }
+
 		break;
 
 	case WM_SETCURSOR:
