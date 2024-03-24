@@ -696,7 +696,7 @@ ZEND_FUNCTION(wb_refresh_fps)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}else{
-		RETURN_BOOL(wbRefreshControl((PWBOBJ)pwbo, x, y, width, height, now));
+		RETURN_BOOL(wbRefreshControlFPS((PWBOBJ)pwbo, x, y, width, height, fps));
 	}
 }
 
