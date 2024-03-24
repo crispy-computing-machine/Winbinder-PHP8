@@ -62,6 +62,7 @@ static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
@@ -1368,34 +1369,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 		}
 
-        if (wParam == REFRESH_TIMER_ID)
-        {
-            printf("Timer ID matched: %d\n", wParam);
-            // Get the control object associated with the window
-            PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-            if (pwbo != NULL)
-            {
-                printf("Control object retrieved\n");
-                // Get the dimensions of the control
-                RECT rc;
-                GetClientRect(hwnd, &rc);
-                int width = rc.right - rc.left;
-                int height = rc.bottom - rc.top;
-
-                // Refresh the control
-                printf("Refreshing control...\n");
-                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
-                if (result)
-                    printf("Control refreshed successfully\n");
-                else
-                    printf("Failed to refresh control\n");
-            }
-            else
-            {
-                printf("Failed to retrieve control object\n");
-            }
-        }
-
 		return 0;
 	}
 	break;
@@ -2066,6 +2039,23 @@ static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 	SendMessage(pwbo->hwnd, WM_TIMER, M_nTimerId, 0);
     UNREFERENCED_PARAMETER(TimerOrWaitFired);
 
+}
+
+// Timer callback function to refresh the control
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+{
+    PWBOBJ pwbo = (PWBOBJ)lpParameter;
+    if (pwbo != NULL)
+    {
+        // Get the dimensions of the control
+        RECT rc;
+        GetClientRect(pwbo->hwnd, &rc);
+        int width = rc.right - rc.left;
+        int height = rc.bottom - rc.top;
+
+        // Refresh the control
+        wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
+    }
 }
 
 /* Try several methods to retrieve the icon from an application window

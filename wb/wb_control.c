@@ -1788,13 +1788,19 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     if (!wbIsWBObj(pwbo, TRUE) || !IsWindow(pwbo->hwnd))
         return FALSE;
 
-    // Set up a timer to periodically refresh the control
-    if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps, NULL) == 0)
+    // Calculate the time interval in milliseconds based on the desired FPS
+    int interval = fps;
+
+    // Create a timer queue if not already created
+    if (g_TimerQueue == NULL)
+        g_TimerQueue = CreateTimerQueue();
+
+    if (g_TimerQueue == NULL)
         return FALSE;
 
-//    wbSetTimer not available?
-//    if (wbSetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps) == FALSE)
-//        return FALSE;
+    // Set up a timer to periodically refresh the control
+    if (!CreateTimerQueueTimer(&pwbo->hwnd, g_TimerQueue, (WAITORTIMERCALLBACK)RefreshCallback, pwbo, 0, interval, 0))
+        return FALSE;
 
     // Invalidate the control to trigger the initial redraw
     InvalidateRect(pwbo->hwnd, NULL, TRUE);
