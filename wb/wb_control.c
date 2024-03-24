@@ -2284,12 +2284,15 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			}
 		}
 
+        printf("WM_TIMER received\n");
         if (wParam == REFRESH_TIMER_ID)
         {
+            printf("Timer ID matched: %d\n", wParam);
             // Get the control object associated with the window
             PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if (pwbo != NULL)
             {
+                printf("Control object retrieved\n");
                 // Get the dimensions of the control
                 RECT rc;
                 GetClientRect(hwnd, &rc);
@@ -2297,7 +2300,16 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
                 int height = rc.bottom - rc.top;
 
                 // Refresh the control
-                wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
+                printf("Refreshing control...\n");
+                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
+                if (result)
+                    printf("Control refreshed successfully\n");
+                else
+                    printf("Failed to refresh control\n");
+            }
+            else
+            {
+                printf("Failed to retrieve control object\n");
             }
         }
 
