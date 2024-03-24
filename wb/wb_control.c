@@ -32,6 +32,8 @@ WNDPROC lpfnHyperLinkProcOld = NULL;
 WNDPROC lpfnLabelProcOld = NULL;
 WNDPROC lpfnInvisibleProcOld = NULL;
 
+HANDLE g_TimerQueue = NULL; // Global refresh timer queue handle
+
 // External
 
 extern BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);

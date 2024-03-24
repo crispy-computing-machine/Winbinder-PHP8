@@ -103,8 +103,6 @@
 #define MAX_IMAGELIST_IMAGES 128 // Maximum images inside a ImageList
 #define REPEAT_TIMER 901		 // Timer identifier for ImageButtons
 
-HANDLE g_TimerQueue = NULL; // Global refresh timer queue handle
-
 #define NOCOLOR CLR_INVALID
 #define WINCOLOUR RGB(240, 240, 240)
 #define MAX_PATH_BUFFER 1024		 // Maximum size for selected files
