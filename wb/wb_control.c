@@ -1788,11 +1788,8 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     if (!wbIsWBObj(pwbo, TRUE) || !IsWindow(pwbo->hwnd))
         return FALSE;
 
-    // Calculate the time interval in milliseconds based on the desired FPS
-    int interval = 1000 / fps;
-
     // Set up a timer to periodically refresh the control
-    if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, interval, NULL) == 0)
+    if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps, NULL) == 0)
         return FALSE;
 
     // Invalidate the control to trigger the initial redraw
