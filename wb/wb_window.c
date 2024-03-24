@@ -1368,6 +1368,34 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 		}
 
+        if (wParam == REFRESH_TIMER_ID)
+        {
+            printf("Timer ID matched: %d\n", wParam);
+            // Get the control object associated with the window
+            PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if (pwbo != NULL)
+            {
+                printf("Control object retrieved\n");
+                // Get the dimensions of the control
+                RECT rc;
+                GetClientRect(hwnd, &rc);
+                int width = rc.right - rc.left;
+                int height = rc.bottom - rc.top;
+
+                // Refresh the control
+                printf("Refreshing control...\n");
+                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
+                if (result)
+                    printf("Control refreshed successfully\n");
+                else
+                    printf("Failed to refresh control\n");
+            }
+            else
+            {
+                printf("Failed to retrieve control object\n");
+            }
+        }
+
 		return 0;
 	}
 	break;
@@ -2039,7 +2067,6 @@ static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
     UNREFERENCED_PARAMETER(TimerOrWaitFired);
 
 }
-
 
 /* Try several methods to retrieve the icon from an application window
  Adapted from from http://groups.google.com/groups?hl=en&lr=&selm=38BC4F60.11F62F%40thematic.com
