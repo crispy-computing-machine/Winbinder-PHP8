@@ -32,6 +32,8 @@ WNDPROC lpfnHyperLinkProcOld = NULL;
 WNDPROC lpfnLabelProcOld = NULL;
 WNDPROC lpfnInvisibleProcOld = NULL;
 
+HANDLE g_TimerQueue = NULL; // Global refresh timer queue handle
+
 // External
 
 extern BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);
@@ -66,6 +68,8 @@ extern void SetStatusBarHandle(HWND hCtrl);
 extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab);
 extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
+
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -1788,18 +1792,41 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     if (!wbIsWBObj(pwbo, TRUE) || !IsWindow(pwbo->hwnd))
         return FALSE;
 
-    // Set up a timer to periodically refresh the control
-    if (SetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps, NULL) == 0)
+    // Calculate the time interval in milliseconds based on the desired FPS
+    int interval = fps;
+
+    // Create a timer queue if not already created
+    if (g_TimerQueue == NULL)
+        g_TimerQueue = CreateTimerQueue();
+
+    if (g_TimerQueue == NULL)
         return FALSE;
 
-//    wbSetTimer not available?
-//    if (wbSetTimer(pwbo->hwnd, REFRESH_TIMER_ID, fps) == FALSE)
-//        return FALSE;
+    // Set up a timer to periodically refresh the control
+    if (!CreateTimerQueueTimer(&pwbo->hwnd, g_TimerQueue, (WAITORTIMERCALLBACK)RefreshCallback, pwbo, 0, interval, 0))
+        return FALSE;
 
     // Invalidate the control to trigger the initial redraw
     InvalidateRect(pwbo->hwnd, NULL, TRUE);
 
     return TRUE;
+}
+
+// Timer callback function to refresh the control
+static void CALLBACK RefreshCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+{
+    PWBOBJ pwbo = (PWBOBJ)lpParameter;
+    if (pwbo != NULL)
+    {
+        // Get the dimensions of the control
+        RECT rc;
+        GetClientRect(pwbo->hwnd, &rc);
+        int width = rc.right - rc.left;
+        int height = rc.bottom - rc.top;
+
+        // Refresh the control
+        wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
+    }
 }
 
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
