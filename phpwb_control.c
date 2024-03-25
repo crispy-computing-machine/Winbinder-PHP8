@@ -684,7 +684,7 @@ ZEND_FUNCTION(wb_begin_refresh)
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL // Everything after optional
-		Z_PARAM_BOOL_OR_NULL(fps, fps_isnull)
+		Z_PARAM_LONG_OR_NULL(fps, fps_isnull)
 		Z_PARAM_LONG_OR_NULL(x, x_isnull)
 		Z_PARAM_LONG_OR_NULL(y, y_isnull)
 		Z_PARAM_LONG_OR_NULL(width, width_isnull)

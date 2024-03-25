@@ -112,7 +112,7 @@ ZEND_FUNCTION(wb_resize_image)
 {
     zend_long hbm;
     zend_long newWidth, newHeight;
-    HANDLE ret;
+    HBITMAP ret;
 
     // Parse parameters
     ZEND_PARSE_PARAMETERS_START(3, 3)
