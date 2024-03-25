@@ -1384,7 +1384,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 // Refresh the control
                 //printf("Refreshing control...\n");
-                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, FALSE);
+                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
                 //if (result)
                     //printf("Control refreshed successfully\n");
                 //else
