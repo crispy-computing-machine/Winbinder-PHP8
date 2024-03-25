@@ -1377,23 +1377,17 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
             {
                 //printf("Control object retrieved\n");
                 // Get the dimensions of the control
-                RECT rc;
-                GetClientRect(hwnd, &rc);
-                int width = rc.right - rc.left;
-                int height = rc.bottom - rc.top;
+//                RECT rc;
+//                GetClientRect(hwnd, &rc);
+//                int width = rc.right - rc.left;
+//                int height = rc.bottom - rc.top;
 
                 // Refresh the control
                 //printf("Refreshing control...\n");
-                BOOL result = wbRefreshControl(pwbo, 0, 0, width, height, TRUE);
-                //if (result)
-                    //printf("Control refreshed successfully\n");
-                //else
-                    //printf("Failed to refresh control\n");
+                BOOL result = wbRefreshControl(pwbo, 0, 0, 0, 0, TRUE);
+
             }
-            else
-            {
-                //printf("Failed to retrieve control object\n");
-            }
+
         }
 
 		return 0;
