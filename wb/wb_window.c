@@ -1354,7 +1354,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 	case WM_TIMER:
 
 	{
-		PWBOBJ pwbobj;
+//		PWBOBJ pwbobj;
 
 //		pwbobj = wbGetWBObj(hwnd);
 //        //printf("(Window) TimeProc: WM_TIMER 1\n");
