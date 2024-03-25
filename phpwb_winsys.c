@@ -785,8 +785,8 @@ ZEND_FUNCTION(wb_set_mouse_pos)
         for (int i = 1; i <= STEPS; i++) {
             double fraction = (double)i / STEPS;
 
-            zend_long x = startX + round(fraction * (x - startX));
-            zend_long y = startY + round(fraction * (y - startY));
+            x = startX + round(fraction * (x - startX));
+            y = startY + round(fraction * (y - startY));
 
             if (!SetCursorPos(x, y)) {
                 RETURN_BOOL(FALSE);
