@@ -1356,17 +1356,17 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 	{
 		PWBOBJ pwbobj;
 
-		pwbobj = wbGetWBObj(hwnd);
-        //printf("(Window) TimeProc: WM_TIMER 1\n");
-		if (!pwbobj || !pwbobj->pszCallBackFn)
-			break;
-
-		if (pwbobj->pszCallBackFn){
-		    //printf("TimeProc: WM_TIMER 2\n");
-            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
-            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
-
-		}
+//		pwbobj = wbGetWBObj(hwnd);
+//        //printf("(Window) TimeProc: WM_TIMER 1\n");
+//		if (!pwbobj || !pwbobj->pszCallBackFn)
+//			break;
+//
+//		if (pwbobj->pszCallBackFn){
+//		    //printf("TimeProc: WM_TIMER 2\n");
+//            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
+//            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
+//
+//		}
 
         if (wParam == REFRESH_TIMER_ID)
         {
