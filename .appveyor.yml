@@ -31,6 +31,10 @@ install:
 
     echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
+    
+    echo "Patch GD Extension"
+    git am C:\projects\php-src\ext\winbinder\patches\gd-imagegetbitmap24-php-8.3.6.patch
+
 
 cache:
   c:\build-cache -> .appveyor.yml
@@ -53,9 +57,9 @@ build_script:
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
     echo "Download PHP8 development pack from release http://windows.php.net/downloads/releases/archives/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
-            Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+            Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             if (-not (Test-Path c:\build-cache\$bname)) {
-                    Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+                    Invoke-WebRequest "http://windows.php.net/downloads/archives/releases/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             }
     }
     
@@ -70,10 +74,11 @@ build_script:
 
     echo "Main build process..."
     cd c:\projects\winbinder
+    
     $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
     echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
-    $conf_cmd = 'call configure --with-winbinder=shared --enable-debug 2>&1'
+    $conf_cmd = 'call configure --with-winbinder=shared --with-gd=shared --enable-debug 2>&1'
     echo $conf_cmd | Out-File -Encoding "ASCII" -Append task.bat
     echo "nmake /nologo 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
     echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat

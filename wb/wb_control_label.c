@@ -136,8 +136,8 @@ static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 		return FALSE;
 
 	// Draw a background rectangle
+    hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 
-	hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	hbrOld = SelectObject(hdc, hbr);
 	PatBlt(hdc, lprc->left, lprc->top, lprc->right - lprc->left, lprc->bottom - lprc->top, PATCOPY);
 	SelectObject(hdc, hbrOld);
@@ -153,7 +153,7 @@ static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 	// Draw the text
 
 	bRet = DrawTextEx(hdc, szString, nLen, lprc,
-					  (BITTEST(pwbobj->style, WBC_CENTER) ? DT_CENTER : DT_LEFT) | DT_SINGLELINE, NULL);
+					  (BITTEST(pwbobj->style, WBC_CENTER) ? DT_CENTER : DT_LEFT) | (BITTEST(pwbobj->style, WBC_MULTILINE) ? DT_WORDBREAK : DT_SINGLELINE), NULL);
 
 	// Draw a line under the text
 
@@ -180,7 +180,9 @@ static BOOL DrawLabel(HDC hdc, HWND hwnd, LPRECT lprc, COLORREF color)
 	// Restore the original context
 
 	SelectObject(hdc, hfOld);
-	SetBkMode(hdc, OPAQUE);
+
+    SetBkMode(hdc, OPAQUE);
+
 	SetTextColor(hdc, clOld);
 
 	return bRet;

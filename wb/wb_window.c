@@ -747,715 +747,729 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 	switch (msg)
 	{
 
-	//------------------------------- Notification messages
-	case WBWM_KEYDOWN: // Custom WinBinder message
-	{
-		PWBOBJ pwbobj;
-		HWND hCtrl = (HWND)wParam;
-
-		pwbobj = wbGetWBObj(hCtrl);
-
-		if (!pwbobj || !pwbobj->parent)
-			break;
-
-		if (SEND_MESSAGE && TEST_FLAG(WBC_KEYDOWN))
-			CALL_CALLBACK(pwbobj->id, WBC_KEYDOWN, lParam, 0);
-	}
-	break;
-
-	case WBWM_KEYUP: // Custom WinBinder message
-	{
-		PWBOBJ pwbobj;
-		HWND hCtrl = (HWND)wParam;
-
-		pwbobj = wbGetWBObj(hCtrl);
-
-		if (!pwbobj || !pwbobj->parent)
-			break;
-
-		if (SEND_MESSAGE && TEST_FLAG(WBC_KEYUP))
-			CALL_CALLBACK(pwbobj->id, WBC_KEYUP, lParam, 0);
-	}
-	break;
-
-	case WM_NOTIFY:
-	{
-		TCHAR szClass[256];
-		HWND hCtrl = ((LPNMHDR)lParam)->hwndFrom;
-		PWBOBJ pwbobj;
-
-		if (!IsWindow(hCtrl))
-			break;
-
-		// The classes below don't call the callback function
-
-		GetClassName(hCtrl, szClass, 255);
-
-		if (!_wcsicmp(szClass, TOOLBARCLASSNAME))
-		{ // Toolbar
-
-			if (!hTBWnd)
-				hTBWnd = ((LPNMHDR)lParam)->hwndFrom;
-			break;
-		}
-		else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))
-		{ // Tooltip
-
-			if (((LPNMHDR)lParam)->code == (UINT64)TTN_NEEDTEXT)
-			{
-				if (hTBWnd)
-				{
-					TBBUTTON tbb;
-					int index;
-
-					index = SendMessage(hTBWnd, TB_COMMANDTOINDEX,
-										((LPTOOLTIPTEXT)lParam)->hdr.idFrom, 0);
-					SendMessage(hTBWnd, TB_GETBUTTON, index, (LPARAM)(LPTBBUTTON)&tbb);
-					((LPTOOLTIPTEXT)lParam)->lpszText = (LPTSTR)tbb.dwData;
-				}
-			}
-			break;
-		}
-
-		// Verify if window is a WinBinder object
-
-		pwbobj = wbGetWBObj(hCtrl);
-
-		if (!pwbobj || !pwbobj->parent)
-			break;
-
-		if (!pwbobj->parent->pszCallBackFn)
-			break;
-
-		// Call callback function according to WinBinder class
-
-		switch (pwbobj->uClass)
-		{
-
-		case Spinner:
-
-			if (((LPNMHDR)lParam)->code == (UINT64)UDN_DELTAPOS)
-			{
-				CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-			}
-			break;
-
-		case TreeView:
-
-			switch (((LPNMHDR)lParam)->code)
-			{
-
-			case NM_DBLCLK:
-				if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
-				break;
-
-			case (UINT64)TVN_SELCHANGED:
-				CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-				break;
-			}
-			break;
-
-		case TabControl:
-
-			if (((LPNMHDR)lParam)->code == (UINT64)TCN_SELCHANGE)
-			{
-
-				HWND hTab = ((LPNMHDR)lParam)->hwndFrom;
-				int nSelTab = TabCtrl_GetCurSel(hTab);
-
-				wbSelectTab(wbGetWBObj(hCtrl), nSelTab);
-				if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, nSelTab, 0);
-				//							CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, nSelTab, 0);
-				return 0;
-			}
-			break;
-
-		case Calendar:
-		{
-			PWBOBJ pwbobj;
-
-			pwbobj = wbGetWBObj(hCtrl);
-			if (!pwbobj)
-				break;
-
-			switch (((LPNMHDR)lParam)->code)
-			{
-			case MCN_SELCHANGE:
-				CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, GetCalendarTime(pwbobj), 0, 0);
-				break;
-			}
-		}
-		break;
-
-		case ListView:
-		{
-			//UINT64 c = ((LPNMHDR)lParam)->code;
-			switch (((LPNMHDR)lParam)->code)
-			{
-			//case 0xffffff4f:
-			case NM_CUSTOMDRAW:
-				if (pwbobj->pszCallBackFn != NULL) //has color handler
-				{
-					LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-
-					switch (lplvcd->nmcd.dwDrawStage)
-					{
-					case CDDS_PREPAINT:
-						return CDRF_NOTIFYITEMDRAW;
-					case CDDS_ITEMPREPAINT:
-					{
-						LISTVIEWCOLOR lvc = {0};
-						UINT64 ret = wbCallUserFunction(
-									pwbobj->pszCallBackFn,
-									pwbobj->pszCallBackObj,
-									pwbobj->parent,
-									pwbobj,
-									((LPNMHDR)lParam)->idFrom,
-									lplvcd->nmcd.lItemlParam,
-									-1,
-									(LPARAM)&lvc
-								);
-
-						if (ret > 0)
-						{
-							if (ret == 2)
-								return CDRF_NOTIFYSUBITEMDRAW;
-							switch (lvc.nMode)
-							{
-							case 1:
-								lplvcd->clrText = lvc.dwForeground;
-								break;
-							case 2:
-								lplvcd->clrTextBk = lvc.dwBackground;
-								break;
-							case 3:
-								lplvcd->clrText = lvc.dwForeground;
-								lplvcd->clrTextBk = lvc.dwBackground;
-								break;
-							default:
-								return CDRF_DODEFAULT;
-							}
-							return CDRF_NEWFONT;
-						}
-						return CDRF_DODEFAULT;
-					}
-					break;
-					case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-					{
-						LISTVIEWCOLOR lvc = {0};
-						UINT64 ret = wbCallUserFunction(
-								pwbobj->pszCallBackFn,
-								pwbobj->pszCallBackObj,
-								pwbobj->parent,
-								pwbobj,
-								((LPNMHDR)lParam)->idFrom,
-								lplvcd->nmcd.lItemlParam,
-								lplvcd->iSubItem,
-								(LPARAM)&lvc
-							);
-						if (ret > 0)
-						{
-							switch (lvc.nMode)
-							{
-							case 1:
-								lplvcd->clrText = lvc.dwForeground;
-								break;
-							case 2:
-								lplvcd->clrTextBk = lvc.dwBackground;
-								break;
-							case 3:
-								lplvcd->clrText = lvc.dwForeground;
-								lplvcd->clrTextBk = lvc.dwBackground;
-								break;
-							default:
-								return CDRF_DODEFAULT;
-							}
-							return CDRF_NEWFONT;
-						}
-						return CDRF_DODEFAULT;
-					}
-					break;
-					}
-				}
-				break;
-			case NM_DBLCLK:
-
-				if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
-				break;
-
-				/*case NM_CLICK:
-								if(SEND_MESSAGE && TEST_FLAG(WBC_LBUTTON))
-									CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_LBUTTON ,0,0);
-								break;
-*/
-			case NM_RCLICK:
-
-				if (SEND_MESSAGE && TEST_FLAG(WBC_RBUTTON))
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_RBUTTON, 0, 0);
-				break;
-
-			case LVN_ITEMCHANGED:
-
-				if (((LPNM_LISTVIEW)lParam)->uChanged & (LVIF_STATE | LVIS_CHECKED))
-				{
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-				}
-				break;
-
-			case LVN_COLUMNCLICK:
-
-				hwndListView = pwbobj->hwnd; // For CompareLVItems()
-				SendMessage(pwbobj->hwnd, LVM_SORTITEMS,
-							((NM_LISTVIEW FAR *)lParam)->iSubItem, (LPARAM)(PFNLVCOMPARE)CompareLVItemsAscending);
-				UpdateLVlParams(hwndListView);
-				if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
-					CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
-				break;
-			}
-		}
-		break;
-
-		} // switch(pwbobj->uClass)]
-
-	} // ~WM_NOTIFY
-	break;
-
-	// 2011_11_24 - Stefan Loewe: added this case to allow tabbing thru "normal" window
-	case WM_ACTIVATE:
-		hCurrentDlg = hwnd; // Used in IsDialogMessage() -- main loop
-		break;
-
-	case WM_HSCROLL: // Scroll bars, sliders
-	case WM_VSCROLL:
-
-	{
-		PWBOBJ pwbobj;
-		HWND hCtrl;
-		int nMin, nMax, nPos;
-
-		hCtrl = (HWND)lParam;
-		pwbobj = wbGetWBObj(hCtrl);
-
-		if (!pwbobj)
-			break;
-
-		nPos = SendMessage(hCtrl, SBM_GETPOS, 0, 0);
-
-		switch (LOWORD(wParam))
-		{
-		case SB_LINEUP:
-			SendMessage(hCtrl, SBM_GETRANGE,
-						(WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
-			nPos -= (nMax - nMin) / 100;
-			nPos = MAX(nPos, 0);
-			break;
-
-		case SB_LINEDOWN:
-			SendMessage(hCtrl, SBM_GETRANGE,
-						(WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
-			nPos += (nMax - nMin) / 100;
-			nPos = MAX(nPos, 0);
-			break;
-
-		case SB_PAGEUP:
-			SendMessage(hCtrl, SBM_GETRANGE,
-						(WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
-			nPos -= (nMax - nMin) / 10;
-			nPos = MAX(nPos, 0);
-			break;
-
-		case SB_PAGEDOWN:
-			SendMessage(hCtrl, SBM_GETRANGE,
-						(WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
-			nPos += (nMax - nMin) / 10;
-			nPos = MAX(nPos, 0);
-			break;
-
-		case SB_THUMBPOSITION:
-		case SB_THUMBTRACK: // Same value as TB_THUMBTRACK
-			nPos = (short)HIWORD(wParam);
-			break;
-		}
-
-		SendMessage(hCtrl, SBM_SETPOS, nPos, TRUE);
-		CALL_CALLBACK(pwbobj->id, 0, 0, 0);
-	}
-	break;
-
-	case WM_COMMAND:
-	{
-		HWND hCtrl;
-		PWBOBJ pwbobj;
-
-		if ((HWND)lParam == 0 && (HIWORD(wParam) == 0 || HIWORD(wParam) == 1))
-		{ // Is the message from a menu or accelerator?
-
-			pwbobj = wbGetWBObj(hwnd);
-			// Must not use the macro CALL_CALLBACK here
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, LOWORD(wParam), 0, HIWORD(wParam), 0);
-			return 0;
-		}
-
-		hCtrl = (HWND)lParam;
-		pwbobj = wbGetWBObj(hCtrl);
-
-		if (!pwbobj || !pwbobj->parent || !pwbobj->parent->pszCallBackFn)
-			break;
-
-		switch (pwbobj->uClass)
-		{ // Classes that receive their notifications via WM_COMMAND
-
-		case EditBox:
-		case RTFEditBox:
-			if ((HIWORD(wParam) == EN_CHANGE))
-			{
-				CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			}
-			else if (HIWORD(wParam) == EN_SETFOCUS)
-			{
-				if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
-					CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			}
-			break;
-
-		case ComboBox:
-
-			if ((HIWORD(wParam) == CBN_EDITCHANGE))
-			{
-
-				// Store selected index for future use
-
-				pwbobj->lparam = -1;
-				CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			}
-			else if ((HIWORD(wParam) == CBN_SELCHANGE))
-			{
-
-				// The code block below makes wb_get_text() return the correct contents
-				// of a non-read-only combo box right after a selection is made
-
-				if (!(pwbobj->style & WBC_READONLY))
-				{
-
-					int nIndex, nTextLen;
-					LPTSTR szText = TEXT("");
-
-					nIndex = SendMessage(pwbobj->hwnd, CB_GETCURSEL, 0, 0);
-					if (nIndex != CB_ERR)
-					{
-						nTextLen = SendMessage(pwbobj->hwnd, CB_GETLBTEXTLEN, nIndex, 0);
-						if (nIndex != CB_ERR)
-						{
-							if (nTextLen)
-							{
-								szText = wbMalloc(nTextLen * sizeof(TCHAR));
-								SendMessage(pwbobj->hwnd, CB_GETLBTEXT, nIndex, (LPARAM)szText);
-								SendMessage(pwbobj->hwnd, WM_SETTEXT, 0, (LPARAM)szText);
-								wbFree(szText);
-							}
-							else
-								SendMessage(pwbobj->hwnd, WM_SETTEXT, 0, (LPARAM)TEXT(""));
-						}
-					}
-				}
-
-				// Store selected index for future use
-
-				pwbobj->lparam = SendMessage(pwbobj->hwnd, CB_GETCURSEL, 0, 0);
-				CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			}
-			else if (HIWORD(wParam) == CBN_SETFOCUS)
-			{
-				if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
-					CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			}
-			break;
-
-		case ListBox:
-			if (HIWORD(wParam) == LBN_DBLCLK)
-			{
-				if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-					CALL_CALLBACK(LOWORD(wParam), WBC_DBLCLICK, HIWORD(wParam), 0);
-			}
-			else if (HIWORD(wParam) == LBN_SELCHANGE)
-			{
-				CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			}
-			else if (HIWORD(wParam) == LBN_SETFOCUS)
-			{
-				if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
-					CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			}
-			break;
-
-		case InvisibleArea:
-			CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			break;
-
-		case HyperLink:
-			if (HIWORD(wParam) == STN_CLICKED)
-				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			break;
-
-		case Label:
-			if (HIWORD(wParam) == STN_CLICKED)
-				CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			break;
-
-		case PushButton:
-		case CheckBox:
-		case RadioButton:
-		case ToolBar:
-
-			if (HIWORD(wParam) == BN_CLICKED)
-			{
-				CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
-			}
-			else if (HIWORD(wParam) == BN_SETFOCUS)
-			{
-				if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
-					CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
-			}
-			break;
-
-			//					default:				// TODO: Maybe delete these lines,
-			//						bProcess = TRUE;	// but must be sure first
-			//						CALL_CALLBACK(LOWORD(wParam), 0, 0);
-		}
-
-		return 0;
-	}
-	break;
-
-    //------------------------------- Mouse messages
-
-	case WM_MOUSEMOVE:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-		if (!pwbobj)
-			break;
-
-		if (BITTEST(pwbobj->lparam, WBC_MOUSEMOVE))
-		{
-
-			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
-
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
-		}
-
-	}
-	break;
-
-    // Alt key checking: http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_lbuttondown.asp
-    // Also see "System and Nonsystem Keystrokes" in API help
-	case WM_LBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
-		if (!pwbobj)
-			break;
-
-		if (BITTEST(pwbobj->lparam, WBC_MOUSEDOWN))
-		{
-
-			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
-
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEDOWN | wParam | dwAlt, lParam, 0);
-		}
-	}
-	break;
-
-	case WM_LBUTTONUP:
-		wParam |= MK_LBUTTON; // Why isn't this flag included?
-		goto MOUSE1;
-	case WM_MBUTTONUP:
-		wParam |= MK_MBUTTON; // Why isn't this flag included?
-		goto MOUSE1;
-	case WM_RBUTTONUP:
-		wParam |= MK_RBUTTON; // Why isn't this flag included?
-		goto MOUSE1;
-	MOUSE1:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
-		if (!pwbobj)
-			break;
-
-		if (BITTEST(pwbobj->lparam, WBC_MOUSEUP))
-		{
-
-			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
-			//printf("[%d]\n", WBC_MOUSEUP | wParam | dwAlt);
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-								   WBC_MOUSEUP | wParam | dwAlt, lParam, 0);
-		}
-	}
-	break;
-
-	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDBLCLK:
-	case WM_RBUTTONDBLCLK:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
-
-		if (!pwbobj)
-			break;
-
-		if (BITTEST(pwbobj->lparam, WBC_DBLCLICK))
-		{
-			PWBOBJ pwbobj = wbGetWBObj(hwnd);
-			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
-
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-								   WBC_DBLCLICK | dwAlt | wParam, lParam, 0);
-		}
-	}
-	break;
-
-		//------------------------------- Other messages
-
-	case WM_CTLCOLORSTATIC: // For static controls and others
-	case WM_CTLCOLORBTN:	// For pushbuttons
-
-		HWND hCtrl;
-		PWBOBJ pwbobj;
-		hCtrl = (HWND)lParam;
-		pwbobj = wbGetWBObj(hCtrl);
-		PFONT pFont;
-
-		if (hbrTabs)
-		{ // Not for versions under Windows XP
-
-			if (!pwbobj || !pwbobj->parent)
-				break;
-
-			if (pwbobj->uClass == EditBox) // Not for edit controls
-				break;
-
-			SetBkColor((HDC)wParam, clrTabs); // Static controls need this
-			if (pwbobj->parent->uClass == TabControl)
-			{
-				// Only for controls on tabs
-				return (LRESULT)hbrTabs; // Paint the background with the tab page color
-			}
-		}
-		break;
-
-	case WM_TIMER:
-
-	{
-//		PWBOBJ pwbobj;
-
-//		pwbobj = wbGetWBObj(hwnd);
-//        //printf("(Window) TimeProc: WM_TIMER 1\n");
-//		if (!pwbobj || !pwbobj->pszCallBackFn)
-//			break;
-//
-//		if (pwbobj->pszCallBackFn){
-//		    //printf("TimeProc: WM_TIMER 2\n");
-//            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
-//            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
-//
-//		}
-
-        if (wParam == REFRESH_TIMER_ID)
+        //------------------------------- Notification messages
+        case WBWM_KEYDOWN: // Custom WinBinder message
         {
-            //printf("Timer ID matched: %d\n", wParam);
-            // Get the control object associated with the window
-            PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-            if (pwbo != NULL)
+            PWBOBJ pwbobj;
+            HWND hCtrl = (HWND)wParam;
+
+            pwbobj = wbGetWBObj(hCtrl);
+
+            if (!pwbobj || !pwbobj->parent)
+                break;
+
+            if (SEND_MESSAGE && TEST_FLAG(WBC_KEYDOWN))
+                CALL_CALLBACK(pwbobj->id, WBC_KEYDOWN, lParam, 0);
+        }
+        break;
+
+        case WBWM_KEYUP: // Custom WinBinder message
+        {
+            PWBOBJ pwbobj;
+            HWND hCtrl = (HWND)wParam;
+
+            pwbobj = wbGetWBObj(hCtrl);
+
+            if (!pwbobj || !pwbobj->parent)
+                break;
+
+            if (SEND_MESSAGE && TEST_FLAG(WBC_KEYUP))
+                CALL_CALLBACK(pwbobj->id, WBC_KEYUP, lParam, 0);
+        }
+        break;
+
+        case WM_NOTIFY:
+        {
+            TCHAR szClass[256];
+            HWND hCtrl = ((LPNMHDR)lParam)->hwndFrom;
+            PWBOBJ pwbobj;
+
+            if (!IsWindow(hCtrl))
+                break;
+
+            // The classes below don't call the callback function
+
+            GetClassName(hCtrl, szClass, 255);
+
+            if (!_wcsicmp(szClass, TOOLBARCLASSNAME))
+            { // Toolbar
+
+                if (!hTBWnd)
+                    hTBWnd = ((LPNMHDR)lParam)->hwndFrom;
+                break;
+            }  else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))  { // Tooltip
+
+                if (((LPNMHDR)lParam)->code == (UINT64)TTN_NEEDTEXT)
+                {
+                    if (hTBWnd)
+                    {
+                        TBBUTTON tbb;
+                        int index;
+
+                        index = SendMessage(hTBWnd, TB_COMMANDTOINDEX,
+                                            ((LPTOOLTIPTEXT)lParam)->hdr.idFrom, 0);
+                        SendMessage(hTBWnd, TB_GETBUTTON, index, (LPARAM)(LPTBBUTTON)&tbb);
+                        ((LPTOOLTIPTEXT)lParam)->lpszText = (LPTSTR)tbb.dwData;
+                    }
+                }
+                break;
+            }
+
+            // Verify if window is a WinBinder object
+
+            pwbobj = wbGetWBObj(hCtrl);
+
+            if (!pwbobj || !pwbobj->parent)
+                break;
+
+            if (!pwbobj->parent->pszCallBackFn)
+                break;
+
+            // Call callback function according to WinBinder class
+
+            switch (pwbobj->uClass)
             {
-                //printf("Control object retrieved\n");
-                // Get the dimensions of the control
-//                RECT rc;
-//                GetClientRect(hwnd, &rc);
-//                int width = rc.right - rc.left;
-//                int height = rc.bottom - rc.top;
 
-                // Refresh the control
-                //printf("Refreshing control...\n");
-                BOOL result = wbRefreshControl(pwbo, 0, 0, 0, 0, TRUE);
+                case Spinner:
 
+                    if (((LPNMHDR)lParam)->code == (UINT64)UDN_DELTAPOS)
+                    {
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
+                    }
+                    break;
+
+                case TreeView:
+
+                    switch (((LPNMHDR)lParam)->code)
+                    {
+
+                    case NM_DBLCLK:
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
+                        break;
+
+                    case (UINT64)TVN_SELCHANGED:
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
+                        break;
+                    }
+                    break;
+
+                case TabControl:
+
+                    if (((LPNMHDR)lParam)->code == (UINT64)TCN_SELCHANGE)
+                    {
+
+                        HWND hTab = ((LPNMHDR)lParam)->hwndFrom;
+                        int nSelTab = TabCtrl_GetCurSel(hTab);
+
+                        wbSelectTab(wbGetWBObj(hCtrl), nSelTab);
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, nSelTab, 0);
+                        //							CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, nSelTab, 0);
+                        return 0;
+                    }
+                    break;
+
+                case Calendar:
+                {
+                    PWBOBJ pwbobj;
+
+                    pwbobj = wbGetWBObj(hCtrl);
+                    if (!pwbobj)
+                        break;
+
+                    switch (((LPNMHDR)lParam)->code)
+                    {
+                    case MCN_SELCHANGE:
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, GetCalendarTime(pwbobj), 0, 0);
+                        break;
+                    }
+                }
+                break;
+
+                case ListView:
+                {
+                    //UINT64 c = ((LPNMHDR)lParam)->code;
+                    switch (((LPNMHDR)lParam)->code)
+                    {
+                        //case 0xffffff4f:
+                        case NM_CUSTOMDRAW:
+                            if (pwbobj->pszCallBackFn != NULL) //has color handler
+                            {
+                                LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                                printf("ListView NM_CUSTOMDRAW\n");
+                                switch (lplvcd->nmcd.dwDrawStage)
+                                {
+                                    case CDDS_PREPAINT:
+                                        return CDRF_NOTIFYITEMDRAW;
+                                    case CDDS_ITEMPREPAINT:
+                                    {
+                                        LISTVIEWCOLOR lvc = {0};
+                                        //UINT64 ret = wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
+
+                                        // Passes $rowIndex, $columnIndex , $colourStruct
+                                        UINT64 ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent,pwbobj, ((LPNMHDR)lParam)->idFrom,lplvcd->nmcd.lItemlParam,-1,(LPARAM)&lvc);
+
+                                        if (ret > 0)
+                                        {
+                                            if (ret == 2)
+                                                return CDRF_NOTIFYSUBITEMDRAW;
+
+                                            switch (lvc.nMode)
+                                            {
+                                                case 1:
+                                                    lplvcd->clrText = lvc.dwForeground;
+                                                    break;
+                                                case 2:
+                                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                                    break;
+                                                case 3:
+                                                    lplvcd->clrText = lvc.dwForeground;
+                                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                                    break;
+                                                default:
+                                                    return CDRF_DODEFAULT;
+                                            }
+                                            return CDRF_NEWFONT;
+                                        }
+                                        return CDRF_DODEFAULT;
+                                    }
+                                    break;
+                                    case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+                                    {
+                                        LISTVIEWCOLOR lvc = {0};
+                                        UINT64 ret = wbCallUserFunction(
+                                                pwbobj->pszCallBackFn,
+                                                pwbobj->pszCallBackObj,
+                                                pwbobj->parent,
+                                                pwbobj,
+                                                ((LPNMHDR)lParam)->idFrom,
+                                                lplvcd->nmcd.lItemlParam,
+                                                lplvcd->iSubItem,
+                                                (LPARAM)&lvc
+                                            );
+                                        if (ret > 0)
+                                        {
+                                            switch (lvc.nMode)
+                                            {
+                                            case 1:
+                                                lplvcd->clrText = lvc.dwForeground;
+                                                break;
+                                            case 2:
+                                                lplvcd->clrTextBk = lvc.dwBackground;
+                                                break;
+                                            case 3:
+                                                lplvcd->clrText = lvc.dwForeground;
+                                                lplvcd->clrTextBk = lvc.dwBackground;
+                                                break;
+                                            default:
+                                                return CDRF_DODEFAULT;
+                                            }
+                                            return CDRF_NEWFONT;
+                                        }
+                                        return CDRF_DODEFAULT;
+                                    }
+                                    break;
+                                }
+                            }
+                        break;
+                    case NM_DBLCLK:
+
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
+                        break;
+
+                        /*case NM_CLICK:
+                                        if(SEND_MESSAGE && TEST_FLAG(WBC_LBUTTON))
+                                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_LBUTTON ,0,0);
+                                        break;
+        */
+                    case NM_RCLICK:
+
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_RBUTTON))
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_RBUTTON, 0, 0);
+                            //printf("ListView WBC_RBUTTON\n");
+                        break;
+
+                    case LVN_ITEMCHANGED:
+
+                        if (((LPNM_LISTVIEW)lParam)->uChanged & (LVIF_STATE | LVIS_CHECKED))
+                        {
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
+                            //printf("ListView LVN_ITEMCHANGED\n");
+                        }
+
+//                        @todo Refactor so multiple callbacks dont occur
+//                        LVIS_ACTIVATING 	Not currently supported.
+//                        LVIS_CUT	The item is marked for a cut-and-paste operation.
+//                        LVIS_DROPHILITED	The item is highlighted is a drag-and-drop target.
+//                        LVIS_FOCUSED	The item has the focus, so it is surrounded by a standard focus rectangle. Although more than one item may be selected, only one item can have the focus.
+//                        LVIS_OVERLAYMASK	The item's overlay image index is retrieved by a mask.
+//                        LVIS_SELECTED	The item is selected. The appearance of a selected item depends on whether it has the focus and also on the system colors used for selection.
+//                        LVIS_STATEIMAGEMASK	The item's state image index is retrieved by a mask.
+//                        if (((LPNM_LISTVIEW)lParam)->uChanged & LVIF_STATE) {
+//                            printf("ListView LVIF_STATE\n");
+//                            // Check if the item is selected (new state includes selected flag)
+//                            if (((LPNM_LISTVIEW)lParam)->uNewState & LVIS_SELECTED) {
+//                                // Call the callback function
+//                                CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
+//                                printf("ListView LVIS_SELECTED\n");
+//                            }
+//                        }
+
+                        break;
+
+                    case LVN_COLUMNCLICK:
+
+                        hwndListView = pwbobj->hwnd; // For CompareLVItems()
+                        SendMessage(pwbobj->hwnd, LVM_SORTITEMS, ((NM_LISTVIEW FAR *)lParam)->iSubItem, (LPARAM)(PFNLVCOMPARE)CompareLVItemsAscending);
+                        UpdateLVlParams(hwndListView);
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
+                        break;
+                    }
+                }
+                break;
+
+            } // switch(pwbobj->uClass)]
+
+        } // ~WM_NOTIFY
+        break;
+
+        // 2011_11_24 - Stefan Loewe: added this case to allow tabbing thru "normal" window
+        case WM_ACTIVATE:
+            hCurrentDlg = hwnd; // Used in IsDialogMessage() -- main loop
+            break;
+
+        case WM_HSCROLL: // Scroll bars, sliders
+        case WM_VSCROLL:
+
+        {
+            PWBOBJ pwbobj;
+            HWND hCtrl;
+            int nMin, nMax, nPos;
+
+            hCtrl = (HWND)lParam;
+            pwbobj = wbGetWBObj(hCtrl);
+
+            if (!pwbobj)
+                break;
+
+            nPos = SendMessage(hCtrl, SBM_GETPOS, 0, 0);
+
+            switch (LOWORD(wParam))
+            {
+            case SB_LINEUP:
+                SendMessage(hCtrl, SBM_GETRANGE,
+                            (WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
+                nPos -= (nMax - nMin) / 100;
+                nPos = MAX(nPos, 0);
+                break;
+
+            case SB_LINEDOWN:
+                SendMessage(hCtrl, SBM_GETRANGE,
+                            (WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
+                nPos += (nMax - nMin) / 100;
+                nPos = MAX(nPos, 0);
+                break;
+
+            case SB_PAGEUP:
+                SendMessage(hCtrl, SBM_GETRANGE,
+                            (WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
+                nPos -= (nMax - nMin) / 10;
+                nPos = MAX(nPos, 0);
+                break;
+
+            case SB_PAGEDOWN:
+                SendMessage(hCtrl, SBM_GETRANGE,
+                            (WPARAM)(LPINT)&nMin, (WPARAM)(LPINT)&nMax);
+                nPos += (nMax - nMin) / 10;
+                nPos = MAX(nPos, 0);
+                break;
+
+            case SB_THUMBPOSITION:
+            case SB_THUMBTRACK: // Same value as TB_THUMBTRACK
+                nPos = (short)HIWORD(wParam);
+                break;
+            }
+
+            SendMessage(hCtrl, SBM_SETPOS, nPos, TRUE);
+            CALL_CALLBACK(pwbobj->id, 0, 0, 0);
+        }
+        break;
+
+        case WM_COMMAND:
+        {
+            HWND hCtrl;
+            PWBOBJ pwbobj;
+
+            if ((HWND)lParam == 0 && (HIWORD(wParam) == 0 || HIWORD(wParam) == 1))
+            { // Is the message from a menu or accelerator?
+
+                pwbobj = wbGetWBObj(hwnd);
+                // Must not use the macro CALL_CALLBACK here
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, LOWORD(wParam), 0, HIWORD(wParam), 0);
+                return 0;
+            }
+
+            hCtrl = (HWND)lParam;
+            pwbobj = wbGetWBObj(hCtrl);
+
+            if (!pwbobj || !pwbobj->parent || !pwbobj->parent->pszCallBackFn)
+                break;
+
+            switch (pwbobj->uClass)
+            { // Classes that receive their notifications via WM_COMMAND
+
+            case EditBox:
+            case RTFEditBox:
+                if ((HIWORD(wParam) == EN_CHANGE))
+                {
+                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                }
+                else if (HIWORD(wParam) == EN_SETFOCUS)
+                {
+                    if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
+                        CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                }
+                break;
+
+            case ComboBox:
+
+                if ((HIWORD(wParam) == CBN_EDITCHANGE))
+                {
+
+                    // Store selected index for future use
+
+                    pwbobj->lparam = -1;
+                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                }
+                else if ((HIWORD(wParam) == CBN_SELCHANGE))
+                {
+
+                    // The code block below makes wb_get_text() return the correct contents
+                    // of a non-read-only combo box right after a selection is made
+
+                    if (!(pwbobj->style & WBC_READONLY))
+                    {
+
+                        int nIndex, nTextLen;
+                        LPTSTR szText = TEXT("");
+
+                        nIndex = SendMessage(pwbobj->hwnd, CB_GETCURSEL, 0, 0);
+                        if (nIndex != CB_ERR)
+                        {
+                            nTextLen = SendMessage(pwbobj->hwnd, CB_GETLBTEXTLEN, nIndex, 0);
+                            if (nIndex != CB_ERR)
+                            {
+                                if (nTextLen)
+                                {
+                                    szText = wbMalloc(nTextLen * sizeof(TCHAR));
+                                    SendMessage(pwbobj->hwnd, CB_GETLBTEXT, nIndex, (LPARAM)szText);
+                                    SendMessage(pwbobj->hwnd, WM_SETTEXT, 0, (LPARAM)szText);
+                                    wbFree(szText);
+                                }
+                                else
+                                    SendMessage(pwbobj->hwnd, WM_SETTEXT, 0, (LPARAM)TEXT(""));
+                            }
+                        }
+                    }
+
+                    // Store selected index for future use
+
+                    pwbobj->lparam = SendMessage(pwbobj->hwnd, CB_GETCURSEL, 0, 0);
+                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                }
+                else if (HIWORD(wParam) == CBN_SETFOCUS)
+                {
+                    if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
+                        CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                }
+                break;
+
+            case ListBox:
+                if (HIWORD(wParam) == LBN_DBLCLK)
+                {
+                    if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                        CALL_CALLBACK(LOWORD(wParam), WBC_DBLCLICK, HIWORD(wParam), 0);
+                }
+                else if (HIWORD(wParam) == LBN_SELCHANGE)
+                {
+                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                }
+                else if (HIWORD(wParam) == LBN_SETFOCUS)
+                {
+                    if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
+                        CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                }
+                break;
+
+            case InvisibleArea:
+                CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                break;
+
+            case HyperLink:
+                if (HIWORD(wParam) == STN_CLICKED)
+                    CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                break;
+
+            case Label:
+                if (HIWORD(wParam) == STN_CLICKED)
+                    CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                break;
+
+            case PushButton:
+            case CheckBox:
+            case RadioButton:
+            case ToolBar:
+
+                if (HIWORD(wParam) == BN_CLICKED)
+                {
+                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                }
+                else if (HIWORD(wParam) == BN_SETFOCUS)
+                {
+                    if (SEND_MESSAGE && TEST_FLAG(WBC_GETFOCUS))
+                        CALL_CALLBACK(LOWORD(wParam), WBC_GETFOCUS, HIWORD(wParam), 0);
+                }
+                break;
+
+                //					default:				// TODO: Maybe delete these lines,
+                //						bProcess = TRUE;	// but must be sure first
+                //						CALL_CALLBACK(LOWORD(wParam), 0, 0);
+            }
+
+            return 0;
+        }
+        break;
+
+        //------------------------------- Mouse messages
+
+        case WM_MOUSEMOVE:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
+            if (!pwbobj)
+                break;
+
+            if (BITTEST(pwbobj->lparam, WBC_MOUSEMOVE))
+            {
+
+                DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
+
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
             }
 
         }
+        break;
 
-		return 0;
-	}
-	break;
+        // Alt key checking: http://msdn.microsoft.com/library/en-us/winui/winui/windowsuserinterface/userinput/mouseinput/mouseinputreference/mouseinputmessages/wm_lbuttondown.asp
+        // Also see "System and Nonsystem Keystrokes" in API help
+        case WM_LBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
 
-	case WM_SETCURSOR:
-	{
-		PWBOBJ pwbo = wbGetWBObj(hwnd);
-		if (!pwbo)
-			break;
+            if (!pwbobj)
+                break;
 
-		if (M_nMouseCursor != 0)
-		{
-			SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
-			return TRUE; // Must return here, not break
-		}
-		else
-		{
-			break; // Normal behavior
-		}
-	}
-	break;
+            if (BITTEST(pwbobj->lparam, WBC_MOUSEDOWN))
+            {
 
-	case WBWM_IDAPP: // Custom WinBinder message
-	{
-		PWBOBJ pwbobj;
+                DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
 
-		pwbobj = wbGetWBObj(hwnd);
-		return pwbobj ? pwbobj->id : 0; // Returns the window ID
-	}
-	break;
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0, WBC_MOUSEDOWN | wParam | dwAlt, lParam, 0);
+            }
+        }
+        break;
 
-	case WM_SETFOCUS:
-	{
-		PWBOBJ pwbobj = wbGetWBObj(hwnd);
+        case WM_LBUTTONUP:
+            wParam |= MK_LBUTTON; // Why isn't this flag included?
+            goto MOUSE1;
+        case WM_MBUTTONUP:
+            wParam |= MK_MBUTTON; // Why isn't this flag included?
+            goto MOUSE1;
+        case WM_RBUTTONUP:
+            wParam |= MK_RBUTTON; // Why isn't this flag included?
+            goto MOUSE1;
+        MOUSE1:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
 
-		if (!pwbobj)
-			break;
+            if (!pwbobj)
+                break;
 
-		if (BITTEST(pwbobj->lparam, WBC_GETFOCUS))
-		{
+            if (BITTEST(pwbobj->lparam, WBC_MOUSEUP))
+            {
 
-			DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
+                DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
+                //printf("[%d]\n", WBC_MOUSEUP | wParam | dwAlt);
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
+                                       WBC_MOUSEUP | wParam | dwAlt, lParam, 0);
+            }
+        }
+        break;
 
-			if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-				wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
-								   WBC_GETFOCUS, 0, 0);
-		}
-	}
-	break;
+        case WM_LBUTTONDBLCLK:
+        case WM_MBUTTONDBLCLK:
+        case WM_RBUTTONDBLCLK:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
 
-	case WM_HOTKEY:
-	{
-		PWBOBJ pwbobj;
+            if (!pwbobj)
+                break;
 
-		pwbobj = wbGetWBObj(hwnd);
+            if (BITTEST(pwbobj->lparam, WBC_DBLCLICK))
+            {
+                PWBOBJ pwbobj = wbGetWBObj(hwnd);
+                DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
 
-		if (!pwbobj || !pwbobj->pszCallBackFn)
-			break;
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
+                                       WBC_DBLCLICK | dwAlt | wParam, lParam, 0);
+            }
+        }
+        break;
 
-		if (pwbobj->pszCallBackFn)
-			//					wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
-			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, lParam, 0, 0);
-		return 1;
+            //------------------------------- Other messages
 
-		break;
-	}
+        case WM_CTLCOLORSTATIC: // For static controls and others
+        case WM_CTLCOLORBTN:	// For pushbuttons
+
+            HWND hCtrl;
+            PWBOBJ pwbobj;
+            hCtrl = (HWND)lParam;
+            pwbobj = wbGetWBObj(hCtrl);
+            PFONT pFont;
+
+            if (hbrTabs)
+            { // Not for versions under Windows XP
+
+                if (!pwbobj || !pwbobj->parent)
+                    break;
+
+                if (pwbobj->uClass == EditBox) // Not for edit controls
+                    break;
+
+                SetBkColor((HDC)wParam, clrTabs); // Static controls need this
+
+                if (pwbobj->parent->uClass == TabControl)
+                {
+                    // Only for controls on tabs
+                    return (LRESULT)hbrTabs; // Paint the background with the tab page color
+                }
+            }
+            break;
+
+        case WM_TIMER:
+
+        {
+    //		PWBOBJ pwbobj;
+
+    //		pwbobj = wbGetWBObj(hwnd);
+    //        //printf("(Window) TimeProc: WM_TIMER 1\n");
+    //		if (!pwbobj || !pwbobj->pszCallBackFn)
+    //			break;
+    //
+    //		if (pwbobj->pszCallBackFn){
+    //		    //printf("TimeProc: WM_TIMER 2\n");
+    //            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
+    //            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
+    //
+    //		}
+
+            if (wParam == REFRESH_TIMER_ID)
+            {
+                //printf("Timer ID matched: %d\n", wParam);
+                // Get the control object associated with the window
+                PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+                if (pwbo != NULL)
+                {
+                    //printf("Control object retrieved\n");
+                    // Get the dimensions of the control
+    //                RECT rc;
+    //                GetClientRect(hwnd, &rc);
+    //                int width = rc.right - rc.left;
+    //                int height = rc.bottom - rc.top;
+
+                    // Refresh the control
+                    //printf("Refreshing control...\n");
+                    BOOL result = wbRefreshControl(pwbo, 0, 0, 0, 0, TRUE);
+
+                }
+
+            }
+
+            return 0;
+        }
+        break;
+
+        case WM_SETCURSOR:
+        {
+            PWBOBJ pwbo = wbGetWBObj(hwnd);
+            if (!pwbo)
+                break;
+
+            if (M_nMouseCursor != 0)
+            {
+                SetCursor(M_nMouseCursor == -1 ? 0 : (HCURSOR)M_nMouseCursor);
+                return TRUE; // Must return here, not break
+            }
+            else
+            {
+                break; // Normal behavior
+            }
+        }
+        break;
+
+        case WBWM_IDAPP: // Custom WinBinder message
+        {
+            PWBOBJ pwbobj;
+
+            pwbobj = wbGetWBObj(hwnd);
+            return pwbobj ? pwbobj->id : 0; // Returns the window ID
+        }
+        break;
+
+        case WM_SETFOCUS:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
+
+            if (!pwbobj)
+                break;
+
+            if (BITTEST(pwbobj->lparam, WBC_GETFOCUS))
+            {
+
+                DWORD dwAlt = (GetKeyState(VK_MENU) < 0) ? WBC_ALT : 0;
+
+                if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, 0,
+                                       WBC_GETFOCUS, 0, 0);
+            }
+        }
+        break;
+
+        case WM_HOTKEY:
+        {
+            PWBOBJ pwbobj;
+
+            pwbobj = wbGetWBObj(hwnd);
+
+            if (!pwbobj || !pwbobj->pszCallBackFn)
+                break;
+
+            if (pwbobj->pszCallBackFn)
+                //					wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
+                wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, lParam, 0, 0);
+            return 1;
+
+            break;
+        }
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
