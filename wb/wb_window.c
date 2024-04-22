@@ -897,7 +897,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             if (pwbobj->pszCallBackFn != NULL) //has color handler
                             {
                                 LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-                                printf("ListView NM_CUSTOMDRAW\n");
+                                //printf("ListView NM_CUSTOMDRAW\n");
                                 switch (lplvcd->nmcd.dwDrawStage)
                                 {
                                     case CDDS_PREPAINT:
