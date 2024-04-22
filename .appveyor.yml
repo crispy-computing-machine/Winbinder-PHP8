@@ -31,10 +31,6 @@ install:
 
     echo "Copy GIT files to SRC build directory"
     xcopy c:\projects\winbinder C:\projects\php-src\ext\winbinder\ /s /e /y /f
-    
-    echo "Patch GD Extension"
-    git am C:\projects\php-src\ext\winbinder\patches\gd-imagegetbitmap24-php-8.3.6.patch
-
 
 cache:
   c:\build-cache -> .appveyor.yml
