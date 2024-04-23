@@ -12,6 +12,7 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "phpwb.h"
+#include <shellapi.h>
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -491,6 +492,59 @@ ZEND_FUNCTION(wb_get_item_list)
 		for (i = 0; i < nctrls; i++)
 			add_next_index_long(return_value, (LONG_PTR)plist[i]);
 		efree(plist);
+	}
+}
+
+
+ZEND_FUNCTION(wb_set_window_accept_drop)
+{
+	zend_long pwbo;
+	zend_bool accept = TRUE;
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(accept)
+	ZEND_PARSE_PARAMETERS_END();
+	
+	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+	DragAcceptFiles(((PWBOBJ)pwbo)->hwnd, accept);
+	RETURN_BOOL(TRUE);
+}
+
+
+ZEND_FUNCTION(wb_get_drop_files)
+{
+	zend_long wparam;
+	zend_bool isShort;
+
+	HDROP *pHDrop;
+	char buffer[2048];
+	char shortpath[2048];
+	long shortpath_size;
+
+	int fcount, i;
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(wparam)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(isShort)
+	ZEND_PARSE_PARAMETERS_END();
+
+	pHDrop = wparam;
+	fcount = DragQueryFileA(pHDrop, 0xFFFFFFFF, buffer, 2048);	
+	if(!fcount) RETURN_NULL();
+
+	array_init(return_value);
+	for(i = 0; i < fcount; i++)
+	{
+		DragQueryFileA(pHDrop, i, buffer, 2048);	
+		shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
+		if(shortpath_size == 0) {
+			add_next_index_string(return_value, buffer);
+		}else{
+			add_next_index_string(return_value, shortpath);
+		}
 	}
 }
 

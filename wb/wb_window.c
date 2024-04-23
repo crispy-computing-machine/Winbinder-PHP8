@@ -1687,6 +1687,21 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 		// ******* OOPS -- Will DefWindowProc() (below) ever get called?
 		// ******* And should it be DefWindowProc() or DefaultWBProc()???
 
+
+	case WM_DROPFILES:
+	{
+		PWBOBJ pwbobj;
+		pwbobj = wbGetWBObj(hwnd);
+		if(!pwbobj) break;
+		
+		if(pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn) {
+			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, IDDEFAULT, WBC_DROPFILES,
+			(LPARAM)pwbobj->pbuffer, wParam);
+		}
+	}
+	break;
+
+
 	default:
 		return DefaultWBProc(hwnd, msg, wParam, lParam);
 	}
