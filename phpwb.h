@@ -43,6 +43,7 @@
 
 #include "wb/wb.h"
 #include <php.h>
+#include <wbemidl.h>
 #include <windows.h>
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "user32.lib")
@@ -60,6 +61,7 @@
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Dnsapi.lib")
+#pragma comment(lib, "wbemuuid.lib")
 
 extern zend_module_entry winbinder_module_entry;
 #define phpext_winbinder_ptr &winbinder_module_entry
@@ -79,6 +81,7 @@ void dumptcs(TCHAR *str);
 char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
 BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
+char *_ConvertBSTRToLPSTR(BSTR bstrIn);
 
 //------------------------------------------------------------------ END OF FILE
 

@@ -61,12 +61,16 @@ ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
 ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wb_set_accel_table);
+
 // new PHPWB_WINSYS.C
 ZEND_FUNCTION(wb_get_clipboard);
 ZEND_FUNCTION(wb_set_clipboard);
 ZEND_FUNCTION(wb_empty_clipboard);
 ZEND_FUNCTION(wb_get_mouse_pos);
 ZEND_FUNCTION(wb_set_mouse_pos);
+
+// other new PHPWB_WINSYS.C
+ZEND_FUNCTION(wb_wmi_query);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -227,6 +231,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_empty_clipboard,arginfo_wb_empty_clipboard)
         ZEND_FE(wb_get_mouse_pos,arginfo_wb_get_mouse_pos)
      	ZEND_FE(wb_set_mouse_pos,arginfo_wb_set_mouse_pos)
+
+		// other new PHPWB_WINSYS.C
+		ZEND_FE(wb_wmi_query,arginfo_wb_wmi_query)
 
         // PHPWB_BITMAP.C
         ZEND_FE(wb_load_image,arginfo_wb_load_image)

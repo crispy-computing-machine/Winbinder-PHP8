@@ -802,4 +802,111 @@ ZEND_FUNCTION(wb_set_mouse_pos)
     RETURN_BOOL(TRUE);
 }
 
+
+ZEND_FUNCTION(wb_wmi_query)
+{
+	char *wquery;
+	int wquery_size;
+
+	
+	HRESULT hr;
+	BSTR PropName = NULL;
+	char *propn;
+	int wslen;
+	BSTR query;
+	long nCount;
+	char err[256];
+
+
+	// COM interface pointers
+	IWbemLocator         *locator  = NULL;
+	IWbemServices        *services = NULL;
+	IEnumWbemClassObject *results  = NULL;
+
+	// BSTR strings we'll use (http://msdn.microsoft.com/en-us/library/ms221069.aspx)
+	BSTR resource = SysAllocString(L"ROOT\\CIMV2");
+	BSTR language = SysAllocString(L"WQL");
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING_OR_NULL(wquery, wquery_size)
+	ZEND_PARSE_PARAMETERS_END();
+	
+	wslen = MultiByteToWideChar(CP_ACP, 0, wquery, wquery_size, 0, 0);
+    query = SysAllocStringLen(0, wslen);
+    MultiByteToWideChar(CP_ACP, 0, wquery, wquery_size, query, wslen);
+
+	// initialize COM
+	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+
+	// connect to WMI
+	hr = CoCreateInstance(&CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, &IID_IWbemLocator, (LPVOID *) &locator);
+	hr = locator->lpVtbl->ConnectServer(locator, resource, NULL, NULL, NULL, 0, NULL, NULL, &services);
+
+	// issue a WMI query
+	hr = services->lpVtbl->ExecQuery(services, language, query, WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY|WBEM_FLAG_DIRECT_READ, NULL, &results);
+
+	// list the query results
+	if (results != NULL) {
+		IWbemClassObject *result = NULL;
+		ULONG returnedCount = 0;
+		
+		array_init(return_value);
+
+		// enumerate the retrieved objects
+		while((hr = results->lpVtbl->Next(results, WBEM_INFINITE, 1, &result, &returnedCount)) == S_OK) {
+			VARIANT val;
+			VARTYPE vt = 0;
+			LPSAFEARRAY pFieldArray = NULL;
+			zval *subarray;
+
+			array_init(subarray);
+
+			hr = result->lpVtbl->GetNames(result,NULL,WBEM_FLAG_ALWAYS|WBEM_FLAG_NONSYSTEM_ONLY,NULL,&pFieldArray);
+			
+			for(nCount=0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
+			
+				hr = SafeArrayGetElement(pFieldArray, &nCount, &PropName);
+				hr = result->lpVtbl->Get(result, PropName, 0, &val, 0, 0);
+				propn = _ConvertBSTRToLPSTR(PropName);
+				
+				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
+				switch(val.vt){
+					case VT_NULL:
+						add_assoc_null(subarray,propn);
+						break;
+					case VT_BOOL:
+						add_assoc_bool(subarray,propn,val.boolVal);
+						break;
+					case VT_BSTR:
+						add_assoc_string(subarray,propn,_ConvertBSTRToLPSTR(val.bstrVal));
+						break;
+					case VT_I4:
+						add_assoc_long(subarray,propn,val.intVal);
+						break;
+				
+					default:
+						sprintf(err,"(Variant type 0x%04x not supported)",val.vt);
+						add_assoc_string(subarray,propn,err);
+				
+				}
+			}
+			add_next_index_zval(return_value,subarray);
+			result->lpVtbl->Release(result);
+		}
+	}
+
+	// release WMI COM interfaces
+	results->lpVtbl->Release(results);
+	services->lpVtbl->Release(services);
+	locator->lpVtbl->Release(locator);
+
+	// unwind everything else we've allocated
+	CoUninitialize();
+
+	SysFreeString(query);
+	SysFreeString(language);
+	SysFreeString(resource);
+}
+
 //------------------------------------------------------------------ END OF FILE
