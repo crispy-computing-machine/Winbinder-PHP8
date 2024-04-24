@@ -185,6 +185,8 @@ ZEND_FUNCTION(wb_create_window);
 ZEND_FUNCTION(wb_get_item_list);
 ZEND_FUNCTION(wb_get_instance);
 ZEND_FUNCTION(wb_set_area);
+ZEND_FUNCTION(wb_set_window_accept_drop);
+ZEND_FUNCTION(wb_get_drop_files);
 
 // PHPWB_SYSDLG.C
 ZEND_FUNCTION(wb_sys_dlg_path);
@@ -342,6 +344,8 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_instance,arginfo_wb_get_instance)
         ZEND_FE(wb_get_item_list,arginfo_wb_get_item_list)
         ZEND_FE(wb_set_area,arginfo_wb_set_area)
+		ZEND_FE(wb_set_window_accept_drop,arginfo_wb_set_window_accept_drop)
+		ZEND_FE(wb_get_drop_files,arginfo_wb_get_drop_files)
 
         // PHPWB_SYSDLG.C
         ZEND_FE(wb_sys_dlg_path,arginfo_wb_sys_dlg_path)
@@ -463,6 +467,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_RESIZE", WBC_RESIZE)
 	WB_ZEND_CONST(LONG, "WBC_REDRAW", WBC_REDRAW)
 	WB_ZEND_CONST(LONG, "WBC_HEADERSEL", WBC_HEADERSEL)
+	WB_ZEND_CONST(LONG, "WBC_DROPFILES", WBC_DROPFILES)
 
 	// Additional notification message flags
 	WB_ZEND_CONST(LONG, "WBC_ALT", WBC_ALT)
