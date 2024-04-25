@@ -343,4 +343,25 @@ void _var_dump(const char *var_name, ...) {
 
     va_end(args);
 }
+
+
+char *_ConvertBSTRToLPSTR(BSTR bstrIn) {
+  LPSTR pszOut = NULL;
+  if (bstrIn != NULL)
+  {
+	int nInputStrLen = SysStringLen (bstrIn);
+	
+	// Double NULL Termination
+	int nOutputStrLen = WideCharToMultiByte(CP_ACP, 0, bstrIn, nInputStrLen, NULL, 0, 0, 0) + 2; 
+	pszOut = malloc(nOutputStrLen);
+
+	if (pszOut)
+	{
+	  memset (pszOut, 0x00, sizeof (char)*nOutputStrLen);
+	  WideCharToMultiByte (CP_ACP, 0, bstrIn, nInputStrLen, pszOut, nOutputStrLen, 0, 0);
+	}
+  }
+  return pszOut;
+}
+
 //------------------------------------------------------------------ END OF FILE
