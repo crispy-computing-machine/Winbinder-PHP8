@@ -71,6 +71,7 @@ ZEND_FUNCTION(wb_set_mouse_pos);
 
 // other new PHPWB_WINSYS.C
 ZEND_FUNCTION(wb_wmi_query);
+ZEND_FUNCTION(wb_get_system_metric);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -234,6 +235,7 @@ zend_function_entry winbinder_functions[] =
 
 		// other new PHPWB_WINSYS.C
 		ZEND_FE(wb_wmi_query,arginfo_wb_wmi_query)
+		ZEND_FE(wb_get_system_metric,arginfo_wb_get_system_metric)
 
         // PHPWB_BITMAP.C
         ZEND_FE(wb_load_image,arginfo_wb_load_image)

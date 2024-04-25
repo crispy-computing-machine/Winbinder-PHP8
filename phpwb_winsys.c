@@ -913,4 +913,19 @@ ZEND_FUNCTION(wb_wmi_query)
 	SysFreeString(resource);
 }
 
+
+// https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
+ZEND_FUNCTION(wb_get_system_metric) {
+	int idx, val;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(idx)
+	ZEND_PARSE_PARAMETERS_END();
+	
+	val = GetSystemMetrics(idx);
+	RETURN_LONG((long)val);
+}
+
+
+
 //------------------------------------------------------------------ END OF FILE
