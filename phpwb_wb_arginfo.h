@@ -732,4 +732,6 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_system_metric, 0, 1, IS_L
 	ZEND_ARG_TYPE_INFO(0, idx, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_get_system_timezone, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
 

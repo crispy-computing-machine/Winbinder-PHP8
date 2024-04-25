@@ -364,4 +364,34 @@ char *ConvertBSTRToLPSTR(BSTR bstrIn) {
   return pszOut;
 }
 
+// https://stackoverflow.com/questions/32424125/c-code-to-get-local-time-offset-in-minutes-relative-to-utc
+int time_offset()
+{
+    time_t gmt, rawtime = time(NULL);
+    struct tm *ptm;
+
+#if !defined(WIN32)
+    struct tm gbuf;
+    ptm = gmtime_r(&rawtime, &gbuf);
+#else
+    ptm = gmtime(&rawtime);
+#endif
+    // Request that mktime() looksup dst in timezone database
+    ptm->tm_isdst = -1;
+    gmt = mktime(ptm);
+
+    return (int)difftime(rawtime, gmt);
+}
+
+
+int get_system_timezone(char *tzchar)
+{
+	int to;
+	to = time_offset();
+	to = 0-(to/60/60);
+	if(to < 0) sprintf(tzchar,"Etc/GMT%i\0",to);
+	else sprintf(tzchar,"Etc/GMT+%i\0",to);
+	return 1;
+}
+
 //------------------------------------------------------------------ END OF FILE

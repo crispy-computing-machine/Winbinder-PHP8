@@ -83,6 +83,10 @@ BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
 char *ConvertBSTRToLPSTR(BSTR bstrIn);
 
+// Time functions
+int get_system_timezone(char *tzchar);
+int time_offset();
+
 //------------------------------------------------------------------ END OF FILE
 
 #endif // _PHP_WB_H

@@ -927,5 +927,10 @@ ZEND_FUNCTION(wb_get_system_metric) {
 }
 
 
+ZEND_FUNCTION(wb_get_system_timezone) {
+	char tz[16];
+	get_system_timezone(tz);
+	RETURN_STRING(tz);
+}
 
 //------------------------------------------------------------------ END OF FILE
