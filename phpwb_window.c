@@ -509,9 +509,11 @@ ZEND_FUNCTION(wb_set_window_accept_drop)
 	
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
-	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
-	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
-	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, 0x0049, MSGFLT_ALLOW, NULL);
+	if(accept) {
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, 0x0049, MSGFLT_ALLOW, NULL);
+	}
 
 	DragAcceptFiles(((PWBOBJ)pwbo)->hwnd, accept);
 	RETURN_BOOL(TRUE);
