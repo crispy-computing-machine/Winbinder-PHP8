@@ -508,6 +508,11 @@ ZEND_FUNCTION(wb_set_window_accept_drop)
 	ZEND_PARSE_PARAMETERS_END();
 	
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
+	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
+	ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, 0x0049, MSGFLT_ALLOW, NULL);
+
 	DragAcceptFiles(((PWBOBJ)pwbo)->hwnd, accept);
 	RETURN_BOOL(TRUE);
 }
@@ -538,14 +543,16 @@ ZEND_FUNCTION(wb_get_drop_files)
 	array_init(return_value);
 	for(i = 0; i < fcount; i++)
 	{
-		DragQueryFileA(pHDrop, i, buffer, 2048);	
-		shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
-		if(shortpath_size == 0) {
+		DragQueryFileA(pHDrop, i, buffer, 2048);
+		if(isShort) {
+			shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
+			if(shortpath_size == 0) {
+				add_next_index_string(return_value, buffer);
+			} else {
+				add_next_index_string(return_value, shortpath);
+			}
+		} else {
 			add_next_index_string(return_value, buffer);
-		}else{
-			add_next_index_string(return_value, shortpath);
 		}
 	}
 }
-
-//------------------------------------------------------------------ END OF FILE
