@@ -933,4 +933,18 @@ ZEND_FUNCTION(wb_get_system_timezone) {
 	RETURN_STRING(tz);
 }
 
+
+ZEND_FUNCTION(wb_expand_env) {
+	char *path;
+	int path_size;
+	char buffer[MAXPATHLEN];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING_OR_NULL(path, path_size)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(!ExpandEnvironmentStringsA(path, buffer, MAXPATHLEN-1)) RETURN_BOOL(FALSE);
+	RETURN_STRING(buffer);
+}
+
 //------------------------------------------------------------------ END OF FILE
