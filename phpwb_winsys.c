@@ -812,6 +812,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	HRESULT hr;
 	BSTR PropName = NULL;
 	char *propn;
+	char *propv;
 	int wslen;
 	BSTR query;
 	long nCount;
@@ -868,30 +869,33 @@ ZEND_FUNCTION(wb_wmi_query)
 			
 				hr = SafeArrayGetElement(pFieldArray, &nCount, &PropName);
 				hr = result->lpVtbl->Get(result, PropName, 0, &val, 0, 0);
-				propn = _ConvertBSTRToLPSTR(PropName);
+				propn = ConvertBSTRToLPSTR(PropName);
 				
 				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
 				switch(val.vt){
 					case VT_NULL:
-						add_assoc_null(subarray,propn);
+						add_assoc_null(subarray, propn);
 						break;
 					case VT_BOOL:
-						add_assoc_bool(subarray,propn,val.boolVal);
+						add_assoc_bool(subarray, propn,  val.boolVal);
 						break;
 					case VT_BSTR:
-						add_assoc_string(subarray,propn,_ConvertBSTRToLPSTR(val.bstrVal));
+						propv = ConvertBSTRToLPSTR(val.bstrVal);
+						add_assoc_string(subarray, propn, propv);
+						free(propv);
 						break;
 					case VT_I4:
-						add_assoc_long(subarray,propn,val.intVal);
+						add_assoc_long(subarray, propn, val.intVal);
 						break;
 				
 					default:
-						sprintf(err,"(Variant type 0x%04x not supported)",val.vt);
-						add_assoc_string(subarray,propn,err);
+						sprintf(err, "(Variant type 0x%04x not supported)", val.vt);
+						add_assoc_string(subarray, propn, err);
 				
 				}
+				free(propn);
 			}
-			add_next_index_zval(return_value,subarray);
+			add_next_index_zval(return_value, subarray);
 			result->lpVtbl->Release(result);
 		}
 	}

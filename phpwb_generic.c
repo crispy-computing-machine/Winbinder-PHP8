@@ -345,7 +345,7 @@ void _var_dump(const char *var_name, ...) {
 }
 
 
-char *_ConvertBSTRToLPSTR(BSTR bstrIn) {
+char *ConvertBSTRToLPSTR(BSTR bstrIn) {
   LPSTR pszOut = NULL;
   if (bstrIn != NULL)
   {

@@ -538,7 +538,7 @@ ZEND_FUNCTION(wb_get_drop_files)
 		Z_PARAM_BOOL(isShort)
 	ZEND_PARSE_PARAMETERS_END();
 
-	pHDrop = wparam;
+	pHDrop = (HDROP *)wparam;
 	fcount = DragQueryFileA(pHDrop, 0xFFFFFFFF, buffer, 2048);	
 	if(!fcount) RETURN_NULL();
 

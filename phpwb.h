@@ -81,7 +81,7 @@ void dumptcs(TCHAR *str);
 char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
 BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
-char *_ConvertBSTRToLPSTR(BSTR bstrIn);
+char *ConvertBSTRToLPSTR(BSTR bstrIn);
 
 //------------------------------------------------------------------ END OF FILE
 
