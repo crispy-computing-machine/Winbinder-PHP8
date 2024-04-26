@@ -961,4 +961,50 @@ ZEND_FUNCTION(wb_get_work_area) {
 	add_assoc_long(return_value,"left",area.left);
 }
 
+
+ZEND_FUNCTION(wb_send_key)
+{
+	zval *keys = NULL;
+	zval **ppzval;
+	zval *pzval;
+	INPUT *inputs;
+	UINT uSent;
+	int kcount, i = 0;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ZVAL(keys)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(Z_TYPE_P(keys) == IS_LONG){
+		inputs = malloc(sizeof(INPUT)*2);
+		ZeroMemory(inputs, sizeof(INPUT)*2);
+		inputs[0].type = INPUT_KEYBOARD;
+		inputs[0].ki.wVk = Z_LVAL_P(keys);
+		inputs[1].type = INPUT_KEYBOARD;
+		inputs[1].ki.wVk = Z_LVAL_P(keys);
+		inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+		uSent = SendInput(2, inputs, sizeof(INPUT));
+		RETURN_BOOL(uSent == 2);
+	} else if(Z_TYPE_P(keys) == IS_ARRAY){
+		kcount = zend_hash_num_elements(Z_ARRVAL_P(keys));
+		inputs = malloc(sizeof(INPUT)*kcount*2);
+		ZeroMemory(inputs, sizeof(INPUT)*kcount*2);
+		for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(keys)); zend_hash_has_more_elements(Z_ARRVAL_P(keys)) == SUCCESS; zend_hash_move_forward(Z_ARRVAL_P(keys)), i++){
+			pzval = zend_hash_get_current_data(Z_ARRVAL_P(keys));
+			inputs[i].type = INPUT_KEYBOARD;
+			inputs[i].ki.wVk = Z_LVAL_P(pzval);
+		}
+		for(zend_hash_internal_pointer_end(Z_ARRVAL_P(keys)); zend_hash_has_more_elements(Z_ARRVAL_P(keys)) == SUCCESS; zend_hash_move_backwards(Z_ARRVAL_P(keys)), i++){
+			pzval = zend_hash_get_current_data(Z_ARRVAL_P(keys));
+			inputs[i].type = INPUT_KEYBOARD;
+			inputs[i].ki.wVk = Z_LVAL_P(pzval);
+			inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
+		}
+		uSent = SendInput(kcount*2, inputs, sizeof(INPUT));
+		RETURN_BOOL(uSent == (kcount*2));
+	} else {
+		php_error_docref(NULL, E_WARNING, "Parameter 1 should be a an long or an array of longs");
+		RETURN_BOOL(FALSE);
+	}
+}
 //------------------------------------------------------------------ END OF FILE
