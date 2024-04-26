@@ -965,7 +965,6 @@ ZEND_FUNCTION(wb_get_work_area) {
 ZEND_FUNCTION(wb_send_key)
 {
 	zval *keys = NULL;
-	zval **ppzval;
 	zval *pzval;
 	INPUT *inputs;
 	UINT uSent;
