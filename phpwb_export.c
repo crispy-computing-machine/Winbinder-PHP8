@@ -169,6 +169,7 @@ ZEND_FUNCTION(wb_get_level);
 ZEND_FUNCTION(wb_create_font);
 ZEND_FUNCTION(wb_destroy_font);
 ZEND_FUNCTION(wb_set_font);
+ZEND_FUNCTION(wb_get_ttf_info);
 
 // PHPWB_LOWLEVEL.C
 ZEND_FUNCTION(wb_get_address);
@@ -336,6 +337,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_font,arginfo_wb_create_font)
         ZEND_FE(wb_destroy_font,arginfo_wb_destroy_font)
         ZEND_FE(wb_set_font,arginfo_wb_set_font)
+		ZEND_FE(wb_get_ttf_info,arginfo_wb_get_ttf_info)
 
         // PHPWB_LOWLEVEL.C
         ZEND_FE(wb_get_address, arginfo_get_address)

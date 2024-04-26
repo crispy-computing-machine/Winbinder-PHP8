@@ -39,6 +39,9 @@
 
 #define PHP_REGEX_H // Skip php_regex.h: '_off_t' not defined anywhere
 
+#define SWAPWORD(x)	MAKEWORD(HIBYTE(x), LOBYTE(x))
+#define SWAPLONG(x)	MAKELONG(SWAPWORD(HIWORD(x)), SWAPWORD(LOWORD(x)))
+
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb/wb.h"
