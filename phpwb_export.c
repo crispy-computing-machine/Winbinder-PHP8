@@ -74,6 +74,7 @@ ZEND_FUNCTION(wb_wmi_query);
 ZEND_FUNCTION(wb_get_system_metric);
 ZEND_FUNCTION(wb_get_system_timezone);
 ZEND_FUNCTION(wb_expand_env);
+ZEND_FUNCTION(wb_get_work_area);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -240,6 +241,8 @@ zend_function_entry winbinder_functions[] =
 		ZEND_FE(wb_get_system_metric,arginfo_wb_get_system_metric)
 		ZEND_FE(wb_get_system_timezone,arginfo_wb_get_system_timezone)
 		ZEND_FE(wb_expand_env,arginfo_wb_expand_env)
+		ZEND_FE(wb_get_work_area,arginfo_wb_get_work_area)
+		
 
         // PHPWB_BITMAP.C
         ZEND_FE(wb_load_image,arginfo_wb_load_image)
