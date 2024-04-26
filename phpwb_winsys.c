@@ -948,20 +948,6 @@ ZEND_FUNCTION(wb_expand_env) {
 }
 
 
-ZEND_FUNCTION(wb_get_work_area) {
-	RECT area;
-	
-	//https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa?redirectedfrom=MSDN
-	if(!SystemParametersInfoA(SPI_GETWORKAREA, NULL, &area, NULL)) RETURN_BOOL(FALSE);
-	
-	array_init(return_value);
-	add_assoc_long(return_value,"top",area.top);
-	add_assoc_long(return_value,"right",area.right);
-	add_assoc_long(return_value,"bottom",area.bottom);
-	add_assoc_long(return_value,"left",area.left);
-}
-
-
 ZEND_FUNCTION(wb_send_key)
 {
 	zval *keys = NULL;
