@@ -558,3 +558,19 @@ ZEND_FUNCTION(wb_get_drop_files)
 		}
 	}
 }
+
+
+ZEND_FUNCTION(wb_bring_to_front)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(!IsWindowVisible(((PWBOBJ)pwbo)->hwnd)) RETURN_BOOL(FALSE);
+	if(IsIconic(((PWBOBJ)pwbo)->hwnd) && !ShowWindow(((PWBOBJ)pwbo)->hwnd, SW_RESTORE)) RETURN_BOOL(FALSE);
+	if(!SetWindowPos(((PWBOBJ)pwbo)->hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)) RETURN_BOOL(FALSE);
+	if(!SetWindowPos(((PWBOBJ)pwbo)->hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)) RETURN_BOOL(FALSE);
+	RETURN_BOOL(BringWindowToTop(((PWBOBJ)pwbo)->hwnd));
+}
