@@ -845,7 +845,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	hr = locator->lpVtbl->ConnectServer(locator, resource, NULL, NULL, NULL, 0, NULL, NULL, &services);
 
 	// issue a WMI query
-	hr = services->lpVtbl->ExecQuery(services, language, query, WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY|WBEM_FLAG_DIRECT_READ, NULL, &results);
+	hr = services->lpVtbl->ExecQuery(services, language, query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY | WBEM_FLAG_DIRECT_READ, NULL, &results);
 
 	// list the query results
 	if (results != NULL) {
@@ -863,9 +863,9 @@ ZEND_FUNCTION(wb_wmi_query)
 
 			array_init(subarray);
 
-			hr = result->lpVtbl->GetNames(result,NULL,WBEM_FLAG_ALWAYS|WBEM_FLAG_NONSYSTEM_ONLY,NULL,&pFieldArray);
+			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);
 			
-			for(nCount=0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
+			for(nCount = 0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
 			
 				hr = SafeArrayGetElement(pFieldArray, &nCount, &PropName);
 				hr = result->lpVtbl->Get(result, PropName, 0, &val, 0, 0);
@@ -877,7 +877,7 @@ ZEND_FUNCTION(wb_wmi_query)
 						add_assoc_null(subarray, propn);
 						break;
 					case VT_BOOL:
-						add_assoc_bool(subarray, propn,  val.boolVal);
+						add_assoc_bool(subarray, propn, val.boolVal);
 						break;
 					case VT_BSTR:
 						propv = ConvertBSTRToLPSTR(val.bstrVal);
@@ -915,7 +915,8 @@ ZEND_FUNCTION(wb_wmi_query)
 
 
 // https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
-ZEND_FUNCTION(wb_get_system_metric) {
+ZEND_FUNCTION(wb_get_system_metric)
+{
 	int idx, val;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
@@ -927,14 +928,16 @@ ZEND_FUNCTION(wb_get_system_metric) {
 }
 
 
-ZEND_FUNCTION(wb_get_system_timezone) {
+ZEND_FUNCTION(wb_get_system_timezone)
+{
 	char tz[16];
 	get_system_timezone(tz);
 	RETURN_STRING(tz);
 }
 
 
-ZEND_FUNCTION(wb_expand_env) {
+ZEND_FUNCTION(wb_expand_env)
+{
 	char *path;
 	int path_size;
 	char buffer[MAXPATHLEN];
