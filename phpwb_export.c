@@ -197,6 +197,8 @@ ZEND_FUNCTION(wb_set_area);
 ZEND_FUNCTION(wb_set_window_accept_drop);
 ZEND_FUNCTION(wb_get_drop_files);
 ZEND_FUNCTION(wb_bring_to_front);
+ZEND_FUNCTION(wb_get_window_buffer);
+ZEND_FUNCTION(wb_get_window_handle);
 
 // PHPWB_SYSDLG.C
 ZEND_FUNCTION(wb_sys_dlg_path);
@@ -365,6 +367,8 @@ zend_function_entry winbinder_functions[] =
 		ZEND_FE(wb_set_window_accept_drop,arginfo_wb_set_window_accept_drop)
 		ZEND_FE(wb_get_drop_files,arginfo_wb_get_drop_files)
 		ZEND_FE(wb_bring_to_front,arginfo_wb_bring_to_front)
+		ZEND_FE(wb_get_window_buffer,arginfo_wb_get_window_buffer)
+		ZEND_FE(wb_get_window_handle,arginfo_wb_get_window_handle)
 
         // PHPWB_SYSDLG.C
         ZEND_FE(wb_sys_dlg_path,arginfo_wb_sys_dlg_path)

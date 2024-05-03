@@ -574,3 +574,27 @@ ZEND_FUNCTION(wb_bring_to_front)
 	if(!SetWindowPos(((PWBOBJ)pwbo)->hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)) RETURN_BOOL(FALSE);
 	RETURN_BOOL(BringWindowToTop(((PWBOBJ)pwbo)->hwnd));
 }
+
+
+ZEND_FUNCTION(wb_get_window_buffer)
+{
+	long pwbo;
+	
+	ZEND_PARSE_PARAMETERS_NONE();
+
+	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	RETURN_LONG(((PWBOBJ)pwbo)->pbuffer);
+}
+
+
+ZEND_FUNCTION(wb_get_window_handle)
+{
+	long pwbo;
+	
+	ZEND_PARSE_PARAMETERS_NONE();
+
+	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	RETURN_LONG(((PWBOBJ)pwbo)->hwnd);
+}
