@@ -334,6 +334,18 @@ ZEND_FUNCTION(wb_exec)
 	RETURN_LONG(wbExec(szPgm, szParm, show));
 }
 
+ZEND_FUNCTION(wb_is_running)
+{
+	zend_long pid;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pid)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbIsRunning(pid));
+}
+
+
 ZEND_FUNCTION(wb_get_system_info)
 {
 	char *s;
