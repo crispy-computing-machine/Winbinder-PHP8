@@ -71,6 +71,11 @@ ZEND_FUNCTION(wb_set_mouse_pos);
 
 // other new PHPWB_WINSYS.C
 ZEND_FUNCTION(wb_wmi_query);
+ZEND_FUNCTION(wb_get_system_metric);
+ZEND_FUNCTION(wb_get_system_timezone);
+ZEND_FUNCTION(wb_expand_env);
+ZEND_FUNCTION(wb_send_key);
+ZEND_FUNCTION(wb_is_running);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -165,6 +170,7 @@ ZEND_FUNCTION(wb_get_level);
 ZEND_FUNCTION(wb_create_font);
 ZEND_FUNCTION(wb_destroy_font);
 ZEND_FUNCTION(wb_set_font);
+ZEND_FUNCTION(wb_get_ttf_info);
 
 // PHPWB_LOWLEVEL.C
 ZEND_FUNCTION(wb_get_address);
@@ -191,6 +197,9 @@ ZEND_FUNCTION(wb_get_instance);
 ZEND_FUNCTION(wb_set_area);
 ZEND_FUNCTION(wb_set_window_accept_drop);
 ZEND_FUNCTION(wb_get_drop_files);
+ZEND_FUNCTION(wb_bring_to_front);
+ZEND_FUNCTION(wb_get_window_buffer);
+ZEND_FUNCTION(wb_get_window_handle);
 
 // PHPWB_SYSDLG.C
 ZEND_FUNCTION(wb_sys_dlg_path);
@@ -234,6 +243,13 @@ zend_function_entry winbinder_functions[] =
 
 		// other new PHPWB_WINSYS.C
 		ZEND_FE(wb_wmi_query,arginfo_wb_wmi_query)
+		ZEND_FE(wb_get_system_metric,arginfo_wb_get_system_metric)
+		ZEND_FE(wb_get_system_timezone,arginfo_wb_get_system_timezone)
+		ZEND_FE(wb_expand_env,arginfo_wb_expand_env)
+		ZEND_FE(wb_send_key,arginfo_wb_send_key)
+		ZEND_FE(wb_is_running,arginfo_wb_is_running)
+
+		
 
         // PHPWB_BITMAP.C
         ZEND_FE(wb_load_image,arginfo_wb_load_image)
@@ -327,6 +343,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_font,arginfo_wb_create_font)
         ZEND_FE(wb_destroy_font,arginfo_wb_destroy_font)
         ZEND_FE(wb_set_font,arginfo_wb_set_font)
+		ZEND_FE(wb_get_ttf_info,arginfo_wb_get_ttf_info)
 
         // PHPWB_LOWLEVEL.C
         ZEND_FE(wb_get_address, arginfo_get_address)
@@ -353,6 +370,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_area,arginfo_wb_set_area)
 		ZEND_FE(wb_set_window_accept_drop,arginfo_wb_set_window_accept_drop)
 		ZEND_FE(wb_get_drop_files,arginfo_wb_get_drop_files)
+		ZEND_FE(wb_bring_to_front,arginfo_wb_bring_to_front)
+		ZEND_FE(wb_get_window_buffer,arginfo_wb_get_window_buffer)
+		ZEND_FE(wb_get_window_handle,arginfo_wb_get_window_handle)
 
         // PHPWB_SYSDLG.C
         ZEND_FE(wb_sys_dlg_path,arginfo_wb_sys_dlg_path)

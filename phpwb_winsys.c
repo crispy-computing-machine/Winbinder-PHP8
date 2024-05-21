@@ -334,6 +334,18 @@ ZEND_FUNCTION(wb_exec)
 	RETURN_LONG(wbExec(szPgm, szParm, show));
 }
 
+ZEND_FUNCTION(wb_is_running)
+{
+	zend_long pid;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pid)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbIsRunning(pid));
+}
+
+
 ZEND_FUNCTION(wb_get_system_info)
 {
 	char *s;
@@ -812,6 +824,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	HRESULT hr;
 	BSTR PropName = NULL;
 	char *propn;
+	char *propv;
 	int wslen;
 	BSTR query;
 	long nCount;
@@ -844,7 +857,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	hr = locator->lpVtbl->ConnectServer(locator, resource, NULL, NULL, NULL, 0, NULL, NULL, &services);
 
 	// issue a WMI query
-	hr = services->lpVtbl->ExecQuery(services, language, query, WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY|WBEM_FLAG_DIRECT_READ, NULL, &results);
+	hr = services->lpVtbl->ExecQuery(services, language, query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY | WBEM_FLAG_DIRECT_READ, NULL, &results);
 
 	// list the query results
 	if (results != NULL) {
@@ -862,36 +875,39 @@ ZEND_FUNCTION(wb_wmi_query)
 
 			array_init(subarray);
 
-			hr = result->lpVtbl->GetNames(result,NULL,WBEM_FLAG_ALWAYS|WBEM_FLAG_NONSYSTEM_ONLY,NULL,&pFieldArray);
+			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);
 			
-			for(nCount=0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
+			for(nCount = 0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
 			
 				hr = SafeArrayGetElement(pFieldArray, &nCount, &PropName);
 				hr = result->lpVtbl->Get(result, PropName, 0, &val, 0, 0);
-				propn = _ConvertBSTRToLPSTR(PropName);
+				propn = ConvertBSTRToLPSTR(PropName);
 				
 				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
 				switch(val.vt){
 					case VT_NULL:
-						add_assoc_null(subarray,propn);
+						add_assoc_null(subarray, propn);
 						break;
 					case VT_BOOL:
-						add_assoc_bool(subarray,propn,val.boolVal);
+						add_assoc_bool(subarray, propn, val.boolVal);
 						break;
 					case VT_BSTR:
-						add_assoc_string(subarray,propn,_ConvertBSTRToLPSTR(val.bstrVal));
+						propv = ConvertBSTRToLPSTR(val.bstrVal);
+						add_assoc_string(subarray, propn, propv);
+						free(propv);
 						break;
 					case VT_I4:
-						add_assoc_long(subarray,propn,val.intVal);
+						add_assoc_long(subarray, propn, val.intVal);
 						break;
 				
 					default:
-						sprintf(err,"(Variant type 0x%04x not supported)",val.vt);
-						add_assoc_string(subarray,propn,err);
+						sprintf(err, "(Variant type 0x%04x not supported)", val.vt);
+						add_assoc_string(subarray, propn, err);
 				
 				}
+				free(propn);
 			}
-			add_next_index_zval(return_value,subarray);
+			add_next_index_zval(return_value, subarray);
 			result->lpVtbl->Release(result);
 		}
 	}
@@ -909,4 +925,86 @@ ZEND_FUNCTION(wb_wmi_query)
 	SysFreeString(resource);
 }
 
+
+// https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
+ZEND_FUNCTION(wb_get_system_metric)
+{
+	int idx, val;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(idx)
+	ZEND_PARSE_PARAMETERS_END();
+	
+	val = GetSystemMetrics(idx);
+	RETURN_LONG((long)val);
+}
+
+
+ZEND_FUNCTION(wb_get_system_timezone)
+{
+	char tz[16];
+	get_system_timezone(tz);
+	RETURN_STRING(tz);
+}
+
+
+ZEND_FUNCTION(wb_expand_env)
+{
+	char *path;
+	int path_size;
+	char buffer[MAXPATHLEN];
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING_OR_NULL(path, path_size)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(!ExpandEnvironmentStringsA(path, buffer, MAXPATHLEN-1)) RETURN_BOOL(FALSE);
+	RETURN_STRING(buffer);
+}
+
+
+ZEND_FUNCTION(wb_send_key)
+{
+	zval *keys = NULL;
+	zval *pzval;
+	INPUT *inputs;
+	UINT uSent;
+	int kcount, i = 0;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ZVAL(keys)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(Z_TYPE_P(keys) == IS_LONG){
+		inputs = malloc(sizeof(INPUT)*2);
+		ZeroMemory(inputs, sizeof(INPUT)*2);
+		inputs[0].type = INPUT_KEYBOARD;
+		inputs[0].ki.wVk = Z_LVAL_P(keys);
+		inputs[1].type = INPUT_KEYBOARD;
+		inputs[1].ki.wVk = Z_LVAL_P(keys);
+		inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+		uSent = SendInput(2, inputs, sizeof(INPUT));
+		RETURN_BOOL(uSent == 2);
+	} else if(Z_TYPE_P(keys) == IS_ARRAY){
+		kcount = zend_hash_num_elements(Z_ARRVAL_P(keys));
+		inputs = malloc(sizeof(INPUT)*kcount*2);
+		ZeroMemory(inputs, sizeof(INPUT)*kcount*2);
+		for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(keys)); zend_hash_has_more_elements(Z_ARRVAL_P(keys)) == SUCCESS; zend_hash_move_forward(Z_ARRVAL_P(keys)), i++){
+			pzval = zend_hash_get_current_data(Z_ARRVAL_P(keys));
+			inputs[i].type = INPUT_KEYBOARD;
+			inputs[i].ki.wVk = Z_LVAL_P(pzval);
+		}
+		for(zend_hash_internal_pointer_end(Z_ARRVAL_P(keys)); zend_hash_has_more_elements(Z_ARRVAL_P(keys)) == SUCCESS; zend_hash_move_backwards(Z_ARRVAL_P(keys)), i++){
+			pzval = zend_hash_get_current_data(Z_ARRVAL_P(keys));
+			inputs[i].type = INPUT_KEYBOARD;
+			inputs[i].ki.wVk = Z_LVAL_P(pzval);
+			inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
+		}
+		uSent = SendInput(kcount*2, inputs, sizeof(INPUT));
+		RETURN_BOOL(uSent == (kcount*2));
+	} else {
+		php_error_docref(NULL, E_WARNING, "Parameter 1 should be a an long or an array of longs");
+		RETURN_BOOL(FALSE);
+	}
+}
 //------------------------------------------------------------------ END OF FILE

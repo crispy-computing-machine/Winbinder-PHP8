@@ -914,6 +914,23 @@ DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 	return bRet;
 }
 
+BOOL wbIsRunning(LONG pid)
+{
+	HANDLE phnd;
+	DWORD exitCode;
+
+	phnd = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	if(!phnd) return FALSE;
+
+	if(!GetExitCodeProcess(phnd, &exitCode)) {
+		CloseHandle(phnd);
+		return FALSE;
+	}
+	CloseHandle(phnd);
+
+	return exitCode == STILL_ACTIVE;
+}
+
 BOOL wbShowLastError(LPCTSTR pszCaption, BOOL bMessageBox)
 {
 	LPVOID lpMsgBuf;

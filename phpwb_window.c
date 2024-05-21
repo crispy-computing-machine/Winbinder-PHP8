@@ -508,6 +508,13 @@ ZEND_FUNCTION(wb_set_window_accept_drop)
 	ZEND_PARSE_PARAMETERS_END();
 	
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	if(accept) {
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_DROPFILES, MSGFLT_ALLOW, NULL);
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, WM_COPYDATA, MSGFLT_ALLOW, NULL);
+		ChangeWindowMessageFilterEx(((PWBOBJ)pwbo)->hwnd, 0x0049, MSGFLT_ALLOW, NULL);
+	}
+
 	DragAcceptFiles(((PWBOBJ)pwbo)->hwnd, accept);
 	RETURN_BOOL(TRUE);
 }
@@ -531,21 +538,63 @@ ZEND_FUNCTION(wb_get_drop_files)
 		Z_PARAM_BOOL(isShort)
 	ZEND_PARSE_PARAMETERS_END();
 
-	pHDrop = wparam;
+	pHDrop = (HDROP *)wparam;
 	fcount = DragQueryFileA(pHDrop, 0xFFFFFFFF, buffer, 2048);	
 	if(!fcount) RETURN_NULL();
 
 	array_init(return_value);
 	for(i = 0; i < fcount; i++)
 	{
-		DragQueryFileA(pHDrop, i, buffer, 2048);	
-		shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
-		if(shortpath_size == 0) {
+		DragQueryFileA(pHDrop, i, buffer, 2048);
+		if(isShort) {
+			shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
+			if(shortpath_size == 0) {
+				add_next_index_string(return_value, buffer);
+			} else {
+				add_next_index_string(return_value, shortpath);
+			}
+		} else {
 			add_next_index_string(return_value, buffer);
-		}else{
-			add_next_index_string(return_value, shortpath);
 		}
 	}
 }
 
-//------------------------------------------------------------------ END OF FILE
+
+ZEND_FUNCTION(wb_bring_to_front)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(!IsWindowVisible(((PWBOBJ)pwbo)->hwnd)) RETURN_BOOL(FALSE);
+	if(IsIconic(((PWBOBJ)pwbo)->hwnd) && !ShowWindow(((PWBOBJ)pwbo)->hwnd, SW_RESTORE)) RETURN_BOOL(FALSE);
+	if(!SetWindowPos(((PWBOBJ)pwbo)->hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)) RETURN_BOOL(FALSE);
+	if(!SetWindowPos(((PWBOBJ)pwbo)->hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW)) RETURN_BOOL(FALSE);
+	RETURN_BOOL(BringWindowToTop(((PWBOBJ)pwbo)->hwnd));
+}
+
+
+ZEND_FUNCTION(wb_get_window_buffer)
+{
+	long pwbo;
+	
+	ZEND_PARSE_PARAMETERS_NONE();
+
+	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	RETURN_LONG(((PWBOBJ)pwbo)->pbuffer);
+}
+
+
+ZEND_FUNCTION(wb_get_window_handle)
+{
+	long pwbo;
+	
+	ZEND_PARSE_PARAMETERS_NONE();
+
+	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
+
+	RETURN_LONG(((PWBOBJ)pwbo)->hwnd);
+}

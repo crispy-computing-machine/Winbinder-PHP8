@@ -39,6 +39,9 @@
 
 #define PHP_REGEX_H // Skip php_regex.h: '_off_t' not defined anywhere
 
+#define SWAPWORD(x)	MAKEWORD(HIBYTE(x), LOBYTE(x))
+#define SWAPLONG(x)	MAKELONG(SWAPWORD(HIWORD(x)), SWAPWORD(LOWORD(x)))
+
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb/wb.h"
@@ -81,7 +84,11 @@ void dumptcs(TCHAR *str);
 char *ConvertUTF16ToUTF8(LPCWSTR pszTextUTF16, int *plen);
 BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
-char *_ConvertBSTRToLPSTR(BSTR bstrIn);
+char *ConvertBSTRToLPSTR(BSTR bstrIn);
+
+// Time functions
+int get_system_timezone(char *tzchar);
+int time_offset();
 
 //------------------------------------------------------------------ END OF FILE
 
