@@ -67,44 +67,47 @@ static int pix_cx, pix_cy; // For low-level bitmap functions
  */
 HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDIBBits)
 {
-	HBITMAP hbm;
-	HDC hdc;
-	BITMAP bm;
+    HBITMAP hbm = NULL;
+    HDC hdc = CreateCompatibleDC(NULL); // Use CreateCompatibleDC instead of CreateDC
 
-	hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
-	//	hdc = CreateCompatibleDC(NULL);
-	if (!hdc)
-	{
-		return NULL;
-	}
+    if (!hdc)
+    {
+        return NULL;
+    }
 
-	if (nWidth && nHeight)
-	{
+    if (nWidth > 0 && nHeight > 0)
+    {
+        if (hbmpData && lpDIBBits)
+        {
+            hbm = SetBitmap(hbmpData, lpDIBBits, nWidth, nHeight);
+            DeleteDC(hdc);
+            return hbm;
+        }
 
-		if (hbmpData && lpDIBBits)
-		{ // In case hbmpData and lpDIBBits are supplied
-			hbm = SetBitmap(hbmpData, lpDIBBits, nWidth, nHeight);
-			DeleteDC(hdc);
-			return hbm;
-		}
+        // Create a compatible bitmap
+        hbm = CreateCompatibleBitmap(hdc, nWidth, nHeight);
+        if (!hbm)
+        {
+            DeleteDC(hdc);
+            return NULL;
+        }
 
-		hbm = CreateCompatibleBitmap(hdc, nWidth, nHeight);
-		if (!hbm)
-		{
-			DeleteDC(hdc);
-			return NULL;
-		}
-		bm.bmWidth = nWidth;
-		bm.bmHeight = nHeight;
-		bm.bmBitsPixel = 24; // ***** Only 24 bpp bitmaps
-		DeleteDC(hdc);
-		return hbm;
-	}
-	else
-	{
-		DeleteDC(hdc);
-		return NULL;
-	}
+        // Select the bitmap into the device context to access its bits
+        SelectObject(hdc, hbm);
+
+        // Clear the bitmap
+        memset(lpDIBBits, 0, nWidth * nHeight * 3); // Assuming 24 bpp (3 bytes per pixel)
+
+        // Release the device context
+        DeleteDC(hdc);
+
+        return hbm;
+    }
+    else
+    {
+        DeleteDC(hdc);
+        return NULL;
+    }
 }
 
 /* Create a transparent mask from a bitmap, pbm. clTransparent is the transparent color. Return a
