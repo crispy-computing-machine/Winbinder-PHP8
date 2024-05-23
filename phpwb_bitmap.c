@@ -71,8 +71,10 @@ ZEND_FUNCTION(wb_save_image)
 	if (!hbm){
 		RETURN_BOOL(FALSE);
 	}
-	wcs = Utf82WideChar(s, s_len);
-	ret = wbSaveBitmap((HBITMAP)hbm, wcs);
+
+	//wcs = Utf82WideChar(s, s_len);
+
+	ret = wbSaveBitmap((HBITMAP)hbm, s);
 	wbFree(wcs);
 	wbFree(s);
 
