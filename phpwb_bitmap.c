@@ -191,7 +191,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	}
 	// 2016_08_12 - Jared Allard: we don't need a TRUE to be passed anymore.
 	RETVAL_STRINGL(lpBits, size);
-	wbFree(lpBits);
+	//wbFree(lpBits);
 }
 
 ZEND_FUNCTION(wb_create_mask)
