@@ -431,6 +431,15 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
     }
     printf("Bitmap info structure created.\n");
 
+    // Print the BITMAPINFOHEADER fields
+    printf("Bitmap Info Header:\n");
+    printf("  biSize: %lu\n", pbmi->bmiHeader.biSize);
+    printf("  biWidth: %ld\n", pbmi->bmiHeader.biWidth);
+    printf("  biHeight: %ld\n", pbmi->bmiHeader.biHeight);
+    printf("  biPlanes: %u\n", pbmi->bmiHeader.biPlanes);
+    printf("  biBitCount: %u\n", pbmi->bmiHeader.biBitCount);
+    printf("  biSizeImage: %lu\n", pbmi->bmiHeader.biSizeImage);
+
     // Allocate memory for bitmap data
     *lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage);
     if (!*lpBits)
