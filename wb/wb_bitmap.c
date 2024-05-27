@@ -468,6 +468,13 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
     printf("Bitmap size: %ld bytes.\n", dwBmBitsSize);
     DeleteDC(hdc);
 
+    // Debugging: Print first few bytes
+    printf("First few bytes of lpBits:\n");
+    for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+        printf("%02x ", (*lpBits)[i]);
+    }
+    printf("\n");
+
     // Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
     if (bCompress4to3)
     {
@@ -494,6 +501,20 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         *lpBits = compressedBits;
         dwBmBitsSize = (dwBmBitsSize / 4) * 3;
         printf("Bitmap data compressed to 24-bit format.\n");
+
+        // Debugging: Print first few bytes of compressed data
+        printf("First few bytes of compressed lpBits:\n");
+        for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+            printf("%02x ", (*lpBits)[i]);
+        }
+        printf("\n");
+    } else {
+        // Debugging: Print first few bytes of uncompressed data
+        printf("First few bytes of uncompressed lpBits:\n");
+        for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+            printf("%02x ", (*lpBits)[i]);
+        }
+        printf("\n");
     }
 
     // Free the bitmap info structure
