@@ -417,72 +417,72 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
     // Validate bitmap handle
     if (!hbm)
     {
-        printf("Error: Invalid bitmap handle.\n");
+        //printf("Error: Invalid bitmap handle.\n");
         return 0;
     }
-    printf("Bitmap handle is valid.\n");
+    //printf("Bitmap handle is valid.\n");
 
     // Create bitmap info structure
     pbmi = CreateBitmapInfoStruct(hbm);
     if (!pbmi)
     {
-        printf("Error: Failed to create bitmap info structure.\n");
+        //printf("Error: Failed to create bitmap info structure.\n");
         return 0;
     }
-    printf("Bitmap info structure created.\n");
+    //printf("Bitmap info structure created.\n");
 
     // Print the BITMAPINFOHEADER fields
-    printf("Bitmap Info Header:\n");
-    printf("  biSize: %lu\n", pbmi->bmiHeader.biSize);
-    printf("  biWidth: %ld\n", pbmi->bmiHeader.biWidth);
-    printf("  biHeight: %ld\n", pbmi->bmiHeader.biHeight);
-    printf("  biPlanes: %u\n", pbmi->bmiHeader.biPlanes);
-    printf("  biBitCount: %u\n", pbmi->bmiHeader.biBitCount);
-    printf("  biSizeImage: %lu\n", pbmi->bmiHeader.biSizeImage);
+    //printf("Bitmap Info Header:\n");
+    //printf("  biSize: %lu\n", pbmi->bmiHeader.biSize);
+    //printf("  biWidth: %ld\n", pbmi->bmiHeader.biWidth);
+    //printf("  biHeight: %ld\n", pbmi->bmiHeader.biHeight);
+    //printf("  biPlanes: %u\n", pbmi->bmiHeader.biPlanes);
+    //printf("  biBitCount: %u\n", pbmi->bmiHeader.biBitCount);
+    //printf("  biSizeImage: %lu\n", pbmi->bmiHeader.biSizeImage);
 
     // Allocate memory for bitmap data
     *lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage);
     if (!*lpBits)
     {
-        printf("Error: Failed to allocate memory for bitmap data.\n");
+        //printf("Error: Failed to allocate memory for bitmap data.\n");
         wbFree(pbmi);
         return 0;
     }
-    printf("Memory allocated for bitmap data.\n");
+    //printf("Memory allocated for bitmap data.\n");
 
     // Create a device context
     hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
     if (!hdc)
     {
-        printf("Error: Failed to create device context.\n");
+        //printf("Error: Failed to create device context.\n");
         wbFree(pbmi);
         wbFree(*lpBits);
         return 0;
     }
-    printf("Device context created.\n");
+    //printf("Device context created.\n");
 
     // Get DIB bits
     if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
     {
-        printf("Error: Failed to get DIB bits.\n");
+        //printf("Error: Failed to get DIB bits.\n");
         wbFree(pbmi);
         wbFree(*lpBits);
         DeleteDC(hdc);
         return 0;
     }
-    printf("DIB bits retrieved successfully.\n");
+    //printf("DIB bits retrieved successfully.\n");
 
     // Calculate the size of the bitmap bits
     dwBmBitsSize = pbmi->bmiHeader.biSizeImage;
-    printf("Bitmap size: %ld bytes.\n", dwBmBitsSize);
+    //printf("Bitmap size: %ld bytes.\n", dwBmBitsSize);
     DeleteDC(hdc);
 
     // Debugging: Print first few bytes
-    printf("First few bytes of lpBits:\n");
-    for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-        printf("%02x ", (*lpBits)[i]);
-    }
-    printf("\n");
+    //printf("First few bytes of lpBits:\n");
+    //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
+    //    printf("%02x ", (*lpBits)[i]);
+    //}
+    //printf("\n");
 
     // Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
     if (bCompress4to3)
@@ -491,7 +491,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         BYTE *compressedBits = (BYTE *)wbMalloc((dwBmBitsSize / 4) * 3);
         if (!compressedBits)
         {
-            printf("Error: Failed to allocate memory for compressed bitmap data.\n");
+            //printf("Error: Failed to allocate memory for compressed bitmap data.\n");
             wbFree(pbmi);
             wbFree(*lpBits);
             return 0;
@@ -509,26 +509,26 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         wbFree(*lpBits);
         *lpBits = compressedBits;
         dwBmBitsSize = (dwBmBitsSize / 4) * 3;
-        printf("Bitmap data compressed to 24-bit format.\n");
+        //printf("Bitmap data compressed to 24-bit format.\n");
 
         // Debugging: Print first few bytes of compressed data
-        printf("First few bytes of compressed lpBits:\n");
-        for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-            printf("%02x ", (*lpBits)[i]);
-        }
-        printf("\n");
+        //printf("First few bytes of compressed lpBits:\n");
+        //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
+        //    printf("%02x ", (*lpBits)[i]);
+        //}
+        //printf("\n");
     } else {
         // Debugging: Print first few bytes of uncompressed data
-        printf("First few bytes of uncompressed lpBits:\n");
-        for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-            printf("%02x ", (*lpBits)[i]);
-        }
-        printf("\n");
+        //printf("First few bytes of uncompressed lpBits:\n");
+        //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
+            //printf("%02x ", (*lpBits)[i]);
+        //}
+        //printf("\n");
     }
 
     // Free the bitmap info structure
     wbFree(pbmi);
-    printf("Bitmap info structure freed.\n");
+    //printf("Bitmap info structure freed.\n");
 
     return dwBmBitsSize;
 }
