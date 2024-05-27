@@ -420,6 +420,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         printf("Error: Invalid bitmap handle.\n");
         return 0;
     }
+    printf("Bitmap handle is valid.\n");
 
     // Create bitmap info structure
     pbmi = CreateBitmapInfoStruct(hbm);
@@ -428,6 +429,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         printf("Error: Failed to create bitmap info structure.\n");
         return 0;
     }
+    printf("Bitmap info structure created.\n");
 
     // Allocate memory for bitmap data
     *lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage);
@@ -437,6 +439,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         wbFree(pbmi);
         return 0;
     }
+    printf("Memory allocated for bitmap data.\n");
 
     // Create a device context
     hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
@@ -447,6 +450,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         wbFree(*lpBits);
         return 0;
     }
+    printf("Device context created.\n");
 
     // Get DIB bits
     if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
@@ -457,9 +461,11 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         DeleteDC(hdc);
         return 0;
     }
+    printf("DIB bits retrieved successfully.\n");
 
     // Calculate the size of the bitmap bits
     dwBmBitsSize = pbmi->bmiHeader.biSizeImage;
+    printf("Bitmap size: %ld bytes.\n", dwBmBitsSize);
     DeleteDC(hdc);
 
     // Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
@@ -487,10 +493,12 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
         wbFree(*lpBits);
         *lpBits = compressedBits;
         dwBmBitsSize = (dwBmBitsSize / 4) * 3;
+        printf("Bitmap data compressed to 24-bit format.\n");
     }
 
     // Free the bitmap info structure
     wbFree(pbmi);
+    printf("Bitmap info structure freed.\n");
 
     return dwBmBitsSize;
 }
