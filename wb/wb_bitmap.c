@@ -470,7 +470,7 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 
     // Debugging: Print first few bytes
     printf("First few bytes of lpBits:\n");
-    for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+    for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
         printf("%02x ", (*lpBits)[i]);
     }
     printf("\n");
@@ -504,14 +504,14 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
 
         // Debugging: Print first few bytes of compressed data
         printf("First few bytes of compressed lpBits:\n");
-        for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+        for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
             printf("%02x ", (*lpBits)[i]);
         }
         printf("\n");
     } else {
         // Debugging: Print first few bytes of uncompressed data
         printf("First few bytes of uncompressed lpBits:\n");
-        for (int i = 0; i < 10 && i < dwBmBitsSize; i++) {
+        for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
             printf("%02x ", (*lpBits)[i]);
         }
         printf("\n");
