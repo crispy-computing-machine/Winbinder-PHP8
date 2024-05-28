@@ -316,10 +316,10 @@ ZEND_FUNCTION(wb_exec)
 {
 	char *pgm, *parm = NULL;
 	size_t pgm_len, parm_len = 0;
-	zend_bool show = TRUE;
+	zend_bool show;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
-	zend_bool show_isnull;
+	zend_bool show_isnull = TRUE;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)

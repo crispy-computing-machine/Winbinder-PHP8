@@ -15,6 +15,8 @@
 #include <shlobj.h>
 #include <stdio.h>
 #include <commdlg.h>
+#include <tchar.h>
+#include <string.h>
 
 //-------------------------------------------------------------------- CONSTANTS
 
@@ -211,36 +213,60 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 		return NOCOLOR;
 }
 
-PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
-{
-	CHOOSEFONT cf;
-	LOGFONT lf;
+PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
+    if (pwboParent == NULL) {
+        return NULL;
+    }
 
-	ZeroMemory(&cf, sizeof(CHOOSEFONT));
-	ZeroMemory(&lf, sizeof(LOGFONT));
-	cf.lStructSize = sizeof(CHOOSEFONT);
-	cf.hwndOwner = (HWND)pwboParent->hwnd;
-	cf.lpLogFont = &lf;
+    CHOOSEFONT cf;
+    LOGFONT lf;
 
-	if (pfont)
-	{ 
-		// A default font was specified
-		cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
-		cf.rgbColors = pfont->color;
-		lf.lfHeight = pfont->nHeight;
-		lf.lfWeight = (pfont->dwFlags & FTA_BOLD) ? FW_BOLD : FW_NORMAL;
-		lf.lfWeight = (pfont->dwFlags & FTA_ITALIC) ? TRUE : FALSE;
-		lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
-		lf.lfCharSet = DEFAULT_CHARSET;
-		strncpy((char *)lf.lfFaceName, (char *)pfont->pszName, LF_FACESIZE);
-	}
-	else
-		cf.Flags = CF_TTONLY;
+    ZeroMemory(&cf, sizeof(CHOOSEFONT));
+    ZeroMemory(&lf, sizeof(LOGFONT));
 
-	if (!ChooseFont(&cf))
-		return NULL;
+    cf.lStructSize = sizeof(CHOOSEFONT);
+    cf.hwndOwner = pwboParent->hwnd;
+    cf.lpLogFont = &lf;
 
-	return NULL;
+    if (pfont) {
+        // A default font was specified
+        cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
+        cf.rgbColors = pfont->color;
+
+        lf.lfHeight = pfont->nHeight;
+        lf.lfWeight = (pfont->dwFlags & FTA_BOLD) ? FW_BOLD : FW_NORMAL;
+        lf.lfItalic = (pfont->dwFlags & FTA_ITALIC) ? TRUE : FALSE;
+        lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
+        lf.lfCharSet = DEFAULT_CHARSET;
+        _tcsncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE - 1);
+        lf.lfFaceName[LF_FACESIZE - 1] = '\0';  // Ensure null termination
+    } else {
+        cf.Flags = CF_TTONLY;
+    }
+
+    if (!ChooseFont(&cf)) {
+        return NULL;
+    }
+
+    // Update pfont with the chosen font details
+    if (pfont) {
+        pfont->color = cf.rgbColors;
+        pfont->nHeight = lf.lfHeight;
+        pfont->dwFlags = 0;
+        if (lf.lfWeight == FW_BOLD) {
+            pfont->dwFlags |= FTA_BOLD;
+        }
+        if (lf.lfItalic) {
+            pfont->dwFlags |= FTA_ITALIC;
+        }
+        if (lf.lfUnderline) {
+            pfont->dwFlags |= FTA_UNDERLINE;
+        }
+        _tcsncpy(pfont->pszName, lf.lfFaceName, LF_FACESIZE - 1);
+        pfont->pszName[LF_FACESIZE - 1] = '\0';  // Ensure null termination
+    }
+
+    return pfont;
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS

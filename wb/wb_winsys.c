@@ -252,16 +252,12 @@ UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 	// Ensure that messages will go to this window
 
 	SetFocus(hwnd);
-
 	// Peek message
-
 	dwMs = GetTickCount();
 
 	//	dwTimeout = MAX(1, dwTimeout);
-
 	while (TRUE)
 	{
-
 		if (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
 		{
 
@@ -310,17 +306,19 @@ UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 			}
 
 			// "Eat" this message
-
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
 		} // ~if
 
+        // No timeout
 		if (dwTimeout == 0)
 			break;
 
+        // Elapsed timeout, break
 		if (GetTickCount() >= dwMs + dwTimeout) // Time's out
 			break;
+
 	} // ~while
 
 	return 0;
