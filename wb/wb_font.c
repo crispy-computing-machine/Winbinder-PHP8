@@ -82,7 +82,7 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 /**
  * Add a font to font cache
 **/
-int wbAddFont(HFONT hFont)
+int wbAddFont(PFONT hFont)
 {
 
 	if (nInstalledFonts >= (MAX_FONTS - 1))

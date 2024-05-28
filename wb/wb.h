@@ -561,7 +561,7 @@ BOOL wbReleaseLibrary(HMODULE hLib);
 // WB_FONTS.C
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags);
-int wbAddFont(HFONT hFont); // add new font struct to cache
+int wbAddFont(PFONT hFont); // add new font struct to cache
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw);
 BOOL wbDestroyFont(int nFont);
 PFONT wbGetFont(int nFont);
