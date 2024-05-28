@@ -561,6 +561,7 @@ BOOL wbReleaseLibrary(HMODULE hLib);
 // WB_FONTS.C
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags);
+int wbAddFont(HFONT hFont); // add new font struct to cache
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw);
 BOOL wbDestroyFont(int nFont);
 PFONT wbGetFont(int nFont);
@@ -578,7 +579,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, LPCTSTR lpstrDefExt);
 BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR pszSelPath);
 COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color);
-PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
+int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
 
 // WB_WINDOW.C
 
