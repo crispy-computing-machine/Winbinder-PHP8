@@ -112,7 +112,7 @@ ZEND_FUNCTION(wb_rotate_image)
 // Zend function to wrap wbResizeBitmap
 ZEND_FUNCTION(wb_resize_image)
 {
-    zend_long hbm;
+    HBITMAP hbm;
     zend_long newWidth, newHeight;
     HBITMAP ret;
 

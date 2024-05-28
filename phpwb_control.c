@@ -676,8 +676,8 @@ ZEND_FUNCTION(wb_refresh)
 ZEND_FUNCTION(wb_begin_refresh)
 {
 	zend_long pwbo;
-	zend_long x = 0, y = 0, width = 0, height = 0, fps = 0, fps_isnull = 0;
-	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull;
+	zend_long x = 0, y = 0, width = 0, height = 0, fps = 0;
+	zend_bool now_isnull, x_isnull, y_isnull, width_isnull, height_isnull, fps_isnull;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|lllll", &pwbo, &now, &x, &y, &width, &height) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
