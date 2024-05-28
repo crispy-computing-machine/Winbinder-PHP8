@@ -447,7 +447,7 @@ BOOL wbCopyPartialBits(HDC hdc, HBITMAP hBitmap, int xTarget, int yTarget, int n
 BOOL wbMaskPartialBits(HDC hdc, HBITMAP hbmImage, HBITMAP hbmMask, int xTarget, int yTarget, int nWidth, int nHeight, int xSource, int ySource);
 //HANDLE		wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex);
 HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam);
-DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBMPData, BOOL bCompress4to3)
+DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBMPData, BOOL bCompress4to3);
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3);
 
 // WB_CONTROL.C
