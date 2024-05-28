@@ -578,7 +578,7 @@ ZEND_FUNCTION(wb_bring_to_front)
 
 ZEND_FUNCTION(wb_get_window_buffer)
 {
-	long pwbo;
+	zend_long pwbo;
 	
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(pwbo)
@@ -592,7 +592,7 @@ ZEND_FUNCTION(wb_get_window_buffer)
 
 ZEND_FUNCTION(wb_get_window_handle)
 {
-	long pwbo;
+	zend_long pwbo;
 	
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(pwbo)
