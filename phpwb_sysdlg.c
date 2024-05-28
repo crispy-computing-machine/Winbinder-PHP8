@@ -205,20 +205,20 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 ZEND_FUNCTION(wb_sys_dlg_font)
 {
 	LONG_PTR pwbparent = (LONG_PTR)NULL;
-	char *title = "";
-	char *name = "";
-	__int64 height = 0, color = 0, flags = 0;
+	char *title;
+	char *name;
+	zend_long height = 12, color = 0, flags = 0;
 	size_t title_len = 0, name_len = 0;
 	int font = 0;
-	zend_bool pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
+	zend_bool name_isnull pwbparent_isnull, height_isnull, color_isnull, flags_isnull;
 
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 6)
-		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(pwbparent, pwbparent_isnull)
+		Z_PARAM_LONG(pwbparent, pwbparent_isnull)
 		Z_PARAM_STRING_OR_NULL(title, title_len)
-		Z_PARAM_STRING_OR_NULL(name,name_len)
+        Z_PARAM_OPTIONAL
+		Z_PARAM_STRING_OR_NULL(name, name_isnull)
 		Z_PARAM_LONG_OR_NULL(height, height_isnull)
 		Z_PARAM_LONG_OR_NULL(color, color_isnull)
 		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
@@ -228,12 +228,16 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		RETURN_NULL();
 	}
 
-	font = wbCreateFont((LPCTSTR)name, height, color, flags);
+    // only create font if we pass a name
+    if(name_isnull){
+	    font = wbCreateFont((LPCTSTR)name, height, color, flags);
+    }
+
 	RETURN_LONG(
 		(LONG_PTR)wbSysDlgFont(
 			(PWBOBJ)pwbparent,
 			 (LPTSTR)title,
-			  0
+			  font
 			  )
 		);
 }

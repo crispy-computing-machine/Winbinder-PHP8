@@ -214,6 +214,7 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 }
 
 PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
+
     if (pwboParent == NULL) {
         return NULL;
     }
