@@ -319,14 +319,14 @@ ZEND_FUNCTION(wb_exec)
 	zend_bool show;
 	TCHAR *szPgm = 0;
 	TCHAR *szParm = 0;
-	zend_bool show_isnull = TRUE;
+	zend_long show_len;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|sl", &pgm, &pgm_len, &parm, &parm_len, &show) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_STRING(pgm, pgm_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_STRING_OR_NULL(parm, parm_len)
-		Z_PARAM_BOOL_OR_NULL(show, show_isnull)
+		Z_PARAM_BOOL_OR_NULL(show, show_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
@@ -598,14 +598,14 @@ ZEND_FUNCTION(wb_destroy_timer)
 ZEND_FUNCTION(wb_wait)
 {
 	zend_long pwbo = 0, pause = 0, flags = WBC_KEYDOWN;
-	zend_bool pwbo_isnull, pause_isnull, flags_isnull;
+	zend_long pwbo_len, pause_len, flags_len;
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lll", &pwbo, &pause, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(0, 3)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
-		Z_PARAM_LONG_OR_NULL(pause, pause_isnull)
-		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_len)
+		Z_PARAM_LONG_OR_NULL(pause, pause_len)
+		Z_PARAM_LONG_OR_NULL(flags, flags_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (pwbo != 0 && !wbIsWBObj((void *)pwbo, TRUE)){
@@ -750,11 +750,11 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 
 	zend_long pwbo;
 	zend_long id;
-	zend_bool pwbo_isnull;
+	zend_long pwbo_len;
 
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_isnull)
+		Z_PARAM_LONG_OR_NULL(pwbo, pwbo_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 
@@ -765,7 +765,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
     if (GetCursorPos(&cursor)) {
 
 		// A handle to the window whose client area will be used for the conversion.
-		if(!pwbo_isnull && ((PWBOBJ)pwbo)->hwnd){
+		if(!pwbo_len && ((PWBOBJ)pwbo)->hwnd){
 			// converts the screen coordinates of a specified point on the screen to client-area coordinates
 			// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-screentoclients
 			ScreenToClient(((PWBOBJ)pwbo)->hwnd, &cursor);	

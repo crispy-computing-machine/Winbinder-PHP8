@@ -23,7 +23,7 @@ ZEND_FUNCTION(wb_send_message)
 {
 	zend_long msg, w, l;
 	zend_long pwbo;
-	zend_bool w_isnull, l_isnull;
+	zend_long w_len, l_len;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -38,8 +38,8 @@ ZEND_FUNCTION(wb_send_message)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_LONG(msg)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(w, w_isnull)
-		Z_PARAM_LONG_OR_NULL(l, l_isnull)
+		Z_PARAM_LONG_OR_NULL(w, w_len)
+		Z_PARAM_LONG_OR_NULL(l, l_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT64)msg, (WPARAM)w, (LPARAM)l));
@@ -51,7 +51,7 @@ ZEND_FUNCTION(wb_peek)
 {
 	zend_long address, bytes = 0;
 	char *ptr;
-	zend_bool bytes_isnull;
+	zend_long bytes_len;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -65,7 +65,7 @@ ZEND_FUNCTION(wb_peek)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(address)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address){
@@ -97,7 +97,7 @@ ZEND_FUNCTION(wb_poke)
 	char *contents;
 	size_t contents_len;
 	void *ptr;
-	zend_bool bytes_isnull;
+	zend_long bytes_len;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -111,7 +111,7 @@ ZEND_FUNCTION(wb_poke)
 		Z_PARAM_LONG(address)
 		Z_PARAM_STRING(contents, contents_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(bytes, bytes_isnull)
+		Z_PARAM_LONG_OR_NULL(bytes, bytes_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!address)
@@ -126,7 +126,7 @@ ZEND_FUNCTION(wb_poke)
 		RETURN_BOOL(FALSE);
 	}
 
-	if (bytes_isnull){
+	if (bytes_len){
 		bytes = contents_len;
 	}
 	ptr = (void *)address;
@@ -256,7 +256,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	char *fun;
 	size_t fun_len;
 	zend_long addr, hlib = (LONG_PTR)NULL;
-	zend_bool hlib_isnull;
+	zend_bool hlib_len;
 
 	// low level functions disabled?
 	if (INI_INT("winbinder.low_level_functions") == 0)
@@ -269,7 +269,7 @@ ZEND_FUNCTION(wb_get_function_address)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_STRING(fun, fun_len)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(hlib, hlib_isnull)
+		Z_PARAM_LONG_OR_NULL(hlib, hlib_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// Is the library handle valid?

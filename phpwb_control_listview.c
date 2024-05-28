@@ -311,7 +311,7 @@ ZEND_FUNCTION(wb_select_all_listview_items)
 ZEND_FUNCTION(wb_get_listview_text)
 {
 	int ncols = 0, nitems = 0;
-	zend_bool nitems_isnull, ncol_isnull;
+	zend_long nitems_len, ncol_len;
 	zend_long pwbo, nitem = -1, ncol = -1;
 	TCHAR szItem[MAX_ITEM_STRING];
 
@@ -323,8 +323,8 @@ ZEND_FUNCTION(wb_get_listview_text)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG_OR_NULL(nitem, nitems_isnull)
-		Z_PARAM_LONG_OR_NULL(ncol, ncol_isnull)
+		Z_PARAM_LONG_OR_NULL(nitem, nitems_len)
+		Z_PARAM_LONG_OR_NULL(ncol, ncol_len)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
