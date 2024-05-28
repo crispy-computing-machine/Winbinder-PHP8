@@ -778,43 +778,6 @@ ZEND_FUNCTION(wb_get_mouse_pos)
     RETURN_BOOL(0);
 }
 
-#define STEPS 100  // Number of steps for the transition
-#define SLEEP_TIME 10  // Time in ms to wait between steps
-ZEND_FUNCTION(wb_set_mouse_pos)
-{
-	POINT p;
-	zend_long x = 0, y = 0;
-
-	ZEND_PARSE_PARAMETERS_START(2, 2)
-	Z_PARAM_LONG(x)
-	Z_PARAM_LONG(y)
-	ZEND_PARSE_PARAMETERS_END();
-
-    if (GetCursorPos(&p)) {
-        int startX = p.x;
-        int startY = p.y;
-
-        for (int i = 1; i <= STEPS; i++) {
-            double fraction = (double)i / STEPS;
-
-            x = startX + round(fraction * (x - startX));
-            y = startY + round(fraction * (y - startY));
-
-            if (!SetCursorPos(x, y)) {
-                RETURN_BOOL(FALSE);
-            }
-
-            Sleep(SLEEP_TIME);
-        }
-    } else {
-        RETURN_BOOL(FALSE);
-    }
-
-    // New return array
-    RETURN_BOOL(TRUE);
-}
-
-
 ZEND_FUNCTION(wb_wmi_query)
 {
 	char *wquery;
