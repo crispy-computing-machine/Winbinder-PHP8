@@ -208,13 +208,13 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *title = "";
 	char *name = "";
 	zend_long height = 12, color = 0, flags = 0;
-	size_t title_len = 0, name_len = 0;
+	zend_bool title_len, name_len;
 	int font = 0;
 	zend_bool name_isnull, height_isnull, color_isnull, flags_isnull;
 
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
-	ZEND_PARSE_PARAMETERS_START(0, 6)
+	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwbparent)
 		Z_PARAM_STRING_OR_NULL(title, title_len)
         Z_PARAM_OPTIONAL
@@ -233,7 +233,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		(LONG_PTR)wbSysDlgFont(
 			(PWBOBJ)pwbparent,
 			 (LPTSTR)title,
-			  font
+			  wbGetFont(font)
 			  )
 		);
 }
