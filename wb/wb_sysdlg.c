@@ -213,7 +213,7 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 		return NOCOLOR;
 }
 
-PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
+int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
 
     if (pwboParent == NULL) {
         return NULL;
@@ -267,7 +267,7 @@ PFONT wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
         pfont->pszName[LF_FACESIZE - 1] = '\0';  // Ensure null termination
     }
 
-    return pfont;
+    return wbAddFont(pfont);
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS

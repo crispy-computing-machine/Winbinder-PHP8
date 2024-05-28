@@ -29,9 +29,7 @@ static int nLastFont = 0; // Zero means no font
 
 /* Sets the font of control pwbobj. Returns the index of the created font or
   zero if failed. 
-  
-  @TODO debug, this segfaults...
-  */
+*/
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 {
@@ -80,6 +78,42 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 
 	return nLastFont;
 }
+
+/**
+ * Add a font to font cache
+**/
+int wbAddFont(HFONT hFont)
+{
+
+	if (nInstalledFonts >= (MAX_FONTS - 1))
+		return 0;
+
+	// Store font in cache
+	if (hFont)
+	{
+		nInstalledFonts++;
+		nLastFont = nInstalledFonts;
+		pFonts[nLastFont] = wbMalloc(sizeof(FONT));
+
+		if (!pFonts[nInstalledFonts])
+			return 0;
+
+		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(pszName) + 1));
+		if (!pFonts[nLastFont]->pszName)
+			return 0;
+
+		wcscpy(pFonts[nLastFont]->pszName, hfont->pszName);
+		pFonts[nLastFont]->nHeight = hfont->nHeight;
+		pFonts[nLastFont]->color = hfont->color;
+		pFonts[nLastFont]->dwFlags = hfont->dwFlags;
+		pFonts[nLastFont]->hFont = hFont;
+	}
+	else
+		return 0;
+
+	return nLastFont;
+}
+
 
 /* Sets or resets the font of control pwbobj.
 
