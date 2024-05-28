@@ -580,7 +580,9 @@ ZEND_FUNCTION(wb_get_window_buffer)
 {
 	long pwbo;
 	
-	ZEND_PARSE_PARAMETERS_NONE();
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
@@ -592,7 +594,9 @@ ZEND_FUNCTION(wb_get_window_handle)
 {
 	long pwbo;
 	
-	ZEND_PARSE_PARAMETERS_NONE();
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
