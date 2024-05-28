@@ -98,14 +98,14 @@ int wbAddFont(HFONT hFont)
 		if (!pFonts[nInstalledFonts])
 			return 0;
 
-		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(pszName) + 1));
+		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(hFont->pszName) + 1));
 		if (!pFonts[nLastFont]->pszName)
 			return 0;
 
-		wcscpy(pFonts[nLastFont]->pszName, hfont->pszName);
-		pFonts[nLastFont]->nHeight = hfont->nHeight;
-		pFonts[nLastFont]->color = hfont->color;
-		pFonts[nLastFont]->dwFlags = hfont->dwFlags;
+		wcscpy(pFonts[nLastFont]->pszName, hFont->pszName);
+		pFonts[nLastFont]->nHeight = hFont->nHeight;
+		pFonts[nLastFont]->color = hFont->color;
+		pFonts[nLastFont]->dwFlags = hFont->dwFlags;
 		pFonts[nLastFont]->hFont = hFont;
 	}
 	else

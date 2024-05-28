@@ -229,6 +229,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	}
 
     font = wbCreateFont((LPCTSTR)name, height, color, flags);
+
 	RETURN_LONG(
 		wbSysDlgFont(
 			(PWBOBJ)pwbparent,
