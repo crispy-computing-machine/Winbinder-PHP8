@@ -410,7 +410,7 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Function to retrieve bitmap data and return it as a BMP string
 // Returns the size of the BMP data string or 0 on failure
-DWORDLONG wbGetBitmapBMP(HBITMAP hbm, BYTE **lpBMPData, BOOL bCompress4to3)
+DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBMPData, BOOL bCompress4to3)
 {
     HDC hdc;
     PBITMAPINFO pbmi;
