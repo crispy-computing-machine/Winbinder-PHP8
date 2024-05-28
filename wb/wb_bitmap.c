@@ -408,7 +408,9 @@ BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName)
 
 // Fill up a memory area with the RGB bitmap bit data
 
-DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
+// Function to retrieve bitmap data and return it as a BMP string
+// Returns the size of the BMP data string or 0 on failure
+DWORDLONG wbGetBitmapBMP(HBITMAP hbm, BYTE **lpBMPData, BOOL bCompress4to3)
 {
     HDC hdc;
     PBITMAPINFO pbmi;
@@ -417,120 +419,77 @@ DWORDLONG wbGetBitmapBits(HBITMAP hbm, BYTE **lpBits, BOOL bCompress4to3)
     // Validate bitmap handle
     if (!hbm)
     {
-        //printf("Error: Invalid bitmap handle.\n");
         return 0;
     }
-    //printf("Bitmap handle is valid.\n");
 
     // Create bitmap info structure
     pbmi = CreateBitmapInfoStruct(hbm);
     if (!pbmi)
     {
-        //printf("Error: Failed to create bitmap info structure.\n");
         return 0;
     }
-    //printf("Bitmap info structure created.\n");
-
-    // Print the BITMAPINFOHEADER fields
-    //printf("Bitmap Info Header:\n");
-    //printf("  biSize: %lu\n", pbmi->bmiHeader.biSize);
-    //printf("  biWidth: %ld\n", pbmi->bmiHeader.biWidth);
-    //printf("  biHeight: %ld\n", pbmi->bmiHeader.biHeight);
-    //printf("  biPlanes: %u\n", pbmi->bmiHeader.biPlanes);
-    //printf("  biBitCount: %u\n", pbmi->bmiHeader.biBitCount);
-    //printf("  biSizeImage: %lu\n", pbmi->bmiHeader.biSizeImage);
 
     // Allocate memory for bitmap data
-    *lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage);
-    if (!*lpBits)
+    LPBYTE lpBits = (LPBYTE)wbMalloc(pbmi->bmiHeader.biSizeImage);
+    if (!lpBits)
     {
-        //printf("Error: Failed to allocate memory for bitmap data.\n");
         wbFree(pbmi);
         return 0;
     }
-    //printf("Memory allocated for bitmap data.\n");
 
     // Create a device context
     hdc = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
     if (!hdc)
     {
-        //printf("Error: Failed to create device context.\n");
         wbFree(pbmi);
-        wbFree(*lpBits);
+        wbFree(lpBits);
         return 0;
     }
-    //printf("Device context created.\n");
 
     // Get DIB bits
-    if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, *lpBits, pbmi, DIB_RGB_COLORS))
+    if (!GetDIBits(hdc, hbm, 0, (WORD)pbmi->bmiHeader.biHeight, lpBits, pbmi, DIB_RGB_COLORS))
     {
-        //printf("Error: Failed to get DIB bits.\n");
         wbFree(pbmi);
-        wbFree(*lpBits);
+        wbFree(lpBits);
         DeleteDC(hdc);
         return 0;
     }
-    //printf("DIB bits retrieved successfully.\n");
 
     // Calculate the size of the bitmap bits
     dwBmBitsSize = pbmi->bmiHeader.biSizeImage;
-    //printf("Bitmap size: %ld bytes.\n", dwBmBitsSize);
     DeleteDC(hdc);
 
-    // Debugging: Print first few bytes
-    //printf("First few bytes of lpBits:\n");
-    //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-    //    printf("%02x ", (*lpBits)[i]);
-    //}
-    //printf("\n");
-
-    // Some applications need RGB (24-bit) data instead of RGBQUAD (32-bit) data
-    if (bCompress4to3)
+    // Allocate memory for the BMP file data (file header + DIB header + pixel data)
+    DWORD bmpFileSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dwBmBitsSize;
+    BYTE *bmpData = (BYTE *)wbMalloc(bmpFileSize);
+    if (!bmpData)
     {
-        int i, x;
-        BYTE *compressedBits = (BYTE *)wbMalloc((dwBmBitsSize / 4) * 3);
-        if (!compressedBits)
-        {
-            //printf("Error: Failed to allocate memory for compressed bitmap data.\n");
-            wbFree(pbmi);
-            wbFree(*lpBits);
-            return 0;
-        }
-
-        // Remove every fourth byte from the original RGBQUAD data
-        for (i = 0, x = 0; i < (int)dwBmBitsSize; i += 4, x += 3)
-        {
-            compressedBits[x] = (*lpBits)[i];
-            compressedBits[x + 1] = (*lpBits)[i + 1];
-            compressedBits[x + 2] = (*lpBits)[i + 2];
-        }
-
-        // Free the original bitmap data and assign the compressed data
-        wbFree(*lpBits);
-        *lpBits = compressedBits;
-        dwBmBitsSize = (dwBmBitsSize / 4) * 3;
-        //printf("Bitmap data compressed to 24-bit format.\n");
-
-        // Debugging: Print first few bytes of compressed data
-        //printf("First few bytes of compressed lpBits:\n");
-        //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-        //    printf("%02x ", (*lpBits)[i]);
-        //}
-        //printf("\n");
-    } else {
-        // Debugging: Print first few bytes of uncompressed data
-        //printf("First few bytes of uncompressed lpBits:\n");
-        //for (int i = 0; i < 30 && i < dwBmBitsSize; i++) {
-            //printf("%02x ", (*lpBits)[i]);
-        //}
-        //printf("\n");
+        wbFree(pbmi);
+        wbFree(lpBits);
+        return 0;
     }
 
-    // Free the bitmap info structure
-    wbFree(pbmi);
-    //printf("Bitmap info structure freed.\n");
+    // Fill in the BITMAPFILEHEADER
+    BITMAPFILEHEADER *bmfHeader = (BITMAPFILEHEADER *)bmpData;
+    bmfHeader->bfType = 0x4D42; // 'BM'
+    bmfHeader->bfSize = bmpFileSize;
+    bmfHeader->bfReserved1 = 0;
+    bmfHeader->bfReserved2 = 0;
+    bmfHeader->bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
-    return dwBmBitsSize;
+    // Copy the DIB header and pixel data into bmpData
+    memcpy(bmpData + sizeof(BITMAPFILEHEADER), &pbmi->bmiHeader, sizeof(BITMAPINFOHEADER));
+    memcpy(bmpData + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER), lpBits, dwBmBitsSize);
+
+    // Free the original bitmap data
+    wbFree(pbmi);
+    wbFree(lpBits);
+
+    // Set the BMP data pointer
+    *lpBMPData = bmpData;
+
+    // Return the size of the BMP data string
+    return bmpFileSize;
 }
 
 COLORREF wbGetPixelDirect(unsigned char *pixdata, int xPos, int yPos, BOOL bCompress4to3)

@@ -254,6 +254,7 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
         pfont->color = cf.rgbColors;
         pfont->nHeight = lf.lfHeight;
         pfont->dwFlags = 0;
+
         if (lf.lfWeight == FW_BOLD) {
             pfont->dwFlags |= FTA_BOLD;
         }
