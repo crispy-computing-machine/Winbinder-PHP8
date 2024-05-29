@@ -14,6 +14,9 @@ WinBinder is an open source extension to PHP, the script programming language. I
 
 [Examples](https://github.com/crispy-computing-machine/Winbinder-Examples)
 
+[IDE Stub File](https://gist.github.com/crispy-computing-machine/ee4e94ba5e4870a7907535185af14ba0)
+
+
 PHP Build Compatibility
 ========================
   - PHP 7.* ❌ (unsupported)
