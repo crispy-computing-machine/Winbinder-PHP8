@@ -18,6 +18,7 @@
 // External
 
 extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
+extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -828,6 +829,25 @@ ZEND_FUNCTION(wb_set_location)
 	}
 }
 
+// Function to set the proxy for the web browser instance
+PHP_FUNCTION(set_browser_proxy) {
+
+    char* proxyAddress = NULL;
+    size_t proxyAddressLen;
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(proxyAddress, proxyAddressLen)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_BOOL(FALSE);
+	}
+
+    RETURN_BOOL(SetProxyForWebBrowser((PWBOBJ)pwbo, proxyAddress));
+
+}
 //------------------------------------------------- AUXILIARY EXPORTED FUNCTIONS
 
 ZEND_FUNCTION(wb_select_tab)
