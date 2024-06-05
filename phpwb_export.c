@@ -100,6 +100,7 @@ ZEND_FUNCTION(wb_set_handler);
 ZEND_FUNCTION(wb_set_image);
 ZEND_FUNCTION(wb_set_item_image);
 ZEND_FUNCTION(wb_set_location);
+ZEND_FUNCTION(wb_set_browser_proxy);
 ZEND_FUNCTION(wb_set_range);
 ZEND_FUNCTION(wb_set_state);
 ZEND_FUNCTION(wb_set_style);
@@ -297,6 +298,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_focus,arginfo_wb_set_focus)
         ZEND_FE(wb_set_handler,arginfo_wb_set_handler)
         ZEND_FE(wb_set_location,arginfo_wb_set_location)
+        ZEND_FE(wb_set_browser_proxy,arginfo_wb_set_browser_proxy)
         ZEND_FE(wb_set_range,arginfo_wb_set_range)
         ZEND_FE(wb_set_state,arginfo_wb_set_state)
         ZEND_FE(wb_set_style,arginfo_wb_set_style)

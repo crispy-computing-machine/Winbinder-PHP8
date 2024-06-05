@@ -18,6 +18,7 @@
 // External
 
 extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
+extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
@@ -830,7 +831,7 @@ ZEND_FUNCTION(wb_set_location)
 }
 
 // Function to set the proxy for the web browser instance
-PHP_FUNCTION(set_browser_proxy) {
+PHP_FUNCTION(wb_set_browser_proxy) {
 
     char* proxyAddress = NULL;
     size_t proxyAddressLen;

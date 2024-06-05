@@ -46,7 +46,6 @@ static const SAFEARRAYBOUND ArrayBound = {1, 0}; // This is used by DisplayHTMLS
 static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height);
 static BOOL UnEmbedBrowserObject(HWND);
 static BOOL DoPageAction(PWBOBJ pwbo, DWORD action, PVOID pvResult);
-BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 
 //------------------------------------------------------------------------ TYPES
 
@@ -492,6 +491,68 @@ BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
+    HKEY hKey;
+    LONG result;
+    DWORD proxyEnable;
+    IWebBrowser2 *webBrowser2;
+    IOleObject *browserObject;
+
+    // Open the registry key where Internet Settings are stored
+    result = RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"), 0, KEY_SET_VALUE, &hKey);
+    if (result != ERROR_SUCCESS) {
+        return FALSE;
+    }
+
+    if (proxyAddress && strlen(proxyAddress) > 0) {
+        // Set the proxy server address
+        result = RegSetValueEx(hKey, TEXT("ProxyServer"), 0, REG_SZ, (const BYTE*)proxyAddress, (DWORD)(strlen(proxyAddress) + 1) * sizeof(char));
+        if (result != ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            return FALSE;
+        }
+
+        // Enable the proxy
+        proxyEnable = 1;
+        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
+        if (result != ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            return FALSE;
+        }
+    } else {
+        // Disable the proxy
+        proxyEnable = 0;
+        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
+        if (result != ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            return FALSE;
+        }
+
+        // Clear the proxy server address
+        result = RegDeleteValue(hKey, TEXT("ProxyServer"));
+        if (result != ERROR_SUCCESS && result != ERROR_FILE_NOT_FOUND) {
+            RegCloseKey(hKey);
+            return FALSE;
+        }
+    }
+
+    RegCloseKey(hKey);
+
+    // Notify the system that the proxy settings have changed
+    InternetSetOption(NULL, INTERNET_OPTION_SETTINGS_CHANGED, NULL, 0);
+    InternetSetOption(NULL, INTERNET_OPTION_REFRESH, NULL, 0);
+
+    // Refresh the web browser control
+    browserObject = *((IOleObject **)pwbo->lparams[0]);
+    if (!browserObject->lpVtbl->QueryInterface(browserObject, (IID *)&IID_IWebBrowser2, (void **)&webBrowser2))
+    {
+        webBrowser2->lpVtbl->Refresh(webBrowser2);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 //--------------------------------------------------------------- OBJECT METHODS
@@ -1098,65 +1159,4 @@ LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lP
 }
 
 
-static BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
-    HKEY hKey;
-    LONG result;
-    DWORD proxyEnable;
-    IWebBrowser2 *webBrowser2;
-    IOleObject *browserObject;
-
-    // Open the registry key where Internet Settings are stored
-    result = RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"), 0, KEY_SET_VALUE, &hKey);
-    if (result != ERROR_SUCCESS) {
-        return FALSE;
-    }
-
-    if (proxyAddress && strlen(proxyAddress) > 0) {
-        // Set the proxy server address
-        result = RegSetValueEx(hKey, TEXT("ProxyServer"), 0, REG_SZ, (const BYTE*)proxyAddress, (DWORD)(strlen(proxyAddress) + 1) * sizeof(char));
-        if (result != ERROR_SUCCESS) {
-            RegCloseKey(hKey);
-            return FALSE;
-        }
-
-        // Enable the proxy
-        proxyEnable = 1;
-        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
-        if (result != ERROR_SUCCESS) {
-            RegCloseKey(hKey);
-            return FALSE;
-        }
-    } else {
-        // Disable the proxy
-        proxyEnable = 0;
-        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
-        if (result != ERROR_SUCCESS) {
-            RegCloseKey(hKey);
-            return FALSE;
-        }
-
-        // Clear the proxy server address
-        result = RegDeleteValue(hKey, TEXT("ProxyServer"));
-        if (result != ERROR_SUCCESS && result != ERROR_FILE_NOT_FOUND) {
-            RegCloseKey(hKey);
-            return FALSE;
-        }
-    }
-
-    RegCloseKey(hKey);
-
-    // Notify the system that the proxy settings have changed
-    InternetSetOption(NULL, INTERNET_OPTION_SETTINGS_CHANGED, NULL, 0);
-    InternetSetOption(NULL, INTERNET_OPTION_REFRESH, NULL, 0);
-
-    // Refresh the web browser control
-    browserObject = *((IOleObject **)pwbo->lparams[0]);
-    if (!browserObject->lpVtbl->QueryInterface(browserObject, (IID *)&IID_IWebBrowser2, (void **)&webBrowser2))
-    {
-        webBrowser2->lpVtbl->Refresh(webBrowser2);
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
 //------------------------------------------------------------------ END OF FILE
