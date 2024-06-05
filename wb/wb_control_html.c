@@ -509,34 +509,39 @@ BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
     }
 
     if (proxyAddress && strlen(proxyAddress) > 0) {
+
+        // Convert the proxy address to Unicode
+        WCHAR wideProxyAddress[MAX_PATH];
+        MultiByteToWideChar(CP_ACP, 0, proxyAddress, -1, wideProxyAddress, MAX_PATH);
+
         // Set the proxy server address
-        result = RegSetValueEx(hKey, TEXT("ProxyServer"), 0, REG_SZ, (const BYTE*)proxyAddress, (DWORD)(strlen(proxyAddress) + 1) * sizeof(char));
+        result = RegSetValueExW(hKey, L"ProxyServer", 0, REG_SZ, (const BYTE*)wideProxyAddress, (DWORD)(wcslen(wideProxyAddress) + 1) * sizeof(WCHAR));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return FALSE;
+            return;
         }
 
         // Enable the proxy
         proxyEnable = 1;
-        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
+        result = RegSetValueExW(hKey, L"ProxyEnable", 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return FALSE;
+            return;
         }
     } else {
         // Disable the proxy
         proxyEnable = 0;
-        result = RegSetValueEx(hKey, TEXT("ProxyEnable"), 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
+        result = RegSetValueExW(hKey, L"ProxyEnable", 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return FALSE;
+            return;
         }
 
         // Clear the proxy server address
-        result = RegDeleteValue(hKey, TEXT("ProxyServer"));
+        result = RegDeleteValueW(hKey, L"ProxyServer");
         if (result != ERROR_SUCCESS && result != ERROR_FILE_NOT_FOUND) {
             RegCloseKey(hKey);
-            return FALSE;
+            return;
         }
     }
 
