@@ -18,7 +18,7 @@
 // External
 
 extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
-extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
+
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 

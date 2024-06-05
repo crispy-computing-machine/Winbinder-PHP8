@@ -46,6 +46,7 @@ static const SAFEARRAYBOUND ArrayBound = {1, 0}; // This is used by DisplayHTMLS
 static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height);
 static BOOL UnEmbedBrowserObject(HWND);
 static BOOL DoPageAction(PWBOBJ pwbo, DWORD action, PVOID pvResult);
+BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 
 //------------------------------------------------------------------------ TYPES
 
