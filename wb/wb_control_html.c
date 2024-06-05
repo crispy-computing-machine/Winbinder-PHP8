@@ -25,6 +25,8 @@
 #include <mshtml.h>   // For IHTMLDocument2
 #include <mshtmhst.h> // For IDocHostUIHandler
 #include <wininet.h>
+#pragma comment(lib, "wininet.lib")
+
 //-------------------------------------------------------------------- CONSTANTS
 
 // HTML browser commands
