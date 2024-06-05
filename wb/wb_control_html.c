@@ -518,7 +518,7 @@ BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
         result = RegSetValueExW(hKey, L"ProxyServer", 0, REG_SZ, (const BYTE*)wideProxyAddress, (DWORD)(wcslen(wideProxyAddress) + 1) * sizeof(WCHAR));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return;
+            return FALSE;
         }
 
         // Enable the proxy
@@ -526,7 +526,7 @@ BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
         result = RegSetValueExW(hKey, L"ProxyEnable", 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return;
+            return FALSE;
         }
     } else {
         // Disable the proxy
@@ -534,14 +534,14 @@ BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
         result = RegSetValueExW(hKey, L"ProxyEnable", 0, REG_DWORD, (const BYTE*)&proxyEnable, sizeof(proxyEnable));
         if (result != ERROR_SUCCESS) {
             RegCloseKey(hKey);
-            return;
+            return FALSE;
         }
 
         // Clear the proxy server address
         result = RegDeleteValueW(hKey, L"ProxyServer");
         if (result != ERROR_SUCCESS && result != ERROR_FILE_NOT_FOUND) {
             RegCloseKey(hKey);
-            return;
+            return FALSE;
         }
     }
 
