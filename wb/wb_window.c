@@ -485,30 +485,37 @@ UINT64 wbGetControlList(PWBOBJ pwboParent, PWBOBJ pwboList[], UINT64 nMaxControl
 	HWND hwnd;
 	UINT64 i = 0;
 
-	if (!wbIsWBObj((void *)pwboParent, TRUE))
+	if (!wbIsWBObj((void *)pwboParent, TRUE)){
 		return 0;
+	}
 
-	if (!nMaxControls)
+	if (!nMaxControls){
 		return 0;
+	}
+
 
 	hwnd = GetWindow(pwboParent->hwnd, GW_CHILD);
 	if (hwnd)
 	{
-		if (pwboList)
+		if (pwboList){
 			pwboList[i] = wbGetWBObj(hwnd);
+		}
 	}
-	else
+	else {
 		return 0;
+	}
+
 	for (i = 1; i < nMaxControls; i++)
 	{
 		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 		if (hwnd)
 		{
-			if (pwboList)
-				pwboList[i] = wbGetWBObj(hwnd);
-		}
-		else
+			if (pwboList){
+			    pwboList[i] = wbGetWBObj(hwnd);
+			}
+		} else {
 			break;
+		}
 	}
 	return i;
 }

@@ -484,7 +484,7 @@ ZEND_FUNCTION(wb_get_item_list)
 	// Build the array
 	array_init(return_value);
 
-	nctrls = wbGetControlList((PWBOBJ)pwboparent, NULL, 32767);
+	nctrls = wbGetListViewColumnWidths((PWBOBJ)pwboparent, NULL);
 	printf("Listview controls: %d", nctrls);
 	if (nctrls)
 	{
