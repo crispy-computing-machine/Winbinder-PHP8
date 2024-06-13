@@ -633,6 +633,6 @@ ZEND_MSHUTDOWN_FUNCTION(winbinder)
 
 /* Stub function: implements the get_module() function, which is the only function actually exported */
 
-// ZEND_GET_MODULE(winbinder);
+ZEND_GET_MODULE(winbinder);
 
 //------------------------------------------------------------------ END OF FILE
