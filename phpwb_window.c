@@ -485,6 +485,7 @@ ZEND_FUNCTION(wb_get_item_list)
 	array_init(return_value);
 
 	nctrls = wbGetControlList((PWBOBJ)pwboparent, NULL, 32767);
+	printf("Listview controls: %d", nctrls);
 	if (nctrls)
 	{
 		plist = emalloc(nctrls * sizeof(PWBOBJ));
