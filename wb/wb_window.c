@@ -61,7 +61,7 @@ static BOOL DeleteTaskBarIcon(HWND hwnd);
 static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
@@ -533,36 +533,54 @@ BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending)
 
 /* Make uPeriod equal to zero to kill the timer. id < 0 means a hi-res timer */
 
-BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod)
-{
-	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
-		return FALSE;
+BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod) {
+    static HANDLE hTimerQueue = NULL;
+    static HANDLE hTimer = NULL;
 
-	if(id > 0) {
-		if(!uPeriod)
-			return KillTimer(pwbo->hwnd, id);
+    if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+        return FALSE;
 
-		if(SetTimer(pwbo->hwnd, id, uPeriod, NULL))
-			return TRUE;
-		else
-			return FALSE;
+    // Initialize the timer queue if not already initialized
+    if (!hTimerQueue) {
+        hTimerQueue = CreateTimerQueue();
+        if (!hTimerQueue)
+            return FALSE;
+    }
 
-	} else {
+    if (id > 0) {
+        if (!uPeriod)
+            return KillTimer(pwbo->hwnd, id);
 
-		MMRESULT mmId;
+        if (SetTimer(pwbo->hwnd, id, uPeriod, NULL))
+            return TRUE;
+        else
+            return FALSE;
 
-		if(!uPeriod)
-			return (timeKillEvent(M_nMMTimerId) == TIMERR_NOERROR);
+    } else {
+        if (hTimer) {
+            // Delete the existing timer if it exists
+            DeleteTimerQueueTimer(hTimerQueue, hTimer, NULL);
+            hTimer = NULL;
+        }
 
-		mmId = timeSetEvent(uPeriod, 0, TimeProc, (DWORD_PTR)pwbo, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);
-		if(mmId != (MMRESULT)NULL) {
-			M_nTimerId = id;
-			M_nMMTimerId = mmId;
-			return TRUE;
-		} else {
-			return FALSE;
-		}
-	}
+        if (!uPeriod)
+            return TRUE;
+
+        if (CreateTimerQueueTimer(
+                &hTimer,
+                hTimerQueue,
+                TimeProc,
+                pwbo,
+                uPeriod,
+                uPeriod,
+                WT_EXECUTEDEFAULT)) {
+            M_nTimerId = id;
+            M_nMMTimerId = (MMRESULT)hTimer; // Store the timer handle
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
 }
 
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
@@ -2056,13 +2074,9 @@ static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
-/* Callback function for multimedia timer. Merely sends a WM_TIMER message to the window.
-  Attempts to call wbCallUserFunction() directly failed miserably: the app crashes when
-  zend_is_callable() is called. */
-
-static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
-{
-	PWBOBJ pwbo;
+// Callback function for the timer
+VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired) {
+    PWBOBJ pwbo = (PWBOBJ)lpParam;
 
 	pwbo = (PWBOBJ)dwUser;
 
