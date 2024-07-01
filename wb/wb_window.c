@@ -2078,8 +2078,6 @@ static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired) {
     PWBOBJ pwbo = (PWBOBJ)lpParam;
 
-	pwbo = (PWBOBJ)dwUser;
-
 	if (!pwbo || !(pwbo->pszCallBackFn))
 		return;
 
