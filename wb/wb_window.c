@@ -61,7 +61,7 @@ static BOOL DeleteTaskBarIcon(HWND hwnd);
 static void UpdateLVlParams(HWND hwnd);
 static int CALLBACK CompareLVItemsAscending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 static int CALLBACK CompareLVItemsDescending(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
+static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
@@ -2072,19 +2072,18 @@ static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
   Attempts to call wbCallUserFunction() directly failed miserably: the app crashes when
   zend_is_callable() is called. */
 
-static void CALLBACK TimeProc(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+static void CALLBACK TimeProc(UINT64 uID, UINT64 uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
 {
+	PWBOBJ pwbo;
 
-	PWBOBJ pwbo = (PWBOBJ)lpParameter;
+	pwbo = (PWBOBJ)dwUser;
 
-	if (!pwbo || !(pwbo->pszCallBackFn)){
+	if (!pwbo || !(pwbo->pszCallBackFn))
 		return;
-    }
 
 	SendMessage(pwbo->hwnd, WM_TIMER, M_nTimerId, 0);
-    UNREFERENCED_PARAMETER(TimerOrWaitFired);
-
 }
+
 
 /* Try several methods to retrieve the icon from an application window
  Adapted from from http://groups.google.com/groups?hl=en&lr=&selm=38BC4F60.11F62F%40thematic.com
