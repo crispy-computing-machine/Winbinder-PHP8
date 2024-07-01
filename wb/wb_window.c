@@ -1363,19 +1363,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
         case WM_TIMER:
 
         {
-    //		PWBOBJ pwbobj;
-
-    //		pwbobj = wbGetWBObj(hwnd);
-    //        //printf("(Window) TimeProc: WM_TIMER 1\n");
-    //		if (!pwbobj || !pwbobj->pszCallBackFn)
-    //			break;
-    //
-    //		if (pwbobj->pszCallBackFn){
-    //		    //printf("TimeProc: WM_TIMER 2\n");
-    //            // wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
-    //            wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
-    //
-    //		}
 
             if (wParam == REFRESH_TIMER_ID)
             {
@@ -1384,19 +1371,20 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
                 if (pwbo != NULL)
                 {
-                    //printf("Control object retrieved\n");
-                    // Get the dimensions of the control
-    //                RECT rc;
-    //                GetClientRect(hwnd, &rc);
-    //                int width = rc.right - rc.left;
-    //                int height = rc.bottom - rc.top;
-
-                    // Refresh the control
-                    //printf("Refreshing control...\n");
                     BOOL result = wbRefreshControl(pwbo, 0, 0, 0, 0, TRUE);
-
                 }
+            } else {
+                PWBOBJ pwbobj;
 
+                pwbobj = wbGetWBObj(hwnd);
+
+                if (!pwbobj || !pwbobj->pszCallBackFn)
+                    break;
+
+                if (pwbobj->pszCallBackFn)
+                    //					wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj, pwbobj, wParam, 0, 0, 0);
+                    wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, wParam, 0, 0, 0);
+                return 0;
             }
 
             return 0;
