@@ -535,46 +535,34 @@ BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending)
 
 BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod)
 {
-	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
+	if(!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	if (id > 0)
-	{
-		if (!uPeriod)
+	if(id > 0) {
+		if(!uPeriod)
 			return KillTimer(pwbo->hwnd, id);
 
-		if (SetTimer(pwbo->hwnd, id, uPeriod, NULL))
+		if(SetTimer(pwbo->hwnd, id, uPeriod, NULL))
 			return TRUE;
 		else
 			return FALSE;
+
+	} else {
+
+		MMRESULT mmId;
+
+		if(!uPeriod)
+			return (timeKillEvent(M_nMMTimerId) == TIMERR_NOERROR);
+
+		mmId = timeSetEvent(uPeriod, 0, TimeProc, (DWORD_PTR)pwbo, TIME_PERIODIC | TIME_CALLBACK_FUNCTION);
+		if(mmId != (MMRESULT)NULL) {
+			M_nTimerId = id;
+			M_nMMTimerId = mmId;
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
-	else
-	{
-
-        HANDLE M_hTimer = NULL;
-        HANDLE hTimer = NULL;
-
-        // If uPeriod is 0, kill the existing timer
-        if (!uPeriod)
-        {
-            if (hTimer)
-                DeleteTimerQueueTimer(NULL, hTimer, NULL);
-            return TRUE;
-        }
-
-        // Set the timer using CreateTimerQueueTimer
-        if (CreateTimerQueueTimer(&hTimer, NULL, TimeProc, (PVOID)pwbo, (DWORD)uPeriod, (DWORD)uPeriod, 0))
-        {
-            // Store timer handle for future reference
-            M_hTimer = hTimer;
-            M_nTimerId = id;
-            return TRUE;
-        }
-        else
-        {
-            return FALSE;
-        }
-     }
 }
 
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
