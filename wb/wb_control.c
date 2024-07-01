@@ -2244,7 +2244,6 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			}
 		}
 		ImageList_Draw(hi, M_nImageIndex, hdc, 0, 0, ILD_NORMAL);
-
 		EndPaint(hwnd, &ps);
 	}
 		return 0;
@@ -2256,14 +2255,11 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 		{
 			if (pwbo->style & WBC_DISABLED)
 			{
-
 				// Kills the timer
-
 				KillTimer(hwnd, REPEAT_TIMER);
 			}
 			else
 			{
-
 				if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 				{
 					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,

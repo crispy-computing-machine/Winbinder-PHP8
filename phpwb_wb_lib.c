@@ -173,8 +173,10 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	    }
 	}
 
-	// Free everything we can
+    // Free allocated memory
     efree(pszFName);
+    zval_ptr_dtor(&fname);
+
 	switch (Z_TYPE(return_value))
 	{
         case IS_LONG:
@@ -183,6 +185,9 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
             ret = Z_LVAL(return_value);
             break;
 	}
+
+	zval_ptr_dtor(&return_value);
+
 	return ret;
 }
 
