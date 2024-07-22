@@ -446,6 +446,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TabControl", TabControl)
 	WB_ZEND_CONST(LONG, "ToolBar", ToolBar)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
+	WB_ZEND_CONST(LONG, "Timer", Timer)
 
 	// System constants
 	WB_ZEND_CONST(STRING, "WBC_VERSION", LIBVERSION)
