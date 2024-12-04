@@ -20,7 +20,7 @@ WinBinder is an open source extension to PHP, the script programming language. I
 PHP Build Compatibility
 ========================
   - PHP 7.* ❌ (unsupported)
-  - PHP 8.2.3 ✅
+  - PHP 8.4 ✅
   
 (For older PHP version compatibility please see PECL website for old .dll's)
 
