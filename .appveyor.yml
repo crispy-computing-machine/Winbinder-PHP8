@@ -41,7 +41,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       ARCH: x64
-      VC: vs16
+      VC: vs17
       PHP_VER: 8.3.2
       TS: 1
 
