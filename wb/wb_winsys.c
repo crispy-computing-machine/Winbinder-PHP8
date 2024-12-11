@@ -1061,8 +1061,7 @@ BOOL wbFindFile(LPTSTR pszFile, UINT64 uLen)
 	}
 
 	// Found nothing
-
-	wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("File %s was not found."), pszFile);
+	//wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("File %s was not found."), pszFile);
 
 	return FALSE;
 }
