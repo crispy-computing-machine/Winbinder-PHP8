@@ -333,36 +333,80 @@ UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 {
 	HCURSOR hCursor;
+	TCHAR szFile[MAX_PATH]; // 256
 
 	if (!pwbo)
 	{
 
 		// Set system cursor
-
-		if (handle) // Cursor handle
+		if (handle) {// Cursor handle
 			hCursor = handle;
-		if (!pszCursor || !*pszCursor) // pszCursor is NULL
-			hCursor = GetSysCursor(TEXT("arrow"));
-		else // Cursor name
-			hCursor = GetSysCursor(pszCursor);
+		}
 
-		if (hCursor)
+        // pszCursor is NULL (reset cursor)
+		if (!pszCursor || !*pszCursor) {
+			hCursor = GetSysCursor(TEXT("arrow"));
+		} else {
+            if(wbFindFile(pszCursor, MAX_PATH)) {
+                // Assume it's a file path for a custom cursor
+                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+                hCursor = LoadCursorFromFile(szFile);
+                if (!hCursor)
+                {
+                    // If loading from file fails, fall back to arrow cursor
+                    hCursor = GetSysCursor(TEXT("arrow"));
+                }
+            } else {
+                // System Cursor name
+                hCursor = GetSysCursor(pszCursor);
+            }
+        }
+
+        // If loading from file/system fails, fall back to arrow cursor
+        if (!hCursor)
+        {
+            hCursor = GetSysCursor(TEXT("arrow"));
+        }
+
+		if (hCursor){
 			SetCursor(hCursor == (HCURSOR)-1 ? 0 : hCursor);
+		}
 
 		// Must NOT use the value returned from from SetCursor()
 		return (hCursor != 0);
-	}
-	else if (wbIsValidClass((UINT64)pwbo))
-	{
+
+	} else if (wbIsValidClass((UINT64)pwbo)) {
 
 		// Stores class ((UINT64)pwbo) mouse cursor in array hClassCursor
+		// to be set in main loop later
 
-		if (handle) // Cursor handle
+        // Cursor handle
+		if (handle){
 			hCursor = handle;
-		else if (!pszCursor || !*pszCursor) // pszCursor is NULL
+		} else if (!pszCursor || !*pszCursor) {
+		    // pszCursor is NULL (reset cursor)
 			hCursor = GetSysCursor(TEXT("arrow"));
-		else // Cursor name
-			hCursor = GetSysCursor(pszCursor);
+		} else {
+            if(wbFindFile(pszCursor, MAX_PATH)) {
+                // Assume it's a file path for a custom cursor
+                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+                hCursor = LoadCursorFromFile(szFile);
+                if (!hCursor)
+                {
+                    // If loading from file fails, fall back to arrow cursor
+                    hCursor = GetSysCursor(TEXT("arrow"));
+                }
+            } else {
+                // System cursor name
+                hCursor = GetSysCursor(pszCursor);
+            }
+        }
+
+        // If loading from file/system fails, fall back to arrow cursor
+        if (!hCursor)
+        {
+            hCursor = GetSysCursor(TEXT("arrow"));
+        }
 
 		hClassCursor[(UINT64)pwbo] = hCursor;
 		return TRUE;
@@ -371,16 +415,38 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 	{
 
 		// Stores mouse cursor handle in control param (M_nMouseCursor)
-
-		if (!pwbo->hwnd || !IsWindow(pwbo->hwnd))
+        // to be set in main loop later
+		if (!pwbo->hwnd || !IsWindow(pwbo->hwnd)){
 			return FALSE;
+        }
 
-		if (handle) // Cursor handle
+        // Cursor handle
+		if (handle) {
 			hCursor = handle;
-		else if (!pszCursor || !*pszCursor) // pszCursor is NULL
+		} else if (!pszCursor || !*pszCursor) {
+		    // pszCursor is NULL
 			hCursor = hClassCursor[pwbo->uClass];
-		else // Cursor name
-			hCursor = GetSysCursor(pszCursor);
+		} else {
+            if(wbFindFile(pszCursor, MAX_PATH)) {
+                // Assume it's a file path for a custom cursor
+                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+                hCursor = LoadCursorFromFile(szFile);
+                if (!hCursor)
+                {
+                    // If loading from file fails, fall back to arrow cursor
+                    hCursor = GetSysCursor(TEXT("arrow"));
+                }
+            } else {
+                // Cursor name
+                hCursor = GetSysCursor(pszCursor);
+            }
+        }
+
+        // If loading from file/system fails, fall back to arrow cursor
+        if (!hCursor)
+        {
+            hCursor = GetSysCursor(TEXT("arrow"));
+        }
 
 		M_nMouseCursor = (LONG_PTR)hCursor;
 		return (hCursor != 0);
