@@ -324,12 +324,11 @@ UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout)
 	return 0;
 }
 
+
+// Set system, class or control mouse cursor
 // ******* It seems that all child controls inherit the mouse cursor style
 // ******* from their parent window, and it's not clear if this
 // ******* behavior is standard in Windows (seems so) or some WinBinder bug
-
-// Set system, class or control mouse cursor
-
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 {
 	HCURSOR hCursor;
@@ -391,11 +390,6 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
                 // Assume it's a file path for a custom cursor
                 wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
-                if (!hCursor)
-                {
-                    // If loading from file fails, fall back to arrow cursor
-                    hCursor = GetSysCursor(TEXT("arrow"));
-                }
             } else {
                 // System cursor name
                 hCursor = GetSysCursor(pszCursor);
