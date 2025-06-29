@@ -3,7 +3,7 @@ skip_tags: true
 
 branches:
   only:
-    - develop
+    - main
 
 clone_folder:  c:\projects\winbinder
 
@@ -44,7 +44,7 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
       ARCH: x64
       VC: vs17
-      PHP_VER: 8.4.7
+      PHP_VER: 8.3.22
       TS: 1
 
 build_script:
@@ -103,3 +103,14 @@ test_script:
   ps: |
 
     echo "Start tests..."
+
+deploy:
+  - provider: GitHub
+    auth_token: $(GH_PAT)
+    artifact: /.*\.zip/
+    draft: false
+    prerelease: false
+    release: "php_winbinder-${PHP_VER}"
+    tag: "php_winbinder-${PHP_VER}"
+    on:
+      branch: main
