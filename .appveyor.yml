@@ -75,13 +75,13 @@ build_script:
 
     $env:PATH = 'c:\build-cache\' + $dname1 + '\bin;c:\build-cache\' + $dname1 + ';' + $env:PATH
     echo "" | Out-File -Encoding "ASCII" task.bat
-    # Run phpize from the PHP development pack directory
-    echo "cd c:\build-cache\$dname1" | Out-File -Encoding "ASCII" -Append task.bat
+    # Run phpize in the winbinder directory
+    echo "cd c:\projects\winbinder" | Out-File -Encoding "ASCII" -Append task.bat
+    echo "set PATH=c:\build-cache\$dname1\bin;c:\build-cache\$dname1;%PATH%" | Out-File -Encoding "ASCII" -Append task.bat
     echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
 
-    # Return to the winbinder directory and run configure with full path
-    echo "cd c:\projects\winbinder" | Out-File -Encoding "ASCII" -Append task.bat
-    $conf_cmd = 'call c:\build-cache\' + $dname1 + '\configure --with-winbinder=shared --enable-debug CFLAGS="/W1" 2>&1'
+    # Run configure in the winbinder directory
+    $conf_cmd = 'call configure --with-winbinder=shared --enable-debug CFLAGS="/W1" 2>&1'
     echo $conf_cmd | Out-File -Encoding "ASCII" -Append task.bat
 
     # Run nmake with the makefile in the current directory

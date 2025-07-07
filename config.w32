@@ -10,7 +10,7 @@ if (PHP_WINBINDER == "yes") {
 	EXTENSION("winbinder", "phpwb_bitmap.c phpwb_control.c phpwb_control_listview.c\
 	phpwb_control_menu.c phpwb_control_toolbar.c phpwb_control_treeview.c\
 	phpwb_draw.c phpwb_export.c phpwb_font.c phpwb_generic.c phpwb_lowlevel.c\
-	phpwb_sysdlg.c phpwb_wb_lib.c phpwb_window.c phpwb_winsys.c", PHP_WINBINDER_SHARED, "/Iext/wibinder/wb");
+ phpwb_sysdlg.c phpwb_wb_lib.c phpwb_window.c phpwb_winsys.c", PHP_WINBINDER_SHARED, "/Iext/winbinder/wb");
 
 
 	ADD_SOURCES(configure_module_dirname + "/wb", "wb_bitmap.c wb_control.c\
