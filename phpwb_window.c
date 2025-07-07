@@ -47,7 +47,7 @@ ZEND_FUNCTION(wb_create_window)
 	if (pwboparent && !wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL();
 	}
-	
+
 	if (nargs == 5)
 	{
 		w = x;
@@ -337,7 +337,7 @@ ZEND_FUNCTION(wb_get_position)
 	DWORD pos;
 	zend_bool clientarea = FALSE;
 	zend_bool clientarea_isnull;
-	
+
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|l", &pwbo, &clientarea) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 2)
 		Z_PARAM_LONG(pwbo)
@@ -507,7 +507,7 @@ ZEND_FUNCTION(wb_set_window_accept_drop)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_BOOL(accept)
 	ZEND_PARSE_PARAMETERS_END();
-	
+
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
 	if(accept) {
@@ -526,7 +526,7 @@ ZEND_FUNCTION(wb_get_drop_files)
 	zend_long wparam;
 	zend_bool isShort;
 
-	HDROP *pHDrop;
+	HDROP hDrop;
 	char buffer[2048];
 	char shortpath[2048];
 	long shortpath_size;
@@ -539,14 +539,14 @@ ZEND_FUNCTION(wb_get_drop_files)
 		Z_PARAM_BOOL(isShort)
 	ZEND_PARSE_PARAMETERS_END();
 
-	pHDrop = (HDROP *)wparam;
-	fcount = DragQueryFileA(pHDrop, 0xFFFFFFFF, buffer, 2048);	
+	hDrop = (HDROP)wparam;
+	fcount = DragQueryFileA(hDrop, 0xFFFFFFFF, buffer, 2048);	
 	if(!fcount) RETURN_NULL();
 
 	array_init(return_value);
 	for(i = 0; i < fcount; i++)
 	{
-		DragQueryFileA(pHDrop, i, buffer, 2048);
+		DragQueryFileA(hDrop, i, buffer, 2048);
 		if(isShort) {
 			shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
 			if(shortpath_size == 0) {
@@ -580,26 +580,26 @@ ZEND_FUNCTION(wb_bring_to_front)
 ZEND_FUNCTION(wb_get_window_buffer)
 {
 	zend_long pwbo;
-	
+
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(pwbo)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
-	RETURN_LONG(((PWBOBJ)pwbo)->pbuffer);
+	RETURN_LONG((zend_long)((PWBOBJ)pwbo)->pbuffer);
 }
 
 
 ZEND_FUNCTION(wb_get_window_handle)
 {
 	zend_long pwbo;
-	
+
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(pwbo)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
-	RETURN_LONG(((PWBOBJ)pwbo)->hwnd);
+	RETURN_LONG((zend_long)((PWBOBJ)pwbo)->hwnd);
 }

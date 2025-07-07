@@ -781,7 +781,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_wmi_query)
 {
 	char *wquery;
-	int wquery_size;
+	size_t wquery_size;
 
 
 	HRESULT hr;
@@ -894,7 +894,8 @@ ZEND_FUNCTION(wb_wmi_query)
 // https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
 ZEND_FUNCTION(wb_get_system_metric)
 {
-	int idx, val;
+	zend_long idx;
+	int val;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(idx)
@@ -916,7 +917,7 @@ ZEND_FUNCTION(wb_get_system_timezone)
 ZEND_FUNCTION(wb_expand_env)
 {
 	char *path;
-	int path_size;
+	size_t path_size;
 	char buffer[MAXPATHLEN];
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)

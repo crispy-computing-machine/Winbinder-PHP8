@@ -128,7 +128,7 @@ ZEND_FUNCTION(wb_resize_image)
     }
 
     // Call the wbResizeBitmap function
-    ret = wbResizeBitmap((HBITMAP)hbm, newWidth, newHeight);
+    ret = (HBITMAP)wbResizeBitmap((HBITMAP)hbm, newWidth, newHeight);
 
     // Return the rotated image handle or NULL
     if (ret != NULL) {

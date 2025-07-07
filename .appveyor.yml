@@ -85,7 +85,7 @@ build_script:
     echo $conf_cmd | Out-File -Encoding "ASCII" -Append task.bat
 
     # Run nmake with the makefile in the current directory
-    echo "if exist Makefile (nmake /nologo CFLAGS_CLEAN=\"/W1\" 2>&1) else (echo Makefile not found in %CD%)" | Out-File -Encoding "ASCII" -Append task.bat
+    echo "if exist Makefile (nmake /nologo CFLAGS_CLEAN=/W1 2>&1) else (echo Makefile not found in %CD%)" | Out-File -Encoding "ASCII" -Append task.bat
     echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat
     $here = (Get-Item -Path "." -Verbose).FullName
     $runner = 'c:\build-cache\php-sdk-' + $env:BIN_SDK_VER + '\phpsdk' + '-' + $env:VC + '-' + $env:ARCH + '.bat'

@@ -209,7 +209,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	char *title = "";
 	char *name = "";
 	zend_long height = 12, color = 0, flags = 0;
-	zend_bool title_len, name_len;
+	size_t title_len = 0, name_len = 0;
 	int font = 0;
 	zend_bool name_isnull, height_isnull, color_isnull, flags_isnull;
 
@@ -219,7 +219,7 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		Z_PARAM_LONG(pwbparent)
 		Z_PARAM_STRING_OR_NULL(title, title_len)
         Z_PARAM_OPTIONAL
-		Z_PARAM_STRING_OR_NULL(name, name_isnull)
+		Z_PARAM_STRING_OR_NULL(name, name_len)
 		Z_PARAM_LONG_OR_NULL(height, height_isnull)
 		Z_PARAM_LONG_OR_NULL(color, color_isnull)
 		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
@@ -229,12 +229,15 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		RETURN_NULL();
 	}
 
-    font = wbCreateFont((LPCTSTR)name, height, color, flags);
+    TCHAR *wcsName = Utf82WideChar(name, name_len);
+    TCHAR *wcsTitle = Utf82WideChar(title, title_len);
+
+    font = wbCreateFont(wcsName, height, color, flags);
 
 	RETURN_LONG(
 		wbSysDlgFont(
 			(PWBOBJ)pwbparent,
-			 (LPTSTR)title,
+			 wcsTitle,
 			  wbGetFont(font)
 			  )
 		);
