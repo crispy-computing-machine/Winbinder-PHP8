@@ -783,7 +783,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	char *wquery;
 	int wquery_size;
 
-	
+
 	HRESULT hr;
 	BSTR PropName = NULL;
 	char *propn;
@@ -806,7 +806,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_STRING_OR_NULL(wquery, wquery_size)
 	ZEND_PARSE_PARAMETERS_END();
-	
+
 	wslen = MultiByteToWideChar(CP_ACP, 0, wquery, wquery_size, 0, 0);
     query = SysAllocStringLen(0, wslen);
     MultiByteToWideChar(CP_ACP, 0, wquery, wquery_size, query, wslen);
@@ -826,7 +826,7 @@ ZEND_FUNCTION(wb_wmi_query)
 	if (results != NULL) {
 		IWbemClassObject *result = NULL;
 		ULONG returnedCount = 0;
-		
+
 		array_init(return_value);
 
 		// enumerate the retrieved objects
@@ -839,13 +839,13 @@ ZEND_FUNCTION(wb_wmi_query)
 			array_init(subarray);
 
 			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);
-			
+
 			for(nCount = 0; nCount < pFieldArray->rgsabound->cElements; nCount++) {
-			
+
 				hr = SafeArrayGetElement(pFieldArray, &nCount, &PropName);
 				hr = result->lpVtbl->Get(result, PropName, 0, &val, 0, 0);
 				propn = ConvertBSTRToLPSTR(PropName);
-				
+
 				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
 				switch(val.vt){
 					case VT_NULL:
@@ -857,18 +857,18 @@ ZEND_FUNCTION(wb_wmi_query)
 					case VT_BSTR:
 						propv = ConvertBSTRToLPSTR(val.bstrVal);
 						add_assoc_string(subarray, propn, propv);
-						free(propv);
+						efree(propv);
 						break;
 					case VT_I4:
 						add_assoc_long(subarray, propn, val.intVal);
 						break;
-				
+
 					default:
 						sprintf(err, "(Variant type 0x%04x not supported)", val.vt);
 						add_assoc_string(subarray, propn, err);
-				
+
 				}
-				free(propn);
+				efree(propn);
 			}
 			add_next_index_zval(return_value, subarray);
 			result->lpVtbl->Release(result);
@@ -897,7 +897,7 @@ ZEND_FUNCTION(wb_get_system_metric)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(idx)
 	ZEND_PARSE_PARAMETERS_END();
-	
+
 	val = GetSystemMetrics(idx);
 	RETURN_LONG((long)val);
 }
@@ -939,7 +939,7 @@ ZEND_FUNCTION(wb_send_key)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if(Z_TYPE_P(keys) == IS_LONG){
-		inputs = malloc(sizeof(INPUT)*2);
+		inputs = emalloc(sizeof(INPUT)*2);
 		ZeroMemory(inputs, sizeof(INPUT)*2);
 		inputs[0].type = INPUT_KEYBOARD;
 		inputs[0].ki.wVk = Z_LVAL_P(keys);
@@ -947,10 +947,11 @@ ZEND_FUNCTION(wb_send_key)
 		inputs[1].ki.wVk = Z_LVAL_P(keys);
 		inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
 		uSent = SendInput(2, inputs, sizeof(INPUT));
+		efree(inputs);
 		RETURN_BOOL(uSent == 2);
 	} else if(Z_TYPE_P(keys) == IS_ARRAY){
 		kcount = zend_hash_num_elements(Z_ARRVAL_P(keys));
-		inputs = malloc(sizeof(INPUT)*kcount*2);
+		inputs = emalloc(sizeof(INPUT)*kcount*2);
 		ZeroMemory(inputs, sizeof(INPUT)*kcount*2);
 		for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(keys)); zend_hash_has_more_elements(Z_ARRVAL_P(keys)) == SUCCESS; zend_hash_move_forward(Z_ARRVAL_P(keys)), i++){
 			pzval = zend_hash_get_current_data(Z_ARRVAL_P(keys));
@@ -964,6 +965,7 @@ ZEND_FUNCTION(wb_send_key)
 			inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
 		}
 		uSent = SendInput(kcount*2, inputs, sizeof(INPUT));
+		efree(inputs);
 		RETURN_BOOL(uSent == (kcount*2));
 	} else {
 		php_error_docref(NULL, E_WARNING, "Parameter 1 should be a an long or an array of longs");

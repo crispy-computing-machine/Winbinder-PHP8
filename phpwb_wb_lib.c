@@ -242,6 +242,9 @@ UINT64 MemCheck(const char *message, BOOL mb){
 	} else {
 		printf("MemCheck Error in getrusage. errno = %d\n", errno);
 	}
+	if (p) {
+		free(p); // Fix memory leak
+	}
 	return 0;
 }
 

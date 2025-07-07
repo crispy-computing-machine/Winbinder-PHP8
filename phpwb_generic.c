@@ -66,7 +66,7 @@ int parse_array(zval *array, const char *fmt, ...)
 				break;
 
 			case 's':
-				*((long long *)arg) = (long long)NULL;
+				*((char **)arg) = NULL;
 				break;
 
 			default:
@@ -112,14 +112,14 @@ int parse_array(zval *array, const char *fmt, ...)
 			case 's':
 				if (Z_TYPE_P(entry) == IS_STRING)
 				{
-					*((long long *)arg) = (long long)(Z_STRVAL_P(entry));
+					*((char **)arg) = Z_STRVAL_P(entry);
 				}
 				else if (Z_TYPE_P(entry) == IS_NULL)
 				{
-					*((long long *)arg) = (long long)NULL;
+					*((char **)arg) = NULL;
 				}
 				else{
-					*((long long *)arg) = (long long)NULL;
+					*((char **)arg) = NULL;
 				}
 				break;
 
@@ -350,10 +350,10 @@ char *ConvertBSTRToLPSTR(BSTR bstrIn) {
   if (bstrIn != NULL)
   {
 	int nInputStrLen = SysStringLen (bstrIn);
-	
+
 	// Double NULL Termination
 	int nOutputStrLen = WideCharToMultiByte(CP_ACP, 0, bstrIn, nInputStrLen, NULL, 0, 0, 0) + 2; 
-	pszOut = malloc(nOutputStrLen);
+	pszOut = emalloc(nOutputStrLen);
 
 	if (pszOut)
 	{

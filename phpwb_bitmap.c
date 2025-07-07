@@ -225,7 +225,7 @@ ZEND_FUNCTION(wb_screenshot)
     // If filename is not NULL, convert it to wide string
     if(filename != NULL) {
         int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-        wstr = malloc(wchars_num * sizeof(wchar_t));
+        wstr = emalloc(wchars_num * sizeof(wchar_t));
         MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
     }
 
@@ -234,7 +234,7 @@ ZEND_FUNCTION(wb_screenshot)
 
     // If wstr was allocated, free it
     if(wstr != NULL) {
-        free(wstr);
+        efree(wstr);
     }
 }
 
