@@ -97,6 +97,7 @@ COLORREF clrTabs = WINCOLOUR;
 
 // Static
 
+static HANDLE hTimerQueue = NULL;
 static HWND hToolBar = NULL;
 static HWND hStatusBar = NULL;
 static HWND hwndListView = NULL;
@@ -534,7 +535,6 @@ BOOL wbSortLVColumn(PWBOBJ pwbo, int nSubItem, BOOL bAscending)
 /* Make uPeriod equal to zero to kill the timer. id < 0 means a hi-res timer */
 
 BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod) {
-    static HANDLE hTimerQueue = NULL;
     static HANDLE hTimer = NULL;
 
     if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))

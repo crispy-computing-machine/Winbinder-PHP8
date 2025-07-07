@@ -1116,7 +1116,7 @@ BOOL wbReadRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPTSTR
 
 	case REG_DWORD:
 	{
-		DWORD dw = *((DWORD *)pszValue);
+		DWORD dw = (DWORD)(intptr_t)(*((HINSTANCE *)pszValue));
 
 		_ltow(dw, pszValue, 10);
 	}
@@ -1335,14 +1335,14 @@ LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UI
 	else if (!lstrcmpi(pszInfo, L"computername"))
 	{
 
-		GetComputerName(pszString, &uLen);
+		GetComputerName((LPTSTR)pszString, &uLen);
 		*pbIsString = TRUE;
 		return 0;
 	}
 	else if (!lstrcmpi(pszInfo, L"username"))
 	{
 
-		GetUserName(pszString, &uLen);
+		GetUserName((LPTSTR)pszString, &uLen);
 		*pbIsString = TRUE;
 		return 0;
 	}
