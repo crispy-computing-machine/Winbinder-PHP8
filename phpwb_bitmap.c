@@ -74,7 +74,7 @@ ZEND_FUNCTION(wb_save_image)
 
 	wcs = Utf82WideChar(s, s_len);
 
-	ret = wbSaveBitmap((HBITMAP)hbm, wcs);
+	ret = wbSaveBitmap((HBITMAP)(intptr_t)hbm, wcs);
 	//wbFree(wcs);
 	#//wbFree(s);
 
@@ -99,7 +99,7 @@ ZEND_FUNCTION(wb_rotate_image)
     }
 
     // Call the wbRotateBitmap function
-    ret = wbRotateBitmap((HBITMAP)hbm, angle);
+    ret = wbRotateBitmap((HBITMAP)(intptr_t)hbm, angle);
 
     // Return the rotated image handle or NULL
     if (ret != NULL) {
@@ -128,7 +128,7 @@ ZEND_FUNCTION(wb_resize_image)
     }
 
     // Call the wbResizeBitmap function
-    ret = (HBITMAP)wbResizeBitmap((HBITMAP)hbm, newWidth, newHeight);
+    ret = (HBITMAP)wbResizeBitmap((HBITMAP)(intptr_t)hbm, newWidth, newHeight);
 
     // Return the rotated image handle or NULL
     if (ret != NULL) {
@@ -182,7 +182,7 @@ ZEND_FUNCTION(wb_get_image_data)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// lpBits long pointer to BYTE array
-	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
+	size = wbGetBitmapBits((HBITMAP)(intptr_t)hbm, &lpBits, compress4to3);
 
 	if (!lpBits){
 		RETURN_NULL();
@@ -207,7 +207,7 @@ ZEND_FUNCTION(wb_create_mask)
 	if (!hbm){
 		RETURN_NULL();
 	}
-	RETURN_LONG((LONG_PTR)wbCreateMask((HBITMAP)hbm, c));
+	RETURN_LONG((LONG_PTR)wbCreateMask((HBITMAP)(intptr_t)hbm, c));
 }
 
 
@@ -252,7 +252,7 @@ ZEND_FUNCTION(wb_destroy_image)
 	if (!hbm){
 		RETURN_BOOL(FALSE);
 	}
-	RETURN_BOOL(wbDestroyBitmap((HBITMAP)hbm));
+	RETURN_BOOL(wbDestroyBitmap((HBITMAP)(intptr_t)hbm));
 }
 
 #ifdef __LCC__

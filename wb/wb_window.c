@@ -326,7 +326,7 @@ BOOL wbDestroyWindow(PWBOBJ pwbo)
 
 		pwndMain = NULL;
 		if (M_nMMTimerId)
-			timeKillEvent(M_nMMTimerId);
+			DeleteTimerQueueTimer(hTimerQueue, (HANDLE)M_nMMTimerId, NULL);
 	}
 	else
 	{
@@ -575,7 +575,7 @@ BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod) {
                 uPeriod,
                 WT_EXECUTEDEFAULT)) {
             M_nTimerId = id;
-            M_nMMTimerId = (MMRESULT)hTimer; // Store the timer handle
+            M_nMMTimerId = (LONG_PTR)hTimer; // Store the timer handle
             return TRUE;
         } else {
             return FALSE;
@@ -1694,7 +1694,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 		PWBOBJ pwbobj;
 		pwbobj = wbGetWBObj(hwnd);
 		if(!pwbobj) break;
-		
+
 		if(pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn) {
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, IDDEFAULT, WBC_DROPFILES,
 			(LPARAM)pwbobj->pbuffer, wParam);
@@ -2094,23 +2094,23 @@ static HICON GetWindowIcon(HWND hwnd)
 {
 	HICON hIcon;
 
-	hIcon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
+	hIcon = (HICON)(intptr_t)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
+	hIcon = (HICON)(intptr_t)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)SendMessage(hwnd, WM_QUERYDRAGICON, 0, 0);
+	hIcon = (HICON)(intptr_t)SendMessage(hwnd, WM_QUERYDRAGICON, 0, 0);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICONSM);
+	hIcon = (HICON)(intptr_t)GetClassLongPtr(hwnd, GCLP_HICONSM);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICON);
+	hIcon = (HICON)(intptr_t)GetClassLongPtr(hwnd, GCLP_HICON);
 	if (hIcon)
 		return hIcon;
 
@@ -2278,7 +2278,7 @@ static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed)
 
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 {
-	DWORD result;
+	DWORD_PTR result;
 	LRESULT lres;
 	TCHAR szAux[256];
 	APPW_DATA *pappw;
@@ -2295,7 +2295,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 
 	pappw = (APPW_DATA *)lParam;
 	pappw->hwndFound = NULL;
-	lres = SendMessageTimeout(hWnd, WBWM_IDAPP, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, &result);
+	lres = SendMessageTimeout(hWnd, WBWM_IDAPP, 0, 0, SMTO_BLOCK | SMTO_ABORTIFHUNG, 200, (PDWORD_PTR)&result);
 
 	if (!lres)
 		return TRUE;

@@ -71,7 +71,7 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 		pFonts[nLastFont]->nHeight = nHeight;
 		pFonts[nLastFont]->color = color;
 		pFonts[nLastFont]->dwFlags = dwFlags;
-		pFonts[nLastFont]->hFont = hFont;
+		pFonts[nLastFont]->hFont = (HFONT)hFont;
 	}
 	else
 		return 0;
@@ -106,7 +106,7 @@ int wbAddFont(PFONT hFont)
 		pFonts[nLastFont]->nHeight = hFont->nHeight;
 		pFonts[nLastFont]->color = hFont->color;
 		pFonts[nLastFont]->dwFlags = hFont->dwFlags;
-		pFonts[nLastFont]->hFont = hFont;
+		pFonts[nLastFont]->hFont = hFont->hFont;
 	}
 	else
 		return 0;

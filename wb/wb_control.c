@@ -758,7 +758,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		return FALSE;
 
 	wbConvertLineBreaks(&pszText, pszSourceText);
-	
+
 
 	if (bTooltip)
 	{
@@ -913,7 +913,7 @@ UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex)
 	}
 }
 
-DWORD CALLBACK EditStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG_PTR cb, LONG_PTR *pcb)
+DWORD CALLBACK EditStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
 {
 	char **rtf = (char **)dwCookie;
 	*rtf = wbMalloc(cb + 1);

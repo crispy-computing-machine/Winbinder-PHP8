@@ -1217,7 +1217,7 @@ LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UI
 	{
 
 		*pbIsString = FALSE;
-		return (LONG_PTR)hAppInstance;
+		return (LONG_PTR)(intptr_t)hAppInstance;
 	}
 	else if (!lstrcmpi(pszInfo, L"ospath"))
 	{

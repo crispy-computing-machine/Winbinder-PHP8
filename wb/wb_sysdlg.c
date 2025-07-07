@@ -29,7 +29,7 @@
 
 // Private
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData);
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 static LPTSTR DeleteChars(LPTSTR pszMain, UINT64 nPos, UINT64 nLength);
 static LPTSTR StripPath(LPTSTR pszFileName);
 
@@ -78,7 +78,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.Flags |= BITTEST(dwWBStyle, WBC_MULTISELECT) ? OFN_ALLOWMULTISELECT | OFN_EXPLORER : 0;
 
 	bRet = GetOpenFileName(&ofn);
-	
+
 	if (!bRet && pszFileName){
 		DWORD dwError = CommDlgExtendedError();
 		*pszFileName = '\0';
@@ -216,7 +216,7 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
 
     if (pwboParent == NULL) {
-        return NULL;
+        return 0;
     }
 
     CHOOSEFONT cf;
@@ -246,7 +246,7 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
     }
 
     if (!ChooseFont(&cf)) {
-        return NULL;
+        return 0;
     }
 
     // Update pfont with the chosen font details
@@ -275,7 +275,7 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
 
 /* Callback function for the dialog box Browse For Folder */
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
 	switch (uMsg)
 	{
