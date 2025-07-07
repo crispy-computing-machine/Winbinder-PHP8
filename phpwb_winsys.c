@@ -834,8 +834,10 @@ ZEND_FUNCTION(wb_wmi_query)
 			VARIANT val;
 			VARTYPE vt = 0;
 			LPSAFEARRAY pFieldArray = NULL;
-			zval *subarray;
+			zval subarray_zv;
+			zval *subarray = &subarray_zv;
 
+			// Initialize the zval as an array
 			array_init(subarray);
 
 			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);

@@ -116,7 +116,7 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 		RETURN_NULL();
 	}
 	if (*file){
-		Utf82WideCharCopy((const char *)file, file_len, szFile, strlen(szFile));
+		Utf82WideCharCopy(file, file_len, szFile, MAX_PATH);
 	}
 
 	if (*defext){
@@ -132,8 +132,9 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 
 	if (*szFile)
 	{
-		file = WideChar2Utf8((const char *)szFile, strlen(szFile));
-		RETURN_STRINGL(file, strlen(file));
+		int file_len = 0;
+		file = WideChar2Utf8(szFile, &file_len);
+		RETURN_STRINGL(file, file_len);
 	}
 	else{
 		RETURN_STRING("");
@@ -186,7 +187,7 @@ ZEND_FUNCTION(wb_sys_dlg_color)
 	size_t title_len = 0;
 	TCHAR *szTitle = 0;
 	zend_bool color_isnull;
-	
+
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|sl", &pwboParent, &title, &title_len, &color) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 3)
 		Z_PARAM_LONG(pwboParent)

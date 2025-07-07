@@ -5,6 +5,8 @@ ARG_WITH("winbinder", "Include windows GUI support", "yes");
 
 if (PHP_WINBINDER == "yes") {
 
+	ADD_FLAG("CFLAGS", "/W1");  // Reduce warning level to W1 (less warnings)
+
 	EXTENSION("winbinder", "phpwb_bitmap.c phpwb_control.c phpwb_control_listview.c\
 	phpwb_control_menu.c phpwb_control_toolbar.c phpwb_control_treeview.c\
 	phpwb_draw.c phpwb_export.c phpwb_font.c phpwb_generic.c phpwb_lowlevel.c\

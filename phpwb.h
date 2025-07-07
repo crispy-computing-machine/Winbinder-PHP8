@@ -77,7 +77,7 @@ zval *process_array(zval *zitems);
 // String encode converting function
 
 TCHAR *Utf82WideChar(const char *str, int len);
-void Utf82WideCharCopy(LPCTSTR *str, int str_len, TCHAR *wcs, int wcs_len);
+void Utf82WideCharCopy(const char *str, int str_len, TCHAR *wcs, int wcs_len);
 char *WideChar2Utf8(LPCTSTR wcs, int *len);
 void WideCharCopy(LPCTSTR wcs, char *s, int len);
 void dumptcs(TCHAR *str);
