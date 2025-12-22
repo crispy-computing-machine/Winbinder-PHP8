@@ -150,14 +150,14 @@ ZEND_FUNCTION(wb_get_size)
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: PWBO, HBITMAP or HICON
 
-		if (!source->value.lval){
+		if (!Z_LVAL_P(source)){
 			RETURN_NULL();
 		}
 		//Test first is image
-		size = wbGetImageDimensions((HBITMAP)source->value.lval);
+		size = wbGetImageDimensions((HBITMAP)Z_LVAL_P(source));
 		if (size == 0) //if not image then get windo or listview size
 		{
-			pwbo = (PWBOBJ)(void *)source->value.lval;
+			pwbo = (PWBOBJ)(void *)Z_LVAL_P(source);
 			if (wbIsWBObj(pwbo, FALSE))
 			{
 				// lparam here means "column widths"
@@ -321,10 +321,10 @@ ZEND_FUNCTION(wb_set_size)
 		}
 
 		if (h != 65535){
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, zparm->value.lval, h, -1));
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, Z_LVAL_P(zparm), h, -1));
 			}
 		else{
-			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, zparm->value.lval));
+			RETURN_BOOL(wbSetWindowSize((PWBOBJ)pwbo, 0, 0, Z_LVAL_P(zparm)));
 		}
 	}
 }

@@ -131,7 +131,7 @@ ZEND_FUNCTION(wb_set_cursor)
 	else if (sourcetype == IS_LONG)
 	{
 
-		hCursor = (HANDLE)source->value.lval;
+		hCursor = (HANDLE)Z_LVAL_P(source);
 		pszCursorName = NULL;
 	}
 	else if (sourcetype == IS_STRING)
@@ -206,7 +206,7 @@ ZEND_FUNCTION(wb_play_sound)
 	if (Z_TYPE_P(source) == IS_LONG)
 	{ // It's an integer: Play system sound
 
-		RETURN_BOOL(wbPlaySystemSound(source->value.lval));
+		RETURN_BOOL(wbPlaySystemSound(Z_LVAL_P(source)));
 	}
 	else if (Z_TYPE_P(source) == IS_STRING)
 	{ // It's an empty string or filename
@@ -529,14 +529,14 @@ ZEND_FUNCTION(wb_set_registry_key)
 		szSubKey = Utf82WideChar(subkey, subkey_len);
 		szEntry = Utf82WideChar(entry, entry_len);
 
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
+		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, Z_LVAL_P(source), FALSE);
 
 		RETURN_BOOL(ret);
 	}
 	else if (sourcetype == IS_DOUBLE)
 	{
 		TCHAR szAux[50];
-		wsprintf(szAux, TEXT("%20.20f"), source->value.dval);
+		wsprintf(szAux, TEXT("%20.20f"), Z_DVAL_P(source));
 
 		szKey = Utf82WideChar(key, key_len);
 		szSubKey = Utf82WideChar(subkey, subkey_len);
