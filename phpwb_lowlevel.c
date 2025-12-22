@@ -75,7 +75,7 @@ ZEND_FUNCTION(wb_peek)
 	ptr = (char *)address;
 	if (bytes == 0)
 	{ // Want a zero-terminated string?
-		if (!IsBadStringPtr(((LPCWSTR)ptr), 32767))
+		if (!IsBadStringPtrW(((LPCWSTR)ptr), 32767))
 			RETURN_STRINGL(ptr, strlen(ptr));
 	}
 	else

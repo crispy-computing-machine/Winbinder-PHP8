@@ -35,6 +35,11 @@
 #undef ZEND_DEBUG
 #endif
 
+// Prevent PHP_BUILD_SYSTEM macro redefinition warning
+#ifdef PHP_BUILD_SYSTEM
+#undef PHP_BUILD_SYSTEM
+#endif
+
 #define ZEND_DEBUG FALSE // Must be FALSE
 
 #define PHP_REGEX_H // Skip php_regex.h: '_off_t' not defined anywhere
