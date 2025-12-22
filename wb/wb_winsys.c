@@ -947,7 +947,7 @@ DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 		ShExInfo.hwnd = GetActiveWindow();
 		ShExInfo.lpVerb = TEXT("open");
 		ShExInfo.lpFile = pszPgm;
-		ShExInfo.lpParameters = pszParm;
+		ShExInfo.lpParameters = (pszParm && *pszParm) ? pszParm : NULL;
 		ShExInfo.nShow = bShowWindow ? SW_SHOWNORMAL : SW_HIDE;
 		bRet = ShellExecuteEx(&ShExInfo);
 		if (bRet)
