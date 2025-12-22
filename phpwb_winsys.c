@@ -330,7 +330,11 @@ ZEND_FUNCTION(wb_exec)
 	ZEND_PARSE_PARAMETERS_END();
 
 	szPgm = Utf82WideChar(pgm, pgm_len);
-	szParm = Utf82WideChar(parm, parm_len);
+	if (parm && parm_len > 0) {
+		szParm = Utf82WideChar(parm, parm_len);
+	} else {
+		szParm = NULL;
+	}
 	RETURN_LONG(wbExec(szPgm, szParm, show));
 }
 
