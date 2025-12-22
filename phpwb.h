@@ -44,8 +44,8 @@
 
 //----------------------------------------------------------------- DEPENDENCIES
 
-#include "wb/wb.h"
 #include <php.h>
+#include "wb/wb.h"
 #include <wbemidl.h>
 #include <windows.h>
 #pragma comment(lib, "kernel32.lib")
