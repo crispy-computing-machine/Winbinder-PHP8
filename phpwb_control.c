@@ -488,7 +488,7 @@ ZEND_FUNCTION(wb_set_image)
 		if (sourcetype == IS_LONG)
 		{
 
-			hImage = (HANDLE)Z_LVAL_P(source);
+			hImage = (HANDLE)source->value.lval;
 		}
 		else if (sourcetype == IS_STRING)
 		{
@@ -568,7 +568,7 @@ ZEND_FUNCTION(wb_set_item_image)
 	case TabControl:
 
 		//https://stackoverflow.com/questions/20081032/tabctrl-getitem-macro-not-working-as-expected
-		index1 = Z_LVAL_P(zindex);
+		index1 = zindex->value.lval;
 
 		RETURN_BOOL(wbSetTabControlItemImages((PWBOBJ)pwbo, item, index1));
 		break;
@@ -578,7 +578,7 @@ ZEND_FUNCTION(wb_set_item_image)
 		if (zindextype == IS_ARRAY){
 			parse_array(zindex, "ll", &index1, &index2);
 		}else{
-			index1 = Z_LVAL_P(zindex);
+			index1 = zindex->value.lval;
 		}
 		RETURN_BOOL(wbSetTreeViewItemImages((PWBOBJ)pwbo, (HTREEITEM)item, index1, index2));
 		break;
@@ -1078,7 +1078,7 @@ ZEND_FUNCTION(wb_set_text)
 		break;
 
 	case IS_STRING:
-		//caption = Z_STRVAL_P(zcaption);
+		//caption = zcaption->value.str.val;
 		wcsCaption = Utf82WideChar(Z_STRVAL_P(zcaption), Z_STRLEN_P(zcaption));
 		ret = wbSetText((PWBOBJ)pwbo, wcsCaption, item, FALSE);
 		wbFree(wcsCaption);
@@ -1115,7 +1115,7 @@ ZEND_FUNCTION(wb_set_text)
 			break;
 
 		case IS_STRING:
-			caption = Z_STRVAL_P(zcaption);
+			caption = zcaption->value.str.val;
 			break;
 
 		case IS_NULL:
@@ -1127,11 +1127,11 @@ ZEND_FUNCTION(wb_set_text)
 //		case IS_LONG:
 //		case IS_BOOL:
 //		case IS_FLOAT:
-			printf("%d   ", Z_LVAL_P(zcaption));
+			printf("%d   ", zcaption->value.lval);
 			convert_to_string_ex(&zcaption);
-			printf("[%s]\n", Z_STRVAL_P(zcaption));
-			if(Z_STRVAL_P(zcaption))
-				caption = Z_STRVAL_P(zcaption);
+			printf("[%s]\n", zcaption->value.str.val);
+			if(zcaption->value.str.val)
+				caption = zcaption->value.str.val;
 			else
 				*caption = '\0';
 			break;

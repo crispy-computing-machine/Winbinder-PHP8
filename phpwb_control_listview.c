@@ -174,7 +174,7 @@ ZEND_FUNCTION(wb_get_listview_column_widths)
 	for(i = 0; i < nelem; i++) {
 		if((entry = zend_hash_get_current_data(target_hash)) == NULL) {
 			zend_error(E_WARNING, "%s(): Could not retrieve element %d from array",
-			  get_active_function_name(), i);
+			  get_active_function_name(TSRMLS_C), i);
 			RETURN_NULL();
 		}
 		switch(Z_TYPE_P(entry)) {
@@ -189,11 +189,11 @@ ZEND_FUNCTION(wb_get_listview_column_widths)
 
 			default:
 				zend_error(E_WARNING, "Wrong data type in array in function %s()",
-				  get_active_function_name());
+				  get_active_function_name(TSRMLS_C));
 				RETURN_NULL();
 		}
 
-		pwidths[i] = Z_LVAL_P(entry);
+		pwidths[i] = (entry)->value.lval;
 		zend_hash_move_forward(target_hash);
 	}
 

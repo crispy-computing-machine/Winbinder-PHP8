@@ -125,7 +125,7 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	// Error checking is VERY POOR for user methods (i.e. when pszObjectName is not NULL)
 	if(pszObject == NULL && !zend_is_callable(&fname, 0, &funName)) {
 		zend_error(E_WARNING, "%s(): '%s' is not a function or cannot be called",
-		  get_active_function_name(), funName);
+		  get_active_function_name(TSRMLS_C), funName);
 		if (funName) efree(funName);				// These two lines prevent a leakage
 		return FALSE;
 	}
