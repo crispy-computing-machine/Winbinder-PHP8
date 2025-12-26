@@ -6,10 +6,6 @@ ARG_WITH("winbinder", "Include windows GUI support", "yes");
 if (PHP_WINBINDER == "yes") {
 
 	ADD_FLAG("CFLAGS", "/W1");  // Reduce warning level to W1 (less warnings)
-	ADD_FLAG("CFLAGS", "/wd4005");  // Disable warning C4005 (macro redefinition)
-	ADD_FLAG("CFLAGS", "/wd4133");  // Disable warning C4133 (incompatible types)
-	ADD_FLAG("CFLAGS", "/wd4090");  // Disable warning C4090 (different const qualifiers)
-	ADD_FLAG("CFLAGS", "/wd4312");  // Disable warning C4312 (type cast conversion)
 
 	EXTENSION("winbinder", "phpwb_bitmap.c phpwb_control.c phpwb_control_listview.c\
 	phpwb_control_menu.c phpwb_control_toolbar.c phpwb_control_treeview.c\
