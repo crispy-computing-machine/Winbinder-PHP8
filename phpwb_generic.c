@@ -225,10 +225,12 @@ TCHAR *Utf82WideChar(const char *str, int len)
 	if (len == 0){
 		return NULL;
 	}
-	// Use -1 to include null terminator in both calls
 	wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-	wstr = wbMalloc(sizeof(TCHAR) * wlen);
-	MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr, wlen);
+	wstr = wbMalloc(sizeof(TCHAR) * (wlen));
+	if (len > 0){
+		MultiByteToWideChar(CP_UTF8, 0, str, len, wstr, wlen);
+	}
+	wstr[wlen - 1] = '\0';
 	return wstr;
 }
 
