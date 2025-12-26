@@ -216,14 +216,11 @@ TCHAR *Utf82WideChar(const char *str, int len)
 {
 	TCHAR *wstr;
 	int wlen = 0;
-	if (!str || len == 0){
+	if (!str){
 		return NULL;
 	}
-	if (len < 0){
+	if (len <= 0){
 		len = strlen(str);
-	}
-	if (len == 0){
-		return NULL;
 	}
 	wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
 	wstr = wbMalloc(sizeof(TCHAR) * (wlen));
