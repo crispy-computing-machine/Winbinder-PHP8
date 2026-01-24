@@ -53,11 +53,12 @@ build_script:
     $ts_part = ''
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
-    echo "Download PHP8 development pack from release http://downloads.php.net/~windows/releases/archives/$bname"
+    
+    echo "Download PHP8 development pack from release https://downloads.php.net/~windows/releases/archives/$bname"
     if (-not (Test-Path c:\build-cache\$bname)) {
-            Invoke-WebRequest "http://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
+            Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             if (-not (Test-Path c:\build-cache\$bname)) {
-                    Invoke-WebRequest "http://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
+                    Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             }
     }
     
