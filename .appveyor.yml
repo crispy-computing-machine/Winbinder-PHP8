@@ -54,7 +54,7 @@ build_script:
     if ('0' -eq $env:TS) { $ts_part = '-nts' }
     $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
     
-    echo "Download PHP8 development pack from release https://downloads.php.net/~windows/releases/archives/$bname"
+    echo "Download PHP8 development pack from release dev.brittainmedia.co.uk/proxy.php?url=https://downloads.php.net/~windows/releases/archives/$bname"
     $headers = @{
       "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       "Accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
@@ -64,9 +64,9 @@ build_script:
     }
 
     if (-not (Test-Path c:\build-cache\$bname)) {
-            Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
+            Invoke-WebRequest "dev.brittainmedia.co.uk/proxy.php?url=https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             if (-not (Test-Path c:\build-cache\$bname)) {
-                    Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
+                    Invoke-WebRequest "dev.brittainmedia.co.uk/proxy.php?url=https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             }
     }
     
