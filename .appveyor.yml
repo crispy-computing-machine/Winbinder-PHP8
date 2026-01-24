@@ -62,9 +62,9 @@ build_script:
       "Accept-Encoding" = "gzip, deflate, br"
       "Connection" = "keep-alive"
       "Upgrade-Insecure-Requests" = "1"
-  }
+    }
 
-  if (-not (Test-Path c:\build-cache\$bname)) {
+    if (-not (Test-Path c:\build-cache\$bname)) {
             Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
             if (-not (Test-Path c:\build-cache\$bname)) {
                     Invoke-WebRequest "https://downloads.php.net/~windows/releases/archives/$bname" -OutFile "c:\build-cache\$bname" -Headers $headers -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0'
