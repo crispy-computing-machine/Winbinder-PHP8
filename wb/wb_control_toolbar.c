@@ -130,7 +130,8 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		if (pszHint && *pszHint)
 		{
-			tbb.dwData = (DWORD_PTR)Utf82WideChar(pszHint);
+		// fix encoding? tbb.dwData = (DWORD_PTR)Utf82WideChar(pszHint);
+			tbb.dwData = (DWORD_PTR)_wcsdup(pszHint);
 		}
 		else
 			tbb.dwData = 0;
