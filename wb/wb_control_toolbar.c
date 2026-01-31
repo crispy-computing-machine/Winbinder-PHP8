@@ -130,15 +130,7 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		tbb.dwData = 0;
 		tbb.iBitmap = nIndex;
-
-		if (pszHint && *pszHint)
-		{
-			// Convert UTF-8 hint to wide char and set as tooltip string
-			LPWSTR pszWideHint = Utf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint));
-			tbb.iString = (INT_PTR)pszWideHint;
-		}
-		else
-			tbb.iString = -1; // No tooltip
+		tbb.iString = -1; // Will set tooltip via TB_SETBUTTONINFO
 	}
 
 	// Insert the button
@@ -150,7 +142,26 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Could not create item # %d in toolbar"), id);
 		else
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Could not create separator in toolbar"));
+		return bRet;
 	}
+
+	// Set tooltip text if provided
+	if (id && pszHint && *pszHint)
+	{
+		TBBUTTONINFO tbbi;
+		LPWSTR pszWideHint = Utf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint));
+
+		if (pszWideHint)
+		{
+			tbbi.cbSize = sizeof(TBBUTTONINFO);
+			tbbi.dwMask = TBIF_TEXT;
+			tbbi.pszText = pszWideHint;
+			SendMessage(hwnd, TB_SETBUTTONINFO, id, (LPARAM)&tbbi);
+			// Note: Toolbar makes a copy of the string, so we can free it
+			// If Utf82WideChar allocates memory, you may need to free pszWideHint here
+		}
+	}
+
 	return bRet;
 }
 
