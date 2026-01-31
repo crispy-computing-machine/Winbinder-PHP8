@@ -128,17 +128,18 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.idCommand = id;
 		tbb.fsState = TBSTATE_ENABLED;
 		tbb.fsStyle = TBSTYLE_BUTTON;
-		tbb.dwData = 0;
-		tbb.iBitmap = nIndex;
-
 		if (pszHint && *pszHint)
 		{
-			// Convert UTF-8 hint to wide char and set as tooltip string
-			LPWSTR pszWideHint = Utf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint));
-			tbb.iString = (INT_PTR)pszWideHint;
+		    // fix encoding? tbb.dwData = (DWORD_PTR)Utf82WideChar(pszHint);
+		    //tbb.dwData = (DWORD_PTR)Utf82WideChar((const char*)pszHint);
+		    //tbb.dwData = (DWORD_PTR)Utf82WideChar((const char*)pszHint, 0);
+		    tbb.dwData = (DWORD_PTR)Utf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint));
+			//tbb.dwData = (DWORD_PTR)_wcsdup(pszHint);
 		}
 		else
-			tbb.iString = -1; // No tooltip
+			tbb.dwData = 0;
+		tbb.iBitmap = nIndex;
+		tbb.iString = nIndex;
 	}
 
 	// Insert the button
