@@ -131,7 +131,7 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		if (pszHint && *pszHint)
 		{
 			//tbb.dwData = (DWORD_PTR)pszWideHintUtf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint)); // Store pointer to keep memory alive
-			tbb.dwData = Utf82WideChar(pszHint, 0);
+			tbb.dwData = (DWORD_PTR)Utf82WideChar(pszHint, 0);
 		}
 		else {
 			tbb.dwData = 0;
