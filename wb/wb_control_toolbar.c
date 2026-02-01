@@ -130,12 +130,14 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		if (pszHint && *pszHint)
 		{
-			tbb.dwData = (DWORD_PTR)_wcsdup(pszHint);
+            pszWideHint = Utf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint));
+			tbb.dwData = (DWORD_PTR)pszWideHint; // Store pointer to keep memory alive
 		}
-		else
+		else {
 			tbb.dwData = 0;
-		tbb.iBitmap = nIndex;
-		tbb.iString = nIndex;
+		    tbb.iBitmap = nIndex;
+		    tbb.iString = nIndex;
+		}
 	}
 
 	// Insert the button
