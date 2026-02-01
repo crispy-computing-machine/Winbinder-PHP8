@@ -130,8 +130,18 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		if (pszHint && *pszHint)
 		{
-		    tbb.dwData = (DWORD_PTR)pszHint;
-			tbb.iString = LPSTR_TEXTCALLBACK; // Tell toolbar to request tooltip text via notification
+		    // Convert UTF-8 to wide char using Windows API
+			int len = MultiByteToWideChar(CP_UTF8, 0, (LPCCH)pszHint, -1, NULL, 0);
+			if (len > 0)
+			{
+				LPWSTR pszWideHint = (LPWSTR)wbMalloc(len * sizeof(WCHAR));
+				MultiByteToWideChar(CP_UTF8, 0, (LPCCH)pszHint, -1, pszWideHint, len);
+				tbb.dwData = (DWORD_PTR)pszWideHint;
+			}
+			else
+			{
+				tbb.dwData = 0;
+			}
 		}
 		else {
 			tbb.dwData = 0;
