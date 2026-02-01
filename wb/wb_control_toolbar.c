@@ -130,8 +130,8 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.fsStyle = TBSTYLE_BUTTON;
 		if (pszHint && *pszHint)
 		{
-			//tbb.dwData = (DWORD_PTR)pszWideHintUtf82WideChar((const char*)pszHint, (int)strlen((const char*)pszHint)); // Store pointer to keep memory alive
-			tbb.dwData = (DWORD_PTR)Utf82WideChar(pszHint, 0);
+		    tbb.dwData = (DWORD_PTR)pszHint;
+			tbb.iString = LPSTR_TEXTCALLBACK; // Tell toolbar to request tooltip text via notification
 		}
 		else {
 			tbb.dwData = 0;
