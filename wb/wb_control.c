@@ -15,6 +15,7 @@
 #include <time.h>	 // For time_t
 #include <stdlib.h>   // For itoa(), atoi()
 #include <shellapi.h> // For Shell_NotifyIcon()
+#include <stdarg.h>
 
 #ifdef _MSC_VER
 #include <richedit.h> // For EM
@@ -72,6 +73,7 @@ extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPAR
 
 typedef struct
 {
+	DWORD dwMagic;
 	HWND hwndPane1;
 	HWND hwndPane2;
 	int nMinPane1;
@@ -83,10 +85,36 @@ typedef struct
 	BOOL bDragging;
 } SPLITTERDATA, *PSPLITTERDATA;
 
+#define SPLITTER_MAGIC 0x53504C54 /* 'SPLT' */
+
+static void SplitterDebugTrace(LPCTSTR pszFmt, ...)
+{
+	TCHAR szBuffer[1024];
+	va_list args;
+
+	va_start(args, pszFmt);
+	_vstprintf(szBuffer, pszFmt, args);
+	va_end(args);
+
+	OutputDebugString(TEXT("[WinBinder Splitter] "));
+	OutputDebugString(szBuffer);
+	OutputDebugString(TEXT("\n"));
+}
+
 static PSPLITTERDATA SplitterGetData(PWBOBJ pwbo)
 {
 	if (!pwbo || pwbo->uClass != Splitter)
 		return NULL;
+
+	if (!pwbo->lparam)
+		return NULL;
+
+	if (((PSPLITTERDATA)pwbo->lparam)->dwMagic != SPLITTER_MAGIC)
+	{
+		SplitterDebugTrace(TEXT("Invalid splitter data magic: pwbo=%p lparam=%p"), pwbo, (void *)pwbo->lparam);
+		return NULL;
+	}
+
 	return (PSPLITTERDATA)pwbo->lparam;
 }
 
@@ -110,12 +138,18 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 	int nClient, nAvailable;
 	PSPLITTERDATA pData = SplitterGetData(pwbo);
 	if (!pData || !pwbo || !IsWindow(pwbo->hwnd))
+	{
+		SplitterDebugTrace(TEXT("Layout skipped: pwbo=%p hwnd=%p pData=%p"), pwbo, pwbo ? pwbo->hwnd : NULL, pData);
 		return;
+	}
 
 	GetClientRect(pwbo->hwnd, &rc);
 	nClient = pData->bVertical ? (rc.right - rc.left) : (rc.bottom - rc.top);
 	if (nClient <= 0)
+	{
+		SplitterDebugTrace(TEXT("Layout skipped because client <= 0 (nClient=%d)"), nClient);
 		return;
+	}
 
 	nAvailable = nClient - pData->nDividerSize;
 	if (nAvailable < 0)
@@ -145,6 +179,8 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 	}
 
 	InvalidateRect(pwbo->hwnd, NULL, TRUE);
+	SplitterDebugTrace(TEXT("Layout done: hwnd=%p vertical=%d divider=%d ratio=%d client=%d fromRatio=%d"),
+				  pwbo->hwnd, pData->bVertical, pData->nDividerPos, pData->nRatioPermille, nClient, bFromRatio);
 }
 
 
@@ -158,7 +194,10 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 	{
 	case WM_SIZE:
 		if (pwbo)
+		{
+			SplitterDebugTrace(TEXT("WM_SIZE: hwnd=%p"), hwnd);
 			SplitterLayout(pwbo, TRUE);
+		}
 		return 0;
 
 	case WM_LBUTTONDOWN:
@@ -171,6 +210,7 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 		{
 			pData->bDragging = TRUE;
 			SetCapture(hwnd);
+			SplitterDebugTrace(TEXT("Drag started: hwnd=%p divider=%d"), hwnd, pData->nDividerPos);
 		}
 		return 0;
 
@@ -183,6 +223,7 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 		{
 			pData->nDividerPos = pData->bVertical ? pt.x : pt.y;
 			SplitterLayout(pwbo, FALSE);
+			SplitterDebugTrace(TEXT("Dragging: hwnd=%p divider=%d"), hwnd, pData->nDividerPos);
 		}
 		return 0;
 
@@ -191,12 +232,20 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 		{
 			pData->bDragging = FALSE;
 			ReleaseCapture();
+			SplitterDebugTrace(TEXT("Drag finished: hwnd=%p divider=%d ratio=%d"), hwnd, pData->nDividerPos, pData->nRatioPermille);
 		}
 		return 0;
 
 	case WM_CAPTURECHANGED:
 		if (pData)
+		{
 			pData->bDragging = FALSE;
+			SplitterDebugTrace(TEXT("Capture changed: hwnd=%p"), hwnd);
+		}
+		break;
+
+	case WM_NCDESTROY:
+		SplitterDebugTrace(TEXT("WM_NCDESTROY: hwnd=%p pwbo=%p pData=%p"), hwnd, pwbo, pData);
 		break;
 
 	case WM_SETCURSOR:
@@ -725,12 +774,15 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		if (!pData)
 			return NULL;
 		ZeroMemory(pData, sizeof(SPLITTERDATA));
+		pData->dwMagic = SPLITTER_MAGIC;
 		pData->nMinPane1 = 40;
 		pData->nMinPane2 = 40;
 		pData->nDividerSize = 6;
 		pData->nRatioPermille = (lParam > 0 && lParam < 1000) ? (int)lParam : 500;
 		pData->bVertical = !BITTEST(dwWBStyle, WBC_SPLIT_HORIZONTAL);
 		pwbo->lparam = (LPARAM)pData;
+		SplitterDebugTrace(TEXT("Splitter created: hwnd=%p pwbo=%p pData=%p ratioInit=%d vertical=%d"),
+				  pwbo->hwnd, pwbo, pData, pData->nRatioPermille, pData->bVertical);
 		SplitterLayout(pwbo, TRUE);
 		break;
 	}
@@ -767,6 +819,9 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	case TreeView:
 	case TabControl:
 	case Splitter:
+		if (pwbo->lparam)
+			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
+		SplitterDebugTrace(TEXT("Destroy splitter: hwnd=%p pwbo=%p pData=%p"), pwbo->hwnd, pwbo, (void *)pwbo->lparam);
 		wbFree((void *)pwbo->lparam);
 		break;
 	}
@@ -1998,7 +2053,10 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio)
 {
 	PSPLITTERDATA pData = SplitterGetData(pwbo);
 	if (!pData || !IsWindow(pwbo->hwnd))
+	{
+		SplitterDebugTrace(TEXT("SetPosition failed: pwbo=%p pData=%p hwnd=%p"), pwbo, pData, pwbo ? pwbo->hwnd : NULL);
 		return FALSE;
+	}
 	if (bFromRatio)
 	{
 		if (nPosition < 0)
@@ -2013,6 +2071,7 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio)
 		pData->nDividerPos = nPosition;
 		SplitterLayout(pwbo, FALSE);
 	}
+	SplitterDebugTrace(TEXT("SetPosition ok: hwnd=%p pos=%d asRatio=%d ratioNow=%d"), pwbo->hwnd, nPosition, bFromRatio, pData->nRatioPermille);
 	return TRUE;
 }
 
@@ -2020,7 +2079,10 @@ int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio)
 {
 	PSPLITTERDATA pData = SplitterGetData(pwbo);
 	if (!pData)
+	{
+		SplitterDebugTrace(TEXT("GetPosition failed: pwbo=%p"), pwbo);
 		return 0;
+	}
 	return bAsRatio ? pData->nRatioPermille : pData->nDividerPos;
 }
 
@@ -2028,18 +2090,24 @@ BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2)
 {
 	PSPLITTERDATA pData = SplitterGetData(pwbo);
 	if (!pData || !IsWindow(pwbo->hwnd))
+	{
+		SplitterDebugTrace(TEXT("SetPanes failed: pwbo=%p pData=%p hwnd=%p"), pwbo, pData, pwbo ? pwbo->hwnd : NULL);
 		return FALSE;
+	}
 
 	if (pwboPane1 && IsWindow(pwboPane1->hwnd))
 	{
-		SetParent(pwboPane1->hwnd, pwbo->hwnd);
+		if (GetParent(pwboPane1->hwnd) != pwbo->hwnd)
+			SetParent(pwboPane1->hwnd, pwbo->hwnd);
 		pData->hwndPane1 = pwboPane1->hwnd;
 	}
 	if (pwboPane2 && IsWindow(pwboPane2->hwnd))
 	{
-		SetParent(pwboPane2->hwnd, pwbo->hwnd);
+		if (GetParent(pwboPane2->hwnd) != pwbo->hwnd)
+			SetParent(pwboPane2->hwnd, pwbo->hwnd);
 		pData->hwndPane2 = pwboPane2->hwnd;
 	}
+	SplitterDebugTrace(TEXT("SetPanes: hwnd=%p pane1=%p pane2=%p"), pwbo->hwnd, pData->hwndPane1, pData->hwndPane2);
 	SplitterLayout(pwbo, TRUE);
 	return TRUE;
 }
@@ -2048,9 +2116,13 @@ BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2)
 {
 	PSPLITTERDATA pData = SplitterGetData(pwbo);
 	if (!pData)
+	{
+		SplitterDebugTrace(TEXT("SetMinSizes failed: pwbo=%p"), pwbo);
 		return FALSE;
+	}
 	pData->nMinPane1 = MAX(0, nMinPane1);
 	pData->nMinPane2 = MAX(0, nMinPane2);
+	SplitterDebugTrace(TEXT("SetMinSizes: hwnd=%p min1=%d min2=%d"), pwbo->hwnd, pData->nMinPane1, pData->nMinPane2);
 	SplitterLayout(pwbo, FALSE);
 	return TRUE;
 }
