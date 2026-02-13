@@ -161,7 +161,7 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 			MoveWindow(pData->hwndPane2, 0, pData->nDividerPos + pData->nDividerSize, rc.right - rc.left, (rc.bottom - rc.top) - pData->nDividerPos - pData->nDividerSize, TRUE);
 	}
 
-	InvalidateRect(pwbo->hwnd, NULL, TRUE);
+	InvalidateRect(pwbo->hwnd, NULL, FALSE);
 }
 
 
@@ -222,6 +222,9 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 
 	case WM_NCDESTROY:
 		break;
+
+	case WM_ERASEBKGND:
+		return 1;
 
 	case WM_SETCURSOR:
 		if (pData && LOWORD(lParam) == HTCLIENT)
@@ -412,7 +415,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 
 	case Splitter:
 		pszClass = SPLITTER_CLASS;
-		dwStyle = WS_CHILD | WS_CLIPCHILDREN | nVisible;
+		dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | nVisible;
 		break;
 
 	case CheckBox:
