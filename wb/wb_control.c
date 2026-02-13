@@ -787,22 +787,15 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
-	switch (pwbo->uClass)
+	if (pwbo->uClass == TreeView || pwbo->uClass == TabControl)
 	{
-	case TreeView:
-	case TabControl:
-	case Splitter:
-		if (pwbo->lparam)
-			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
-		SplitterDebugTrace(TEXT("Destroy splitter: hwnd=%p pwbo=%p pData=%p"), pwbo->hwnd, pwbo, (void *)pwbo->lparam);
 		wbFree((void *)pwbo->lparam);
-		break;
-
-	case Splitter:
+	}
+	else if (pwbo->uClass == Splitter)
+	{
 		if (pwbo->lparam)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
-		break;
 	}
 	return DestroyWindow(pwbo->hwnd);
 }
