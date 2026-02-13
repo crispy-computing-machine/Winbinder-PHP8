@@ -93,8 +93,7 @@ static void SplitterDebugTrace(LPCTSTR pszFmt, ...)
 	va_list args;
 
 	va_start(args, pszFmt);
-	_vsntprintf(szBuffer, (sizeof(szBuffer) / sizeof(TCHAR)) - 1, pszFmt, args);
-	szBuffer[(sizeof(szBuffer) / sizeof(TCHAR)) - 1] = TEXT('\0');
+	wvsprintf(szBuffer, pszFmt, args);
 	va_end(args);
 
 	OutputDebugString(TEXT("[WinBinder Splitter] "));
