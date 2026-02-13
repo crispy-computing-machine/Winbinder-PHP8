@@ -177,6 +177,7 @@ enum
 	TabControl,
 	ToolBar,
 	TreeView,
+	Timer,
 	Splitter,
 };
 
