@@ -52,6 +52,7 @@ extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHa
 extern DWORD GetCalendarTime(PWBOBJ pwbo);
 extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
+extern BOOL RegisterSplitterClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 // Static
@@ -738,6 +739,8 @@ BOOL RegisterClasses(void)
 	// Register custom controls
 
 	if (!RegisterImageButtonClass())
+		return FALSE;
+	if (!RegisterSplitterClass())
 		return FALSE;
 
 	return TRUE;
