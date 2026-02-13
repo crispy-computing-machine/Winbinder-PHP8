@@ -49,11 +49,14 @@ extern BOOL EmbedBrowserObject(PWBOBJ pwbo);
 BOOL IsBitmap(HANDLE handle);
 BOOL IsIcon(HANDLE handle);
 BOOL RegisterImageButtonClass(void);
+BOOL RegisterSplitterClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 // Private
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
+
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
 
 static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
 static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
@@ -66,6 +69,171 @@ extern void SetStatusBarHandle(HWND hCtrl);
 extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab);
 extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
+
+typedef struct
+{
+	HWND hwndPane1;
+	HWND hwndPane2;
+	int nMinPane1;
+	int nMinPane2;
+	int nDividerPos;
+	int nDividerSize;
+	int nRatioPermille;
+	BOOL bVertical;
+	BOOL bDragging;
+} SPLITTERDATA, *PSPLITTERDATA;
+
+static PSPLITTERDATA SplitterGetData(PWBOBJ pwbo)
+{
+	if (!pwbo || pwbo->uClass != Splitter)
+		return NULL;
+	return (PSPLITTERDATA)pwbo->lparam;
+}
+
+static int SplitterClampDivider(PSPLITTERDATA pData, int nClient)
+{
+	int nMax = nClient - pData->nDividerSize - pData->nMinPane2;
+	if (nMax < pData->nMinPane1)
+		nMax = pData->nMinPane1;
+	if (pData->nDividerPos < pData->nMinPane1)
+		pData->nDividerPos = pData->nMinPane1;
+	if (pData->nDividerPos > nMax)
+		pData->nDividerPos = nMax;
+	if (pData->nDividerPos < 0)
+		pData->nDividerPos = 0;
+	return pData->nDividerPos;
+}
+
+static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
+{
+	RECT rc;
+	int nClient, nAvailable;
+	PSPLITTERDATA pData = SplitterGetData(pwbo);
+	if (!pData || !pwbo || !IsWindow(pwbo->hwnd))
+		return;
+
+	GetClientRect(pwbo->hwnd, &rc);
+	nClient = pData->bVertical ? (rc.right - rc.left) : (rc.bottom - rc.top);
+	if (nClient <= 0)
+		return;
+
+	nAvailable = nClient - pData->nDividerSize;
+	if (nAvailable < 0)
+		nAvailable = 0;
+
+	if (bFromRatio)
+		pData->nDividerPos = (pData->nRatioPermille * nAvailable) / 1000;
+
+	SplitterClampDivider(pData, nClient);
+	if (nAvailable > 0)
+		pData->nRatioPermille = (pData->nDividerPos * 1000) / nAvailable;
+
+	if (pData->hwndPane1 && IsWindow(pData->hwndPane1))
+	{
+		if (pData->bVertical)
+			MoveWindow(pData->hwndPane1, 0, 0, pData->nDividerPos, rc.bottom - rc.top, TRUE);
+		else
+			MoveWindow(pData->hwndPane1, 0, 0, rc.right - rc.left, pData->nDividerPos, TRUE);
+	}
+
+	if (pData->hwndPane2 && IsWindow(pData->hwndPane2))
+	{
+		if (pData->bVertical)
+			MoveWindow(pData->hwndPane2, pData->nDividerPos + pData->nDividerSize, 0, (rc.right - rc.left) - pData->nDividerPos - pData->nDividerSize, rc.bottom - rc.top, TRUE);
+		else
+			MoveWindow(pData->hwndPane2, 0, pData->nDividerPos + pData->nDividerSize, rc.right - rc.left, (rc.bottom - rc.top) - pData->nDividerPos - pData->nDividerSize, TRUE);
+	}
+
+	InvalidateRect(pwbo->hwnd, NULL, TRUE);
+}
+
+
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+{
+	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	PSPLITTERDATA pData = pwbo ? SplitterGetData(pwbo) : NULL;
+	POINT pt;
+
+	switch (msg)
+	{
+	case WM_SIZE:
+		if (pwbo)
+			SplitterLayout(pwbo, TRUE);
+		return 0;
+
+	case WM_LBUTTONDOWN:
+		if (!pData)
+			break;
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		if ((pData->bVertical && pt.x >= pData->nDividerPos && pt.x <= pData->nDividerPos + pData->nDividerSize) ||
+			(!pData->bVertical && pt.y >= pData->nDividerPos && pt.y <= pData->nDividerPos + pData->nDividerSize))
+		{
+			pData->bDragging = TRUE;
+			SetCapture(hwnd);
+		}
+		return 0;
+
+	case WM_MOUSEMOVE:
+		if (!pData)
+			break;
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		if (pData->bDragging)
+		{
+			pData->nDividerPos = pData->bVertical ? pt.x : pt.y;
+			SplitterLayout(pwbo, FALSE);
+		}
+		return 0;
+
+	case WM_LBUTTONUP:
+		if (pData && pData->bDragging)
+		{
+			pData->bDragging = FALSE;
+			ReleaseCapture();
+		}
+		return 0;
+
+	case WM_CAPTURECHANGED:
+		if (pData)
+			pData->bDragging = FALSE;
+		break;
+
+	case WM_SETCURSOR:
+		if (pData && LOWORD(lParam) == HTCLIENT)
+		{
+			SetCursor(LoadCursor(NULL, pData->bVertical ? IDC_SIZEWE : IDC_SIZENS));
+			return TRUE;
+		}
+		break;
+
+	case WM_PAINT:
+		if (pData)
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+			RECT rc;
+			HBRUSH hbr = CreateSolidBrush(RGB(200, 200, 200));
+			GetClientRect(hwnd, &rc);
+			if (pData->bVertical)
+			{
+				rc.left = pData->nDividerPos;
+				rc.right = pData->nDividerPos + pData->nDividerSize;
+			}
+			else
+			{
+				rc.top = pData->nDividerPos;
+				rc.bottom = pData->nDividerPos + pData->nDividerSize;
+			}
+			FillRect(hdc, &rc, hbr);
+			DeleteObject(hbr);
+			EndPaint(hwnd, &ps);
+			return 0;
+		}
+		break;
+	}
+	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
@@ -216,6 +384,11 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwStyle = WS_CHILD | WS_TABSTOP | nVisible;
 		if (pwbo->style & WBC_TRANSPARENT)
 			dwExStyle = WS_EX_TRANSPARENT;
+		break;
+
+	case Splitter:
+		pszClass = SPLITTER_CLASS;
+		dwStyle = WS_CHILD | WS_CLIPCHILDREN | nVisible;
 		break;
 
 	case CheckBox:
@@ -546,6 +719,22 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
+	case Splitter:
+	{
+		PSPLITTERDATA pData = wbMalloc(sizeof(SPLITTERDATA));
+		if (!pData)
+			return NULL;
+		ZeroMemory(pData, sizeof(SPLITTERDATA));
+		pData->nMinPane1 = 40;
+		pData->nMinPane2 = 40;
+		pData->nDividerSize = 6;
+		pData->nRatioPermille = (lParam > 0 && lParam < 1000) ? (int)lParam : 500;
+		pData->bVertical = !BITTEST(dwWBStyle, WBC_SPLIT_HORIZONTAL);
+		pwbo->lparam = (LPARAM)pData;
+		SplitterLayout(pwbo, TRUE);
+		break;
+	}
+
 	default:
 
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
@@ -577,6 +766,7 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	{
 	case TreeView:
 	case TabControl:
+	case Splitter:
 		wbFree((void *)pwbo->lparam);
 		break;
 	}
@@ -1415,6 +1605,9 @@ BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue)
 	case Calendar:
 		return SetCalendarTime(pwbo, dwValue);
 
+	case Splitter:
+		return wbSetSplitterPosition(pwbo, (int)dwValue, FALSE);
+
 		// Set value as text
 
 	case EditBox:
@@ -1530,6 +1723,9 @@ DWORD wbGetValue(PWBOBJ pwbo)
 		// 0 means unchecked, 1 means checked.
 
 		return (SendMessage(pwbo->hwnd, BM_GETCHECK, 0, 0) == BST_CHECKED);
+
+	case Splitter:
+		return wbGetSplitterPosition(pwbo, FALSE);
 
 	case TreeView:
 
@@ -1798,6 +1994,67 @@ BOOL wbRefreshControlFPS(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeigh
     return TRUE;
 }
 
+BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio)
+{
+	PSPLITTERDATA pData = SplitterGetData(pwbo);
+	if (!pData || !IsWindow(pwbo->hwnd))
+		return FALSE;
+	if (bFromRatio)
+	{
+		if (nPosition < 0)
+			nPosition = 0;
+		if (nPosition > 1000)
+			nPosition = 1000;
+		pData->nRatioPermille = nPosition;
+		SplitterLayout(pwbo, TRUE);
+	}
+	else
+	{
+		pData->nDividerPos = nPosition;
+		SplitterLayout(pwbo, FALSE);
+	}
+	return TRUE;
+}
+
+int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio)
+{
+	PSPLITTERDATA pData = SplitterGetData(pwbo);
+	if (!pData)
+		return 0;
+	return bAsRatio ? pData->nRatioPermille : pData->nDividerPos;
+}
+
+BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2)
+{
+	PSPLITTERDATA pData = SplitterGetData(pwbo);
+	if (!pData || !IsWindow(pwbo->hwnd))
+		return FALSE;
+
+	if (pwboPane1 && IsWindow(pwboPane1->hwnd))
+	{
+		SetParent(pwboPane1->hwnd, pwbo->hwnd);
+		pData->hwndPane1 = pwboPane1->hwnd;
+	}
+	if (pwboPane2 && IsWindow(pwboPane2->hwnd))
+	{
+		SetParent(pwboPane2->hwnd, pwbo->hwnd);
+		pData->hwndPane2 = pwboPane2->hwnd;
+	}
+	SplitterLayout(pwbo, TRUE);
+	return TRUE;
+}
+
+BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2)
+{
+	PSPLITTERDATA pData = SplitterGetData(pwbo);
+	if (!pData)
+		return FALSE;
+	pData->nMinPane1 = MAX(0, nMinPane1);
+	pData->nMinPane2 = MAX(0, nMinPane2);
+	SplitterLayout(pwbo, FALSE);
+	return TRUE;
+}
+
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
 
 BOOL IsIcon(HANDLE handle)
@@ -1835,6 +2092,27 @@ BOOL RegisterImageButtonClass(void)
 		return FALSE;
 
 	wbSetCursor((PWBOBJ)ImageButton, NULL, 0);
+
+	return TRUE;
+}
+
+BOOL RegisterSplitterClass(void)
+{
+	WNDCLASS wc;
+
+	memset(&wc, 0, sizeof(WNDCLASS));
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = (WNDPROC)SplitterProc;
+	wc.hInstance = hAppInstance;
+	wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+	wc.lpszClassName = SPLITTER_CLASS;
+	wc.lpszMenuName = NULL;
+	wc.hCursor = LoadCursor(NULL, IDC_SIZEWE);
+	wc.hIcon = NULL;
+	wc.cbWndExtra = DLGWINDOWEXTRA;
+
+	if (!RegisterClass(&wc))
+		return FALSE;
 
 	return TRUE;
 }

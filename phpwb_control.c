@@ -892,6 +892,73 @@ ZEND_FUNCTION(wb_set_value)
 	RETURN_BOOL(wbSetValue((PWBOBJ)pwbo, value));
 }
 
+ZEND_FUNCTION(wb_set_splitter_position)
+{
+	zend_long pwbo, position;
+	zend_bool as_ratio = 0;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(position)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(as_ratio)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbSetSplitterPosition((PWBOBJ)pwbo, (int)position, as_ratio));
+}
+
+ZEND_FUNCTION(wb_get_splitter_position)
+{
+	zend_long pwbo;
+	zend_bool as_ratio = 0;
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(as_ratio)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_LONG(0);
+
+	RETURN_LONG(wbGetSplitterPosition((PWBOBJ)pwbo, as_ratio));
+}
+
+ZEND_FUNCTION(wb_set_splitter_panes)
+{
+	zend_long splitter, pane1, pane2;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(splitter)
+		Z_PARAM_LONG(pane1)
+		Z_PARAM_LONG(pane2)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)splitter, TRUE) || !wbIsWBObj((void *)pane1, TRUE) || !wbIsWBObj((void *)pane2, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbSetSplitterPanes((PWBOBJ)splitter, (PWBOBJ)pane1, (PWBOBJ)pane2));
+}
+
+ZEND_FUNCTION(wb_set_splitter_minsize)
+{
+	zend_long splitter, min1, min2;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(splitter)
+		Z_PARAM_LONG(min1)
+		Z_PARAM_LONG(min2)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)splitter, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbSetSplitterMinSizes((PWBOBJ)splitter, (int)min1, (int)min2));
+}
+
 ZEND_FUNCTION(wb_set_range)
 {
 	zend_long pwbo, min = 0, max = 0;
