@@ -15,6 +15,7 @@
 #include <time.h>	 // For time_t
 #include <stdlib.h>   // For itoa(), atoi()
 #include <shellapi.h> // For Shell_NotifyIcon()
+#include <stdarg.h>
 
 #ifdef _MSC_VER
 #include <richedit.h> // For EM
