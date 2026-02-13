@@ -15,6 +15,7 @@
 #include <time.h>	 // For time_t
 #include <stdlib.h>   // For itoa(), atoi()
 #include <shellapi.h> // For Shell_NotifyIcon()
+#include <stdarg.h>
 
 #ifdef _MSC_VER
 #include <richedit.h> // For EM
@@ -790,6 +791,10 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	{
 	case TreeView:
 	case TabControl:
+	case Splitter:
+		if (pwbo->lparam)
+			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
+		SplitterDebugTrace(TEXT("Destroy splitter: hwnd=%p pwbo=%p pData=%p"), pwbo->hwnd, pwbo, (void *)pwbo->lparam);
 		wbFree((void *)pwbo->lparam);
 		break;
 
