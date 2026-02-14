@@ -424,10 +424,15 @@ ZEND_FUNCTION(wb_set_area)
 ZEND_FUNCTION(wb_set_handler)
 {
 	zend_long pwbo;
-	zval *obj = NULL;
+	zval *callable_obj = NULL;
+	zval *callable_target = NULL;
+	zval *method_zv = NULL;
+	zend_array *callable_arr = NULL;
 	zend_string *fname = NULL;
-	zval name = {0}, *zparam = NULL;
+	zval callable = {0};
+	zval *zparam = NULL;
 	char *handler = "";
+	char *scoped_handler = NULL;
 
 	TCHAR *wcsHandler = 0;
 
@@ -440,13 +445,56 @@ ZEND_FUNCTION(wb_set_handler)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}
+
 	switch (Z_TYPE_P(zparam))
 	{
 	case IS_ARRAY:
-		parse_array(zparam, "ls", &obj, &handler);
+		callable_arr = Z_ARRVAL_P(zparam);
+
+		if (zend_hash_num_elements(callable_arr) != 2)
+		{
+			wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Callable array must contain exactly two elements: [object_or_class, method]"));
+			RETURN_BOOL(FALSE);
+		}
+
+		callable_target = zend_hash_index_find(callable_arr, 0);
+		method_zv = zend_hash_index_find(callable_arr, 1);
+
+		if (callable_target == NULL || method_zv == NULL)
+		{
+			wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Malformed callable array. Expected numeric indexes 0 and 1"));
+			RETURN_BOOL(FALSE);
+		}
+
+		if (Z_TYPE_P(method_zv) != IS_STRING)
+		{
+			wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Callable array method must be a string"));
+			RETURN_BOOL(FALSE);
+		}
+
+		handler = Z_STRVAL_P(method_zv);
+
+		if (Z_TYPE_P(callable_target) == IS_OBJECT)
+		{
+			callable_obj = emalloc(sizeof(zval));
+			ZVAL_COPY(callable_obj, callable_target);
+		}
+		else if (Z_TYPE_P(callable_target) == IS_STRING)
+		{
+			spprintf(&scoped_handler, 0, "%s::%s", Z_STRVAL_P(callable_target), handler);
+			handler = scoped_handler;
+		}
+		else
+		{
+			wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Callable array index 0 must be an object or class string"));
+			RETURN_BOOL(FALSE);
+		}
+
+		ZVAL_COPY(&callable, zparam);
 		break;
 	case IS_STRING:
 		handler = Z_STRVAL_P(zparam);
+		ZVAL_COPY(&callable, zparam);
 		break;
 	default:
 		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("Wrong data type in function"));
@@ -454,16 +502,39 @@ ZEND_FUNCTION(wb_set_handler)
 	}
 
 	// Error checking
-	if (!zend_is_callable(zparam, 0, &fname))
+	if (!zend_is_callable(&callable, 0, &fname))
 	{
-		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("%s handler is not a function or cannot be called"), fname);
+		wbError(TEXT("wb_set_handler"), MB_ICONWARNING, TEXT("%s handler is not a function or cannot be called"), fname ? ZSTR_VAL(fname) : "(unknown)");
+		if (callable_obj)
+		{
+			zval_ptr_dtor(callable_obj);
+			efree(callable_obj);
+		}
+		if (scoped_handler)
+		{
+			efree(scoped_handler);
+		}
+		if (fname)
+		{
+			zend_string_release(fname);
+		}
+		zval_ptr_dtor(&callable);
 		RETURN_BOOL(FALSE);
 	}
 	else
 	{
 
 		wcsHandler = Utf82WideChar(handler, 0);
-		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, (LPDWORD)obj, wcsHandler));
+		if (scoped_handler)
+		{
+			efree(scoped_handler);
+		}
+		if (fname)
+		{
+			zend_string_release(fname);
+		}
+		zval_ptr_dtor(&callable);
+		RETURN_BOOL(wbSetWindowHandler((PWBOBJ)pwbo, (LPDWORD)callable_obj, wcsHandler));
 	}
 }
 
