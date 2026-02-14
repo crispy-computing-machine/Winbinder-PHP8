@@ -371,22 +371,36 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 {
 	RECT rc;
 	BOOL bRet;
+	HWND hwndParent = NULL;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	// pwboParent is ignored here
-	// @todo seems to segfault when clientarea is set to true!
-	if (bClientRect){
-		RECT rcParent;
+	bRet = GetWindowRect(pwbo->hwnd, &rc);
 
-		bRet = GetWindowRect(pwbo->hwnd, &rc);
-		GetWindowRect(pwbo->parent->hwnd, &rcParent);
+	if (bRet && bClientRect)
+	{
+		POINT pt;
 
-		rc.left -= rcParent.left;
-		rc.top -= rcParent.top;
-	} else {
-		bRet = GetWindowRect(pwbo->hwnd, &rc);
+		if (pwboParent && pwboParent->hwnd && IsWindow(pwboParent->hwnd))
+			hwndParent = pwboParent->hwnd;
+		else if (pwbo->parent && pwbo->parent->hwnd && IsWindow(pwbo->parent->hwnd))
+			hwndParent = pwbo->parent->hwnd;
+
+		if (hwndParent)
+		{
+			pt.x = rc.left;
+			pt.y = rc.top;
+			if (ScreenToClient(hwndParent, &pt))
+			{
+				rc.left = pt.x;
+				rc.top = pt.y;
+			}
+			else
+				bRet = FALSE;
+		}
+		// For top-level windows (no valid parent), keep screen coordinates from GetWindowRect().
 	}
 
 	if (!bRet)
