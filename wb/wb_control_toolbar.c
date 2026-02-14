@@ -108,18 +108,16 @@ static HWND CreateToolbar(HWND hwndParent, int nButtons, int nBtnWidth, int nBtn
 
 static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 {
-	TBBUTTON tbb;
+	TBBUTTON tbb = {0};
 	BOOL bRet;
 
 	tbb.fsState = TBSTATE_ENABLED;
-	tbb.dwData = 0;
 
 	if (id == 0)
 	{ // Separator
 		tbb.idCommand = 0;
 		tbb.fsState = 0;
 		tbb.fsStyle = TBSTYLE_SEP;
-		tbb.dwData = 0;
 		tbb.iBitmap = 0;
 		tbb.iString = 0;
 	}
@@ -128,6 +126,8 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		tbb.idCommand = id;
 		tbb.fsState = TBSTATE_ENABLED;
 		tbb.fsStyle = TBSTYLE_BUTTON;
+		tbb.iBitmap = nIndex;
+		tbb.iString = 0;
 		if (pszHint && *pszHint)
 		{
 		    // Convert UTF-8 to wide char using Windows API
@@ -145,8 +145,6 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 		}
 		else {
 			tbb.dwData = 0;
-		    tbb.iBitmap = nIndex;
-		    tbb.iString = nIndex;
 		}
 	}
 
