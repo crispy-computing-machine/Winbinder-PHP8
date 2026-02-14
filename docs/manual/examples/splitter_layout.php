@@ -29,6 +29,12 @@ wb_set_splitter_panes($split, $paneLeft, $paneRight);
 wb_set_splitter_minsize($split, 280, 420);
 wb_set_splitter_position($split, 360);
 
+// Regression check: calling wb_get_position() with clientarea=TRUE on a main window must be safe.
+$mainPosClient = wb_get_position($mainwin, TRUE);
+if (!is_array($mainPosClient) || count($mainPosClient) < 2) {
+    wb_message_box($mainwin, "Unexpected wb_get_position() result for main window.", "Regression check", WBC_INFO);
+}
+
 wb_set_handler($mainwin, "process_main");
 wb_set_visible($mainwin, TRUE);
 wb_main_loop();
