@@ -1035,7 +1035,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		int i;
 		int nParts = 0;
 		int aWidths[255];
-		LPTSTR pszCaption;
+		char *captionUtf8;
 		LONG_PTR nWidth;
 
 		// Count array elements
@@ -1050,7 +1050,14 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		i = 0;
 		while ((zitem = process_array(zitems)) != NULL)
 		{
-			parse_array(zitem, "sl", &pszCaption, &nWidth);
+			TCHAR *convertedCaption = NULL;
+
+			captionUtf8 = NULL;
+			parse_array(zitem, "sl", &captionUtf8, &nWidth);
+			if (captionUtf8)
+			{
+				convertedCaption = Utf82WideChar(captionUtf8, 0);
+			}
 
 			if ((i == nParts - 1) && (nWidth <= 0))
 			{
@@ -1061,11 +1068,11 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 				if (nWidth <= 4)
 				{
 
-					if (*pszCaption)
+					if (convertedCaption && *convertedCaption)
 					{
 						SIZE siz;
 
-						if (wbGetTextSize(&siz, pszCaption, 0)){
+						if (wbGetTextSize(&siz, convertedCaption, 0)){
 							nWidth = siz.cx + 10; // This number is and arbitrary
 						}else{
 							nWidth = 10;
@@ -1078,6 +1085,10 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 				}
 				aWidths[i] = (i ? aWidths[i - 1] : 0) + nWidth;
 			}
+			if (convertedCaption)
+			{
+				wbFree(convertedCaption);
+			}
 
 			i++;
 		}
@@ -1087,10 +1098,21 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		i = 0;
 		while ((zitem = process_array(zitems)) != NULL)
 		{
-			parse_array(zitem, "sl", &pszCaption, NULL);
+			TCHAR *convertedCaption = NULL;
+
+			captionUtf8 = NULL;
+			parse_array(zitem, "sl", &captionUtf8, NULL);
+			if (captionUtf8)
+			{
+				convertedCaption = Utf82WideChar(captionUtf8, 0);
+			}
 			
-			if (!wbSetText((PWBOBJ)pwbo, pszCaption, i, FALSE)){
+			if (!wbSetText((PWBOBJ)pwbo, convertedCaption ? convertedCaption : TEXT(""), i, FALSE)){
 				bRet = FALSE;
+			}
+			if (convertedCaption)
+			{
+				wbFree(convertedCaption);
 			}
 			i++;
 		}
