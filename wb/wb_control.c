@@ -2456,7 +2456,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 
 				if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 				{
-					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 									   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 				}
 			}
@@ -2478,7 +2478,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			// Sets the timer for the first delay
 			if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 			{
-				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id, wParam, lParam, 0);
+				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id, wParam, lParam, 0);
 			}
 
 			M_bRepeatOn = FALSE;
@@ -2504,7 +2504,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 		{
 			if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 			{
-				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 								   wParam, lParam, 0);
 			}
 		}
@@ -2580,7 +2580,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			{
 				if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 				{
-					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 									   wParam, lParam, 0);
 				}
 
