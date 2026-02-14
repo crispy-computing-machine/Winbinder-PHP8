@@ -113,6 +113,10 @@ ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
 ZEND_FUNCTION(wb_set_text);
 ZEND_FUNCTION(wb_set_value);
+ZEND_FUNCTION(wb_set_splitter_position);
+ZEND_FUNCTION(wb_get_splitter_position);
+ZEND_FUNCTION(wb_set_splitter_panes);
+ZEND_FUNCTION(wb_set_splitter_minsize);
 
 // PHPWB_DRAW.C
 ZEND_FUNCTION(wb_get_pixel);
@@ -306,6 +310,10 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_sort,arginfo_wb_sort)
         ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
         ZEND_FE(wb_set_value,arginfo_wb_set_value)
+        ZEND_FE(wb_set_splitter_position,arginfo_wb_set_splitter_position)
+        ZEND_FE(wb_get_splitter_position,arginfo_wb_get_splitter_position)
+        ZEND_FE(wb_set_splitter_panes,arginfo_wb_set_splitter_panes)
+        ZEND_FE(wb_set_splitter_minsize,arginfo_wb_set_splitter_minsize)
 
         // PHPWB_CONTROL_LISTVIEW.C
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
@@ -446,7 +454,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TabControl", TabControl)
 	WB_ZEND_CONST(LONG, "ToolBar", ToolBar)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
-	WB_ZEND_CONST(LONG, "Timer", 33)
+	WB_ZEND_CONST(LONG, "Splitter", Splitter)
+	WB_ZEND_CONST(LONG, "Timer", Timer)
 
 	// System constants
 	WB_ZEND_CONST(STRING, "WBC_VERSION", LIBVERSION)
@@ -483,6 +492,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_DEFAULT", WBC_DEFAULT)
 	WB_ZEND_CONST(LONG, "WBC_MULTISELECT", WBC_MULTISELECT)
 	WB_ZEND_CONST(LONG, "WBC_NOHEADER", WBC_NOHEADER)
+	WB_ZEND_CONST(LONG, "WBC_SPLIT_VERTICAL", WBC_SPLIT_VERTICAL)
+	WB_ZEND_CONST(LONG, "WBC_SPLIT_HORIZONTAL", WBC_SPLIT_HORIZONTAL)
 
 	// Notification message flags
 	WB_ZEND_CONST(LONG, "WBC_DBLCLICK", WBC_DBLCLICK)

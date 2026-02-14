@@ -122,6 +122,7 @@
 #define MODAL_WINDOW_CLASS TEXT("wbModalDlg")
 #define BROWSER_WINDOW_CLASS TEXT("wbHTMLWnd")
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
+#define SPLITTER_CLASS TEXT("wbSplitter")
 
 // Custom WinBinder messages
 #define WBWM_NOTIFYICON (WM_APP + 2)
@@ -176,9 +177,11 @@ enum
 	TabControl,
 	ToolBar,
 	TreeView,
+	Timer,
+	Splitter,
 };
 
-#define NUMCLASSES TreeView // Must be the last class
+#define NUMCLASSES Splitter // Must be the last class
 
 // Style flags (parameter style of wb_create_window)
 
@@ -211,6 +214,8 @@ enum
 #define WBC_NOHEADER 0x10000000				 // for list views
 #define WBC_TRANSPARENT 0x20000000			 // For ImageButtons
 #define WBC_MULTISELECT 0x40000000			 // For ListViews
+#define WBC_SPLIT_VERTICAL 0x08000000 // Splitter orientation: vertical divider (left/right panes)
+#define WBC_SPLIT_HORIZONTAL 0x04000000 // Splitter orientation: horizontal divider (top/bottom panes)
 #define WBC_DEFAULT 0x00000008				 // Control has a border
 #define WBC_DEFAULTPOS (signed)CW_USEDEFAULT // 0x80000000
 
@@ -477,6 +482,10 @@ BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
 DWORD wbGetSelected(PWBOBJ pwbo);
 BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths);
+BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
+int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
+BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
+BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
 
 // WB_CONTROL_COMBO.C
 
