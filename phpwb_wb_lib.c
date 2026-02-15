@@ -86,6 +86,7 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwboParent, PWBOBJ pctrl, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
 	zval fname = {0};
+	zval callable = {0};
 	zval return_value = {0};
 	zval parms[CALLBACK_ARGS];
 	zval *zobj = NULL;
@@ -121,6 +122,23 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	}
 
 	ZVAL_STRING(&fname, pszFName);
+
+	if (pszObject != NULL)
+	{
+		array_init_size(&callable, 2);
+
+		{
+			zval obj = {0};
+			ZVAL_COPY(&obj, (zval *)pszObject);
+			add_next_index_zval(&callable, &obj);
+		}
+
+		add_next_index_string(&callable, pszFName);
+	}
+	else
+	{
+		ZVAL_COPY(&callable, &fname);
+	}
 
 	/* why we test again ??? GYW
 	// Error checking is VERY POOR for user methods (i.e. when pszObjectName is not NULL)
@@ -181,6 +199,7 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 
     // Free allocated memory
     efree(pszFName);
+    zval_ptr_dtor(&callable);
     zval_ptr_dtor(&fname);
 
 	switch (Z_TYPE(return_value))

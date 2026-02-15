@@ -2385,7 +2385,7 @@ static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 			if (pwbobj && pwbobj->parent && pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
 			{
 				//printf("%08X %s\n", pwbobj->lparam, pwbobj->parent->pszCallBackFn);
-				wbCallUserFunction(pwbobj->parent->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, pwbobj->id,
+				wbCallUserFunction(pwbobj->parent->pszCallBackFn, pwbobj->parent->pszCallBackObj, pwbobj->parent, pwbobj, pwbobj->id,
 								   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 			}
 		}
