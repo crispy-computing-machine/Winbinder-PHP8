@@ -175,8 +175,8 @@ UINT64 wbCallUserFunction(LPCTSTR pszFunctionName, LPDWORD pszObject, PWBOBJ pwb
 	// Call the user function
 	bRet = call_user_function(
 		NULL, // CG(function_table) Hash value for the function table
-		NULL,			// Object context (encoded in callable when needed)
-		&callable,				// Callable (string or [object, method])
+		(zval *)pszObject,			// Pointer to an object (may be NULL)
+		&fname,				// Function name
 		&return_value,		// Return value
 		CALLBACK_ARGS,		// Parameter count
 		parms				// Parameter array
