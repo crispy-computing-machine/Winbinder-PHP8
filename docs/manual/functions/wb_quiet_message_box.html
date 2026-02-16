@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>wb_quiet_message_box</title>
+<meta name="generator" content="Namo WebEditor v5.0">
+<link rel="stylesheet" href="../help.css">
+</head>
+<body>
+<!--KW:
+wb_quiet_message_box
+-->
+<h2>wb_quiet_message_box</h2>
+<p>mixed <b>wb_quiet_message_box</b> (int parent, string message [, string title [, int style [, int timeout]]])</p>
+<p>Creates and displays a message box like <a href="wb_message_box.html">wb_message_box</a>, but closes it automatically after <i>timeout</i> milliseconds.</p>
+<h1><b>Parameters</b></h1>
+<p><b>parent</b>, <b>message</b>, <b>title</b> and <b>style</b> behave like <span class="code">wb_message_box</span>.</p>
+<p><b>timeout</b> is the auto-close interval in milliseconds. A value of <span class="code">0</span> disables auto-close and behaves exactly like <span class="code">wb_message_box</span>.</p>
+<h1><b>Return values</b></h1>
+<p>Return mapping is the same as <span class="code">wb_message_box</span>:</p>
+<ul>
+<li><span class="code">TRUE</span> for OK/Yes/Retry.</li>
+<li><span class="code">0</span> for No.</li>
+<li><span class="code">FALSE</span> for Cancel/Abort/Ignore and other negative answers.</li>
+<li><span class="code">NULL</span> on error.</li>
+</ul>
+<p>If the box closes by timeout, this function returns <span class="code">IDTIMEOUT</span> (32000).</p>
+<h1><b>Example</b></h1>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5" >
+<tr><td><pre class="code">$ret = wb_quiet_message_box($window,
+    "Operation completed.",
+    APPNAME,
+    WBC_INFO,
+    2500);
+
+if ($ret === IDTIMEOUT) {
+    // Message closed automatically
+}</pre>
+</td></tr>
+</table>
+<h1><b>See also</b></h1>
+<p><a href="wb_message_box.html">wb_message_box</a></p>
+<p><a href="../reference/functions_category.html#dialog">Dialog functions</a></p>
+
+<p class="code">&nbsp;</p>
+</body>
+</html>
