@@ -624,6 +624,7 @@ BOOL wbPlaySound(LPCTSTR pszFileName, LPCTSTR pszCommand);
 BOOL wbStopSound(LPCTSTR pszCommand);
 BOOL wbShowLastError(LPCTSTR pszCaption, BOOL bMessageBox);
 int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle);
+int wbQuietMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle, DWORD timeoutMs);
 DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
 BOOL wbIsRunning(LONG pid);
 BOOL wbFindFile(LPTSTR pszFileName, UINT64 uLen);

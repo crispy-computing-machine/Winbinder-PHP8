@@ -50,6 +50,7 @@ ZEND_MINFO_FUNCTION(winbinder);
 ZEND_FUNCTION(wb_main_loop);
 ZEND_FUNCTION(wb_find_file);
 ZEND_FUNCTION(wb_message_box);
+ZEND_FUNCTION(wb_quiet_message_box);
 ZEND_FUNCTION(wb_play_sound);
 ZEND_FUNCTION(wb_stop_sound);
 ZEND_FUNCTION(wb_exec);
@@ -226,6 +227,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_main_loop,arginfo_wb_main_loop)
         ZEND_FE(wb_find_file,arginfo_wb_find_file)
         ZEND_FE(wb_message_box,arginfo_wb_message_box)
+        ZEND_FE(wb_quiet_message_box,arginfo_wb_quiet_message_box)
         ZEND_FE(wb_play_sound,arginfo_wb_play_sound)
         ZEND_FE(wb_stop_sound,arginfo_wb_stop_sound)
         ZEND_FE(wb_exec,arginfo_wb_exec)
