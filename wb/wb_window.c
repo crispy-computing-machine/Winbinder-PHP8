@@ -952,6 +952,13 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                                 pszParentDrawHandlerObj = pwbobj->parent->pszCallBackObj;
                             }
 
+                            // Avoid duplicate callbacks when listview and parent handlers are the same callable.
+                            if (pszDrawHandler == pszParentDrawHandler && pszDrawHandlerObj == pszParentDrawHandlerObj)
+                            {
+                                pszParentDrawHandler = NULL;
+                                pszParentDrawHandlerObj = NULL;
+                            }
+
                             if (pszDrawHandler || pszParentDrawHandler)
                             {
                                 switch (lplvcd->nmcd.dwDrawStage)
