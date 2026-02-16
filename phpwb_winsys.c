@@ -265,24 +265,24 @@ ZEND_FUNCTION(wb_stop_sound)
 ZEND_FUNCTION(wb_message_box)
 {
 	char *msg, *title = NULL;
-	zend_long pwbo, style = 0;
+	zend_long pwbo, style = MB_OK;
 	size_t msg_len, title_len = 0;
 	int ret;
 
 	TCHAR *szMsg = 0;
 	TCHAR *szTitle = 0;
 
-	style = MB_OK;
-
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(msg, msg_len)
+		Z_PARAM_OPTIONAL
 		Z_PARAM_STRING(title, title_len)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE)){
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	{
 		RETURN_NULL();
 	}
 	if (!title || !*title)
@@ -299,16 +299,66 @@ ZEND_FUNCTION(wb_message_box)
 	{
 	case -2: // Error
 		RETURN_NULL();
-		break;
 	case -1: // IDNO
 		RETURN_LONG(0);
-		break;
 	case 0: // Cancel, etc.
 		RETURN_BOOL(FALSE);
-		break;
 	case 1: // OK, etc.
 		RETURN_BOOL(TRUE);
-		break;
+	default:
+		RETURN_BOOL(FALSE);
+	}
+}
+
+ZEND_FUNCTION(wb_quiet_message_box)
+{
+	char *msg, *title = NULL;
+	zend_long pwbo, style = MB_OK, timeout = 0;
+	size_t msg_len, title_len = 0;
+	int ret;
+
+	TCHAR *szMsg = 0;
+	TCHAR *szTitle = 0;
+
+	ZEND_PARSE_PARAMETERS_START(2, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(msg, msg_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_LONG(style)
+		Z_PARAM_LONG(timeout)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_NULL();
+	}
+	if (!title || !*title)
+	{
+		title = szAppName;
+		title_len = strlen(szAppName);
+	}
+	if (timeout < 0)
+		timeout = 0;
+
+	szMsg = Utf82WideChar(msg, msg_len);
+	szTitle = Utf82WideChar(title, title_len);
+	ret = wbQuietMessageBox((PWBOBJ)pwbo, szMsg, szTitle, style, (DWORD)timeout);
+
+	switch (ret)
+	{
+	case -2: // Error
+		RETURN_NULL();
+	case -1: // IDNO
+		RETURN_LONG(0);
+	case 0: // Cancel, etc.
+		RETURN_BOOL(FALSE);
+	case 1: // OK, etc.
+		RETURN_BOOL(TRUE);
+	case IDTIMEOUT: // Auto-close timeout
+		RETURN_LONG(IDTIMEOUT);
+	default:
+		RETURN_BOOL(FALSE);
 	}
 }
 

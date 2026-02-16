@@ -1035,7 +1035,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 		int i;
 		int nParts = 0;
 		int aWidths[255];
-		char *captionUtf8 = NULL;
+		char *captionUtf8;
 		LONG_PTR nWidth;
 
 		// Count array elements
@@ -1053,7 +1053,6 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 			TCHAR *convertedCaption = NULL;
 
 			captionUtf8 = NULL;
-			nWidth = 0;
 			parse_array(zitem, "sl", &captionUtf8, &nWidth);
 			if (captionUtf8)
 			{
