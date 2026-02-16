@@ -1065,9 +1065,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             if ((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED)
                                 lParam1 |= WBC_LV_SELECTED;
 
-                            if ((pnm->uOldState ^ pnm->uNewState) & LVIS_FOCUSED)
-                                lParam1 |= WBC_LV_FOCUSED;
-
                             if (lParam1)
                                 CALL_CALLBACK(pnm->hdr.idFrom, lParam1, 0, 0);
                             //printf("ListView LVN_ITEMCHANGED\n");

@@ -238,7 +238,6 @@ enum
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
-#define WBC_LV_FOCUSED 0x00000004
 
 // Additional notification message flags
 
