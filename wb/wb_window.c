@@ -66,6 +66,7 @@ VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
+static UINT64 CallListViewColorHandler(LPTSTR pszHandler, LPDWORD pszHandlerObj, PWBOBJ pwbobj, LPNMHDR pnmh, LPNMLVCUSTOMDRAW lplvcd, int iSubItem, LISTVIEWCOLOR *plvc);
 
 // Procedures for WinBinder classes
 
@@ -760,6 +761,14 @@ BOOL RegisterClasses(void)
 	return TRUE;
 }
 
+static UINT64 CallListViewColorHandler(LPTSTR pszHandler, LPDWORD pszHandlerObj, PWBOBJ pwbobj, LPNMHDR pnmh, LPNMLVCUSTOMDRAW lplvcd, int iSubItem, LISTVIEWCOLOR *plvc)
+{
+	if (!pszHandler || !*pszHandler)
+		return 0;
+
+	return wbCallUserFunction(pszHandler, pszHandlerObj, pwbobj->parent, pwbobj, pnmh->idFrom, lplvcd->nmcd.lItemlParam, iSubItem, (LPARAM)plvc);
+}
+
 //-------------------------------------------------- WINDOW PROCESSING FUNCTIONS
 
 /*
@@ -924,10 +933,27 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                     {
                         //case 0xffffff4f:
                         case NM_CUSTOMDRAW:
-                            if (pwbobj->pszCallBackFn != NULL) //has color handler
+                        {
+                            LPTSTR pszDrawHandler = NULL;
+                            LPDWORD pszDrawHandlerObj = NULL;
+                            LPTSTR pszParentDrawHandler = NULL;
+                            LPDWORD pszParentDrawHandlerObj = NULL;
+                            LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+
+                            if (pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
                             {
-                                LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-                                //printf("ListView NM_CUSTOMDRAW\n");
+                                pszDrawHandler = pwbobj->pszCallBackFn;
+                                pszDrawHandlerObj = pwbobj->pszCallBackObj;
+                            }
+
+                            if (SEND_MESSAGE && TEST_FLAG(WBC_REDRAW) && pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
+                            {
+                                pszParentDrawHandler = pwbobj->parent->pszCallBackFn;
+                                pszParentDrawHandlerObj = pwbobj->parent->pszCallBackObj;
+                            }
+
+                            if (pszDrawHandler || pszParentDrawHandler)
+                            {
                                 switch (lplvcd->nmcd.dwDrawStage)
                                 {
                                     case CDDS_PREPAINT:
@@ -935,10 +961,15 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                                     case CDDS_ITEMPREPAINT:
                                     {
                                         LISTVIEWCOLOR lvc = {0};
-                                        //UINT64 ret = wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
+                                        LISTVIEWCOLOR lvcParent = {0};
+                                        UINT64 ret = CallListViewColorHandler(pszDrawHandler, pszDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, -1, &lvc);
+                                        UINT64 retParent = CallListViewColorHandler(pszParentDrawHandler, pszParentDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, -1, &lvcParent);
 
-                                        // Passes $rowIndex, $columnIndex , $colourStruct
-                                        UINT64 ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent,pwbobj, ((LPNMHDR)lParam)->idFrom,lplvcd->nmcd.lItemlParam,-1,(LPARAM)&lvc);
+                                        if (retParent > 0)
+                                        {
+                                            ret = retParent;
+                                            lvc = lvcParent;
+                                        }
 
                                         if (ret > 0)
                                         {
@@ -947,18 +978,18 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                                             switch (lvc.nMode)
                                             {
-                                                case 1:
-                                                    lplvcd->clrText = lvc.dwForeground;
-                                                    break;
-                                                case 2:
-                                                    lplvcd->clrTextBk = lvc.dwBackground;
-                                                    break;
-                                                case 3:
-                                                    lplvcd->clrText = lvc.dwForeground;
-                                                    lplvcd->clrTextBk = lvc.dwBackground;
-                                                    break;
-                                                default:
-                                                    return CDRF_DODEFAULT;
+                                            case 1:
+                                                lplvcd->clrText = lvc.dwForeground;
+                                                break;
+                                            case 2:
+                                                lplvcd->clrTextBk = lvc.dwBackground;
+                                                break;
+                                            case 3:
+                                                lplvcd->clrText = lvc.dwForeground;
+                                                lplvcd->clrTextBk = lvc.dwBackground;
+                                                break;
+                                            default:
+                                                return CDRF_DODEFAULT;
                                             }
                                             return CDRF_NEWFONT;
                                         }
@@ -968,16 +999,16 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                                     case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
                                     {
                                         LISTVIEWCOLOR lvc = {0};
-                                        UINT64 ret = wbCallUserFunction(
-                                                pwbobj->pszCallBackFn,
-                                                pwbobj->pszCallBackObj,
-                                                pwbobj->parent,
-                                                pwbobj,
-                                                ((LPNMHDR)lParam)->idFrom,
-                                                lplvcd->nmcd.lItemlParam,
-                                                lplvcd->iSubItem,
-                                                (LPARAM)&lvc
-                                            );
+                                        LISTVIEWCOLOR lvcParent = {0};
+                                        UINT64 ret = CallListViewColorHandler(pszDrawHandler, pszDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, lplvcd->iSubItem, &lvc);
+                                        UINT64 retParent = CallListViewColorHandler(pszParentDrawHandler, pszParentDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, lplvcd->iSubItem, &lvcParent);
+
+                                        if (retParent > 0)
+                                        {
+                                            ret = retParent;
+                                            lvc = lvcParent;
+                                        }
+
                                         if (ret > 0)
                                         {
                                             switch (lvc.nMode)
@@ -1002,6 +1033,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                                     break;
                                 }
                             }
+                        }
                         break;
                     case NM_DBLCLK:
 
@@ -1023,9 +1055,21 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                     case LVN_ITEMCHANGED:
 
-                        if (((LPNM_LISTVIEW)lParam)->uChanged & (LVIF_STATE | LVIS_CHECKED))
                         {
-                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
+                            LPNMLISTVIEW pnm = (LPNMLISTVIEW)lParam;
+                            LPARAM lParam1 = 0;
+
+                            if (!(pnm->uChanged & LVIF_STATE) || pnm->uOldState == pnm->uNewState)
+                                break;
+
+                            if ((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED)
+                                lParam1 |= WBC_LV_SELECTED;
+
+                            if ((pnm->uOldState ^ pnm->uNewState) & LVIS_FOCUSED)
+                                lParam1 |= WBC_LV_FOCUSED;
+
+                            if (lParam1)
+                                CALL_CALLBACK(pnm->hdr.idFrom, lParam1, 0, 0);
                             //printf("ListView LVN_ITEMCHANGED\n");
                         }
 

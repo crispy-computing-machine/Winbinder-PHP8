@@ -236,6 +236,10 @@ enum
 
 #define WBC_DROPFILES 0x00010000
 
+// ListView item-changed event discriminators (callback lParam1)
+#define WBC_LV_SELECTED 0x00000001
+#define WBC_LV_FOCUSED 0x00000004
+
 // Additional notification message flags
 
 #define WBC_ALT 0x00000020
