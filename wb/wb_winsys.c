@@ -1217,7 +1217,8 @@ BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTS
 	}
 	else if (bString && pszValue)
 	{ // Create a string value
-		if (RegSetValueEx(hKey, pszEntry, 0, REG_SZ, (BYTE *)pszValue, wcslen(pszValue)) != ERROR_SUCCESS)
+		/* Win32 expects REG_SZ size in bytes, including the trailing NUL terminator. */
+		if (RegSetValueEx(hKey, pszEntry, 0, REG_SZ, (BYTE *)pszValue, (DWORD)((wcslen(pszValue) + 1) * sizeof(WCHAR))) != ERROR_SUCCESS)
 			return FALSE;
 	}
 	else
