@@ -577,6 +577,8 @@ int wbAddFont(PFONT hFont); // add new font struct to cache
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw);
 BOOL wbDestroyFont(int nFont);
 PFONT wbGetFont(int nFont);
+BOOL wbIsValidFontId(int nFont);
+PFONT wbGetFontFromHandle(HFONT hFont);
 
 // WB_GENERIC.C
 
