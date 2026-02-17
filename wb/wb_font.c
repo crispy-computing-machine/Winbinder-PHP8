@@ -106,7 +106,7 @@ int wbAddFont(PFONT hFont)
 		pFonts[nLastFont]->nHeight = hFont->nHeight;
 		pFonts[nLastFont]->color = hFont->color;
 		pFonts[nLastFont]->dwFlags = hFont->dwFlags;
-		pFonts[nLastFont]->hFont = hFont;
+		pFonts[nLastFont]->hFont = hFont->hFont;
 	}
 	else
 		return 0;
@@ -134,34 +134,35 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 	if (nFont > nInstalledFonts)
 		return FALSE;
 
-	if (nFont == 0)
+	if (nFont < 0)
+		nFont = nLastFont; // Uses last font
+
+	if (nFont <= 0)
 	{ // Resets control to the system font
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, MAKELPARAM(bRedraw, 0));
+		RemoveProp(pwbo->hwnd, TEXT("WB_FONT_ID"));
+		return TRUE;
 	}
-	else if (nFont < 0)
-	{
-		nFont = nLastFont; // Uses last font
-	}
-	else
-	{
-		// Set the font indexed by nFont
-		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
 
-		// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
-        switch (pwbo->uClass)
-        {
-            case HyperLink:
-            case Label:
-                pwbo->lparam = nFont;
-                break;
-        }
+	// Set the font indexed by nFont
+	SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
+	SetProp(pwbo->hwnd, TEXT("WB_FONT_ID"), (HANDLE)(INT_PTR)nFont);
 
-		// save the last font
-		nLastFont = nFont;
-	}
+	// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
+    switch (pwbo->uClass)
+    {
+        case HyperLink:
+        case Label:
+            pwbo->lparam = nFont;
+            break;
+    }
+
+	// save the last font
+	nLastFont = nFont;
 
 	return TRUE;
 }
+
 
 /* Returns the font indexed by nFont.
 
@@ -200,6 +201,33 @@ PFONT wbGetFont(int nFont)
 	}
 
 	return pFonts[nFont];
+}
+
+BOOL wbIsValidFontId(int nFont)
+{
+	if (nFont < 0 || nFont > nInstalledFonts)
+		return FALSE;
+
+	if (nFont == 0)
+		return TRUE;
+
+	return pFonts[nFont] != NULL;
+}
+
+PFONT wbGetFontFromHandle(HFONT hFont)
+{
+	int i;
+
+	if (!hFont)
+		return NULL;
+
+	for (i = 0; i <= nInstalledFonts; ++i)
+	{
+		if (pFonts[i] && pFonts[i]->hFont == hFont)
+			return pFonts[i];
+	}
+
+	return NULL;
 }
 
 /* Destroys the font indexed by nFont.
