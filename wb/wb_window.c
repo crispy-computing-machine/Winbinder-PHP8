@@ -1415,14 +1415,28 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
             //------------------------------- Other messages
 
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORSTATIC: // For static controls and others
         case WM_CTLCOLORBTN:	// For pushbuttons
 
             HWND hCtrl;
             PWBOBJ pwbobj;
+            PFONT pFont = NULL;
+            int nCtrlFontId;
+
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
-            PFONT pFont;
+            nCtrlFontId = (int)(INT_PTR)GetProp(hCtrl, TEXT("WB_FONT_ID"));
+
+            if (nCtrlFontId > 0)
+                pFont = wbGetFont(nCtrlFontId);
+
+            if (!pFont && pwbobj && (pwbobj->uClass == Label || pwbobj->uClass == HyperLink) && pwbobj->lparam > 0)
+                pFont = wbGetFont((int)pwbobj->lparam);
+
+            if (pFont && pFont->color != NOCOLOR)
+                SetTextColor((HDC)wParam, pFont->color);
 
             if (hbrTabs)
             { // Not for versions under Windows XP

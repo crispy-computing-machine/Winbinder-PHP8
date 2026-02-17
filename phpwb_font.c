@@ -126,7 +126,24 @@ ZEND_FUNCTION(wb_get_font)
 		Z_PARAM_LONG(source)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (wbIsWBObj((void *)source, TRUE))
+	if (wbIsValidFontId((int)source))
+	{
+		pfont = wbGetFont((int)source);
+		if (!pfont)
+			RETURN_FALSE;
+
+		array_init(return_value);
+		name = WideChar2Utf8(pfont->pszName ? pfont->pszName : TEXT(""), &name_len);
+		add_assoc_stringl(return_value, "name", name, name_len);
+		add_assoc_long(return_value, "height", pfont->nHeight);
+		add_assoc_long(return_value, "color", pfont->color);
+		add_assoc_long(return_value, "flags", pfont->dwFlags);
+		add_assoc_long(return_value, "handle", (LONG_PTR)pfont->hFont);
+		add_assoc_long(return_value, "id", source);
+		return;
+	}
+
+	if (wbIsWBObj((void *)source, FALSE))
 	{
 		PWBOBJ pwbo = (PWBOBJ)source;
 
@@ -137,11 +154,13 @@ ZEND_FUNCTION(wb_get_font)
 		if (!hFont || !GetObject(hFont, sizeof(LOGFONT), &lf))
 			RETURN_FALSE;
 
+		pfont = wbGetFontFromHandle(hFont);
+
 		array_init(return_value);
 		name = WideChar2Utf8(lf.lfFaceName, &name_len);
 		add_assoc_stringl(return_value, "name", name, name_len);
 		add_assoc_long(return_value, "height", lf.lfHeight);
-		add_assoc_long(return_value, "color", 0);
+		add_assoc_long(return_value, "color", pfont ? pfont->color : NOCOLOR);
 		add_assoc_long(return_value, "flags",
 			(lf.lfWeight >= FW_BOLD ? FTA_BOLD : 0) |
 			(lf.lfItalic ? FTA_ITALIC : 0) |
@@ -150,18 +169,7 @@ ZEND_FUNCTION(wb_get_font)
 		return;
 	}
 
-	pfont = wbGetFont(source);
-	if (!pfont)
-		RETURN_FALSE;
-
-	array_init(return_value);
-	name = WideChar2Utf8(pfont->pszName ? pfont->pszName : TEXT(""), &name_len);
-	add_assoc_stringl(return_value, "name", name, name_len);
-	add_assoc_long(return_value, "height", pfont->nHeight);
-	add_assoc_long(return_value, "color", pfont->color);
-	add_assoc_long(return_value, "flags", pfont->dwFlags);
-	add_assoc_long(return_value, "handle", (LONG_PTR)pfont->hFont);
-	add_assoc_long(return_value, "id", source);
+	RETURN_FALSE;
 }
 
 
