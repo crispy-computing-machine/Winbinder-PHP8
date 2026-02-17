@@ -91,7 +91,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	return bRet;
 }
 
-BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, LPCTSTR lpstrDefExt)
+BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD bufSize, LPCTSTR lpstrDefExt)
 {
 	OPENFILENAME ofn;
 	BOOL bRet;
@@ -113,7 +113,7 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.nMaxCustFilter = 0;
 	ofn.nFilterIndex = 0;
 	ofn.lpstrFile = StripPath(MakeWinPath(pszFileName));
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = bufSize > 0 ? bufSize : MAX_PATH;
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = MAX_PATH;
 	ofn.lpstrInitialDir = pszCopy;
