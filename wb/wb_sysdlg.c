@@ -220,6 +220,7 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 	FONT selectedFont;
 	TCHAR szFaceName[LF_FACESIZE];
 	int nFont;
+	HFONT hFont;
 
 	(void)pszTitle;
 
@@ -271,6 +272,11 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 	_tcsncpy(szFaceName, lf.lfFaceName, LF_FACESIZE - 1);
 	szFaceName[LF_FACESIZE - 1] = '\0';
 
+	hFont = CreateFontIndirect(&lf);
+	if (!hFont)
+		return -1;
+	selectedFont.hFont = hFont;
+
 	if (pfont)
 	{
 		pfont->color = selectedFont.color;
@@ -284,7 +290,16 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 	}
 
 	nFont = wbAddFont(&selectedFont);
-	return (nFont > 0) ? nFont : -1;
+	if (nFont <= 0)
+	{
+		DeleteObject(hFont);
+		return -1;
+	}
+
+	if (pfont)
+		pfont->hFont = hFont;
+
+	return nFont;
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
