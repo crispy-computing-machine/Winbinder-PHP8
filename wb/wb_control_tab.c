@@ -185,22 +185,27 @@ BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COL
 
 BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex)
 {
-	TC_ITEM tabItemToUpdate;
+	TC_ITEM tabItemToUpdate = {0};
+	LONG_PTR lStyle;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
+	if (item < 0 || item >= TabCtrl_GetItemCount(pwbo->hwnd))
+		return FALSE;
 
-	TabCtrl_GetItem(((PWBOBJ)pwbo)->hwnd, item, &tabItemToUpdate);
 	tabItemToUpdate.mask = TCIF_IMAGE;
+	tabItemToUpdate.iImage = nImageIndex; // image index
 
 	if (nImageIndex >= 0)
 	{
-		tabItemToUpdate.mask |= TCIF_IMAGE;
-		tabItemToUpdate.mask |= TCS_FIXEDWIDTH;
-		tabItemToUpdate.mask |= TCS_FORCEICONLEFT;
+		lStyle = GetWindowLongPtr(pwbo->hwnd, GWL_STYLE);
+		if ((lStyle & (TCS_FIXEDWIDTH | TCS_FORCEICONLEFT)) != (TCS_FIXEDWIDTH | TCS_FORCEICONLEFT))
+		{
+			SetWindowLongPtr(pwbo->hwnd, GWL_STYLE, lStyle | TCS_FIXEDWIDTH | TCS_FORCEICONLEFT);
+			SetWindowPos(pwbo->hwnd, NULL, 0, 0, 0, 0,
+				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+		}
 	}
-
-	tabItemToUpdate.iImage = nImageIndex; // image index
 
 	TabCtrl_SetItem(pwbo->hwnd, item, &tabItemToUpdate);
 
