@@ -66,6 +66,30 @@ static int phpwb_filterbuf_append_segment(phpwb_filter_buffer *buf, const char *
 	return phpwb_filterbuf_append_bytes(buf, "\0", 1);
 }
 
+static TCHAR *phpwb_utf8_to_wide_buffer(const char *src, size_t src_len, BOOL ensure_double_null)
+{
+	int wlen;
+	TCHAR *dst;
+
+	if (!src){
+		return NULL;
+	}
+	wlen = MultiByteToWideChar(CP_UTF8, 0, src, (int)src_len, NULL, 0);
+	if (wlen <= 0){
+		return NULL;
+	}
+	dst = wbMalloc(sizeof(TCHAR) * (wlen + (ensure_double_null ? 2 : 1)));
+	if (!dst){
+		return NULL;
+	}
+	MultiByteToWideChar(CP_UTF8, 0, src, (int)src_len, dst, wlen);
+	dst[wlen] = L'\0';
+	if (ensure_double_null){
+		dst[wlen + 1] = L'\0';
+	}
+	return dst;
+}
+
 static char *phpwb_normalize_pattern_list(const char *pattern)
 {
 	size_t in_len, pos = 0;
@@ -156,14 +180,13 @@ static TCHAR *phpwb_build_filter_wide(zval *filter_zv)
 	phpwb_filter_buffer utf8 = {0};
 	BOOL has_entries = FALSE;
 	zval *entry;
-	int wlen;
 	TCHAR *wfilter;
 
 	if (!filter_zv || Z_TYPE_P(filter_zv) == IS_NULL){
 		return NULL;
 	}
 	if (Z_TYPE_P(filter_zv) == IS_STRING){
-		return Utf82WideChar(Z_STRVAL_P(filter_zv), Z_STRLEN_P(filter_zv));
+		return phpwb_utf8_to_wide_buffer(Z_STRVAL_P(filter_zv), Z_STRLEN_P(filter_zv), TRUE);
 	}
 	if (Z_TYPE_P(filter_zv) != IS_ARRAY){
 		return NULL;
@@ -222,15 +245,10 @@ static TCHAR *phpwb_build_filter_wide(zval *filter_zv)
 		goto fail;
 	}
 
-	wlen = MultiByteToWideChar(CP_UTF8, 0, utf8.data, (int)utf8.len, NULL, 0);
-	if (wlen <= 0){
-		goto fail;
-	}
-	wfilter = wbMalloc(sizeof(TCHAR) * wlen);
+	wfilter = phpwb_utf8_to_wide_buffer(utf8.data, utf8.len, TRUE);
 	if (!wfilter){
 		goto fail;
 	}
-	MultiByteToWideChar(CP_UTF8, 0, utf8.data, (int)utf8.len, wfilter, wlen);
 	wbFree(utf8.data);
 	return wfilter;
 

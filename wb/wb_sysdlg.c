@@ -60,7 +60,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpstrFilter = pszFilter && *pszFilter ? pszFilter : TEXT("All files (*.*)\0*.*\0\0");
 	ofn.lpstrCustomFilter = NULL;
 	ofn.nMaxCustFilter = 0;
-	ofn.nFilterIndex = 0;
+	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = pszFileName;
 	ofn.nMaxFile = bufSize - 1;
 	ofn.lpstrFileTitle = NULL;
@@ -93,7 +93,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 
 BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD bufSize, LPCTSTR lpstrDefExt)
 {
-	OPENFILENAME ofn;
+	OPENFILENAME ofn = {0};
 	BOOL bRet;
 	TCHAR *pszCopy;
 
@@ -111,14 +111,14 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpstrFilter = pszFilter && *pszFilter ? pszFilter : TEXT("All files (*.*)\0*.*\0\0");
 	ofn.lpstrCustomFilter = NULL;
 	ofn.nMaxCustFilter = 0;
-	ofn.nFilterIndex = 0;
+	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = StripPath(MakeWinPath(pszFileName));
 	ofn.nMaxFile = bufSize > 0 ? bufSize : MAX_PATH;
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = MAX_PATH;
 	ofn.lpstrInitialDir = pszCopy;
 	ofn.lpstrTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER;
 	ofn.nFileOffset = 0;
 	ofn.nFileExtension = 0;
 
