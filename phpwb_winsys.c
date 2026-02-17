@@ -111,6 +111,7 @@ ZEND_FUNCTION(wb_set_cursor)
 {
 	zend_long pwbo;
 	zval *source = NULL;
+	zend_uchar sourcetype;
 	HANDLE hCursor;
 	LPTSTR pszCursorName;
 
@@ -120,7 +121,7 @@ ZEND_FUNCTION(wb_set_cursor)
 		Z_PARAM_ZVAL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
-	zend_uchar sourcetype = Z_TYPE_P(source);
+	sourcetype = Z_TYPE_P(source);
 
 	if (!source)
 	{
@@ -556,8 +557,6 @@ ZEND_FUNCTION(wb_set_registry_key)
 		Z_PARAM_ZVAL_OR_NULL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
-	zend_uchar sourcetype = Z_TYPE_P(source);
-
 	if (!source)
 	{
 		szKey = Utf82WideChar(key, key_len);
@@ -569,44 +568,49 @@ ZEND_FUNCTION(wb_set_registry_key)
 		RETURN_BOOL(ret);
 		// 2016_08_12 - Jared Allard: no more IS_BOOL, use IS_TRUE/IS_FALSE
 	}
-	else if (sourcetype == IS_LONG || (sourcetype == IS_FALSE || sourcetype == IS_TRUE))
-	{
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
-
-		RETURN_BOOL(ret);
-	}
-	else if (sourcetype == IS_DOUBLE)
-	{
-		TCHAR szAux[50];
-		wsprintf(szAux, TEXT("%20.20f"), source->value.dval);
-
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szAux, 0, TRUE);
-
-		RETURN_BOOL(ret);
-	}
-	else if (sourcetype == IS_STRING)
-	{
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-		szVal = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szVal, 0, TRUE);
-
-		RETURN_BOOL(ret);
-	}
 	else
 	{
-		wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-		RETURN_NULL();
+		zend_uchar sourcetype = Z_TYPE_P(source);
+
+		if (sourcetype == IS_LONG || (sourcetype == IS_FALSE || sourcetype == IS_TRUE))
+		{
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
+
+			RETURN_BOOL(ret);
+		}
+		else if (sourcetype == IS_DOUBLE)
+		{
+			TCHAR szAux[50];
+			swprintf(szAux, sizeof(szAux) / sizeof(szAux[0]), TEXT("%20.20f"), source->value.dval);
+
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szAux, 0, TRUE);
+
+			RETURN_BOOL(ret);
+		}
+		else if (sourcetype == IS_STRING)
+		{
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+			szVal = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szVal, 0, TRUE);
+
+			RETURN_BOOL(ret);
+		}
+		else
+		{
+			wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
+			RETURN_NULL();
+		}
 	}
 }
 
