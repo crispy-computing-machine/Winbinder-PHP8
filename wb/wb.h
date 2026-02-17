@@ -588,7 +588,7 @@ LPTSTR wbStriStr(LPCTSTR pszString, LPCTSTR pszPattern);
 // WB_SYSDLG.C
 
 BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD style, DWORD bufSize);
-BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, LPCTSTR lpstrDefExt);
+BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD bufSize, LPCTSTR lpstrDefExt);
 BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR pszSelPath);
 COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color);
 int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
