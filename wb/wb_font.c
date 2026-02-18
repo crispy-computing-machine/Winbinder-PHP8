@@ -25,6 +25,31 @@ static PFONT pFonts[MAX_FONTS]; // Font cache -- font index zero is the system f
 static int nInstalledFonts = 0;
 static int nLastFont = 0; // Zero means no font
 
+static BOOL wbCopyFontToCache(int nIndex, LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags, HFONT hWinFont)
+{
+	PFONT pCachedFont;
+
+	pCachedFont = wbMalloc(sizeof(FONT));
+	if (!pCachedFont)
+		return FALSE;
+
+	pCachedFont->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(pszName) + 1));
+	if (!pCachedFont->pszName)
+	{
+		wbFree(pCachedFont);
+		return FALSE;
+	}
+
+	wcscpy(pCachedFont->pszName, pszName);
+	pCachedFont->nHeight = nHeight;
+	pCachedFont->color = color;
+	pCachedFont->dwFlags = dwFlags;
+	pCachedFont->hFont = hWinFont;
+
+	pFonts[nIndex] = pCachedFont;
+	return TRUE;
+}
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /* Sets the font of control pwbobj. Returns the index of the created font or
@@ -33,7 +58,7 @@ static int nLastFont = 0; // Zero means no font
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 {
-	HFONT hFont;
+	HFONT hWinFont;
 	HDC hdc;
 
 	if (nInstalledFonts >= (MAX_FONTS - 1))
@@ -47,7 +72,7 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 
 	// Create font with attributes
 
-	hFont = CreateFont(nHeight,
+	hWinFont = CreateFont(nHeight,
 					   0, 0, 0,
 					   dwFlags & FTA_BOLD ? FW_BOLD : FW_NORMAL,
 					   dwFlags & FTA_ITALIC,
@@ -57,21 +82,18 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 
 	// Store font in cache
 
-	if (hFont)
+	if (hWinFont)
 	{
 		nInstalledFonts++;
 		nLastFont = nInstalledFonts;
-		pFonts[nLastFont] = wbMalloc(sizeof(FONT));
-		if (!pFonts[nInstalledFonts])
+
+		if (!wbCopyFontToCache(nLastFont, pszName, nHeight, color, dwFlags, hWinFont))
+		{
+			DeleteObject(hWinFont);
+			nInstalledFonts--;
+			nLastFont = nInstalledFonts;
 			return 0;
-		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(pszName) + 1));
-		if (!pFonts[nLastFont]->pszName)
-			return 0;
-		wcscpy(pFonts[nLastFont]->pszName, pszName);
-		pFonts[nLastFont]->nHeight = nHeight;
-		pFonts[nLastFont]->color = color;
-		pFonts[nLastFont]->dwFlags = dwFlags;
-		pFonts[nLastFont]->hFont = hFont;
+		}
 	}
 	else
 		return 0;
@@ -82,31 +104,27 @@ int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags)
 /**
  * Add a font to font cache
 **/
-int wbAddFont(PFONT hFont)
+int wbAddFont(PFONT pFont)
 {
 
 	if (nInstalledFonts >= (MAX_FONTS - 1))
 		return 0;
 
 	// Store font in cache
-	if (hFont)
+	if (pFont)
 	{
+		if (!pFont->pszName || !pFont->hFont)
+			return 0;
+
 		nInstalledFonts++;
 		nLastFont = nInstalledFonts;
-		pFonts[nLastFont] = wbMalloc(sizeof(FONT));
 
-		if (!pFonts[nInstalledFonts])
+		if (!wbCopyFontToCache(nLastFont, pFont->pszName, pFont->nHeight, pFont->color, pFont->dwFlags, pFont->hFont))
+		{
+			nInstalledFonts--;
+			nLastFont = nInstalledFonts;
 			return 0;
-
-		pFonts[nLastFont]->pszName = wbMalloc(sizeof(TCHAR) * (wcslen(hFont->pszName) + 1));
-		if (!pFonts[nLastFont]->pszName)
-			return 0;
-
-		wcscpy(pFonts[nLastFont]->pszName, hFont->pszName);
-		pFonts[nLastFont]->nHeight = hFont->nHeight;
-		pFonts[nLastFont]->color = hFont->color;
-		pFonts[nLastFont]->dwFlags = hFont->dwFlags;
-		pFonts[nLastFont]->hFont = hFont;
+		}
 	}
 	else
 		return 0;
@@ -134,34 +152,35 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 	if (nFont > nInstalledFonts)
 		return FALSE;
 
-	if (nFont == 0)
+	if (nFont < 0)
+		nFont = nLastFont; // Uses last font
+
+	if (nFont <= 0)
 	{ // Resets control to the system font
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, MAKELPARAM(bRedraw, 0));
+		RemoveProp(pwbo->hwnd, TEXT("WB_FONT_ID"));
+		return TRUE;
 	}
-	else if (nFont < 0)
-	{
-		nFont = nLastFont; // Uses last font
-	}
-	else
-	{
-		// Set the font indexed by nFont
-		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
 
-		// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
-        switch (pwbo->uClass)
-        {
-            case HyperLink:
-            case Label:
-                pwbo->lparam = nFont;
-                break;
-        }
+	// Set the font indexed by nFont
+	SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
+	SetProp(pwbo->hwnd, TEXT("WB_FONT_ID"), (HANDLE)(INT_PTR)nFont);
 
-		// save the last font
-		nLastFont = nFont;
-	}
+	// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
+    switch (pwbo->uClass)
+    {
+        case HyperLink:
+        case Label:
+            pwbo->lparam = nFont;
+            break;
+    }
+
+	// save the last font
+	nLastFont = nFont;
 
 	return TRUE;
 }
+
 
 /* Returns the font indexed by nFont.
 
@@ -200,6 +219,33 @@ PFONT wbGetFont(int nFont)
 	}
 
 	return pFonts[nFont];
+}
+
+BOOL wbIsValidFontId(int nFont)
+{
+	if (nFont < 0 || nFont > nInstalledFonts)
+		return FALSE;
+
+	if (nFont == 0)
+		return TRUE;
+
+	return pFonts[nFont] != NULL;
+}
+
+PFONT wbGetFontFromHandle(HFONT hFont)
+{
+	int i;
+
+	if (!hFont)
+		return NULL;
+
+	for (i = 0; i <= nInstalledFonts; ++i)
+	{
+		if (pFonts[i] && pFonts[i]->hFont == hFont)
+			return pFonts[i];
+	}
+
+	return NULL;
 }
 
 /* Destroys the font indexed by nFont.

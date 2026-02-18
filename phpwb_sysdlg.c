@@ -473,18 +473,22 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 	LONG_PTR pwbparent = (LONG_PTR)NULL;
 	char *title = "";
 	char *name = "";
+	size_t title_len = 0, name_len = 0;
 	zend_long height = 12, color = 0, flags = 0;
-	zend_bool title_len, name_len;
 	int font = 0;
-	zend_bool name_isnull, height_isnull, color_isnull, flags_isnull;
+	zend_bool height_isnull, color_isnull, flags_isnull;
+	TCHAR *wTitle = NULL;
+	TCHAR *wName = NULL;
+	FONT initFont;
+	PFONT pInitFont = NULL;
 
 
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|lsslll", &pwbparent, &title, &title_len, &name, &name_len, &height, &color, &flags) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(1, 6)
 		Z_PARAM_LONG(pwbparent)
 		Z_PARAM_STRING_OR_NULL(title, title_len)
-        Z_PARAM_OPTIONAL
-		Z_PARAM_STRING_OR_NULL(name, name_isnull)
+	        Z_PARAM_OPTIONAL
+		Z_PARAM_STRING_OR_NULL(name, name_len)
 		Z_PARAM_LONG_OR_NULL(height, height_isnull)
 		Z_PARAM_LONG_OR_NULL(color, color_isnull)
 		Z_PARAM_LONG_OR_NULL(flags, flags_isnull)
@@ -494,15 +498,27 @@ ZEND_FUNCTION(wb_sys_dlg_font)
 		RETURN_NULL();
 	}
 
-    font = wbCreateFont((LPCTSTR)name, height, color, flags);
+	wTitle = Utf82WideChar(title, title_len);
 
-	RETURN_LONG(
-		wbSysDlgFont(
-			(PWBOBJ)pwbparent,
-			 (LPTSTR)title,
-			  wbGetFont(font)
-			  )
-		);
+	if (name && name_len > 0)
+	{
+		ZeroMemory(&initFont, sizeof(FONT));
+		wName = Utf82WideChar(name, name_len);
+		initFont.pszName = wName;
+		initFont.nHeight = height;
+		initFont.color = (COLORREF)color;
+		initFont.dwFlags = (DWORD)flags;
+		pInitFont = &initFont;
+	}
+
+	font = wbSysDlgFont((PWBOBJ)pwbparent, wTitle, pInitFont);
+
+	if (wTitle)
+		wbFree(wTitle);
+	if (wName)
+		wbFree(wName);
+
+	RETURN_LONG(font);
 }
 
 //------------------------------------------------------------------ END OF FILE
