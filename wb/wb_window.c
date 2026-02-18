@@ -979,7 +979,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             LPDWORD pszParentDrawHandlerObj = NULL;
                             LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
 
-                            if (pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                            if (BITTEST(pwbobj->lparam, WBC_REDRAW) && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
                             {
                                 pszDrawHandler = pwbobj->pszCallBackFn;
                                 pszDrawHandlerObj = pwbobj->pszCallBackObj;
