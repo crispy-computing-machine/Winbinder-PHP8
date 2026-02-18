@@ -1081,6 +1081,22 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             }
                         }
                         break;
+                    /*
+                        ListView activation reliability note:
+                        - NM_DBLCLK is preserved for backward compatibility.
+                        - LVN_ITEMACTIVATE is also handled and mapped to WBC_DBLCLICK,
+                          covering ListView styles/modes where activation does not always
+                          surface as NM_DBLCLK.
+                    */
+                    case LVN_ITEMACTIVATE:
+                    {
+                        LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
+
+                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                            CALL_CALLBACK(pnmActivate->hdr.idFrom, WBC_DBLCLICK, pnmActivate->iItem, pnmActivate->iSubItem);
+                        break;
+                    }
+
                     case NM_DBLCLK:
 
                         if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
