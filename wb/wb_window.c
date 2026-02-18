@@ -14,6 +14,7 @@
 #include "wb.h"
 #include <string.h>   // For stricmp()
 #include <stdlib.h>   // For atol()
+#include <time.h>     // For time_t
 #include <shellapi.h> // For Shell_NotifyIcon()
 #include <mmsystem.h> // For timeSetEvent() and timeKillEvent
 
@@ -49,7 +50,6 @@ BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);
 // External
 
 extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHandler);
-extern DWORD GetCalendarTime(PWBOBJ pwbo);
 extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
@@ -67,6 +67,7 @@ static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
 static UINT64 CallListViewColorHandler(LPTSTR pszHandler, LPDWORD pszHandlerObj, PWBOBJ pwbobj, LPNMHDR pnmh, LPNMLVCUSTOMDRAW lplvcd, int iSubItem, LISTVIEWCOLOR *plvc);
+static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime);
 
 // Procedures for WinBinder classes
 
@@ -104,6 +105,41 @@ static HWND hStatusBar = NULL;
 static HWND hwndListView = NULL;
 PWBOBJ pwndMain = NULL;
 LISTVIEWCOLOR test;
+
+static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime)
+{
+	SYSTEMTIME stSelection;
+	FILETIME fileTime;
+	TIME_ZONE_INFORMATION timeZoneInfo;
+	DWORD timeZoneResult;
+	LONG_PTR ll;
+	LONG_PTR bias;
+
+	if (!lpSysTime)
+		return 0;
+
+	stSelection = *lpSysTime;
+	stSelection.wHour = 0;
+	stSelection.wMinute = 0;
+	stSelection.wSecond = 0;
+	stSelection.wMilliseconds = 0;
+
+	if (!SystemTimeToFileTime(&stSelection, &fileTime))
+		return 0;
+
+	ll = fileTime.dwHighDateTime;
+	ll <<= 32;
+	ll += (ULONG_PTR)fileTime.dwLowDateTime;
+	ll -= 116444736000000000LL;
+
+	bias = 0;
+	timeZoneResult = GetTimeZoneInformation(&timeZoneInfo);
+	bias = timeZoneInfo.Bias;
+	if (timeZoneResult == TIME_ZONE_ID_DAYLIGHT)
+		bias += timeZoneInfo.DaylightBias;
+
+	return (time_t)(ll / 10000000) + (time_t)(60 * bias);
+}
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -911,16 +947,19 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case Calendar:
                 {
-                    PWBOBJ pwbobj;
+                    LPNMSELCHANGE pnmSelChange;
+                    time_t selectedTime;
 
-                    pwbobj = wbGetWBObj(hCtrl);
-                    if (!pwbobj)
-                        break;
+                    pnmSelChange = (LPNMSELCHANGE)lParam;
 
                     switch (((LPNMHDR)lParam)->code)
                     {
                     case MCN_SELCHANGE:
-                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, GetCalendarTime(pwbobj), 0, 0);
+                    case MCN_SELECT:
+                        // Use the timestamp from the notification payload to avoid delayed callbacks caused by
+                        // re-querying the calendar control state after the selection notification is dispatched.
+                        selectedTime = CalendarNotifySelToUnixTime(&pnmSelChange->stSelStart);
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, selectedTime, 0, 0);
                         break;
                     }
                 }
