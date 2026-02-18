@@ -282,11 +282,11 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 		pfont->color = selectedFont.color;
 		pfont->nHeight = selectedFont.nHeight;
 		pfont->dwFlags = selectedFont.dwFlags;
-		if (pfont->pszName)
-		{
-			_tcsncpy(pfont->pszName, szFaceName, LF_FACESIZE - 1);
-			pfont->pszName[LF_FACESIZE - 1] = '\0';
-		}
+		/*
+		 * Do not write into pfont->pszName here: caller buffer size/ownership is unknown
+		 * (it may point to managed memory from another runtime). The selected face name
+		 * is still cached via wbAddFont() and can be retrieved by returned font id.
+		 */
 	}
 
 	nFont = wbAddFont(&selectedFont);
