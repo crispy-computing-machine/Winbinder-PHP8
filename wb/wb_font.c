@@ -161,41 +161,6 @@ BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw)
 		RemoveProp(pwbo->hwnd, TEXT("WB_FONT_ID"));
 		return TRUE;
 	}
-<<<<<<< codex/refactor-wbsysdlgfont-for-safe-control-flow-ljg8rv
-=======
-
-	// Set the font indexed by nFont
-	SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
-	SetProp(pwbo->hwnd, TEXT("WB_FONT_ID"), (HANDLE)(INT_PTR)nFont);
-
-	// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
-    switch (pwbo->uClass)
-    {
-        case HyperLink:
-        case Label:
-            pwbo->lparam = nFont;
-            break;
-    }
-
-	// save the last font
-	nLastFont = nFont;
-
-	// Set the font indexed by nFont
-	SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
-	SetProp(pwbo->hwnd, TEXT("WB_FONT_ID"), (HANDLE)(INT_PTR)nFont);
-
-	// Also just for specific controls - Switch on Label/Hyperlink class and set PWBOBJ->lparam to the pFonts[] key to fetch colour
-    switch (pwbo->uClass)
-    {
-        case HyperLink:
-        case Label:
-            pwbo->lparam = nFont;
-            break;
-    }
-
-	// save the last font
-	nLastFont = nFont;
->>>>>>> dev
 
 	// Set the font indexed by nFont
 	SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)pFonts[nFont]->hFont, MAKELPARAM(bRedraw, 0));
