@@ -48,6 +48,22 @@ typedef struct _tagTT_NAME_RECORD {
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
+static int wbFontHeightToPoints(int logicalHeight)
+{
+	HDC hdc;
+	int absLogicalHeight;
+	int points;
+
+	absLogicalHeight = logicalHeight < 0 ? -logicalHeight : logicalHeight;
+	hdc = GetDC(NULL);
+	if (!hdc)
+		return absLogicalHeight;
+
+	points = MulDiv(absLogicalHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+	ReleaseDC(NULL, hdc);
+	return points;
+}
+
 // Creates a font and stores it in the font cache
 
 ZEND_FUNCTION(wb_create_font)
@@ -135,7 +151,11 @@ ZEND_FUNCTION(wb_get_font)
 		array_init(return_value);
 		name = WideChar2Utf8(pfont->pszName ? pfont->pszName : TEXT(""), &name_len);
 		add_assoc_stringl(return_value, "name", name, name_len);
+<<<<<<< codex/refactor-wbsysdlgfont-for-safe-control-flow-ljg8rv
+		add_assoc_long(return_value, "height", wbFontHeightToPoints(pfont->nHeight));
+=======
 		add_assoc_long(return_value, "height", pfont->nHeight);
+>>>>>>> dev
 		add_assoc_long(return_value, "color", pfont->color);
 		add_assoc_long(return_value, "flags", pfont->dwFlags);
 		add_assoc_long(return_value, "handle", (LONG_PTR)pfont->hFont);
@@ -159,7 +179,11 @@ ZEND_FUNCTION(wb_get_font)
 		array_init(return_value);
 		name = WideChar2Utf8(lf.lfFaceName, &name_len);
 		add_assoc_stringl(return_value, "name", name, name_len);
+<<<<<<< codex/refactor-wbsysdlgfont-for-safe-control-flow-ljg8rv
+		add_assoc_long(return_value, "height", wbFontHeightToPoints(lf.lfHeight));
+=======
 		add_assoc_long(return_value, "height", lf.lfHeight);
+>>>>>>> dev
 		add_assoc_long(return_value, "color", pfont ? pfont->color : NOCOLOR);
 		add_assoc_long(return_value, "flags",
 			(lf.lfWeight >= FW_BOLD ? FTA_BOLD : 0) |
