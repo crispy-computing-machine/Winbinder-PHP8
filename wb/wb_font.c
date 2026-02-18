@@ -102,19 +102,12 @@ int wbAddFont(PFONT pFont)
 		if (!pFonts[nLastFont]->pszName)
 			return 0;
 
-<<<<<<< codex/refactor-wbsysdlgfont-for-safe-control-flow-7du6kt
 		wcscpy(pFonts[nLastFont]->pszName, pFont->pszName);
 		pFonts[nLastFont]->nHeight = pFont->nHeight;
 		pFonts[nLastFont]->color = pFont->color;
 		pFonts[nLastFont]->dwFlags = pFont->dwFlags;
 		pFonts[nLastFont]->hFont = pFont->hFont;
-=======
-		wcscpy(pFonts[nLastFont]->pszName, hFont->pszName);
-		pFonts[nLastFont]->nHeight = hFont->nHeight;
-		pFonts[nLastFont]->color = hFont->color;
-		pFonts[nLastFont]->dwFlags = hFont->dwFlags;
-		pFonts[nLastFont]->hFont = hFont->hFont;
->>>>>>> dev
+
 	}
 	else
 		return 0;
