@@ -55,6 +55,25 @@ extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
+/*
+Compatibility helper kept exported for older builds that may still reference
+this symbol from incremental object files.
+*/
+void DispatchNotifyToControlOrParent(PWBOBJ pwbobj, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
+{
+	if (!pwbobj || !pwbobj->parent)
+		return;
+
+	if (pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+	{
+		wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
+		return;
+	}
+
+	if (pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
+		wbCallUserFunction(pwbobj->parent->pszCallBackFn, pwbobj->parent->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
+}
+
 // Static
 
 static HICON GetWindowIcon(HWND hwnd);
