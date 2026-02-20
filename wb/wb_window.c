@@ -21,7 +21,12 @@
 //-------------------------------------------------------------------- CONSTANTS
 
 #define MAXWINNAME 256
-#define WBDEFCLASSSTYLE (CS_DBLCLKS | CS_PARENTDC)
+/*
+Avoid CS_PARENTDC on top-level WinBinder window classes.
+It can cause non-client title rendering anomalies on modern Windows where
+caption text is logically set (WM_SETTEXT/GetWindowText) but not painted.
+*/
+#define WBDEFCLASSSTYLE (CS_DBLCLKS)
 #define DEFAULT_WIN_STYLE (WS_POPUP | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_THICKFRAME)
 #define CUSTOM_MESSAGE_NAME "@WB_win32_%d_%s"
 
