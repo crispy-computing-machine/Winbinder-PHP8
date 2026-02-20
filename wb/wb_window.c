@@ -796,21 +796,6 @@ BOOL RegisterClasses(void)
 }
 
 
-static void DispatchNotifyToControlOrParent(PWBOBJ pwbobj, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
-{
-	if (!pwbobj || !pwbobj->parent)
-		return;
-
-	if (pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
-	{
-		wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
-		return;
-	}
-
-	if (pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
-		wbCallUserFunction(pwbobj->parent->pszCallBackFn, pwbobj->parent->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
-}
-
 //-------------------------------------------------- WINDOW PROCESSING FUNCTIONS
 
 /*
@@ -1096,6 +1081,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 }
                 break;
 
+            } // switch(pwbobj->uClass)
 
         } // ~WM_NOTIFY
         break;
@@ -1405,7 +1391,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
         case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORSTATIC: // For static controls and others
         case WM_CTLCOLORBTN:	// For pushbuttons
-
+        {
             HWND hCtrl;
             PWBOBJ pwbobj;
             PFONT pFont = NULL;
@@ -1442,6 +1428,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 }
             }
             break;
+        }
 
         case WM_TIMER:
 
