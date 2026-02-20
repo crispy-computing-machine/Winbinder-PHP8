@@ -794,6 +794,10 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	{
 		wbFree((void *)pwbo->lparam);
 	}
+	else if (pwbo->uClass == ListView)
+	{
+		wbClearListViewColors(pwbo);
+	}
 	else if (pwbo->uClass == Splitter)
 	{
 		if (pwbo->lparam)
@@ -1450,9 +1454,17 @@ BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll)
 
 	case ListView:
 		if (!bClearAll)
-			return ListView_DeleteItem(pwbo->hwnd, pwbo->item);
+		{
+			BOOL bRet = ListView_DeleteItem(pwbo->hwnd, pwbo->item);
+			if (bRet)
+				wbAdjustListViewItemColorsAfterDelete(pwbo, pwbo->item);
+			return bRet;
+		}
 		else
+		{
+			wbClearListViewColors(pwbo);
 			return SendMessage(pwbo->hwnd, LVM_DELETEALLITEMS, 0, 0);
+		}
 		break;
 
 	case TreeView:
