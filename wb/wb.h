@@ -571,7 +571,7 @@ BOOL wbGetTextSize(PSIZE psizeText, LPCTSTR pszString, int nFont);
 
 // WB_LOWLEVEL.C
 
-LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
+LPARAM wbSendMessage(PWBOBJ pwbo, UINT uMsg, WPARAM wParam, LPARAM lParam);
 HMODULE wbLoadLibrary(LPCTSTR pszLibName);
 FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction);
 BOOL wbReleaseLibrary(HMODULE hLib);
