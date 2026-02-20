@@ -888,7 +888,8 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
             if (!pwbobj || !pwbobj->parent)
                 break;
 
-            if (!pwbobj->parent->pszCallBackFn)
+            if ((!pwbobj->pszCallBackFn || !*pwbobj->pszCallBackFn) &&
+                (!pwbobj->parent->pszCallBackFn || !*pwbobj->parent->pszCallBackFn))
                 break;
 
             // Call callback function according to WinBinder class
@@ -1036,10 +1037,15 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                     }
 
                     case NM_DBLCLK:
+                    {
+                        LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
 
                         if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
+                            DispatchNotifyToControlOrParent(pwbobj, ((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK,
+                                                            pnmActivate ? pnmActivate->iItem : 0,
+                                                            pnmActivate ? pnmActivate->iSubItem : 0);
                         break;
+                    }
 
                     case NM_RCLICK:
 
@@ -1069,7 +1075,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                         SendMessage(pwbobj->hwnd, LVM_SORTITEMS, ((NM_LISTVIEW FAR *)lParam)->iSubItem, (LPARAM)(PFNLVCOMPARE)CompareLVItemsAscending);
                         UpdateLVlParams(hwndListView);
                         if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
-                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
+                            DispatchNotifyToControlOrParent(pwbobj, ((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
                         break;
                     }
                 }
