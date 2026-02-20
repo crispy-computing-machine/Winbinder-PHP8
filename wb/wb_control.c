@@ -57,19 +57,19 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
 
-static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // External
 
 extern void SetStatusBarHandle(HWND hCtrl);
 extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab);
-extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
-extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 typedef struct
 {
@@ -165,7 +165,7 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 }
 
 
-static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	PSPLITTERDATA pData = pwbo ? SplitterGetData(pwbo) : NULL;
@@ -2295,7 +2295,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 
 // Processing routine for Frame controls
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2320,7 +2320,7 @@ static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM l
 
 // Processing routine for EditBoxes
 
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2376,7 +2376,7 @@ static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 
 // Processing routine for InvisibleAreas
 
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2427,7 +2427,7 @@ static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 // Processing routine for ImageButton
 
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo;
 

@@ -29,7 +29,7 @@
 
 // Private
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData);
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 static LPTSTR DeleteChars(LPTSTR pszMain, UINT64 nPos, UINT64 nLength);
 static LPTSTR StripPath(LPTSTR pszFileName);
 
@@ -306,7 +306,7 @@ int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
 
 /* Callback function for the dialog box Browse For Folder */
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
 	switch (uMsg)
 	{
