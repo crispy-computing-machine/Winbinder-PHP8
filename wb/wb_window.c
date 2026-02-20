@@ -66,7 +66,6 @@ VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
-static UINT64 CallListViewColorHandler(LPTSTR pszHandler, LPDWORD pszHandlerObj, PWBOBJ pwbobj, LPNMHDR pnmh, LPNMLVCUSTOMDRAW lplvcd, int iSubItem, LISTVIEWCOLOR *plvc);
 static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime);
 
 // Procedures for WinBinder classes
@@ -104,7 +103,6 @@ static HWND hToolBar = NULL;
 static HWND hStatusBar = NULL;
 static HWND hwndListView = NULL;
 PWBOBJ pwndMain = NULL;
-LISTVIEWCOLOR test;
 
 static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime)
 {
@@ -797,13 +795,6 @@ BOOL RegisterClasses(void)
 	return TRUE;
 }
 
-static UINT64 CallListViewColorHandler(LPTSTR pszHandler, LPDWORD pszHandlerObj, PWBOBJ pwbobj, LPNMHDR pnmh, LPNMLVCUSTOMDRAW lplvcd, int iSubItem, LISTVIEWCOLOR *plvc)
-{
-	if (!pszHandler || !*pszHandler)
-		return 0;
-
-	return wbCallUserFunction(pszHandler, pszHandlerObj, pwbobj->parent, pwbobj, pnmh->idFrom, lplvcd->nmcd.lItemlParam, iSubItem, (LPARAM)plvc);
-}
 
 static void DispatchNotifyToControlOrParent(PWBOBJ pwbobj, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
 {
@@ -983,96 +974,67 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case ListView:
                 {
-                    //UINT64 c = ((LPNMHDR)lParam)->code;
                     switch (((LPNMHDR)lParam)->code)
                     {
-                        //case 0xffffff4f:
-                        case NM_CUSTOMDRAW:
+                    case NM_CUSTOMDRAW:
+                    {
+                        LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                        LISTVIEWCOLOR lvc = {0};
+
+                        if (pwbobj->lparams[7] == 0)
+                            break;
+
+                        switch (lplvcd->nmcd.dwDrawStage)
                         {
-                            LPTSTR pszDrawHandler = NULL;
-                            LPDWORD pszDrawHandlerObj = NULL;
-                            LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                        case CDDS_PREPAINT:
+                            return CDRF_NOTIFYITEMDRAW;
 
-                            if (BITTEST(pwbobj->lparam, WBC_REDRAW) && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+                        case CDDS_ITEMPREPAINT:
+                            if (wbGetListViewItemColor(pwbobj, (int)lplvcd->nmcd.dwItemSpec, -1, &lvc))
                             {
-                                // Prefer the ListView handler set by wb_set_handler() for redraw callbacks.
-                                pszDrawHandler = pwbobj->pszCallBackFn;
-                                pszDrawHandlerObj = pwbobj->pszCallBackObj;
-                            }
-                            else if (SEND_MESSAGE && TEST_FLAG(WBC_REDRAW) && pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
-                            {
-                                // Backward compatibility: parent window handler still receives redraw when no ListView handler exists.
-                                pszDrawHandler = pwbobj->parent->pszCallBackFn;
-                                pszDrawHandlerObj = pwbobj->parent->pszCallBackObj;
-                            }
-
-                            if (pszDrawHandler)
-                            {
-                                switch (lplvcd->nmcd.dwDrawStage)
+                                switch (lvc.nMode)
                                 {
-                                    case CDDS_PREPAINT:
-                                        return CDRF_NOTIFYITEMDRAW;
-                                    case CDDS_ITEMPREPAINT:
-                                    {
-                                        LISTVIEWCOLOR lvc = {0};
-                                        UINT64 ret = CallListViewColorHandler(pszDrawHandler, pszDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, -1, &lvc);
+                                case WBC_LV_FORE:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    return CDRF_NEWFONT;
 
-                                        if (ret > 0)
-                                        {
-                                            if (ret == 2)
-                                                return CDRF_NOTIFYSUBITEMDRAW;
+                                case WBC_LV_BACK:
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
 
-                                            switch (lvc.nMode)
-                                            {
-                                            case 1:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                break;
-                                            case 2:
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            case 3:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            default:
-                                                return CDRF_DODEFAULT;
-                                            }
-                                            return CDRF_NEWFONT;
-                                        }
-                                        return CDRF_DODEFAULT;
-                                    }
-                                    break;
-                                    case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-                                    {
-                                        LISTVIEWCOLOR lvc = {0};
-                                        UINT64 ret = CallListViewColorHandler(pszDrawHandler, pszDrawHandlerObj, pwbobj, (LPNMHDR)lParam, lplvcd, lplvcd->iSubItem, &lvc);
-
-                                        if (ret > 0)
-                                        {
-                                            switch (lvc.nMode)
-                                            {
-                                            case 1:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                break;
-                                            case 2:
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            case 3:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            default:
-                                                return CDRF_DODEFAULT;
-                                            }
-                                            return CDRF_NEWFONT;
-                                        }
-                                        return CDRF_DODEFAULT;
-                                    }
-                                    break;
+                                case WBC_LV_FORE | WBC_LV_BACK:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
                                 }
                             }
+
+                            return CDRF_NOTIFYSUBITEMDRAW;
+
+                        case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+                            if (wbGetListViewItemColor(pwbobj, (int)lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, &lvc))
+                            {
+                                switch (lvc.nMode)
+                                {
+                                case WBC_LV_FORE:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    return CDRF_NEWFONT;
+
+                                case WBC_LV_BACK:
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
+
+                                case WBC_LV_FORE | WBC_LV_BACK:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
+                                }
+                            }
+                            return CDRF_DODEFAULT;
                         }
-                        break;
+                    }
+                    break;
+
                     /*
                         ListView activation reliability note:
                         - NM_DBLCLK is preserved for backward compatibility.
@@ -1085,7 +1047,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                         LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
 
                         if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-                            DispatchNotifyToControlOrParent(pwbobj, pnmActivate->hdr.idFrom, WBC_DBLCLICK, pnmActivate->iItem, pnmActivate->iSubItem);
+                            CALL_CALLBACK(pnmActivate->hdr.idFrom, WBC_DBLCLICK, pnmActivate->iItem, pnmActivate->iSubItem);
                         break;
                     }
 
@@ -1100,58 +1062,31 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                         break;
                     }
 
-                        /*case NM_CLICK:
-                                        if(SEND_MESSAGE && TEST_FLAG(WBC_LBUTTON))
-                                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_LBUTTON ,0,0);
-                                        break;
-        */
                     case NM_RCLICK:
 
                         if (SEND_MESSAGE && TEST_FLAG(WBC_RBUTTON))
-                            DispatchNotifyToControlOrParent(pwbobj, ((LPNMHDR)lParam)->idFrom, WBC_RBUTTON, 0, 0);
-                            //printf("ListView WBC_RBUTTON\n");
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_RBUTTON, 0, 0);
                         break;
 
                     case LVN_ITEMCHANGED:
+                    {
+                        LPNMLISTVIEW pnm = (LPNMLISTVIEW)lParam;
+                        LPARAM lParam1 = 0;
 
-                        {
-                            LPNMLISTVIEW pnm = (LPNMLISTVIEW)lParam;
-                            LPARAM lParam1 = 0;
+                        if (!(pnm->uChanged & LVIF_STATE) || pnm->uOldState == pnm->uNewState)
+                            break;
 
-                            if (!(pnm->uChanged & LVIF_STATE) || pnm->uOldState == pnm->uNewState)
-                                break;
+                        if (((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED) && (pnm->uNewState & LVIS_SELECTED))
+                            lParam1 |= WBC_LV_SELECTED;
 
-                            if (((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED) && (pnm->uNewState & LVIS_SELECTED))
-                                lParam1 |= WBC_LV_SELECTED;
-
-                            if (lParam1)
-                                DispatchNotifyToControlOrParent(pwbobj, pnm->hdr.idFrom, lParam1, pnm->iItem, pnm->iSubItem);
-                            //printf("ListView LVN_ITEMCHANGED\n");
-                        }
-
-//                        @todo Refactor so multiple callbacks dont occur
-//                        LVIS_ACTIVATING 	Not currently supported.
-//                        LVIS_CUT	The item is marked for a cut-and-paste operation.
-//                        LVIS_DROPHILITED	The item is highlighted is a drag-and-drop target.
-//                        LVIS_FOCUSED	The item has the focus, so it is surrounded by a standard focus rectangle. Although more than one item may be selected, only one item can have the focus.
-//                        LVIS_OVERLAYMASK	The item's overlay image index is retrieved by a mask.
-//                        LVIS_SELECTED	The item is selected. The appearance of a selected item depends on whether it has the focus and also on the system colors used for selection.
-//                        LVIS_STATEIMAGEMASK	The item's state image index is retrieved by a mask.
-//                        if (((LPNM_LISTVIEW)lParam)->uChanged & LVIF_STATE) {
-//                            printf("ListView LVIF_STATE\n");
-//                            // Check if the item is selected (new state includes selected flag)
-//                            if (((LPNM_LISTVIEW)lParam)->uNewState & LVIS_SELECTED) {
-//                                // Call the callback function
-//                                CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-//                                printf("ListView LVIS_SELECTED\n");
-//                            }
-//                        }
-
+                        if (lParam1)
+                            CALL_CALLBACK(pnm->hdr.idFrom, lParam1, pnm->iItem, pnm->iSubItem);
                         break;
+                    }
 
                     case LVN_COLUMNCLICK:
 
-                        hwndListView = pwbobj->hwnd; // For CompareLVItems()
+                        hwndListView = pwbobj->hwnd;
                         SendMessage(pwbobj->hwnd, LVM_SORTITEMS, ((NM_LISTVIEW FAR *)lParam)->iSubItem, (LPARAM)(PFNLVCOMPARE)CompareLVItemsAscending);
                         UpdateLVlParams(hwndListView);
                         if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
@@ -1161,7 +1096,6 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 }
                 break;
 
-            } // switch(pwbobj->uClass)]
 
         } // ~WM_NOTIFY
         break;

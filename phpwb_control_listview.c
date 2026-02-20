@@ -306,6 +306,61 @@ ZEND_FUNCTION(wb_select_all_listview_items)
 	RETURN_BOOL(wbSelectAllListViewItems((PWBOBJ)pwbo, state));
 }
 
+ZEND_FUNCTION(wb_set_listview_item_color)
+{
+	zend_long pwbo, item, subitem, foreground, background, mode;
+
+	ZEND_PARSE_PARAMETERS_START(6, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_LONG(subitem)
+		Z_PARAM_LONG(foreground)
+		Z_PARAM_LONG(background)
+		Z_PARAM_LONG(mode)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	RETURN_BOOL(wbSetListViewItemColor((PWBOBJ)pwbo, item, subitem, (DWORD)foreground, (DWORD)background, (int)mode));
+}
+
+ZEND_FUNCTION(wb_clear_listview_item_color)
+{
+	zend_long pwbo, item, subitem;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(item)
+		Z_PARAM_LONG(subitem)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	RETURN_BOOL(wbClearListViewItemColor((PWBOBJ)pwbo, item, subitem));
+}
+
+ZEND_FUNCTION(wb_clear_listview_colors)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	RETURN_BOOL(wbClearListViewColors((PWBOBJ)pwbo));
+}
+
 /* Returns an array of strings */
 
 ZEND_FUNCTION(wb_get_listview_text)
