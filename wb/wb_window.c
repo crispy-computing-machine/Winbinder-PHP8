@@ -1050,7 +1050,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                     {
                         LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
 
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                        if (SEND_MESSAGE)
                             CALL_CALLBACK(pnmActivate->hdr.idFrom, WBC_DBLCLICK, pnmActivate->iItem, pnmActivate->iSubItem);
                         break;
                     }
@@ -1059,10 +1059,8 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                     {
                         LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
 
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
-                            DispatchNotifyToControlOrParent(pwbobj, ((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK,
-                                                            pnmActivate ? pnmActivate->iItem : 0,
-                                                            pnmActivate ? pnmActivate->iSubItem : 0);
+                        if (SEND_MESSAGE)
+                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
                         break;
                     }
 
