@@ -150,6 +150,9 @@ ZEND_FUNCTION(wb_clear_listview_columns);
 ZEND_FUNCTION(wb_create_listview_column);
 ZEND_FUNCTION(wb_select_listview_item);
 ZEND_FUNCTION(wb_select_all_listview_items);
+ZEND_FUNCTION(wb_set_listview_item_color);
+ZEND_FUNCTION(wb_clear_listview_item_color);
+ZEND_FUNCTION(wb_clear_listview_colors);
 //ZEND_FUNCTION(wb_get_listview_column_widths);
 //ZEND_FUNCTION(wb_set_listview_column_widths);
 
@@ -329,6 +332,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_clear_listview_columns,arginfo_wb_clear_listview_columns)
         ZEND_FE(wb_select_listview_item,arginfo_wb_select_listview_item)
         ZEND_FE(wb_select_all_listview_items,arginfo_wb_select_all_listview_items)
+        ZEND_FE(wb_set_listview_item_color,arginfo_wb_set_listview_item_color)
+        ZEND_FE(wb_clear_listview_item_color,arginfo_wb_clear_listview_item_color)
+        ZEND_FE(wb_clear_listview_colors,arginfo_wb_clear_listview_colors)
         //	ZEND_FE(wb_get_listview_column_widths,arginfo_wb_get_listview_column_widths)
         //	ZEND_FE(wb_set_listview_column_widths,arginfo_wb_set_listview_column_widths)
 
