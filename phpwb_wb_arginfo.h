@@ -530,6 +530,25 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_select_all_listview_items, 0,
 	ZEND_ARG_TYPE_INFO(0, state, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_listview_item_color, 0, 6, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, row, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, column, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, foreground, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, background, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, mode, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_clear_listview_item_color, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, row, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, column, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_clear_listview_colors, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_wb_create_menu, 0, 2, MAY_BE_NULL|MAY_BE_LONG)
 	ZEND_ARG_TYPE_INFO(0, wbObjectParent, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, menu_items, IS_ARRAY, 0)

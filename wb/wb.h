@@ -315,6 +315,7 @@ enum
 #define M_nTimerId (pwbo->lparams[4])
 #define M_nMMTimerId (pwbo->lparams[5])
 #define M_ToolTipWnd (pwbo->lparams[6])
+#define M_pListViewColors (pwbo->lparams[7])
 
 // For storing ini settings
 #ifdef ZTS
@@ -512,6 +513,11 @@ int wbGetListViewCheckedItems(PWBOBJ pwbo, int *pbItems);
 int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems);
 int wbGetListViewColumnWidths(PWBOBJ pwbo, int *pwidths);
 BOOL wbSetListViewColumnWidths(PWBOBJ pwbo, int *pwidths);
+BOOL wbSetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, DWORD dwForeground, DWORD dwBackground, int nMode);
+BOOL wbClearListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem);
+BOOL wbClearListViewColors(PWBOBJ pwbo);
+BOOL wbGetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, LISTVIEWCOLOR *plvc);
+void wbAdjustListViewItemColorsAfterDelete(PWBOBJ pwbo, int nItem);
 
 // WB_CONTROL_MENU.C
 
