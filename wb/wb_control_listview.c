@@ -19,6 +19,25 @@
 
 static BOOL wbSetListViewColumnWidth(PWBOBJ pwbo, int nCol, int nWidth);
 
+
+typedef struct
+{
+	int nItem;
+	int nSubItem;
+	LISTVIEWCOLOR color;
+} LVITEMCOLOR;
+
+typedef struct
+{
+	int nCount;
+	int nCapacity;
+	LVITEMCOLOR *pEntries;
+} LVCOLORMAP;
+
+static LVCOLORMAP *wbGetListViewColorMap(PWBOBJ pwbo, BOOL bCreate);
+static void wbFreeListViewColorMap(PWBOBJ pwbo);
+static int wbFindListViewColorIndex(LVCOLORMAP *pMap, int nItem, int nSubItem);
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 int wbCreateListViewItem(PWBOBJ pwbo, int nItem, int nImage, LPCTSTR pszText)
@@ -409,6 +428,183 @@ BOOL wbGetListViewItemText(PWBOBJ pwbo, int nItem, int nCol, LPTSTR pszText, int
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
 /* Set the width on one columnn. If nWidth is negative, calculate width automatically */
+
+
+BOOL wbSetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, DWORD dwForeground, DWORD dwBackground, int nMode)
+{
+	LVCOLORMAP *pMap;
+	int nIndex;
+
+	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd) || pwbo->uClass != ListView)
+		return FALSE;
+
+	if (nMode == WBC_LV_NONE)
+		return wbClearListViewItemColor(pwbo, nItem, nSubItem);
+
+	pMap = wbGetListViewColorMap(pwbo, TRUE);
+	if (!pMap)
+		return FALSE;
+
+	nIndex = wbFindListViewColorIndex(pMap, nItem, nSubItem);
+	if (nIndex < 0)
+	{
+		if (pMap->nCount == pMap->nCapacity)
+		{
+			int nNewCapacity = pMap->nCapacity ? (pMap->nCapacity * 2) : 16;
+			LVITEMCOLOR *pNewEntries = (LVITEMCOLOR *)wbRealloc(pMap->pEntries, sizeof(LVITEMCOLOR) * nNewCapacity);
+			if (!pNewEntries)
+				return FALSE;
+			pMap->pEntries = pNewEntries;
+			pMap->nCapacity = nNewCapacity;
+		}
+		nIndex = pMap->nCount++;
+		pMap->pEntries[nIndex].nItem = nItem;
+		pMap->pEntries[nIndex].nSubItem = nSubItem;
+	}
+
+	pMap->pEntries[nIndex].color.nMode = nMode;
+	pMap->pEntries[nIndex].color.dwForeground = dwForeground;
+	pMap->pEntries[nIndex].color.dwBackground = dwBackground;
+
+	return TRUE;
+}
+
+BOOL wbClearListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem)
+{
+	LVCOLORMAP *pMap;
+	int nIndex;
+
+	if (!pwbo || pwbo->uClass != ListView)
+		return FALSE;
+
+	pMap = (LVCOLORMAP *)M_pListViewColors;
+	if (!pMap)
+		return TRUE;
+
+	nIndex = wbFindListViewColorIndex(pMap, nItem, nSubItem);
+	if (nIndex < 0)
+		return TRUE;
+
+	if (nIndex < pMap->nCount - 1)
+		memmove(&pMap->pEntries[nIndex], &pMap->pEntries[nIndex + 1], sizeof(LVITEMCOLOR) * (pMap->nCount - nIndex - 1));
+	pMap->nCount--;
+
+	if (pMap->nCount == 0)
+		wbFreeListViewColorMap(pwbo);
+
+	return TRUE;
+}
+
+BOOL wbClearListViewColors(PWBOBJ pwbo)
+{
+	if (!pwbo || pwbo->uClass != ListView)
+		return FALSE;
+
+	wbFreeListViewColorMap(pwbo);
+	return TRUE;
+}
+
+BOOL wbGetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, LISTVIEWCOLOR *plvc)
+{
+	LVCOLORMAP *pMap;
+	int nIndex;
+
+	if (!pwbo || pwbo->uClass != ListView || !plvc)
+		return FALSE;
+
+	pMap = (LVCOLORMAP *)M_pListViewColors;
+	if (!pMap)
+		return FALSE;
+
+	nIndex = wbFindListViewColorIndex(pMap, nItem, nSubItem);
+	if (nIndex < 0)
+		nIndex = wbFindListViewColorIndex(pMap, nItem, -1);
+	if (nIndex < 0)
+		return FALSE;
+
+	*plvc = pMap->pEntries[nIndex].color;
+	return TRUE;
+}
+
+void wbAdjustListViewItemColorsAfterDelete(PWBOBJ pwbo, int nItem)
+{
+	LVCOLORMAP *pMap;
+	int i, nWrite;
+
+	if (!pwbo || pwbo->uClass != ListView)
+		return;
+
+	pMap = (LVCOLORMAP *)M_pListViewColors;
+	if (!pMap)
+		return;
+
+	for (i = 0, nWrite = 0; i < pMap->nCount; i++)
+	{
+		LVITEMCOLOR entry = pMap->pEntries[i];
+
+		if (entry.nItem == nItem)
+			continue;
+		if (entry.nItem > nItem)
+			entry.nItem--;
+
+		pMap->pEntries[nWrite++] = entry;
+	}
+
+	pMap->nCount = nWrite;
+	if (pMap->nCount == 0)
+		wbFreeListViewColorMap(pwbo);
+}
+
+static LVCOLORMAP *wbGetListViewColorMap(PWBOBJ pwbo, BOOL bCreate)
+{
+	LVCOLORMAP *pMap;
+
+	if (!pwbo || pwbo->uClass != ListView)
+		return NULL;
+
+	pMap = (LVCOLORMAP *)M_pListViewColors;
+	if (!pMap && bCreate)
+	{
+		pMap = (LVCOLORMAP *)wbMalloc(sizeof(LVCOLORMAP));
+		if (!pMap)
+			return NULL;
+		ZeroMemory(pMap, sizeof(LVCOLORMAP));
+		M_pListViewColors = (LONG_PTR)pMap;
+	}
+	return pMap;
+}
+
+static void wbFreeListViewColorMap(PWBOBJ pwbo)
+{
+	LVCOLORMAP *pMap;
+
+	if (!pwbo || pwbo->uClass != ListView)
+		return;
+
+	pMap = (LVCOLORMAP *)M_pListViewColors;
+	if (!pMap)
+		return;
+
+	if (pMap->pEntries)
+		wbFree(pMap->pEntries);
+	wbFree(pMap);
+	M_pListViewColors = 0;
+}
+
+static int wbFindListViewColorIndex(LVCOLORMAP *pMap, int nItem, int nSubItem)
+{
+	int i;
+
+	if (!pMap)
+		return -1;
+
+	for (i = 0; i < pMap->nCount; i++)
+	{
+		if (pMap->pEntries[i].nItem == nItem && pMap->pEntries[i].nSubItem == nSubItem)
+			return i;
+	}
+	return -1;
+}
 
 static BOOL wbSetListViewColumnWidth(PWBOBJ pwbo, int nCol, int nWidth)
 {
