@@ -50,7 +50,7 @@ BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);
 // External
 
 extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHandler);
-extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
@@ -89,14 +89,14 @@ static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime);
 
 // Procedures for WinBinder classes
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //----------------------------------------------------------------------- TYPES
 
@@ -261,6 +261,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	if (!pwbo->hwnd)
 		return NULL;
+
 
 	// Assigns pwndMain and the window ID
 
@@ -825,7 +826,7 @@ BOOL RegisterClasses(void)
 
 */
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static HWND hTBWnd = NULL; // Handle of toolbar window
 
@@ -884,7 +885,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 break;
             }  else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))  { // Tooltip
 
-                if (((LPNMHDR)lParam)->code == (UINT64)TTN_NEEDTEXT)
+                if (((LPNMHDR)lParam)->code == TTN_NEEDTEXT)
                 {
                     if (hTBWnd)
                     {
@@ -918,7 +919,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case Spinner:
 
-                    if (((LPNMHDR)lParam)->code == (UINT64)UDN_DELTAPOS)
+                    if (((LPNMHDR)lParam)->code == UDN_DELTAPOS)
                     {
                         CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
                     }
@@ -934,7 +935,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
                         break;
 
-                    case (UINT64)TVN_SELCHANGED:
+                    case TVN_SELCHANGED:
                         CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
                         break;
                     }
@@ -942,7 +943,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case TabControl:
 
-                    if (((LPNMHDR)lParam)->code == (UINT64)TCN_SELCHANGE)
+                    if (((LPNMHDR)lParam)->code == TCN_SELCHANGE)
                     {
 
                         HWND hTab = ((LPNMHDR)lParam)->hwndFrom;
@@ -1547,7 +1548,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 /* Main window class processing */
 
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1856,7 +1857,7 @@ LRESULT ProcessCustomDraw(LPARAM lParam)
 
 // Owner-drawn window class: subclasses MainWndProc
 
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1960,7 +1961,7 @@ static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, 
 
 // Naked window class: subclasses MainWndProc
 
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2000,7 +2001,7 @@ static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 
 // Owner-drawn naked window class: subclasses NakedWndProc, OwnerDrawnWndProc
 
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2015,7 +2016,7 @@ static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wPa
 
 // The word "modal" here is not quite true: these are not "real" modal dialog boxes
 
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2081,7 +2082,7 @@ static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 	return DefDlgProc(hwnd, msg, wParam, lParam);
 }
 
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2113,7 +2114,7 @@ static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 
 // Processes messages for tab pages
 
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
