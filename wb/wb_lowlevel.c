@@ -26,12 +26,12 @@ static HMODULE hLastDLL = NULL;
 LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if ((LONG_PTR)pwbo == (LONG_PTR)HWND_BROADCAST)
-		return SendMessage(HWND_BROADCAST, uMsg, wParam, lParam);
+		return SendMessage(HWND_BROADCAST, (UINT)uMsg, wParam, lParam);
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return 0;
 
-	return SendMessage((HWND)pwbo->hwnd, uMsg, wParam, lParam);
+	return SendMessage((HWND)pwbo->hwnd, (UINT)uMsg, wParam, lParam);
 }
 
 /*
