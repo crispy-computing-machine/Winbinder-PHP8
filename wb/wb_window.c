@@ -21,7 +21,12 @@
 //-------------------------------------------------------------------- CONSTANTS
 
 #define MAXWINNAME 256
-#define WBDEFCLASSSTYLE (CS_DBLCLKS | CS_PARENTDC)
+/*
+Avoid CS_PARENTDC on top-level WinBinder window classes.
+It can cause non-client title rendering anomalies on modern Windows where
+caption text is logically set (WM_SETTEXT/GetWindowText) but not painted.
+*/
+#define WBDEFCLASSSTYLE (CS_DBLCLKS)
 #define DEFAULT_WIN_STYLE (WS_POPUP | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_THICKFRAME)
 #define CUSTOM_MESSAGE_NAME "@WB_win32_%d_%s"
 
@@ -196,22 +201,22 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	case AppWindow: // Fixed size main window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_MINIMIZEBOX | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_MINIMIZEBOX;
 		break;
 
 	case ResizableWindow: // Resizable main window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_SIZEBOX | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_SIZEBOX;
 		break;
 
 	case PopupWindow: // Fixed size main window with no minimize/maximize button
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN;
 		break;
 
 	case NakedWindow: // Fixed size borderless window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_NAKED_CLASS : NAKED_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPCHILDREN;
 		if (BITTEST(dwWBStyle, WBC_BORDER))
 			dwExStyle |= WS_EX_DLGMODALFRAME;
 		//pwbo->style |= WBC_CUSTOMDRAW;				// All naked windows are owner-drawn
@@ -222,18 +227,18 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	case ModalDialog: // Modal dialog box
 		pszClass = MODAL_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | DS_MODALFRAME | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | DS_MODALFRAME;
 		dwExStyle = dwExStyle ? dwExStyle : WS_EX_DLGMODALFRAME;
 		break;
 
 	case ModelessDialog: // Modeless dialog box
 		pszClass = MODELESS_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN;
 		break;
 
 	case ToolDialog: // Modeless tool dialog
 		pszClass = MODELESS_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN;
 		dwExStyle = dwExStyle ? dwExStyle : WS_EX_TOOLWINDOW;
 		break;
 
