@@ -351,7 +351,7 @@ ZEND_FUNCTION(wb_get_system_info)
 	char *s;
 	size_t s_len;
 	BOOL isstr;
-	LONG_PTR res;
+	LONG_PTR res = -1;
 	char strval[1024];
 
 	TCHAR szVal[1024];
@@ -361,6 +361,10 @@ ZEND_FUNCTION(wb_get_system_info)
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_STRING_OR_NULL(s,s_len)
 	ZEND_PARSE_PARAMETERS_END();
+
+	if (!s){
+		RETURN_NULL();
+	}
 
 	if (!stricmp(s, "extensionpath"))
 	{
@@ -377,7 +381,11 @@ ZEND_FUNCTION(wb_get_system_info)
 
 		// Assemble the final string
 		wbGetSystemInfo(TEXT("exepath"), &isstr, szVal, 1023);
-		wcscat(szVal, szValue);
+		if (wcslen(szVal) + wcslen(szValue) >= 1023){
+			wbFree(szValue);
+			RETURN_NULL();
+		}
+		wcsncat(szVal, szValue, 1023 - wcslen(szVal));
 		MakeWinPath(szVal);
 		wbFree(szValue);
 
@@ -664,17 +672,35 @@ ZEND_FUNCTION(wb_get_clipboard)
 
 ZEND_FUNCTION(wb_get_clipboard)
 {
-    char * buffer = NULL;
+	HANDLE hData = NULL;
+	char *buffer = NULL;
+	SIZE_T data_size = 0;
+	SIZE_T data_len = 0;
 
-    if ( OpenClipboard(NULL) )
-    {
-        HANDLE hData = GetClipboardData( CF_TEXT );
-        char * buffer = (char*)GlobalLock( hData );
-        GlobalUnlock( hData );
-        CloseClipboard();
-        RETURN_STRING(buffer);
-    }
-    RETURN_NULL();
+	if (!OpenClipboard(NULL)){
+		RETURN_NULL();
+	}
+
+	hData = GetClipboardData(CF_TEXT);
+	if (!hData){
+		CloseClipboard();
+		RETURN_NULL();
+	}
+
+	buffer = (char *)GlobalLock(hData);
+	if (!buffer){
+		CloseClipboard();
+		RETURN_NULL();
+	}
+
+	data_size = GlobalSize(hData);
+	while (data_len < data_size && buffer[data_len]){
+		data_len++;
+	}
+
+	RETVAL_STRINGL(buffer, data_len);
+	GlobalUnlock(hData);
+	CloseClipboard();
 }
 
 ZEND_FUNCTION(wb_set_clipboard)
@@ -696,32 +722,73 @@ ZEND_FUNCTION(wb_set_clipboard)
 
 	if (OpenClipboard(NULL))
 	{
+		if (!EmptyClipboard()){
+			CloseClipboard();
+			RETURN_BOOL(FALSE);
+		}
+
 		hdata = GlobalAlloc(GMEM_MOVEABLE, size + 1);
+		if (!hdata){
+			CloseClipboard();
+			RETURN_BOOL(FALSE);
+		}
+
 		clipcopy = (LPTSTR)GlobalLock(hdata);
+		if (!clipcopy){
+			GlobalFree(hdata);
+			CloseClipboard();
+			RETURN_BOOL(FALSE);
+		}
+
 		memcpy(clipcopy, clip, size);
+		clipcopy[size] = '\0';
+		GlobalUnlock(hdata);
 
 		if (SetClipboardData(CF_TEXT, hdata))
 		{
-			GlobalUnlock(hdata);
-			GlobalFree(hdata);
 			size = size * 2;
-			wclip = (WCHAR *)emalloc(size + 1);
+			wclip = (WCHAR *)emalloc(size + 2);
+			if (!wclip){
+				CloseClipboard();
+				RETURN_BOOL(FALSE);
+			}
 
 			if (!UTF8ToUnicode16(clip, wclip, size + 2)){
-				printf("Conversion failed\n");
+				efree(wclip);
+				CloseClipboard();
+				RETURN_BOOL(FALSE);
 			}
 			hwdata = GlobalAlloc(GMEM_MOVEABLE, size + 2);
+			if (!hwdata){
+				efree(wclip);
+				CloseClipboard();
+				RETURN_BOOL(FALSE);
+			}
+
 			wclipcopy = (LPTSTR)GlobalLock(hwdata);
+			if (!wclipcopy){
+				GlobalFree(hwdata);
+				efree(wclip);
+				CloseClipboard();
+				RETURN_BOOL(FALSE);
+			}
+
 			memcpy(wclipcopy, wclip, size);
-			SetClipboardData(CF_UNICODETEXT, hwdata);
+			((WCHAR *)wclipcopy)[size / sizeof(WCHAR)] = L'\0';
 			GlobalUnlock(hwdata);
-			GlobalFree(hwdata);
+
+			if (!SetClipboardData(CF_UNICODETEXT, hwdata)){
+				GlobalFree(hwdata);
+				efree(wclip);
+				CloseClipboard();
+				RETURN_BOOL(FALSE);
+			}
+
 			efree(wclip);
 			success = TRUE;
 		}
 		else
 		{
-			GlobalUnlock(hdata);
 			GlobalFree(hdata);
 		}
 	}

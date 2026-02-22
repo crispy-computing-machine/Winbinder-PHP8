@@ -216,6 +216,7 @@ ZEND_FUNCTION(wb_screenshot)
     char *filename = NULL;
     size_t filename_len;
     wchar_t* wstr = NULL;
+    LONG_PTR result;
 
     ZEND_PARSE_PARAMETERS_START(0, 1)
         Z_PARAM_OPTIONAL
@@ -225,17 +226,27 @@ ZEND_FUNCTION(wb_screenshot)
     // If filename is not NULL, convert it to wide string
     if(filename != NULL) {
         int wchars_num = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+        if (wchars_num <= 0){
+            RETURN_BOOL(FALSE);
+        }
         wstr = malloc(wchars_num * sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num);
+        if (!wstr){
+            RETURN_BOOL(FALSE);
+        }
+        if (!MultiByteToWideChar(CP_UTF8, 0, filename, -1, wstr, wchars_num)){
+            free(wstr);
+            RETURN_BOOL(FALSE);
+        }
     }
 
     // Pass filename (as wide string) or NULL to CaptureScreen
-    RETURN_LONG((LONG_PTR)CaptureScreen(wstr));
+    result = (LONG_PTR)CaptureScreen(wstr);
 
-    // If wstr was allocated, free it
     if(wstr != NULL) {
         free(wstr);
     }
+
+    RETURN_LONG(result);
 }
 
 
