@@ -267,11 +267,6 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 	if (!pwbo->hwnd)
 		return NULL;
 
-	/*
-	Re-apply caption text after creation to ensure non-client title rendering
-	is refreshed consistently across x86/x64 builds and different window classes.
-	*/
-	SetWindowText(pwbo->hwnd, szWindowName);
 
 	// Assigns pwndMain and the window ID
 
