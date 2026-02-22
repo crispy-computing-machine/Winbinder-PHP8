@@ -14,13 +14,19 @@
 #include "wb.h"
 #include <string.h>   // For stricmp()
 #include <stdlib.h>   // For atol()
+#include <time.h>     // For time_t
 #include <shellapi.h> // For Shell_NotifyIcon()
 #include <mmsystem.h> // For timeSetEvent() and timeKillEvent
 
 //-------------------------------------------------------------------- CONSTANTS
 
 #define MAXWINNAME 256
-#define WBDEFCLASSSTYLE (CS_DBLCLKS | CS_PARENTDC)
+/*
+Avoid CS_PARENTDC on top-level WinBinder window classes.
+It can cause non-client title rendering anomalies on modern Windows where
+caption text is logically set (WM_SETTEXT/GetWindowText) but not painted.
+*/
+#define WBDEFCLASSSTYLE (CS_DBLCLKS)
 #define DEFAULT_WIN_STYLE (WS_POPUP | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_THICKFRAME)
 #define CUSTOM_MESSAGE_NAME "@WB_win32_%d_%s"
 
@@ -49,11 +55,29 @@ BOOL SetTaskBarIcon(HWND hwnd, BOOL bModify);
 // External
 
 extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHandler);
-extern DWORD GetCalendarTime(PWBOBJ pwbo);
-extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
+
+/*
+Compatibility helper kept exported for older builds that may still reference
+this symbol from incremental object files.
+*/
+void DispatchNotifyToControlOrParent(PWBOBJ pwbobj, UINT64 id, LPARAM lParam1, LPARAM lParam2, LPARAM lParam3)
+{
+	if (!pwbobj || !pwbobj->parent)
+		return;
+
+	if (pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+	{
+		wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
+		return;
+	}
+
+	if (pwbobj->parent->pszCallBackFn && *pwbobj->parent->pszCallBackFn)
+		wbCallUserFunction(pwbobj->parent->pszCallBackFn, pwbobj->parent->pszCallBackObj, pwbobj->parent, pwbobj, id, lParam1, lParam2, lParam3);
+}
 
 // Static
 
@@ -66,17 +90,18 @@ VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
+static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime);
 
 // Procedures for WinBinder classes
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 //----------------------------------------------------------------------- TYPES
 
@@ -102,7 +127,41 @@ static HWND hToolBar = NULL;
 static HWND hStatusBar = NULL;
 static HWND hwndListView = NULL;
 PWBOBJ pwndMain = NULL;
-LISTVIEWCOLOR test;
+
+static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime)
+{
+	SYSTEMTIME stSelection;
+	FILETIME fileTime;
+	TIME_ZONE_INFORMATION timeZoneInfo;
+	DWORD timeZoneResult;
+	LONG_PTR ll;
+	LONG_PTR bias;
+
+	if (!lpSysTime)
+		return 0;
+
+	stSelection = *lpSysTime;
+	stSelection.wHour = 0;
+	stSelection.wMinute = 0;
+	stSelection.wSecond = 0;
+	stSelection.wMilliseconds = 0;
+
+	if (!SystemTimeToFileTime(&stSelection, &fileTime))
+		return 0;
+
+	ll = fileTime.dwHighDateTime;
+	ll <<= 32;
+	ll += (ULONG_PTR)fileTime.dwLowDateTime;
+	ll -= 116444736000000000LL;
+
+	bias = 0;
+	timeZoneResult = GetTimeZoneInformation(&timeZoneInfo);
+	bias = timeZoneInfo.Bias;
+	if (timeZoneResult == TIME_ZONE_ID_DAYLIGHT)
+		bias += timeZoneInfo.DaylightBias;
+
+	return (time_t)(ll / 10000000) + (time_t)(60 * bias);
+}
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -142,22 +201,22 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	case AppWindow: // Fixed size main window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_MINIMIZEBOX | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_MINIMIZEBOX;
 		break;
 
 	case ResizableWindow: // Resizable main window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_SIZEBOX | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | WS_SIZEBOX;
 		break;
 
 	case PopupWindow: // Fixed size main window with no minimize/maximize button
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_WINDOW_CLASS : MAIN_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_CLIPCHILDREN;
 		break;
 
 	case NakedWindow: // Fixed size borderless window
 		pszClass = (BITTEST(dwWBStyle, WBC_CUSTOMDRAW) ? OWNERDRAWN_NAKED_CLASS : NAKED_WINDOW_CLASS);
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPCHILDREN;
 		if (BITTEST(dwWBStyle, WBC_BORDER))
 			dwExStyle |= WS_EX_DLGMODALFRAME;
 		//pwbo->style |= WBC_CUSTOMDRAW;				// All naked windows are owner-drawn
@@ -168,18 +227,18 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	case ModalDialog: // Modal dialog box
 		pszClass = MODAL_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | DS_MODALFRAME | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | DS_MODALFRAME;
 		dwExStyle = dwExStyle ? dwExStyle : WS_EX_DLGMODALFRAME;
 		break;
 
 	case ModelessDialog: // Modeless dialog box
 		pszClass = MODELESS_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN;
 		break;
 
 	case ToolDialog: // Modeless tool dialog
 		pszClass = MODELESS_WINDOW_CLASS;
-		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN | CS_DBLCLKS;
+		dwStyle = dwStyle ? dwStyle : WS_POPUP | WS_SYSMENU | WS_CAPTION | WS_VISIBLE | WS_CLIPCHILDREN;
 		dwExStyle = dwExStyle ? dwExStyle : WS_EX_TOOLWINDOW;
 		break;
 
@@ -207,6 +266,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 
 	if (!pwbo->hwnd)
 		return NULL;
+
 
 	// Assigns pwndMain and the window ID
 
@@ -371,22 +431,36 @@ DWORD wbGetWindowPosition(PWBOBJ pwbo, PWBOBJ pwboParent, BOOL bClientRect)
 {
 	RECT rc;
 	BOOL bRet;
+	HWND hwndParent = NULL;
 
 	if (!pwbo || !pwbo->hwnd || !IsWindow(pwbo->hwnd))
 		return FALSE;
 
 	// pwboParent is ignored here
-	// @todo seems to segfault when clientarea is set to true!
-	if (bClientRect){
-		RECT rcParent;
+	bRet = GetWindowRect(pwbo->hwnd, &rc);
 
-		bRet = GetWindowRect(pwbo->hwnd, &rc);
-		GetWindowRect(pwbo->parent->hwnd, &rcParent);
+	if (bRet && bClientRect)
+	{
+		POINT pt;
 
-		rc.left -= rcParent.left;
-		rc.top -= rcParent.top;
-	} else {
-		bRet = GetWindowRect(pwbo->hwnd, &rc);
+		if (pwboParent && pwboParent->hwnd && IsWindow(pwboParent->hwnd))
+			hwndParent = pwboParent->hwnd;
+		else if (pwbo->parent && pwbo->parent->hwnd && IsWindow(pwbo->parent->hwnd))
+			hwndParent = pwbo->parent->hwnd;
+
+		if (hwndParent)
+		{
+			pt.x = rc.left;
+			pt.y = rc.top;
+			if (ScreenToClient(hwndParent, &pt))
+			{
+				rc.left = pt.x;
+				rc.top = pt.y;
+			}
+			else
+				bRet = FALSE;
+		}
+		// For top-level windows (no valid parent), keep screen coordinates from GetWindowRect().
 	}
 
 	if (!bRet)
@@ -746,6 +820,7 @@ BOOL RegisterClasses(void)
 	return TRUE;
 }
 
+
 //-------------------------------------------------- WINDOW PROCESSING FUNCTIONS
 
 /*
@@ -756,7 +831,7 @@ BOOL RegisterClasses(void)
 
 */
 
-static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static HWND hTBWnd = NULL; // Handle of toolbar window
 
@@ -815,7 +890,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 break;
             }  else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))  { // Tooltip
 
-                if (((LPNMHDR)lParam)->code == (UINT64)TTN_NEEDTEXT)
+                if (((LPNMHDR)lParam)->code == TTN_NEEDTEXT)
                 {
                     if (hTBWnd)
                     {
@@ -838,7 +913,8 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
             if (!pwbobj || !pwbobj->parent)
                 break;
 
-            if (!pwbobj->parent->pszCallBackFn)
+            if ((!pwbobj->pszCallBackFn || !*pwbobj->pszCallBackFn) &&
+                (!pwbobj->parent->pszCallBackFn || !*pwbobj->parent->pszCallBackFn))
                 break;
 
             // Call callback function according to WinBinder class
@@ -848,7 +924,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case Spinner:
 
-                    if (((LPNMHDR)lParam)->code == (UINT64)UDN_DELTAPOS)
+                    if (((LPNMHDR)lParam)->code == UDN_DELTAPOS)
                     {
                         CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
                     }
@@ -864,7 +940,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
                         break;
 
-                    case (UINT64)TVN_SELCHANGED:
+                    case TVN_SELCHANGED:
                         CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
                         break;
                     }
@@ -872,7 +948,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case TabControl:
 
-                    if (((LPNMHDR)lParam)->code == (UINT64)TCN_SELCHANGE)
+                    if (((LPNMHDR)lParam)->code == TCN_SELCHANGE)
                     {
 
                         HWND hTab = ((LPNMHDR)lParam)->hwndFrom;
@@ -888,16 +964,19 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case Calendar:
                 {
-                    PWBOBJ pwbobj;
+                    LPNMSELCHANGE pnmSelChange;
+                    time_t selectedTime;
 
-                    pwbobj = wbGetWBObj(hCtrl);
-                    if (!pwbobj)
-                        break;
+                    pnmSelChange = (LPNMSELCHANGE)lParam;
 
                     switch (((LPNMHDR)lParam)->code)
                     {
                     case MCN_SELCHANGE:
-                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, GetCalendarTime(pwbobj), 0, 0);
+                    case MCN_SELECT:
+                        // Use the timestamp from the notification payload to avoid delayed callbacks caused by
+                        // re-querying the calendar control state after the selection notification is dispatched.
+                        selectedTime = CalendarNotifySelToUnixTime(&pnmSelChange->stSelStart);
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, selectedTime, 0, 0);
                         break;
                     }
                 }
@@ -905,149 +984,127 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
                 case ListView:
                 {
-                    //UINT64 c = ((LPNMHDR)lParam)->code;
                     switch (((LPNMHDR)lParam)->code)
                     {
-                        //case 0xffffff4f:
-                        case NM_CUSTOMDRAW:
-                            if (pwbobj->pszCallBackFn != NULL) //has color handler
+                    case NM_CUSTOMDRAW:
+                    {
+                        LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+                        LISTVIEWCOLOR lvc = {0};
+
+                        if (pwbobj->lparams[7] == 0)
+                            break;
+
+                        switch (lplvcd->nmcd.dwDrawStage)
+                        {
+                        case CDDS_PREPAINT:
+                            return CDRF_NOTIFYITEMDRAW;
+
+                        case CDDS_ITEMPREPAINT:
+                            if (wbGetListViewItemColor(pwbobj, (int)lplvcd->nmcd.dwItemSpec, -1, &lvc))
                             {
-                                LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-                                //printf("ListView NM_CUSTOMDRAW\n");
-                                switch (lplvcd->nmcd.dwDrawStage)
+                                switch (lvc.nMode)
                                 {
-                                    case CDDS_PREPAINT:
-                                        return CDRF_NOTIFYITEMDRAW;
-                                    case CDDS_ITEMPREPAINT:
-                                    {
-                                        LISTVIEWCOLOR lvc = {0};
-                                        //UINT64 ret = wbCallUserFunction(pwbo->pszCallBackFn, pwbo->pszCallBackObj, pwbo, pwbo, IDDEFAULT, WBC_REDRAW, (LPARAM)pwbo->pbuffer, 0);
+                                case WBC_LV_FORE:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    return CDRF_NEWFONT;
 
-                                        // Passes $rowIndex, $columnIndex , $colourStruct
-                                        UINT64 ret = wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj->parent,pwbobj, ((LPNMHDR)lParam)->idFrom,lplvcd->nmcd.lItemlParam,-1,(LPARAM)&lvc);
+                                case WBC_LV_BACK:
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
 
-                                        if (ret > 0)
-                                        {
-                                            if (ret == 2)
-                                                return CDRF_NOTIFYSUBITEMDRAW;
-
-                                            switch (lvc.nMode)
-                                            {
-                                                case 1:
-                                                    lplvcd->clrText = lvc.dwForeground;
-                                                    break;
-                                                case 2:
-                                                    lplvcd->clrTextBk = lvc.dwBackground;
-                                                    break;
-                                                case 3:
-                                                    lplvcd->clrText = lvc.dwForeground;
-                                                    lplvcd->clrTextBk = lvc.dwBackground;
-                                                    break;
-                                                default:
-                                                    return CDRF_DODEFAULT;
-                                            }
-                                            return CDRF_NEWFONT;
-                                        }
-                                        return CDRF_DODEFAULT;
-                                    }
-                                    break;
-                                    case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-                                    {
-                                        LISTVIEWCOLOR lvc = {0};
-                                        UINT64 ret = wbCallUserFunction(
-                                                pwbobj->pszCallBackFn,
-                                                pwbobj->pszCallBackObj,
-                                                pwbobj->parent,
-                                                pwbobj,
-                                                ((LPNMHDR)lParam)->idFrom,
-                                                lplvcd->nmcd.lItemlParam,
-                                                lplvcd->iSubItem,
-                                                (LPARAM)&lvc
-                                            );
-                                        if (ret > 0)
-                                        {
-                                            switch (lvc.nMode)
-                                            {
-                                            case 1:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                break;
-                                            case 2:
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            case 3:
-                                                lplvcd->clrText = lvc.dwForeground;
-                                                lplvcd->clrTextBk = lvc.dwBackground;
-                                                break;
-                                            default:
-                                                return CDRF_DODEFAULT;
-                                            }
-                                            return CDRF_NEWFONT;
-                                        }
-                                        return CDRF_DODEFAULT;
-                                    }
-                                    break;
+                                case WBC_LV_FORE | WBC_LV_BACK:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
                                 }
                             }
-                        break;
-                    case NM_DBLCLK:
 
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_DBLCLICK))
+                            return CDRF_NOTIFYSUBITEMDRAW;
+
+                        case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+                            if (wbGetListViewItemColor(pwbobj, (int)lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, &lvc))
+                            {
+                                switch (lvc.nMode)
+                                {
+                                case WBC_LV_FORE:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    return CDRF_NEWFONT;
+
+                                case WBC_LV_BACK:
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
+
+                                case WBC_LV_FORE | WBC_LV_BACK:
+                                    lplvcd->clrText = lvc.dwForeground;
+                                    lplvcd->clrTextBk = lvc.dwBackground;
+                                    return CDRF_NEWFONT;
+                                }
+                            }
+                            return CDRF_DODEFAULT;
+                        }
+                    }
+                    break;
+
+                    /*
+                        ListView activation reliability note:
+                        - NM_DBLCLK is preserved for backward compatibility.
+                        - LVN_ITEMACTIVATE is also handled and mapped to WBC_DBLCLICK,
+                          covering ListView styles/modes where activation does not always
+                          surface as NM_DBLCLK.
+                    */
+                    case LVN_ITEMACTIVATE:
+                    {
+                        LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
+
+                        if (SEND_MESSAGE)
+                            CALL_CALLBACK(pnmActivate->hdr.idFrom, WBC_DBLCLICK, pnmActivate->iItem, pnmActivate->iSubItem);
+                        break;
+                    }
+
+                    case NM_DBLCLK:
+                    {
+                        LPNMITEMACTIVATE pnmActivate = (LPNMITEMACTIVATE)lParam;
+
+                        if (SEND_MESSAGE)
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_DBLCLICK, 0, 0);
                         break;
+                    }
 
-                        /*case NM_CLICK:
-                                        if(SEND_MESSAGE && TEST_FLAG(WBC_LBUTTON))
-                                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_LBUTTON ,0,0);
-                                        break;
-        */
                     case NM_RCLICK:
 
                         if (SEND_MESSAGE && TEST_FLAG(WBC_RBUTTON))
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_RBUTTON, 0, 0);
-                            //printf("ListView WBC_RBUTTON\n");
                         break;
 
                     case LVN_ITEMCHANGED:
+                    {
+                        LPNMLISTVIEW pnm = (LPNMLISTVIEW)lParam;
+                        LPARAM lParam1 = 0;
 
-                        if (((LPNM_LISTVIEW)lParam)->uChanged & (LVIF_STATE | LVIS_CHECKED))
-                        {
-                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-                            //printf("ListView LVN_ITEMCHANGED\n");
-                        }
+                        if (!(pnm->uChanged & LVIF_STATE) || pnm->uOldState == pnm->uNewState)
+                            break;
 
-//                        @todo Refactor so multiple callbacks dont occur
-//                        LVIS_ACTIVATING 	Not currently supported.
-//                        LVIS_CUT	The item is marked for a cut-and-paste operation.
-//                        LVIS_DROPHILITED	The item is highlighted is a drag-and-drop target.
-//                        LVIS_FOCUSED	The item has the focus, so it is surrounded by a standard focus rectangle. Although more than one item may be selected, only one item can have the focus.
-//                        LVIS_OVERLAYMASK	The item's overlay image index is retrieved by a mask.
-//                        LVIS_SELECTED	The item is selected. The appearance of a selected item depends on whether it has the focus and also on the system colors used for selection.
-//                        LVIS_STATEIMAGEMASK	The item's state image index is retrieved by a mask.
-//                        if (((LPNM_LISTVIEW)lParam)->uChanged & LVIF_STATE) {
-//                            printf("ListView LVIF_STATE\n");
-//                            // Check if the item is selected (new state includes selected flag)
-//                            if (((LPNM_LISTVIEW)lParam)->uNewState & LVIS_SELECTED) {
-//                                // Call the callback function
-//                                CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, 0, 0, 0);
-//                                printf("ListView LVIS_SELECTED\n");
-//                            }
-//                        }
+                        if (((pnm->uOldState ^ pnm->uNewState) & LVIS_SELECTED) && (pnm->uNewState & LVIS_SELECTED))
+                            lParam1 |= WBC_LV_SELECTED;
 
+                        if (lParam1)
+                            CALL_CALLBACK(pnm->hdr.idFrom, lParam1, pnm->iItem, pnm->iSubItem);
                         break;
+                    }
 
                     case LVN_COLUMNCLICK:
 
-                        hwndListView = pwbobj->hwnd; // For CompareLVItems()
+                        hwndListView = pwbobj->hwnd;
                         SendMessage(pwbobj->hwnd, LVM_SORTITEMS, ((NM_LISTVIEW FAR *)lParam)->iSubItem, (LPARAM)(PFNLVCOMPARE)CompareLVItemsAscending);
                         UpdateLVlParams(hwndListView);
                         if (SEND_MESSAGE && TEST_FLAG(WBC_HEADERSEL))
-                            CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
+                            DispatchNotifyToControlOrParent(pwbobj, ((LPNMHDR)lParam)->idFrom, WBC_HEADERSEL, ((NM_LISTVIEW FAR *)lParam)->iSubItem, 0);
                         break;
                     }
                 }
                 break;
 
-            } // switch(pwbobj->uClass)]
+            } // switch(pwbobj->uClass)
 
         } // ~WM_NOTIFY
         break;
@@ -1353,14 +1410,28 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
             //------------------------------- Other messages
 
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORSTATIC: // For static controls and others
         case WM_CTLCOLORBTN:	// For pushbuttons
-
+        {
             HWND hCtrl;
             PWBOBJ pwbobj;
+            PFONT pFont = NULL;
+            int nCtrlFontId;
+
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
-            PFONT pFont;
+            nCtrlFontId = (int)(INT_PTR)GetProp(hCtrl, TEXT("WB_FONT_ID"));
+
+            if (nCtrlFontId > 0)
+                pFont = wbGetFont(nCtrlFontId);
+
+            if (!pFont && pwbobj && (pwbobj->uClass == Label || pwbobj->uClass == HyperLink) && pwbobj->lparam > 0)
+                pFont = wbGetFont((int)pwbobj->lparam);
+
+            if (pFont && pFont->color != NOCOLOR)
+                SetTextColor((HDC)wParam, pFont->color);
 
             if (hbrTabs)
             { // Not for versions under Windows XP
@@ -1380,6 +1451,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
                 }
             }
             break;
+        }
 
         case WM_TIMER:
 
@@ -1481,7 +1553,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 /* Main window class processing */
 
-static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1790,7 +1862,7 @@ LRESULT ProcessCustomDraw(LPARAM lParam)
 
 // Owner-drawn window class: subclasses MainWndProc
 
-static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1894,7 +1966,7 @@ static LRESULT CALLBACK OwnerDrawnWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, 
 
 // Naked window class: subclasses MainWndProc
 
-static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1934,7 +2006,7 @@ static LRESULT CALLBACK NakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 
 // Owner-drawn naked window class: subclasses NakedWndProc, OwnerDrawnWndProc
 
-static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -1949,7 +2021,7 @@ static LRESULT CALLBACK OwnerDrawnNakedWndProc(HWND hwnd, UINT64 msg, WPARAM wPa
 
 // The word "modal" here is not quite true: these are not "real" modal dialog boxes
 
-static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2015,7 +2087,7 @@ static LRESULT CALLBACK ModalWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARA
 	return DefDlgProc(hwnd, msg, wParam, lParam);
 }
 
-static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2047,7 +2119,7 @@ static LRESULT CALLBACK ModelessWndProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 
 // Processes messages for tab pages
 
-static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK TabPageProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{

@@ -29,7 +29,7 @@
 
 // Private
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData);
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 static LPTSTR DeleteChars(LPTSTR pszMain, UINT64 nPos, UINT64 nLength);
 static LPTSTR StripPath(LPTSTR pszFileName);
 
@@ -60,7 +60,7 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpstrFilter = pszFilter && *pszFilter ? pszFilter : TEXT("All files (*.*)\0*.*\0\0");
 	ofn.lpstrCustomFilter = NULL;
 	ofn.nMaxCustFilter = 0;
-	ofn.nFilterIndex = 0;
+	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = pszFileName;
 	ofn.nMaxFile = bufSize - 1;
 	ofn.lpstrFileTitle = NULL;
@@ -91,9 +91,9 @@ BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	return bRet;
 }
 
-BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, LPCTSTR lpstrDefExt)
+BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD bufSize, LPCTSTR lpstrDefExt)
 {
-	OPENFILENAME ofn;
+	OPENFILENAME ofn = {0};
 	BOOL bRet;
 	TCHAR *pszCopy;
 
@@ -111,14 +111,14 @@ BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTST
 	ofn.lpstrFilter = pszFilter && *pszFilter ? pszFilter : TEXT("All files (*.*)\0*.*\0\0");
 	ofn.lpstrCustomFilter = NULL;
 	ofn.nMaxCustFilter = 0;
-	ofn.nFilterIndex = 0;
+	ofn.nFilterIndex = 1;
 	ofn.lpstrFile = StripPath(MakeWinPath(pszFileName));
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = bufSize > 0 ? bufSize : MAX_PATH;
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = MAX_PATH;
 	ofn.lpstrInitialDir = pszCopy;
 	ofn.lpstrTitle = (pszTitle && *pszTitle) ? pszTitle : NULL;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER;
 	ofn.nFileOffset = 0;
 	ofn.nFileExtension = 0;
 
@@ -213,69 +213,100 @@ COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color)
 		return NOCOLOR;
 }
 
-int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont) {
+int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont)
+{
+	CHOOSEFONT cf;
+	LOGFONT lf;
+	FONT selectedFont;
+	TCHAR szFaceName[LF_FACESIZE];
+	int nFont;
+	HFONT hFont;
 
-    if (pwboParent == NULL) {
-        return NULL;
-    }
+	(void)pszTitle;
 
-    CHOOSEFONT cf;
-    LOGFONT lf;
+	if (pwboParent == NULL)
+		return -1;
 
-    ZeroMemory(&cf, sizeof(CHOOSEFONT));
-    ZeroMemory(&lf, sizeof(LOGFONT));
+	ZeroMemory(&cf, sizeof(CHOOSEFONT));
+	ZeroMemory(&lf, sizeof(LOGFONT));
+	ZeroMemory(&selectedFont, sizeof(FONT));
+	ZeroMemory(szFaceName, sizeof(szFaceName));
 
-    cf.lStructSize = sizeof(CHOOSEFONT);
-    cf.hwndOwner = pwboParent->hwnd;
-    cf.lpLogFont = &lf;
+	cf.lStructSize = sizeof(CHOOSEFONT);
+	cf.hwndOwner = pwboParent->hwnd;
+	cf.lpLogFont = &lf;
+	cf.Flags = CF_TTONLY | CF_EFFECTS;
 
-    if (pfont) {
-        // A default font was specified
-        cf.Flags = CF_TTONLY | CF_EFFECTS | CF_INITTOLOGFONTSTRUCT;
-        cf.rgbColors = pfont->color;
+	if (pfont)
+	{
+		cf.Flags |= CF_INITTOLOGFONTSTRUCT;
+		cf.rgbColors = pfont->color;
 
-        lf.lfHeight = pfont->nHeight;
-        lf.lfWeight = (pfont->dwFlags & FTA_BOLD) ? FW_BOLD : FW_NORMAL;
-        lf.lfItalic = (pfont->dwFlags & FTA_ITALIC) ? TRUE : FALSE;
-        lf.lfUnderline = (pfont->dwFlags & FTA_UNDERLINE) ? TRUE : FALSE;
-        lf.lfCharSet = DEFAULT_CHARSET;
-        _tcsncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE - 1);
-        lf.lfFaceName[LF_FACESIZE - 1] = '\0';  // Ensure null termination
-    } else {
-        cf.Flags = CF_TTONLY;
-    }
+		lf.lfHeight = pfont->nHeight;
+		lf.lfWeight = (pfont->dwFlags & FTA_BOLD) ? FW_BOLD : FW_NORMAL;
+		lf.lfItalic = BITTEST(pfont->dwFlags, FTA_ITALIC) ? TRUE : FALSE;
+		lf.lfUnderline = BITTEST(pfont->dwFlags, FTA_UNDERLINE) ? TRUE : FALSE;
+		lf.lfCharSet = DEFAULT_CHARSET;
+		if (pfont->pszName)
+		{
+			_tcsncpy(lf.lfFaceName, pfont->pszName, LF_FACESIZE - 1);
+			lf.lfFaceName[LF_FACESIZE - 1] = '\0';
+		}
+	}
 
-    if (!ChooseFont(&cf)) {
-        return NULL;
-    }
+	if (!ChooseFont(&cf))
+		return -1;
 
-    // Update pfont with the chosen font details
-    if (pfont) {
-        pfont->color = cf.rgbColors;
-        pfont->nHeight = lf.lfHeight;
-        pfont->dwFlags = 0;
+	selectedFont.pszName = szFaceName;
+	selectedFont.color = cf.rgbColors;
+	selectedFont.nHeight = lf.lfHeight;
+	selectedFont.dwFlags = 0;
 
-        if (lf.lfWeight == FW_BOLD) {
-            pfont->dwFlags |= FTA_BOLD;
-        }
-        if (lf.lfItalic) {
-            pfont->dwFlags |= FTA_ITALIC;
-        }
-        if (lf.lfUnderline) {
-            pfont->dwFlags |= FTA_UNDERLINE;
-        }
-        _tcsncpy(pfont->pszName, lf.lfFaceName, LF_FACESIZE - 1);
-        pfont->pszName[LF_FACESIZE - 1] = '\0';  // Ensure null termination
-    }
+	if (lf.lfWeight == FW_BOLD)
+		selectedFont.dwFlags |= FTA_BOLD;
+	if (lf.lfItalic)
+		selectedFont.dwFlags |= FTA_ITALIC;
+	if (lf.lfUnderline)
+		selectedFont.dwFlags |= FTA_UNDERLINE;
 
-    return wbAddFont(pfont);
+	_tcsncpy(szFaceName, lf.lfFaceName, LF_FACESIZE - 1);
+	szFaceName[LF_FACESIZE - 1] = '\0';
+
+	hFont = CreateFontIndirect(&lf);
+	if (!hFont)
+		return -1;
+	selectedFont.hFont = hFont;
+
+	if (pfont)
+	{
+		pfont->color = selectedFont.color;
+		pfont->nHeight = selectedFont.nHeight;
+		pfont->dwFlags = selectedFont.dwFlags;
+		/*
+		 * Do not write into pfont->pszName here: caller buffer size/ownership is unknown
+		 * (it may point to managed memory from another runtime). The selected face name
+		 * is still cached via wbAddFont() and can be retrieved by returned font id.
+		 */
+	}
+
+	nFont = wbAddFont(&selectedFont);
+	if (nFont <= 0)
+	{
+		DeleteObject(hFont);
+		return -1;
+	}
+
+	if (pfont)
+		pfont->hFont = hFont;
+
+	return nFont;
 }
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
 /* Callback function for the dialog box Browse For Folder */
 
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT64 uMsg, LPARAM lParam, LPARAM lpData)
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
 	switch (uMsg)
 	{

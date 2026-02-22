@@ -57,19 +57,19 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
 
-static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // External
 
 extern void SetStatusBarHandle(HWND hCtrl);
 extern BOOL RegisterControlInTab(PWBOBJ pwboParent, PWBOBJ pwbo, UINT64 id, UINT64 nTab);
-extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
-extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT64 message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK LabelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 typedef struct
 {
@@ -165,7 +165,7 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 }
 
 
-static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	PSPLITTERDATA pData = pwbo ? SplitterGetData(pwbo) : NULL;
@@ -794,6 +794,10 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	{
 		wbFree((void *)pwbo->lparam);
 	}
+	else if (pwbo->uClass == ListView)
+	{
+		wbClearListViewColors(pwbo);
+	}
 	else if (pwbo->uClass == Splitter)
 	{
 		if (pwbo->lparam)
@@ -1038,6 +1042,21 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 				return SendMessage(pwbo->hwnd, SB_SETTEXT, nItem | 0, (LPARAM)(pszText ? pszText : TEXT("")));
 			else
 				return SetWindowText(pwbo->hwnd, pszText);
+
+		case AppWindow:
+		case ModalDialog:
+		case ModelessDialog:
+		case PopupWindow:
+		case ResizableWindow:
+		case ToolDialog:
+		{
+			BOOL bSet = SetWindowText(pwbo->hwnd, pszText);
+			if (bSet)
+			{
+				RedrawWindow(pwbo->hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+			}
+			return bSet;
+		}
 
 		default:
 
@@ -1450,9 +1469,17 @@ BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll)
 
 	case ListView:
 		if (!bClearAll)
-			return ListView_DeleteItem(pwbo->hwnd, pwbo->item);
+		{
+			BOOL bRet = ListView_DeleteItem(pwbo->hwnd, pwbo->item);
+			if (bRet)
+				wbAdjustListViewItemColorsAfterDelete(pwbo, pwbo->item);
+			return bRet;
+		}
 		else
+		{
+			wbClearListViewColors(pwbo);
 			return SendMessage(pwbo->hwnd, LVM_DELETEALLITEMS, 0, 0);
+		}
 		break;
 
 	case TreeView:
@@ -2283,7 +2310,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 
 // Processing routine for Frame controls
 
-static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2308,7 +2335,7 @@ static LRESULT CALLBACK FrameProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM l
 
 // Processing routine for EditBoxes
 
-static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2364,7 +2391,7 @@ static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM
 
 // Processing routine for InvisibleAreas
 
-static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -2415,7 +2442,7 @@ static LRESULT CALLBACK InvisibleProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPAR
 
 // Processing routine for ImageButton
 
-static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo;
 
@@ -2456,7 +2483,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 
 				if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 				{
-					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 									   WBC_MOUSEMOVE | wParam | dwAlt, lParam, 0);
 				}
 			}
@@ -2478,7 +2505,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			// Sets the timer for the first delay
 			if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 			{
-				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id, wParam, lParam, 0);
+				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id, wParam, lParam, 0);
 			}
 
 			M_bRepeatOn = FALSE;
@@ -2504,7 +2531,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 		{
 			if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 			{
-				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+				wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 								   wParam, lParam, 0);
 			}
 		}
@@ -2580,7 +2607,7 @@ static LRESULT CALLBACK ImageButtonProc(HWND hwnd, UINT64 msg, WPARAM wParam, LP
 			{
 				if (pwbo && pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 				{
-					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
+					wbCallUserFunction(pwbo->parent->pszCallBackFn, pwbo->parent->pszCallBackObj, pwbo->parent, pwbo, pwbo->id,
 									   wParam, lParam, 0);
 				}
 

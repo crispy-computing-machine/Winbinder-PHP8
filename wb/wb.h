@@ -236,6 +236,9 @@ enum
 
 #define WBC_DROPFILES 0x00010000
 
+// ListView item-changed event discriminators (callback lParam1)
+#define WBC_LV_SELECTED 0x00000001
+
 // Additional notification message flags
 
 #define WBC_ALT 0x00000020
@@ -312,6 +315,7 @@ enum
 #define M_nTimerId (pwbo->lparams[4])
 #define M_nMMTimerId (pwbo->lparams[5])
 #define M_ToolTipWnd (pwbo->lparams[6])
+#define M_pListViewColors (pwbo->lparams[7])
 
 // For storing ini settings
 #ifdef ZTS
@@ -509,6 +513,11 @@ int wbGetListViewCheckedItems(PWBOBJ pwbo, int *pbItems);
 int wbGetListViewSelectedItems(PWBOBJ pwbo, int *pbItems);
 int wbGetListViewColumnWidths(PWBOBJ pwbo, int *pwidths);
 BOOL wbSetListViewColumnWidths(PWBOBJ pwbo, int *pwidths);
+BOOL wbSetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, DWORD dwForeground, DWORD dwBackground, int nMode);
+BOOL wbClearListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem);
+BOOL wbClearListViewColors(PWBOBJ pwbo);
+BOOL wbGetListViewItemColor(PWBOBJ pwbo, int nItem, int nSubItem, LISTVIEWCOLOR *plvc);
+void wbAdjustListViewItemColorsAfterDelete(PWBOBJ pwbo, int nItem);
 
 // WB_CONTROL_MENU.C
 
@@ -562,7 +571,7 @@ BOOL wbGetTextSize(PSIZE psizeText, LPCTSTR pszString, int nFont);
 
 // WB_LOWLEVEL.C
 
-LPARAM wbSendMessage(PWBOBJ pwbo, UINT64 uMsg, WPARAM wParam, LPARAM lParam);
+LPARAM wbSendMessage(PWBOBJ pwbo, UINT uMsg, WPARAM wParam, LPARAM lParam);
 HMODULE wbLoadLibrary(LPCTSTR pszLibName);
 FARPROC wbGetLibraryFunction(HMODULE hLib, LPCSTR pszFunction);
 BOOL wbReleaseLibrary(HMODULE hLib);
@@ -570,10 +579,12 @@ BOOL wbReleaseLibrary(HMODULE hLib);
 // WB_FONTS.C
 
 int wbCreateFont(LPCTSTR pszName, int nHeight, COLORREF color, DWORD dwFlags);
-int wbAddFont(PFONT hFont); // add new font struct to cache
+int wbAddFont(PFONT pFont); // add new font struct to cache
 BOOL wbSetControlFont(PWBOBJ pwbo, int nFont, BOOL bRedraw);
 BOOL wbDestroyFont(int nFont);
 PFONT wbGetFont(int nFont);
+BOOL wbIsValidFontId(int nFont);
+PFONT wbGetFontFromHandle(HFONT hFont);
 
 // WB_GENERIC.C
 
@@ -585,7 +596,7 @@ LPTSTR wbStriStr(LPCTSTR pszString, LPCTSTR pszPattern);
 // WB_SYSDLG.C
 
 BOOL wbSysDlgOpen(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD style, DWORD bufSize);
-BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, LPCTSTR lpstrDefExt);
+BOOL wbSysDlgSave(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszFilter, LPCTSTR pszPath, LPTSTR pszFileName, DWORD bufSize, LPCTSTR lpstrDefExt);
 BOOL wbSysDlgPath(PWBOBJ pwboParent, LPCTSTR pszTitle, LPCTSTR pszPath, LPTSTR pszSelPath);
 COLORREF wbSysDlgColor(PWBOBJ pwboParent, LPCTSTR pszTitle, COLORREF color);
 int wbSysDlgFont(PWBOBJ pwboParent, LPCTSTR pszTitle, PFONT pfont);
@@ -621,6 +632,7 @@ BOOL wbPlaySound(LPCTSTR pszFileName, LPCTSTR pszCommand);
 BOOL wbStopSound(LPCTSTR pszCommand);
 BOOL wbShowLastError(LPCTSTR pszCaption, BOOL bMessageBox);
 int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle);
+int wbQuietMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle, DWORD timeoutMs);
 DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow);
 BOOL wbIsRunning(LONG pid);
 BOOL wbFindFile(LPTSTR pszFileName, UINT64 uLen);

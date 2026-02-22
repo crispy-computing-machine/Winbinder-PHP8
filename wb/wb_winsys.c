@@ -66,7 +66,7 @@ LPTSTR MakeWinPath(LPTSTR pszPath);
 // External
 
 extern BOOL RegisterClasses(void);
-extern char *WideChar2Utf8(LPCTSTR wcs, __int64 *len);
+extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -620,24 +620,15 @@ IDYES		 1
 Error		-2
 
 */
-// @todo wb_quiet_message_box() (@see Fred)
-int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle)
+static int wbNormalizeMessageBoxReturn(int nRet)
 {
-	int nRet;
-
-	if (!pwboParent)
-		nRet = MessageBox(NULL, pszText, pszCaption, nStyle);
-	else
-	{
-		if (!pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
-			return -2;
-		nRet = MessageBox(pwboParent->hwnd, pszText, pszCaption, nStyle);
-	}
-
 	switch (nRet)
 	{
 	case IDNO:
 		return -1;
+
+	case IDTIMEOUT:
+		return IDTIMEOUT;
 
 	case IDCANCEL:
 	case IDIGNORE:
@@ -650,6 +641,59 @@ int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 
 	case IDRETRY:
 		return 1;
 	}
+}
+
+int wbMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle)
+{
+	HWND hwndParent = NULL;
+	int nRet;
+
+	if (pwboParent)
+	{
+		if (!pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+			return -2;
+		hwndParent = pwboParent->hwnd;
+	}
+
+	nRet = MessageBox(hwndParent, pszText, pszCaption, nStyle);
+
+	return wbNormalizeMessageBoxReturn(nRet);
+}
+
+int wbQuietMessageBox(PWBOBJ pwboParent, LPCTSTR pszText, LPCTSTR pszCaption, UINT64 nStyle, DWORD timeoutMs)
+{
+	typedef int(WINAPI *PFNMESSAGEBOXTIMEOUTW)(HWND, LPCWSTR, LPCWSTR, UINT, WORD, DWORD);
+	static PFNMESSAGEBOXTIMEOUTW pMessageBoxTimeoutW = NULL;
+	static BOOL bMessageBoxTimeoutInitialized = FALSE;
+	HWND hwndParent = NULL;
+	int nRet;
+
+	if (pwboParent)
+	{
+		if (!pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+			return -2;
+		hwndParent = pwboParent->hwnd;
+	}
+
+	if (!timeoutMs)
+		return wbMessageBox(pwboParent, pszText, pszCaption, nStyle);
+
+	if (!bMessageBoxTimeoutInitialized)
+	{
+		HMODULE hUser32 = GetModuleHandle(TEXT("user32.dll"));
+		if (hUser32)
+			pMessageBoxTimeoutW = (PFNMESSAGEBOXTIMEOUTW)GetProcAddress(hUser32, "MessageBoxTimeoutW");
+		bMessageBoxTimeoutInitialized = TRUE;
+	}
+
+	if (!pMessageBoxTimeoutW)
+		return wbMessageBox(pwboParent, pszText, pszCaption, nStyle);
+
+	nRet = pMessageBoxTimeoutW(hwndParent, (LPCWSTR)pszText, (LPCWSTR)pszCaption, (UINT)nStyle, 0, timeoutMs);
+	if (!nRet)
+		return -2;
+
+	return wbNormalizeMessageBoxReturn(nRet);
 }
 
 //-------------------------------------------------------------- SOUND FUNCTIONS
@@ -1173,7 +1217,8 @@ BOOL wbWriteRegistryKey(LPCTSTR pszKey, LPTSTR pszSubKey, LPTSTR pszEntry, LPCTS
 	}
 	else if (bString && pszValue)
 	{ // Create a string value
-		if (RegSetValueEx(hKey, pszEntry, 0, REG_SZ, (BYTE *)pszValue, wcslen(pszValue)) != ERROR_SUCCESS)
+		/* Win32 expects REG_SZ size in bytes, including the trailing NUL terminator. */
+		if (RegSetValueEx(hKey, pszEntry, 0, REG_SZ, (BYTE *)pszValue, (DWORD)((wcslen(pszValue) + 1) * sizeof(WCHAR))) != ERROR_SUCCESS)
 			return FALSE;
 	}
 	else

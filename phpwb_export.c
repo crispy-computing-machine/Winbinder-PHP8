@@ -50,6 +50,7 @@ ZEND_MINFO_FUNCTION(winbinder);
 ZEND_FUNCTION(wb_main_loop);
 ZEND_FUNCTION(wb_find_file);
 ZEND_FUNCTION(wb_message_box);
+ZEND_FUNCTION(wb_quiet_message_box);
 ZEND_FUNCTION(wb_play_sound);
 ZEND_FUNCTION(wb_stop_sound);
 ZEND_FUNCTION(wb_exec);
@@ -149,6 +150,9 @@ ZEND_FUNCTION(wb_clear_listview_columns);
 ZEND_FUNCTION(wb_create_listview_column);
 ZEND_FUNCTION(wb_select_listview_item);
 ZEND_FUNCTION(wb_select_all_listview_items);
+ZEND_FUNCTION(wb_set_listview_item_color);
+ZEND_FUNCTION(wb_clear_listview_item_color);
+ZEND_FUNCTION(wb_clear_listview_colors);
 //ZEND_FUNCTION(wb_get_listview_column_widths);
 //ZEND_FUNCTION(wb_set_listview_column_widths);
 
@@ -174,6 +178,7 @@ ZEND_FUNCTION(wb_get_level);
 ZEND_FUNCTION(wb_create_font);
 ZEND_FUNCTION(wb_destroy_font);
 ZEND_FUNCTION(wb_set_font);
+ZEND_FUNCTION(wb_get_font);
 ZEND_FUNCTION(wb_get_ttf_info);
 
 // PHPWB_LOWLEVEL.C
@@ -226,6 +231,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_main_loop,arginfo_wb_main_loop)
         ZEND_FE(wb_find_file,arginfo_wb_find_file)
         ZEND_FE(wb_message_box,arginfo_wb_message_box)
+        ZEND_FE(wb_quiet_message_box,arginfo_wb_quiet_message_box)
         ZEND_FE(wb_play_sound,arginfo_wb_play_sound)
         ZEND_FE(wb_stop_sound,arginfo_wb_stop_sound)
         ZEND_FE(wb_exec,arginfo_wb_exec)
@@ -326,6 +332,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_clear_listview_columns,arginfo_wb_clear_listview_columns)
         ZEND_FE(wb_select_listview_item,arginfo_wb_select_listview_item)
         ZEND_FE(wb_select_all_listview_items,arginfo_wb_select_all_listview_items)
+        ZEND_FE(wb_set_listview_item_color,arginfo_wb_set_listview_item_color)
+        ZEND_FE(wb_clear_listview_item_color,arginfo_wb_clear_listview_item_color)
+        ZEND_FE(wb_clear_listview_colors,arginfo_wb_clear_listview_colors)
         //	ZEND_FE(wb_get_listview_column_widths,arginfo_wb_get_listview_column_widths)
         //	ZEND_FE(wb_set_listview_column_widths,arginfo_wb_set_listview_column_widths)
 
@@ -351,6 +360,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_font,arginfo_wb_create_font)
         ZEND_FE(wb_destroy_font,arginfo_wb_destroy_font)
         ZEND_FE(wb_set_font,arginfo_wb_set_font)
+        ZEND_FE(wb_get_font,arginfo_wb_get_font)
 		ZEND_FE(wb_get_ttf_info,arginfo_wb_get_ttf_info)
 
         // PHPWB_LOWLEVEL.C
@@ -507,6 +517,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_REDRAW", WBC_REDRAW)
 	WB_ZEND_CONST(LONG, "WBC_HEADERSEL", WBC_HEADERSEL)
 	WB_ZEND_CONST(LONG, "WBC_DROPFILES", WBC_DROPFILES)
+	WB_ZEND_CONST(LONG, "WBC_LV_SELECTED", WBC_LV_SELECTED)
 
 	// Additional notification message flags
 	WB_ZEND_CONST(LONG, "WBC_ALT", WBC_ALT)

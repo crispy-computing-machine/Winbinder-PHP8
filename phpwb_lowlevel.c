@@ -42,7 +42,7 @@ ZEND_FUNCTION(wb_send_message)
 		Z_PARAM_LONG_OR_NULL(l, l_isnull)
 	ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT64)msg, (WPARAM)w, (LPARAM)l));
+	RETURN_LONG(wbSendMessage((PWBOBJ)pwbo, (UINT)msg, (WPARAM)w, (LPARAM)l));
 }
 
 /* Get the contents of a memory area */

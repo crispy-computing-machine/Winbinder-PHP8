@@ -48,6 +48,22 @@ typedef struct _tagTT_NAME_RECORD {
 
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
+static int wbFontHeightToPoints(int logicalHeight)
+{
+	HDC hdc;
+	int absLogicalHeight;
+	int points;
+
+	absLogicalHeight = logicalHeight < 0 ? -logicalHeight : logicalHeight;
+	hdc = GetDC(NULL);
+	if (!hdc)
+		return absLogicalHeight;
+
+	points = MulDiv(absLogicalHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+	ReleaseDC(NULL, hdc);
+	return points;
+}
+
 // Creates a font and stores it in the font cache
 
 ZEND_FUNCTION(wb_create_font)
@@ -107,6 +123,69 @@ ZEND_FUNCTION(wb_set_font)
 	ZEND_PARSE_PARAMETERS_END();
 
 	RETURN_BOOL(wbSetControlFont((PWBOBJ)pwbo, nfont, redraw));
+}
+
+// Gets font details by font id or control/window object
+
+ZEND_FUNCTION(wb_get_font)
+{
+	zend_long source;
+	PFONT pfont = NULL;
+	LOGFONT lf;
+	HFONT hFont;
+	char *name;
+	int name_len;
+
+	ZeroMemory(&lf, sizeof(LOGFONT));
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(source)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (wbIsValidFontId((int)source))
+	{
+		pfont = wbGetFont((int)source);
+		if (!pfont)
+			RETURN_FALSE;
+
+		array_init(return_value);
+		name = WideChar2Utf8(pfont->pszName ? pfont->pszName : TEXT(""), &name_len);
+		add_assoc_stringl(return_value, "name", name, name_len);
+		add_assoc_long(return_value, "height", wbFontHeightToPoints(pfont->nHeight));
+		add_assoc_long(return_value, "color", pfont->color);
+		add_assoc_long(return_value, "flags", pfont->dwFlags);
+		add_assoc_long(return_value, "handle", (LONG_PTR)pfont->hFont);
+		add_assoc_long(return_value, "id", source);
+		return;
+	}
+
+	if (wbIsWBObj((void *)source, FALSE))
+	{
+		PWBOBJ pwbo = (PWBOBJ)source;
+
+		if (!IsWindow(pwbo->hwnd))
+			RETURN_FALSE;
+
+		hFont = (HFONT)SendMessage(pwbo->hwnd, WM_GETFONT, 0, 0);
+		if (!hFont || !GetObject(hFont, sizeof(LOGFONT), &lf))
+			RETURN_FALSE;
+
+		pfont = wbGetFontFromHandle(hFont);
+
+		array_init(return_value);
+		name = WideChar2Utf8(lf.lfFaceName, &name_len);
+		add_assoc_stringl(return_value, "name", name, name_len);
+		add_assoc_long(return_value, "height", wbFontHeightToPoints(lf.lfHeight));
+		add_assoc_long(return_value, "color", pfont ? pfont->color : NOCOLOR);
+		add_assoc_long(return_value, "flags",
+			(lf.lfWeight >= FW_BOLD ? FTA_BOLD : 0) |
+			(lf.lfItalic ? FTA_ITALIC : 0) |
+			(lf.lfUnderline ? FTA_UNDERLINE : 0));
+		add_assoc_long(return_value, "handle", (LONG_PTR)hFont);
+		return;
+	}
+
+	RETURN_FALSE;
 }
 
 

@@ -111,6 +111,7 @@ ZEND_FUNCTION(wb_set_cursor)
 {
 	zend_long pwbo;
 	zval *source = NULL;
+	zend_uchar sourcetype;
 	HANDLE hCursor;
 	LPTSTR pszCursorName;
 
@@ -120,7 +121,7 @@ ZEND_FUNCTION(wb_set_cursor)
 		Z_PARAM_ZVAL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
-	zend_uchar sourcetype = Z_TYPE_P(source);
+	sourcetype = Z_TYPE_P(source);
 
 	if (!source)
 	{
@@ -265,24 +266,24 @@ ZEND_FUNCTION(wb_stop_sound)
 ZEND_FUNCTION(wb_message_box)
 {
 	char *msg, *title = NULL;
-	zend_long pwbo, style = 0;
+	zend_long pwbo, style = MB_OK;
 	size_t msg_len, title_len = 0;
 	int ret;
 
 	TCHAR *szMsg = 0;
 	TCHAR *szTitle = 0;
 
-	style = MB_OK;
-
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls|sl", &pwbo, &msg, &msg_len, &title, &title_len, &style) == FAILURE)
 	ZEND_PARSE_PARAMETERS_START(2, 4)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STRING(msg, msg_len)
+		Z_PARAM_OPTIONAL
 		Z_PARAM_STRING(title, title_len)
 		Z_PARAM_LONG(style)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE)){
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	{
 		RETURN_NULL();
 	}
 	if (!title || !*title)
@@ -299,16 +300,66 @@ ZEND_FUNCTION(wb_message_box)
 	{
 	case -2: // Error
 		RETURN_NULL();
-		break;
 	case -1: // IDNO
 		RETURN_LONG(0);
-		break;
 	case 0: // Cancel, etc.
 		RETURN_BOOL(FALSE);
-		break;
 	case 1: // OK, etc.
 		RETURN_BOOL(TRUE);
-		break;
+	default:
+		RETURN_BOOL(FALSE);
+	}
+}
+
+ZEND_FUNCTION(wb_quiet_message_box)
+{
+	char *msg, *title = NULL;
+	zend_long pwbo, style = MB_OK, timeout = 0;
+	size_t msg_len, title_len = 0;
+	int ret;
+
+	TCHAR *szMsg = 0;
+	TCHAR *szTitle = 0;
+
+	ZEND_PARSE_PARAMETERS_START(2, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(msg, msg_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STRING(title, title_len)
+		Z_PARAM_LONG(style)
+		Z_PARAM_LONG(timeout)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (pwbo && !wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_NULL();
+	}
+	if (!title || !*title)
+	{
+		title = szAppName;
+		title_len = strlen(szAppName);
+	}
+	if (timeout < 0)
+		timeout = 0;
+
+	szMsg = Utf82WideChar(msg, msg_len);
+	szTitle = Utf82WideChar(title, title_len);
+	ret = wbQuietMessageBox((PWBOBJ)pwbo, szMsg, szTitle, style, (DWORD)timeout);
+
+	switch (ret)
+	{
+	case -2: // Error
+		RETURN_NULL();
+	case -1: // IDNO
+		RETURN_LONG(0);
+	case 0: // Cancel, etc.
+		RETURN_BOOL(FALSE);
+	case 1: // OK, etc.
+		RETURN_BOOL(TRUE);
+	case IDTIMEOUT: // Auto-close timeout
+		RETURN_LONG(IDTIMEOUT);
+	default:
+		RETURN_BOOL(FALSE);
 	}
 }
 
@@ -514,8 +565,6 @@ ZEND_FUNCTION(wb_set_registry_key)
 		Z_PARAM_ZVAL_OR_NULL(source)
 	ZEND_PARSE_PARAMETERS_END();
 
-	zend_uchar sourcetype = Z_TYPE_P(source);
-
 	if (!source)
 	{
 		szKey = Utf82WideChar(key, key_len);
@@ -527,44 +576,49 @@ ZEND_FUNCTION(wb_set_registry_key)
 		RETURN_BOOL(ret);
 		// 2016_08_12 - Jared Allard: no more IS_BOOL, use IS_TRUE/IS_FALSE
 	}
-	else if (sourcetype == IS_LONG || (sourcetype == IS_FALSE || sourcetype == IS_TRUE))
-	{
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
-
-		RETURN_BOOL(ret);
-	}
-	else if (sourcetype == IS_DOUBLE)
-	{
-		TCHAR szAux[50];
-		wsprintf(szAux, TEXT("%20.20f"), source->value.dval);
-
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szAux, 0, TRUE);
-
-		RETURN_BOOL(ret);
-	}
-	else if (sourcetype == IS_STRING)
-	{
-		szKey = Utf82WideChar(key, key_len);
-		szSubKey = Utf82WideChar(subkey, subkey_len);
-		szEntry = Utf82WideChar(entry, entry_len);
-		szVal = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
-
-		ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szVal, 0, TRUE);
-
-		RETURN_BOOL(ret);
-	}
 	else
 	{
-		wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
-		RETURN_NULL();
+		zend_uchar sourcetype = Z_TYPE_P(source);
+
+		if (sourcetype == IS_LONG || (sourcetype == IS_FALSE || sourcetype == IS_TRUE))
+		{
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, NULL, source->value.lval, FALSE);
+
+			RETURN_BOOL(ret);
+		}
+		else if (sourcetype == IS_DOUBLE)
+		{
+			TCHAR szAux[50];
+			swprintf(szAux, sizeof(szAux) / sizeof(szAux[0]), TEXT("%20.20f"), source->value.dval);
+
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szAux, 0, TRUE);
+
+			RETURN_BOOL(ret);
+		}
+		else if (sourcetype == IS_STRING)
+		{
+			szKey = Utf82WideChar(key, key_len);
+			szSubKey = Utf82WideChar(subkey, subkey_len);
+			szEntry = Utf82WideChar(entry, entry_len);
+			szVal = Utf82WideChar(Z_STRVAL_P(source), Z_STRLEN_P(source));
+
+			ret = wbWriteRegistryKey(szKey, szSubKey, szEntry, szVal, 0, TRUE);
+
+			RETURN_BOOL(ret);
+		}
+		else
+		{
+			wbError(TEXT("wb_set_registry_key"), MB_ICONWARNING, TEXT("Invalid parameter type passed to function"));
+			RETURN_NULL();
+		}
 	}
 }
 
