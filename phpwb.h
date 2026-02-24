@@ -45,7 +45,14 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb/wb.h"
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4005) // PHP headers redefine PHP_BUILD_SYSTEM in generated configs
+#endif
 #include <php.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #include <wbemidl.h>
 #include <windows.h>
 #pragma comment(lib, "kernel32.lib")
