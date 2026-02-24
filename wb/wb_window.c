@@ -30,6 +30,42 @@ caption text is logically set (WM_SETTEXT/GetWindowText) but not painted.
 #define DEFAULT_WIN_STYLE (WS_POPUP | WS_MINIMIZEBOX | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZEBOX | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_THICKFRAME)
 #define CUSTOM_MESSAGE_NAME "@WB_win32_%d_%s"
 
+
+#ifndef SCN_MODIFIED
+#define SCI_GETCHARAT 2007
+#define SCN_UPDATEUI 2007
+#define SCN_MODIFIED 2008
+#define SCN_MARGINCLICK 2010
+#define SCN_CHARADDED 2001
+
+typedef struct _WB_SCNOTIFICATION
+{
+	NMHDR nmhdr;
+	int position;
+	int ch;
+	int modifiers;
+	int modificationType;
+	const char *text;
+	int length;
+	int linesAdded;
+	int message;
+	WPARAM wParam;
+	LPARAM lParam;
+	int line;
+	int foldLevelNow;
+	int foldLevelPrev;
+	int margin;
+	int listType;
+	int x;
+	int y;
+	int token;
+	int annotationLinesAdded;
+	int updated;
+	int listCompletionMethod;
+	int characterSource;
+} WB_SCNOTIFICATION;
+#endif
+
 //----------------------------------------------------------------------- MACROS
 
 #define CALL_CALLBACK(id, lp1, lp2, lp3) /* Call user function */                                                                         \
@@ -961,6 +997,60 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                         return 0;
                     }
                     break;
+
+                case ScintillaEdit:
+                {
+                    WB_SCNOTIFICATION *scn = (WB_SCNOTIFICATION *)lParam;
+                    LONG_PTR notifyMask;
+                    LPARAM eventType = 0;
+
+                    // Scintilla notifications are configured on the control's lparam in wb_create_control(..., param).
+                    // Fall back to window-level notify flags for compatibility.
+                    notifyMask = pwbobj->lparam ? pwbobj->lparam : ((pwbobj->parent->uClass == TabControl) ? pwbobj->parent->parent->lparam : pwbobj->parent->lparam);
+
+                    switch (((LPNMHDR)lParam)->code)
+                    {
+                    case SCN_MODIFIED:
+                        if (notifyMask & WBC_SCN_MODIFIED)
+                            eventType = WBC_SCN_MODIFIED;
+                        break;
+
+                    case SCN_UPDATEUI:
+                        if (notifyMask & WBC_SCN_UPDATEUI)
+                            eventType = WBC_SCN_UPDATEUI;
+                        break;
+
+                    case SCN_MARGINCLICK:
+                        if (notifyMask & WBC_SCN_MARGINCLICK)
+                            eventType = WBC_SCN_MARGINCLICK;
+                        break;
+
+                    case SCN_CHARADDED:
+                        if (notifyMask & WBC_SCN_CHARADDED)
+                            eventType = WBC_SCN_CHARADDED;
+                        break;
+                    }
+
+                    if (eventType)
+                    {
+                        if (((LPNMHDR)lParam)->code == SCN_CHARADDED)
+                        {
+                            LONG_PTR ch = scn->ch;
+                            if (!ch && scn->position > 0)
+                                ch = SendMessage(pwbobj->hwnd, SCI_GETCHARAT, (WPARAM)(scn->position - 1), 0);
+                            CALL_CALLBACK(pwbobj->id, eventType, ch, scn->position);
+                        }
+                        else if (((LPNMHDR)lParam)->code == SCN_MARGINCLICK)
+                        {
+                            CALL_CALLBACK(pwbobj->id, eventType, scn->position, scn->margin);
+                        }
+                        else
+                        {
+                            CALL_CALLBACK(pwbobj->id, eventType, scn->position, scn->line);
+                        }
+                    }
+                }
+                break;
 
                 case Calendar:
                 {

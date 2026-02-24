@@ -177,6 +177,7 @@ enum
 	TabControl,
 	ToolBar,
 	TreeView,
+	ScintillaEdit,
 	Timer,
 	Splitter,
 };
@@ -235,6 +236,10 @@ enum
 #define WBC_HEADERSEL 0x00008000
 
 #define WBC_DROPFILES 0x00010000
+#define WBC_SCN_MODIFIED 0x00020000
+#define WBC_SCN_UPDATEUI 0x00040000
+#define WBC_SCN_MARGINCLICK 0x00080000
+#define WBC_SCN_CHARADDED 0x00100000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -438,6 +443,7 @@ extern HFONT hIconFont;		   // Icon font
 extern WNDPROC lpfnTabProcOld; // Original tab control procedure
 extern COLORREF clrTabs;	   // Color for tab control backgrounds
 extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
+extern BOOL bScintillaAvailable;
 
 //------------------------------------------------------------ PUBLIC PROTOTYPES
 

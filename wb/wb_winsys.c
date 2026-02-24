@@ -59,6 +59,8 @@ static HCURSOR GetSysCursor(LPCTSTR pszCursor);
 static char *GetTokenExt(const char *pszBuffer, int nToken, const char *pszSep, char chGroup, BOOL fBlock, char *pszToken, int nTokLen);
 static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTokLen);
 
+BOOL bScintillaAvailable = FALSE;
+
 // Public to wb_* modules
 
 LPTSTR MakeWinPath(LPTSTR pszPath);
@@ -90,6 +92,9 @@ BOOL wbInit(void)
 	InitCommonControls();
 	if (!LoadLibrary(TEXT("RICHED20.DLL"))) // This is version 2.0 of the DLL
 		LoadLibrary(TEXT("RICHED32.DLL"));
+	bScintillaAvailable = (LoadLibrary(TEXT("SciLexer.dll")) != NULL);
+	if (!bScintillaAvailable)
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Scintilla runtime (SciLexer.dll) not found. ScintillaEdit controls will be unavailable."));
 	icex.dwSize = sizeof(icex);
 	icex.dwICC = ICC_DATE_CLASSES; // Load date and time picker control class
 	InitCommonControlsEx(&icex);
@@ -488,6 +493,7 @@ BOOL wbIsValidClass(UINT64 uClass)
 	case TabControl:
 	case ToolBar:
 	case TreeView:
+	case ScintillaEdit:
 		return TRUE;
 	}
 	return FALSE;

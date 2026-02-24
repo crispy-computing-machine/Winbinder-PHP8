@@ -472,6 +472,156 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_splitter_minsize, 0, 3, _
 	ZEND_ARG_TYPE_INFO(0, min_pane2, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_text, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, text, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_wb_scintilla_get_text, 0, 1, MAY_BE_NULL|MAY_BE_STRING)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_append_text, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, text, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_clear_all, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_get_current_pos, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_selection, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, start, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, end, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_get_selection_start, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_get_selection_end, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_goto_line, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, line, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_get_line_count, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_readonly, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, read_only, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_undo, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_redo, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_cut, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_copy, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_paste, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_tab_width, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_use_tabs, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, use_tabs, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_indent_guides, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, enabled, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_line_numbers, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, enabled, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_MASK(0, width, MAY_BE_LONG|MAY_BE_NULL, "48")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_lexer, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, lexer, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_keywords, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, set_index, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, keywords, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_style, 0, 4, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, style, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, foreground, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, background, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, bold, _IS_BOOL, 1)
+	ZEND_ARG_TYPE_INFO(0, italic, _IS_BOOL, 1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_apply_php_preset, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_autocomplete_show, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, list, IS_STRING, 0)
+	ZEND_ARG_TYPE_MASK(0, entered_length, MAY_BE_LONG|MAY_BE_NULL, "0")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_autocomplete_cancel, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_calltip_show, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, text, IS_STRING, 0)
+	ZEND_ARG_TYPE_MASK(0, position, MAY_BE_LONG|MAY_BE_NULL, "-1")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_calltip_cancel, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_whitespace_view, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, enabled, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_set_eol_view, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, enabled, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_scintilla_show_php_autocomplete, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, trigger, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_listview_item, 0, 4, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, item, IS_LONG, 0)
