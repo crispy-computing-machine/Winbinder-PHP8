@@ -373,12 +373,12 @@ ZEND_FUNCTION(wb_sys_dlg_save)
 	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE)){
 		RETURN_NULL();
 	}
-	if (*file){
+	if (file && *file){
 		Utf82WideCharCopy((const char *)file, file_len, szFile, MAX_PATH);
 		szFile[MAX_PATH - 1] = L'\0';
 	}
 
-	if (*defext){
+	if (defext && *defext){
 		//		strcpy(szDefExt, defext);
 		szDefExt = Utf82WideChar(defext, defext_len);
 	}

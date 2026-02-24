@@ -451,6 +451,7 @@ extern BOOL bScintillaAvailable;
 
 BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName);
 HANDLE wbRotateBitmap(HANDLE hBitmap, float angle);
+HBITMAP wbResizeBitmap(HBITMAP hBitmap, int newWidth, int newHeight);
 DWORD wbGetImageDimensions(HBITMAP hbm);
 HBITMAP wbReplaceColors(HDC cvTarget, HBITMAP hbm, COLORREF clTransparent, COLORREF clNew);
 HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDIBBits);

@@ -45,7 +45,14 @@
 //----------------------------------------------------------------- DEPENDENCIES
 
 #include "wb/wb.h"
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4005) // PHP headers redefine PHP_BUILD_SYSTEM in generated configs
+#endif
 #include <php.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #include <wbemidl.h>
 #include <windows.h>
 #pragma comment(lib, "kernel32.lib")
@@ -77,7 +84,7 @@ zval *process_array(zval *zitems);
 // String encode converting function
 
 TCHAR *Utf82WideChar(const char *str, int len);
-void Utf82WideCharCopy(LPCTSTR *str, int str_len, TCHAR *wcs, int wcs_len);
+void Utf82WideCharCopy(const char *str, int str_len, TCHAR *wcs, int wcs_len);
 char *WideChar2Utf8(LPCTSTR wcs, int *len);
 void WideCharCopy(LPCTSTR wcs, char *s, int len);
 void dumptcs(TCHAR *str);
