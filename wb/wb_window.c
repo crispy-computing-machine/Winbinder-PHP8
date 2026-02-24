@@ -32,6 +32,7 @@ caption text is logically set (WM_SETTEXT/GetWindowText) but not painted.
 
 
 #ifndef SCN_MODIFIED
+#define SCI_GETCHARAT 2007
 #define SCN_UPDATEUI 2007
 #define SCN_MODIFIED 2008
 #define SCN_MARGINCLICK 2010
@@ -1034,7 +1035,10 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                     {
                         if (((LPNMHDR)lParam)->code == SCN_CHARADDED)
                         {
-                            CALL_CALLBACK(pwbobj->id, eventType, scn->ch, scn->position);
+                            LONG_PTR ch = scn->ch;
+                            if (!ch && scn->position > 0)
+                                ch = SendMessage(pwbobj->hwnd, SCI_GETCHARAT, (WPARAM)(scn->position - 1), 0);
+                            CALL_CALLBACK(pwbobj->id, eventType, ch, scn->position);
                         }
                         else if (((LPNMHDR)lParam)->code == SCN_MARGINCLICK)
                         {

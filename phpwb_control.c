@@ -29,6 +29,7 @@ extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 #define SCI_SETTEXT 2181
 #define SCI_CLEARALL 2004
 #define SCI_GETLENGTH 2006
+#define SCI_GETCHARAT 2007
 #define SCI_GETCURRENTPOS 2008
 #define SCI_GOTOPOS 2025
 #define SCI_GOTOLINE 2024
@@ -48,6 +49,7 @@ extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 #define SCI_SETINDENTATIONGUIDES 2132
 #define SCI_SETMARGINTYPEN 2240
 #define SCI_SETMARGINWIDTHN 2242
+#define SCI_SETMARGINSENSITIVEN 2246
 #define SCI_STYLESETFORE 2051
 #define SCI_STYLESETBACK 2052
 #define SCI_STYLESETBOLD 2053
@@ -1730,6 +1732,8 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold.html", (LPARAM)"1");
 	SendMessage(obj->hwnd, SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
 	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 2, 16);
+	SendMessage(obj->hwnd, SCI_SETMARGINSENSITIVEN, 0, 1);
+	SendMessage(obj->hwnd, SCI_SETMARGINSENSITIVEN, 2, 1);
 	SendMessage(obj->hwnd, SCI_SETTABWIDTH, 4, 0);
 	SendMessage(obj->hwnd, SCI_SETINDENT, 4, 0);
 	SendMessage(obj->hwnd, SCI_SETUSETABS, 0, 0);
