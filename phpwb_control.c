@@ -21,6 +21,73 @@ extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
 extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 
 
+
+// Minimal Scintilla message/margin constants for Phase 2 API
+#ifndef SCI_GETTEXT
+#define SCI_ADDTEXT 2001
+#define SCI_GETTEXT 2182
+#define SCI_SETTEXT 2181
+#define SCI_CLEARALL 2004
+#define SCI_GETLENGTH 2006
+#define SCI_GETCURRENTPOS 2008
+#define SCI_GOTOPOS 2025
+#define SCI_GOTOLINE 2024
+#define SCI_GETANCHOR 2009
+#define SCI_SETSEL 2160
+#define SCI_GETSELECTIONSTART 2143
+#define SCI_GETSELECTIONEND 2145
+#define SCI_GETLINECOUNT 2154
+#define SCI_SETREADONLY 2171
+#define SCI_UNDO 2176
+#define SCI_REDO 2011
+#define SCI_CUT 2177
+#define SCI_COPY 2178
+#define SCI_PASTE 2179
+#define SCI_SETTABWIDTH 2036
+#define SCI_SETUSETABS 2124
+#define SCI_SETINDENTATIONGUIDES 2132
+#define SCI_SETMARGINTYPEN 2240
+#define SCI_SETMARGINWIDTHN 2242
+#define SCI_STYLESETFORE 2051
+#define SCI_STYLESETBACK 2052
+#define SCI_STYLESETBOLD 2053
+#define SCI_STYLESETITALIC 2054
+#define SCI_STYLESETSIZE 2055
+#define SCI_STYLESETFONT 2056
+#define SCI_STYLECLEARALL 2050
+#define SCI_SETLEXER 4001
+#define SCI_SETKEYWORDS 4005
+#define SCI_SETPROPERTY 4004
+#define SCI_SETCARETLINEVISIBLE 2096
+#define SCI_SETCARETLINEBACK 2098
+#define SCI_SETTABINDENTS 2260
+#define SCI_SETBACKSPACEUNINDENTS 2261
+#define SCI_SETINDENT 2122
+#define SCI_SETVIEWWS 2021
+#define SCI_SETVIEWEOL 2355
+#define SCI_AUTOCSHOW 2100
+#define SCI_AUTOCCANCEL 2101
+#define SCI_CALLTIPSHOW 2200
+#define SCI_CALLTIPCANCEL 2201
+#define SCI_SETUSETABS 2124
+#define SC_MARGIN_NUMBER 1
+#define SC_MARGIN_SYMBOL 0
+#define SCLEX_HTML 4
+#define STYLE_DEFAULT 32
+#define STYLE_LINENUMBER 33
+#define SCWS_INVISIBLE 0
+#endif
+
+static PWBOBJ wbPhpGetScintillaObj(zend_long pwbo)
+{
+	PWBOBJ obj = (PWBOBJ)pwbo;
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		return NULL;
+	if (obj->uClass != ScintillaEdit)
+		return NULL;
+	return obj;
+}
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /* Creates a window control, menu, toolbar, status bar or accelerator. */
@@ -1316,5 +1383,567 @@ ZEND_FUNCTION(wb_get_text)
 		RETURN_STRING(""); // This is a valid empty string
 	}
 }
+
+
+
+ZEND_FUNCTION(wb_scintilla_set_text)
+{
+	zend_long pwbo;
+	char *text = NULL;
+	size_t text_len = 0;
+	PWBOBJ obj;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(text, text_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+
+	SendMessage(obj->hwnd, SCI_SETTEXT, 0, (LPARAM)text);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_get_text)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	LONG_PTR len;
+	char *buffer;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_NULL();
+
+	len = SendMessage(obj->hwnd, SCI_GETLENGTH, 0, 0);
+	if (len < 0)
+		RETURN_NULL();
+
+	buffer = emalloc((size_t)len + 2);
+	if (!buffer)
+		RETURN_NULL();
+
+	memset(buffer, 0, (size_t)len + 2);
+	SendMessage(obj->hwnd, SCI_GETTEXT, (WPARAM)(len + 1), (LPARAM)buffer);
+	RETVAL_STRINGL(buffer, (size_t)len);
+	efree(buffer);
+}
+
+ZEND_FUNCTION(wb_scintilla_append_text)
+{
+	zend_long pwbo;
+	char *text = NULL;
+	size_t text_len = 0;
+	PWBOBJ obj;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(text, text_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+
+	SendMessage(obj->hwnd, SCI_ADDTEXT, (WPARAM)text_len, (LPARAM)text);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_clear_all)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_CLEARALL, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_get_current_pos)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_LONG(-1);
+	RETURN_LONG((zend_long)SendMessage(obj->hwnd, SCI_GETCURRENTPOS, 0, 0));
+}
+
+ZEND_FUNCTION(wb_scintilla_set_selection)
+{
+	zend_long pwbo, start, end;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(start)
+		Z_PARAM_LONG(end)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETSEL, (WPARAM)start, (LPARAM)end);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_get_selection_start)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_LONG(-1);
+	RETURN_LONG((zend_long)SendMessage(obj->hwnd, SCI_GETSELECTIONSTART, 0, 0));
+}
+
+ZEND_FUNCTION(wb_scintilla_get_selection_end)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_LONG(-1);
+	RETURN_LONG((zend_long)SendMessage(obj->hwnd, SCI_GETSELECTIONEND, 0, 0));
+}
+
+ZEND_FUNCTION(wb_scintilla_goto_line)
+{
+	zend_long pwbo, line;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(line)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_GOTOLINE, (WPARAM)line, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_get_line_count)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_LONG(0);
+	RETURN_LONG((zend_long)SendMessage(obj->hwnd, SCI_GETLINECOUNT, 0, 0));
+}
+
+ZEND_FUNCTION(wb_scintilla_set_readonly)
+{
+	zend_long pwbo;
+	zend_bool bReadOnly;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(bReadOnly)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETREADONLY, (WPARAM)(bReadOnly ? 1 : 0), 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_undo)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_UNDO, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_redo)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_REDO, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_cut)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_CUT, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_copy)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_COPY, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_paste)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_PASTE, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_tab_width)
+{
+	zend_long pwbo, width;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(width)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETTABWIDTH, (WPARAM)max(1, width), 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_use_tabs)
+{
+	zend_long pwbo;
+	zend_bool useTabs;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(useTabs)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETUSETABS, (WPARAM)(useTabs ? 1 : 0), 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_indent_guides)
+{
+	zend_long pwbo;
+	zend_bool enabled;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(enabled)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETINDENTATIONGUIDES, (WPARAM)(enabled ? 1 : 0), 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_line_numbers)
+{
+	zend_long pwbo;
+	zend_bool enabled;
+	zend_long width = 48;
+	PWBOBJ obj;
+	zend_bool width_isnull;
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(enabled)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(width, width_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 0, enabled ? max(16, width) : 0);
+	RETURN_BOOL(TRUE);
+}
+
+
+static void wbScintillaApplyPhpPreset(PWBOBJ obj)
+{
+	const char *phpKeywords = "abstract and array as break callable case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return self static switch throw trait try unset use var while xor yield from";
+
+	SendMessage(obj->hwnd, SCI_SETLEXER, SCLEX_HTML, 0);
+	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 1, (LPARAM)phpKeywords);
+	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"lexer.html.php", (LPARAM)"1");
+	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold", (LPARAM)"1");
+	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold.html", (LPARAM)"1");
+	SendMessage(obj->hwnd, SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
+	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 2, 16);
+	SendMessage(obj->hwnd, SCI_SETTABWIDTH, 4, 0);
+	SendMessage(obj->hwnd, SCI_SETINDENT, 4, 0);
+	SendMessage(obj->hwnd, SCI_SETUSETABS, 0, 0);
+	SendMessage(obj->hwnd, SCI_SETTABINDENTS, 1, 0);
+	SendMessage(obj->hwnd, SCI_SETBACKSPACEUNINDENTS, 1, 0);
+	SendMessage(obj->hwnd, SCI_SETINDENTATIONGUIDES, 1, 0);
+	SendMessage(obj->hwnd, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 0, 56);
+	SendMessage(obj->hwnd, SCI_SETCARETLINEVISIBLE, 1, 0);
+	SendMessage(obj->hwnd, SCI_SETCARETLINEBACK, RGB(245, 245, 245), 0);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_DEFAULT, RGB(0, 0, 0));
+	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_DEFAULT, RGB(255, 255, 255));
+	SendMessage(obj->hwnd, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
+	SendMessage(obj->hwnd, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
+	SendMessage(obj->hwnd, SCI_STYLECLEARALL, 0, 0);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(120, 120, 120));
+	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_LINENUMBER, RGB(245, 245, 245));
+	SendMessage(obj->hwnd, SCI_SETVIEWWS, SCWS_INVISIBLE, 0);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_lexer)
+{
+	zend_long pwbo, lexer;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(lexer)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETLEXER, (WPARAM)lexer, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_keywords)
+{
+	zend_long pwbo, setIndex;
+	char *keywords = NULL;
+	size_t keywords_len = 0;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(setIndex)
+		Z_PARAM_STRING(keywords, keywords_len)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETKEYWORDS, (WPARAM)setIndex, (LPARAM)keywords);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_style)
+{
+	zend_long pwbo, style, foreground, background;
+	zend_bool bold = 0, italic = 0;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(4, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(style)
+		Z_PARAM_LONG(foreground)
+		Z_PARAM_LONG(background)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(bold)
+		Z_PARAM_BOOL(italic)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, (WPARAM)style, (LPARAM)foreground);
+	SendMessage(obj->hwnd, SCI_STYLESETBACK, (WPARAM)style, (LPARAM)background);
+	SendMessage(obj->hwnd, SCI_STYLESETBOLD, (WPARAM)style, (LPARAM)(bold ? 1 : 0));
+	SendMessage(obj->hwnd, SCI_STYLESETITALIC, (WPARAM)style, (LPARAM)(italic ? 1 : 0));
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_apply_php_preset)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	wbScintillaApplyPhpPreset(obj);
+	RETURN_BOOL(TRUE);
+}
+
+
+ZEND_FUNCTION(wb_scintilla_autocomplete_show)
+{
+	zend_long pwbo;
+	char *list = NULL;
+	size_t list_len = 0;
+	zend_long lenEntered = 0;
+	zend_bool len_isnull;
+	PWBOBJ obj;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(list, list_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(lenEntered, len_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+
+	SendMessage(obj->hwnd, SCI_AUTOCSHOW, (WPARAM)max(0, lenEntered), (LPARAM)list);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_autocomplete_cancel)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_AUTOCCANCEL, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_calltip_show)
+{
+	zend_long pwbo;
+	char *text = NULL;
+	size_t text_len = 0;
+	zend_long position = -1;
+	zend_bool pos_isnull;
+	PWBOBJ obj;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(text, text_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG_OR_NULL(position, pos_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+
+	if (position < 0)
+		position = (zend_long)SendMessage(obj->hwnd, SCI_GETCURRENTPOS, 0, 0);
+
+	SendMessage(obj->hwnd, SCI_CALLTIPSHOW, (WPARAM)position, (LPARAM)text);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_calltip_cancel)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_CALLTIPCANCEL, 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_whitespace_view)
+{
+	zend_long pwbo;
+	zend_bool enabled;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(enabled)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETVIEWWS, enabled ? 1 : 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_set_eol_view)
+{
+	zend_long pwbo;
+	zend_bool enabled;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(enabled)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+	SendMessage(obj->hwnd, SCI_SETVIEWEOL, enabled ? 1 : 0, 0);
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
+{
+	zend_long pwbo;
+	char *trigger = NULL;
+	size_t trigger_len = 0;
+	const char *list = "echo implode explode print_r var_dump strlen strpos substr preg_match preg_replace array_map array_filter in_array isset empty";
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(trigger, trigger_len)
+	ZEND_PARSE_PARAMETERS_END();
+	obj = wbPhpGetScintillaObj(pwbo);
+	if (!obj)
+		RETURN_BOOL(FALSE);
+
+	if (trigger_len && (trigger[0] == ':' || trigger[0] == '>'))
+		list = "self static parent __construct __invoke __toString public protected private function";
+	else if (trigger_len && trigger[0] == '$')
+		list = "_GET _POST _SERVER _REQUEST _SESSION _COOKIE _FILES _ENV";
+
+	SendMessage(obj->hwnd, SCI_AUTOCSHOW, 0, (LPARAM)list);
+	RETURN_BOOL(TRUE);
+}
+
 
 //------------------------------------------------------------------ END OF FILE

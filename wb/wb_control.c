@@ -476,6 +476,17 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwExStyle |= WS_EX_CLIENTEDGE;
 		break;
 
+	case ScintillaEdit:
+		if (!bScintillaAvailable)
+		{
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Cannot create ScintillaEdit control because SciLexer.dll was not loaded"));
+			return NULL;
+		}
+		pszClass = TEXT("Scintilla");
+		dwStyle = WS_CHILD | WS_TABSTOP | WS_VSCROLL | WS_HSCROLL | nVisible;
+		dwExStyle |= WS_EX_CLIENTEDGE;
+		break;
+
 	case ListBox:
 		pszClass = TEXT("LISTBOX");
 		dwStyle = WS_CHILD | WS_TABSTOP | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | nVisible;
