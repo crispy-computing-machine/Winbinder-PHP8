@@ -1000,27 +1000,32 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                 case ScintillaEdit:
                 {
                     WB_SCNOTIFICATION *scn = (WB_SCNOTIFICATION *)lParam;
+                    LONG_PTR notifyMask;
                     LPARAM eventType = 0;
+
+                    // Scintilla notifications are configured on the control's lparam in wb_create_control(..., param).
+                    // Fall back to window-level notify flags for compatibility.
+                    notifyMask = pwbobj->lparam ? pwbobj->lparam : ((pwbobj->parent->uClass == TabControl) ? pwbobj->parent->parent->lparam : pwbobj->parent->lparam);
 
                     switch (((LPNMHDR)lParam)->code)
                     {
                     case SCN_MODIFIED:
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_SCN_MODIFIED))
+                        if (notifyMask & WBC_SCN_MODIFIED)
                             eventType = WBC_SCN_MODIFIED;
                         break;
 
                     case SCN_UPDATEUI:
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_SCN_UPDATEUI))
+                        if (notifyMask & WBC_SCN_UPDATEUI)
                             eventType = WBC_SCN_UPDATEUI;
                         break;
 
                     case SCN_MARGINCLICK:
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_SCN_MARGINCLICK))
+                        if (notifyMask & WBC_SCN_MARGINCLICK)
                             eventType = WBC_SCN_MARGINCLICK;
                         break;
 
                     case SCN_CHARADDED:
-                        if (SEND_MESSAGE && TEST_FLAG(WBC_SCN_CHARADDED))
+                        if (notifyMask & WBC_SCN_CHARADDED)
                             eventType = WBC_SCN_CHARADDED;
                         break;
                     }
