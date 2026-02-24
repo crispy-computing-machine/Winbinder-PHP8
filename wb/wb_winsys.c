@@ -980,7 +980,7 @@ DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 		// Shell execute
 		// If the function succeeds, it returns a value greater than 32.
-		bRet = ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
+		bRet = (DWORD)(ULONG_PTR)ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
 	}
 	else
 	{
