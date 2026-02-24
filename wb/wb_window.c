@@ -1028,11 +1028,17 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                     if (eventType)
                     {
                         if (((LPNMHDR)lParam)->code == SCN_CHARADDED)
+                        {
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, eventType, scn->ch, scn->position);
+                        }
                         else if (((LPNMHDR)lParam)->code == SCN_MARGINCLICK)
+                        {
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, eventType, scn->position, scn->margin);
+                        }
                         else
+                        {
                             CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, eventType, scn->position, scn->line);
+                        }
                     }
                 }
                 break;
