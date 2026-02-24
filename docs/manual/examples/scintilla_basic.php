@@ -30,12 +30,12 @@ wb_scintilla_set_eol_view($editor, false);
 
 // Optional fine-tuning after preset
 wb_scintilla_set_line_numbers($editor, true, 56);
-wb_scintilla_set_style($editor, WBC_SC_STYLE_LINENUMBER, RGB(110, 110, 110), RGB(244, 244, 244));
+wb_scintilla_set_style($editor, WBC_SC_STYLE_LINENUMBER, DARKGRAY, LIGHTGRAY);
 
 wb_set_handler($win, "process_main");
 wb_main_loop();
 
-function process_main($window, $id, $ctrl = NULL, $param = NULL)
+function process_main($window, $id, $ctrl = 0, $param1 = 0, $param2 = 0, $param3 = 0)
 {
     switch ($id) {
         case IDOK:
@@ -46,19 +46,17 @@ function process_main($window, $id, $ctrl = NULL, $param = NULL)
 
     // Scintilla Phase 4 notifications
     if ($id === 101) {
-        if ($param === WBC_SCN_MODIFIED) {
+        if ($param1 === WBC_SCN_MODIFIED) {
             wb_set_text($window, "ScintillaEdit MVP* (modified)");
-        } elseif ($param === WBC_SCN_MARGINCLICK) {
+        } elseif ($param1 === WBC_SCN_MARGINCLICK) {
             // Placeholder hook for fold/margin interactions
-        } elseif ($param === WBC_SCN_CHARADDED) {
-            // Minimal Phase 5 autocomplete trigger demo
-            $text = wb_scintilla_get_text($ctrl);
-            $len = strlen($text);
-            if ($len > 0) {
-                $ch = $text[$len - 1];
-                if ($ch === '$' || $ch === ':' || $ch === '>') {
-                    wb_scintilla_show_php_autocomplete($ctrl, $ch);
-                }
+        } elseif ($param1 === WBC_SCN_CHARADDED) {
+            // Minimal Phase 5 autocomplete/calltip trigger demo
+            $ch = chr((int)$param2);
+            if ($ch === '$' || $ch === ':' || $ch === '>') {
+                wb_scintilla_show_php_autocomplete($ctrl, $ch);
+            } elseif ($ch === '(') {
+                wb_scintilla_calltip_show($ctrl, "functionName(arg1, arg2)");
             }
         }
     }

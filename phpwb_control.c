@@ -76,6 +76,15 @@ extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 #define STYLE_DEFAULT 32
 #define STYLE_LINENUMBER 33
 #define SCWS_INVISIBLE 0
+#define SCE_HPHP_DEFAULT 118
+#define SCE_HPHP_HSTRING 121
+#define SCE_HPHP_SIMPLESTRING 122
+#define SCE_HPHP_WORD 123
+#define SCE_HPHP_NUMBER 124
+#define SCE_HPHP_VARIABLE 126
+#define SCE_HPHP_OPERATOR 127
+#define SCE_HPHP_COMMENT 128
+#define SCE_HPHP_COMMENTLINE 129
 #endif
 
 static PWBOBJ wbPhpGetScintillaObj(zend_long pwbo)
@@ -1712,7 +1721,7 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	const char *phpKeywords = "abstract and array as break callable case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return self static switch throw trait try unset use var while xor yield from";
 
 	SendMessage(obj->hwnd, SCI_SETLEXER, SCLEX_HTML, 0);
-	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 1, (LPARAM)phpKeywords);
+	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 0, (LPARAM)phpKeywords);
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"lexer.html.php", (LPARAM)"1");
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold", (LPARAM)"1");
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold.html", (LPARAM)"1");
@@ -1735,6 +1744,15 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	SendMessage(obj->hwnd, SCI_STYLECLEARALL, 0, 0);
 	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(120, 120, 120));
 	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_LINENUMBER, RGB(245, 245, 245));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_WORD, RGB(0, 0, 180));
+	SendMessage(obj->hwnd, SCI_STYLESETBOLD, SCE_HPHP_WORD, 1);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_VARIABLE, RGB(150, 0, 150));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_NUMBER, RGB(180, 0, 0));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENT, RGB(0, 128, 0));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENTLINE, RGB(0, 128, 0));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING, RGB(163, 21, 21));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_SIMPLESTRING, RGB(163, 21, 21));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_OPERATOR, RGB(0, 0, 0));
 	SendMessage(obj->hwnd, SCI_SETVIEWWS, SCWS_INVISIBLE, 0);
 }
 
@@ -1926,7 +1944,7 @@ ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
 	zend_long pwbo;
 	char *trigger = NULL;
 	size_t trigger_len = 0;
-	const char *list = "echo implode explode print_r var_dump strlen strpos substr preg_match preg_replace array_map array_filter in_array isset empty";
+	const char *list = "echo implode explode print_r var_dump strlen strpos substr preg_match preg_replace array_map array_filter in_array isset empty count array_key_exists";
 	PWBOBJ obj;
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
