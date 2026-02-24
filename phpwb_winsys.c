@@ -902,7 +902,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_wmi_query)
 {
 	char *wquery;
-	int wquery_size;
+	size_t wquery_size;
 
 	
 	HRESULT hr;
@@ -955,9 +955,9 @@ ZEND_FUNCTION(wb_wmi_query)
 			VARIANT val;
 			VARTYPE vt = 0;
 			LPSAFEARRAY pFieldArray = NULL;
-			zval *subarray;
+			zval subarray;
 
-			array_init(subarray);
+			array_init(&subarray);
 
 			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);
 			
@@ -970,28 +970,28 @@ ZEND_FUNCTION(wb_wmi_query)
 				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
 				switch(val.vt){
 					case VT_NULL:
-						add_assoc_null(subarray, propn);
+						add_assoc_null(&subarray, propn);
 						break;
 					case VT_BOOL:
-						add_assoc_bool(subarray, propn, val.boolVal);
+						add_assoc_bool(&subarray, propn, val.boolVal);
 						break;
 					case VT_BSTR:
 						propv = ConvertBSTRToLPSTR(val.bstrVal);
-						add_assoc_string(subarray, propn, propv);
+						add_assoc_string(&subarray, propn, propv);
 						free(propv);
 						break;
 					case VT_I4:
-						add_assoc_long(subarray, propn, val.intVal);
+						add_assoc_long(&subarray, propn, val.intVal);
 						break;
 				
 					default:
 						sprintf(err, "(Variant type 0x%04x not supported)", val.vt);
-						add_assoc_string(subarray, propn, err);
+						add_assoc_string(&subarray, propn, err);
 				
 				}
 				free(propn);
 			}
-			add_next_index_zval(return_value, subarray);
+			add_next_index_zval(return_value, &subarray);
 			result->lpVtbl->Release(result);
 		}
 	}
@@ -1013,7 +1013,8 @@ ZEND_FUNCTION(wb_wmi_query)
 // https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
 ZEND_FUNCTION(wb_get_system_metric)
 {
-	int idx, val;
+	zend_long idx;
+	int val;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(idx)
@@ -1035,7 +1036,7 @@ ZEND_FUNCTION(wb_get_system_timezone)
 ZEND_FUNCTION(wb_expand_env)
 {
 	char *path;
-	int path_size;
+	size_t path_size;
 	char buffer[MAXPATHLEN];
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)

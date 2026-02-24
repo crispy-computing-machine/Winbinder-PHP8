@@ -650,7 +650,7 @@ BOOL wbSetTimer(PWBOBJ pwbo, int id, UINT64 uPeriod) {
                 uPeriod,
                 WT_EXECUTEDEFAULT)) {
             M_nTimerId = id;
-            M_nMMTimerId = (MMRESULT)hTimer; // Store the timer handle
+            M_nMMTimerId = (UINT_PTR)hTimer; // Store the timer handle
             return TRUE;
         } else {
             return FALSE;
@@ -2181,11 +2181,11 @@ static HICON GetWindowIcon(HWND hwnd)
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICONSM);
+	hIcon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
 	if (hIcon)
 		return hIcon;
 
-	hIcon = (HICON)GetClassLong(hwnd, GCLP_HICON);
+	hIcon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
 	if (hIcon)
 		return hIcon;
 
@@ -2353,7 +2353,7 @@ static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed)
 
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
 {
-	DWORD result;
+	DWORD_PTR result;
 	LRESULT lres;
 	TCHAR szAux[256];
 	APPW_DATA *pappw;

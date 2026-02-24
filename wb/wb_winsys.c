@@ -346,9 +346,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		if (!pszCursor || !*pszCursor) {
 			hCursor = GetSysCursor(TEXT("arrow"));
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
                 if (!hCursor)
                 {
@@ -386,9 +387,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		    // pszCursor is NULL (reset cursor)
 			hCursor = GetSysCursor(TEXT("arrow"));
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
             } else {
                 // System cursor name
@@ -421,9 +423,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		    // pszCursor is NULL
 			hCursor = hClassCursor[pwbo->uClass];
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
                 if (!hCursor)
                 {
@@ -1262,7 +1265,7 @@ LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UI
 	{
 
 		*pbIsString = FALSE;
-		return (LONG_PTR)hAppInstance;
+		return (DWORD)(ULONG_PTR)hAppInstance;
 	}
 	else if (!lstrcmpi(pszInfo, L"ospath"))
 	{

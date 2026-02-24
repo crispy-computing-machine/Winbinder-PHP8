@@ -1174,7 +1174,7 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc)
 	{
 		EDITSTREAM es = {0};
 		es.dwCookie = (DWORD_PTR)unc;
-		es.pfnCallback = &EditStreamOutCallback;
+		es.pfnCallback = (EDITSTREAMCALLBACK)EditStreamOutCallback;
 		SendMessage(pwbo->hwnd, EM_STREAMOUT, (WPARAM)(SF_RTF), (LPARAM)&es);
 		//use SF_TEXT|SF_UNICODE  then you need
 		return TRUE;

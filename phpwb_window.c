@@ -597,7 +597,7 @@ ZEND_FUNCTION(wb_get_drop_files)
 	zend_long wparam;
 	zend_bool isShort;
 
-	HDROP *pHDrop;
+	HDROP hDrop;
 	char buffer[2048];
 	char shortpath[2048];
 	long shortpath_size;
@@ -610,14 +610,14 @@ ZEND_FUNCTION(wb_get_drop_files)
 		Z_PARAM_BOOL(isShort)
 	ZEND_PARSE_PARAMETERS_END();
 
-	pHDrop = (HDROP *)wparam;
-	fcount = DragQueryFileA(pHDrop, 0xFFFFFFFF, buffer, 2048);	
+	hDrop = (HDROP)(ULONG_PTR)wparam;
+	fcount = DragQueryFileA(hDrop, 0xFFFFFFFF, buffer, 2048);	
 	if(!fcount) RETURN_NULL();
 
 	array_init(return_value);
 	for(i = 0; i < fcount; i++)
 	{
-		DragQueryFileA(pHDrop, i, buffer, 2048);
+		DragQueryFileA(hDrop, i, buffer, 2048);
 		if(isShort) {
 			shortpath_size = GetShortPathNameA(buffer, shortpath, 2048);
 			if(shortpath_size == 0) {
@@ -658,7 +658,7 @@ ZEND_FUNCTION(wb_get_window_buffer)
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
-	RETURN_LONG(((PWBOBJ)pwbo)->pbuffer);
+	RETURN_LONG((zend_long)(ULONG_PTR)((PWBOBJ)pwbo)->pbuffer);
 }
 
 
@@ -672,5 +672,5 @@ ZEND_FUNCTION(wb_get_window_handle)
 
 	if(!wbIsWBObj((void *)pwbo, TRUE)) RETURN_BOOL(FALSE);
 
-	RETURN_LONG(((PWBOBJ)pwbo)->hwnd);
+	RETURN_LONG((zend_long)(ULONG_PTR)((PWBOBJ)pwbo)->hwnd);
 }
