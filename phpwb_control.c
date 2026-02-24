@@ -77,14 +77,15 @@ extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 #define STYLE_LINENUMBER 33
 #define SCWS_INVISIBLE 0
 #define SCE_HPHP_DEFAULT 118
-#define SCE_HPHP_HSTRING 121
-#define SCE_HPHP_SIMPLESTRING 122
-#define SCE_HPHP_WORD 123
-#define SCE_HPHP_NUMBER 124
-#define SCE_HPHP_VARIABLE 126
+#define SCE_HPHP_HSTRING 119
+#define SCE_HPHP_SIMPLESTRING 120
+#define SCE_HPHP_WORD 121
+#define SCE_HPHP_NUMBER 122
+#define SCE_HPHP_VARIABLE 123
+#define SCE_HPHP_COMMENT 124
+#define SCE_HPHP_COMMENTLINE 125
+#define SCE_HPHP_HSTRING_VARIABLE 126
 #define SCE_HPHP_OPERATOR 127
-#define SCE_HPHP_COMMENT 128
-#define SCE_HPHP_COMMENTLINE 129
 #endif
 
 static PWBOBJ wbPhpGetScintillaObj(zend_long pwbo)
@@ -1722,6 +1723,8 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 
 	SendMessage(obj->hwnd, SCI_SETLEXER, SCLEX_HTML, 0);
 	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 0, (LPARAM)phpKeywords);
+	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 4, (LPARAM)phpKeywords);
+	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 5, (LPARAM)phpKeywords);
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"lexer.html.php", (LPARAM)"1");
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold", (LPARAM)"1");
 	SendMessage(obj->hwnd, SCI_SETPROPERTY, (WPARAM)"fold.html", (LPARAM)"1");
@@ -1752,6 +1755,7 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENTLINE, RGB(0, 128, 0));
 	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING, RGB(163, 21, 21));
 	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_SIMPLESTRING, RGB(163, 21, 21));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING_VARIABLE, RGB(150, 0, 150));
 	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_OPERATOR, RGB(0, 0, 0));
 	SendMessage(obj->hwnd, SCI_SETVIEWWS, SCWS_INVISIBLE, 0);
 }
