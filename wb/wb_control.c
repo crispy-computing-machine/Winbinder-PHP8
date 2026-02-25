@@ -1060,14 +1060,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		case PopupWindow:
 		case ResizableWindow:
 		case ToolDialog:
-		{
-			BOOL bSet = SetWindowText(pwbo->hwnd, pszText);
-			if (bSet)
-			{
-				RedrawWindow(pwbo->hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
-			}
-			return bSet;
-		}
+			return SetWindowText(pwbo->hwnd, pszText);
 
 		default:
 
