@@ -156,7 +156,7 @@ typedef struct ICoreWebView2Vtbl
 	HRESULT(STDMETHODCALLTYPE *AddScriptToExecuteOnDocumentCreated)(ICoreWebView2 *This, LPCWSTR javaScript, void *handler);
 	HRESULT(STDMETHODCALLTYPE *RemoveScriptToExecuteOnDocumentCreated)(ICoreWebView2 *This, LPCWSTR id);
 	HRESULT(STDMETHODCALLTYPE *ExecuteScript)(ICoreWebView2 *This, LPCWSTR javaScript, ICoreWebView2ExecuteScriptCompletedHandler *handler);
-	HRESULT(STDMETHODCALLTYPE *CapturePreview)(ICoreWebView2 *This, int imageFormat, IStream *stream, void *handler);
+	HRESULT(STDMETHODCALLTYPE *CapturePreview)(ICoreWebView2 *This, int imageFormat, void *stream, void *handler);
 	HRESULT(STDMETHODCALLTYPE *Reload)(ICoreWebView2 *This);
 	HRESULT(STDMETHODCALLTYPE *PostWebMessageAsJson)(ICoreWebView2 *This, LPCWSTR webMessageAsJson);
 	HRESULT(STDMETHODCALLTYPE *PostWebMessageAsString)(ICoreWebView2 *This, LPCWSTR webMessageAsString);
@@ -224,7 +224,7 @@ struct ICoreWebView2NavigationCompletedEventArgs
 	const ICoreWebView2NavigationCompletedEventArgsVtbl *lpVtbl;
 };
 
-typedef HRESULT(STDAPICALLTYPE *PFN_CreateCoreWebView2EnvironmentWithOptions)(PCWSTR, PCWSTR, IUnknown *, ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *);
+typedef HRESULT(STDAPICALLTYPE *PFN_CreateCoreWebView2EnvironmentWithOptions)(PCWSTR, PCWSTR, void *, ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *);
 
 static HMODULE s_webview2Loader = NULL;
 static PFN_CreateCoreWebView2EnvironmentWithOptions s_createEnvironment = NULL;
