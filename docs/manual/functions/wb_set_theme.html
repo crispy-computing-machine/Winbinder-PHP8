@@ -2,5 +2,6 @@
 <h2>wb_set_theme</h2>
 <p>Sets the theme globally or for a specific window/control subtree.</p>
 <pre>bool wb_set_theme([int $wbObject,] int $theme)</pre>
-<p><code>$theme</code> supports <code>WBT_THEME_DEFAULT</code>, <code>WBT_THEME_LIGHT</code>, and <code>WBT_THEME_DARK</code>. Unsupported OS combinations gracefully fall back to standard rendering while preserving the selected mode for owner-draw/theme-aware controls.</p>
+<p><code>$theme</code> supports <code>WBT_THEME_DEFAULT</code>, <code>WBT_THEME_LIGHT</code>, <code>WBT_THEME_DARK</code>, and <code>WBT_THEME_CUSTOM</code>. Unsupported OS combinations gracefully fall back to standard rendering while preserving the selected mode for owner-draw/theme-aware controls.</p>
+<p>Use <code>wb_set_theme_color()</code> to configure light/dark/custom palettes.</p>
 </body></html>

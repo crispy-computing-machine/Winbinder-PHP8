@@ -399,6 +399,28 @@ ZEND_FUNCTION(wb_get_theme)
 	RETURN_LONG(wbGetTheme((PWBOBJ)pwbo));
 }
 
+
+ZEND_FUNCTION(wb_set_theme_color)
+{
+	zend_long theme, role, color;
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(theme)
+		Z_PARAM_LONG(role)
+		Z_PARAM_LONG(color)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbSetThemeColor((int)theme, (int)role, (COLORREF)color));
+}
+
+ZEND_FUNCTION(wb_get_theme_color)
+{
+	zend_long theme, role;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(theme)
+		Z_PARAM_LONG(role)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_LONG((zend_long)wbGetThemeColor((int)theme, (int)role));
+}
+
 ZEND_FUNCTION(wb_get_class)
 {
 	zend_long pwbo;
@@ -1763,8 +1785,10 @@ ZEND_FUNCTION(wb_scintilla_set_line_numbers)
 static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 {
 	const char *phpKeywords = "abstract and array as break callable case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return self static switch throw trait try unset use var while xor yield from";
-	BOOL dark = (wbGetTheme(obj) == WBT_THEME_DARK);
-	COLORREF editorBack = dark ? RGB(30, 30, 30) : WBT_COLOR_BACKGROUND_LIGHT;
+	COLORREF themeText = wbGetThemeTextColor(obj);
+	COLORREF themeBack = wbGetThemeBackgroundColor(obj);
+	BOOL dark = ((GetRValue(themeBack) + GetGValue(themeBack) + GetBValue(themeBack)) / 3) < 128;
+	COLORREF editorBack = dark ? RGB(30, 30, 30) : themeBack;
 	COLORREF lineNumBack = dark ? RGB(45, 45, 48) : RGB(245, 245, 245);
 	COLORREF lineNumFore = dark ? RGB(133, 133, 133) : RGB(120, 120, 120);
 	COLORREF keyword = dark ? RGB(86, 156, 214) : RGB(0, 0, 180);
@@ -1795,7 +1819,7 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 0, 56);
 	SendMessage(obj->hwnd, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
 	SendMessage(obj->hwnd, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_DEFAULT, dark ? WBT_COLOR_TEXT_DARK : WBT_COLOR_TEXT_LIGHT);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_DEFAULT, themeText);
 	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_DEFAULT, editorBack);
 	SendMessage(obj->hwnd, SCI_STYLECLEARALL, 0, 0);
 	SendMessage(obj->hwnd, SCI_SETCARETLINEVISIBLE, 1, 0);

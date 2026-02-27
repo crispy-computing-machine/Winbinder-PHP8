@@ -36,4 +36,6 @@ Control class,ScintillaEdit
 <h3>Theme-aware preset defaults</h3>
 <p><code>wb_scintilla_apply_php_preset()</code> now adapts to <code>wb_get_theme()</code> and uses documented defaults:
 light text/background/accent = (20,20,20) / (255,255,255) / (0,120,215), dark text/background/accent = (232,232,232) / (32,32,32) / (86,156,214).</p>
-<p>Use <code>wb_set_theme($window, WBT_THEME_LIGHT|WBT_THEME_DARK|WBT_THEME_DEFAULT)</code> to switch at runtime and re-apply the preset for immediate editor refresh.</p>
+<p>Use <code>wb_set_theme($window, WBT_THEME_LIGHT|WBT_THEME_DARK|WBT_THEME_CUSTOM|WBT_THEME_DEFAULT)</code> to switch at runtime and re-apply the preset for immediate editor refresh.</p>
+
+<p>For custom palettes, call <code>wb_set_theme_color()</code> then switch to <code>WBT_THEME_CUSTOM</code>.</p>

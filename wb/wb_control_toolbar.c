@@ -52,6 +52,7 @@ PWBOBJ wbCreateToolbar(PWBOBJ pwboParent, PWBITEM pitem[], int nItems, int nBtnW
 	pwbo->item = -1;
 	pwbo->subitem = -1;
 	pwbo->style = 0;
+	pwbo->theme = WBT_THEME_DEFAULT;
 	pwbo->pszCallBackFn = NULL;
 	pwbo->pszCallBackObj = NULL;
 	pwbo->lparam = 0;
@@ -66,6 +67,7 @@ PWBOBJ wbCreateToolbar(PWBOBJ pwboParent, PWBITEM pitem[], int nItems, int nBtnW
 	}
 
 	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
+	wbSetTheme(pwbo, pwbo->theme);
 
 	return pwbo;
 }

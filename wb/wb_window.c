@@ -1502,6 +1502,23 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             //------------------------------- Other messages
 
+        case WM_ERASEBKGND:
+        {
+            PWBOBJ pwbobj = wbGetWBObj(hwnd);
+            RECT rc;
+            HBRUSH hbr;
+            if (!pwbobj)
+                break;
+            GetClientRect(hwnd, &rc);
+            hbr = wbGetThemeBackgroundBrush(pwbobj);
+            if (hbr)
+            {
+                FillRect((HDC)wParam, &rc, hbr);
+                return 1;
+            }
+        }
+        break;
+
         case WM_CTLCOLOREDIT:
         case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORSTATIC: // For static controls and others
@@ -1529,6 +1546,9 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             SetBkColor((HDC)wParam, wbGetThemeBackgroundColor(pwbobj));
 
+            if (!hbrTabs)
+                return (LRESULT)wbGetThemeBackgroundBrush(pwbobj);
+
             if (hbrTabs)
             { // Not for versions under Windows XP
 
@@ -1546,7 +1566,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                     return (LRESULT)hbrTabs; // Paint the background with the tab page color
                 }
             }
-            break;
+            return (LRESULT)wbGetThemeBackgroundBrush(pwbobj);
         }
 
         case WM_TIMER:

@@ -51,7 +51,7 @@ LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         // Get font colour
         pfont = wbGetFont(pwbobj->lparam);
 
-		DrawHyperLink(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? wbGetThemeAccentColor(wbGetWBObj(hwnd)) : pfont->color);
+		DrawHyperLink(hdc, hwnd, &ps.rcPaint, (!pfont || pfont->color == NOCOLOR) ? wbGetThemeAccentColor(wbGetWBObj(hwnd)) : pfont->color);
 		EndPaint(hwnd, &ps);
 	}
 		return 0;

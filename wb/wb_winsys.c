@@ -58,6 +58,7 @@ static BOOL _GetOSVersionString(LPTSTR pszString);
 static HCURSOR GetSysCursor(LPCTSTR pszCursor);
 static char *GetTokenExt(const char *pszBuffer, int nToken, const char *pszSep, char chGroup, BOOL fBlock, char *pszToken, int nTokLen);
 static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTokLen);
+static void wbEnsurePaletteBrush(int nTheme);
 
 BOOL bScintillaAvailable = FALSE;
 
@@ -179,6 +180,9 @@ BOOL wbInit(void)
 
 	wbSetCursor((PWBOBJ)EditBox, TEXT("ibeam"), NULL);
 	wbSetCursor((PWBOBJ)InvisibleArea, TEXT("arrow"), NULL);
+	wbEnsurePaletteBrush(WBT_THEME_LIGHT);
+	wbEnsurePaletteBrush(WBT_THEME_DARK);
+	wbEnsurePaletteBrush(WBT_THEME_CUSTOM);
 
 	return TRUE;
 }
@@ -186,6 +190,13 @@ BOOL wbInit(void)
 
 static int nGlobalTheme = WBT_THEME_DEFAULT;
 
+typedef struct
+{
+	COLORREF text;
+	COLORREF background;
+	COLORREF accent;
+	HBRUSH hbrBackground;
+} WBTHEMEPALETTE;
 
 typedef HRESULT(WINAPI *PFNSETWINDOWTHEME)(HWND, LPCWSTR, LPCWSTR);
 typedef HRESULT(WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND, DWORD, LPCVOID, DWORD);
@@ -193,20 +204,75 @@ typedef HRESULT(WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND, DWORD, LPCVOID, DWORD);
 static PFNSETWINDOWTHEME pfnSetWindowTheme = NULL;
 static PFNDWMSETWINDOWATTRIBUTE pfnDwmSetWindowAttribute = NULL;
 static BOOL bThemeApiResolved = FALSE;
+static WBTHEMEPALETTE gThemePalettes[4] = {
+	{WBT_COLOR_TEXT_LIGHT, WBT_COLOR_BACKGROUND_LIGHT, WBT_COLOR_ACCENT_LIGHT, NULL},
+	{WBT_COLOR_TEXT_LIGHT, WBT_COLOR_BACKGROUND_LIGHT, WBT_COLOR_ACCENT_LIGHT, NULL},
+	{WBT_COLOR_TEXT_DARK, WBT_COLOR_BACKGROUND_DARK, WBT_COLOR_ACCENT_DARK, NULL},
+	{WBT_COLOR_TEXT_DARK, WBT_COLOR_BACKGROUND_DARK, WBT_COLOR_ACCENT_DARK, NULL}
+};
+
+static int wbNormalizeTheme(int nTheme)
+{
+	if (nTheme < WBT_THEME_DEFAULT || nTheme > WBT_THEME_CUSTOM)
+		return WBT_THEME_DEFAULT;
+	return nTheme;
+}
+
+static int wbResolveTheme(PWBOBJ pwbo)
+{
+	PWBOBJ p = pwbo;
+	while (p)
+	{
+		if (p->theme != WBT_THEME_DEFAULT)
+			return wbNormalizeTheme(p->theme);
+		p = p->parent;
+	}
+	return wbNormalizeTheme(nGlobalTheme);
+}
+
+static WBTHEMEPALETTE *wbGetEffectivePalette(PWBOBJ pwbo)
+{
+	int theme = wbResolveTheme(pwbo);
+	if (theme == WBT_THEME_DEFAULT)
+		theme = WBT_THEME_LIGHT;
+	return &gThemePalettes[theme];
+}
+
+static void wbEnsurePaletteBrush(int nTheme)
+{
+	WBTHEMEPALETTE *p;
+	nTheme = wbNormalizeTheme(nTheme);
+	p = &gThemePalettes[nTheme == WBT_THEME_DEFAULT ? WBT_THEME_LIGHT : nTheme];
+	if (p->hbrBackground)
+		DeleteObject(p->hbrBackground);
+	p->hbrBackground = CreateSolidBrush(p->background);
+}
+
+static void wbRefreshMenuTheme(HWND hwnd, PWBOBJ pwbo)
+{
+	HMENU hMenu;
+	MENUINFO mi;
+	hMenu = GetMenu(hwnd);
+	if (!hMenu)
+		return;
+	ZeroMemory(&mi, sizeof(mi));
+	mi.cbSize = sizeof(mi);
+	mi.fMask = MIM_BACKGROUND;
+	mi.hbrBack = wbGetThemeBackgroundBrush(pwbo);
+	SetMenuInfo(hMenu, &mi);
+	DrawMenuBar(hwnd);
+}
 
 static void wbResolveThemeApis(void)
 {
 	HMODULE hUxTheme;
 	HMODULE hDwmApi;
-
 	if (bThemeApiResolved)
 		return;
-
 	bThemeApiResolved = TRUE;
 	hUxTheme = LoadLibrary(TEXT("uxtheme.dll"));
 	if (hUxTheme)
 		pfnSetWindowTheme = (PFNSETWINDOWTHEME)GetProcAddress(hUxTheme, "SetWindowTheme");
-
 	hDwmApi = LoadLibrary(TEXT("dwmapi.dll"));
 	if (hDwmApi)
 		pfnDwmSetWindowAttribute = (PFNDWMSETWINDOWATTRIBUTE)GetProcAddress(hDwmApi, "DwmSetWindowAttribute");
@@ -214,17 +280,19 @@ static void wbResolveThemeApis(void)
 
 static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 {
-	BOOL bDark = (nTheme == WBT_THEME_DARK);
+	BOOL bDark;
 	BOOL bOk = TRUE;
+	PWBOBJ pwbo;
 
 	if (!hwnd || !IsWindow(hwnd))
 		return FALSE;
-
+	nTheme = wbNormalizeTheme(nTheme);
+	bDark = (nTheme == WBT_THEME_DARK || nTheme == WBT_THEME_CUSTOM);
 	wbResolveThemeApis();
 
 	if (pfnSetWindowTheme)
 	{
-		if (nTheme == WBT_THEME_DARK)
+		if (bDark)
 		{
 			if (FAILED(pfnSetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
 				bOk = FALSE;
@@ -241,6 +309,10 @@ static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 			pfnDwmSetWindowAttribute(hwnd, 19, &bDark, sizeof(bDark));
 	}
 
+	pwbo = wbGetWBObj(hwnd);
+	if (pwbo)
+		wbRefreshMenuTheme(hwnd, pwbo);
+
 	SendMessage(hwnd, WM_THEMECHANGED, 0, 0);
 	InvalidateRect(hwnd, NULL, TRUE);
 	return bOk;
@@ -253,31 +325,24 @@ static BOOL CALLBACK wbThemeEnumChildProc(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-static int wbResolveTheme(PWBOBJ pwbo)
-{
-	PWBOBJ p = pwbo;
-	while (p)
-	{
-		if (p->theme != WBT_THEME_DEFAULT)
-			return p->theme;
-		p = p->parent;
-	}
-	return nGlobalTheme;
-}
-
 BOOL wbSetTheme(PWBOBJ pwbo, int nTheme)
 {
-	if (nTheme != WBT_THEME_DEFAULT && nTheme != WBT_THEME_LIGHT && nTheme != WBT_THEME_DARK)
+	if (wbNormalizeTheme(nTheme) != nTheme)
 		return FALSE;
 
 	if (pwbo)
 	{
+		HWND hTarget = NULL;
 		if (!wbIsWBObj(pwbo, TRUE))
 			return FALSE;
 		pwbo->theme = nTheme;
 		nTheme = wbResolveTheme(pwbo);
-		wbApplyThemeToHwnd(pwbo->hwnd, nTheme);
-		EnumChildWindows(pwbo->hwnd, wbThemeEnumChildProc, (LPARAM)nTheme);
+		hTarget = IsWindow(pwbo->hwnd) ? pwbo->hwnd : (pwbo->parent ? pwbo->parent->hwnd : NULL);
+		if (hTarget && IsWindow(hTarget))
+		{
+			wbApplyThemeToHwnd(hTarget, nTheme);
+			EnumChildWindows(hTarget, wbThemeEnumChildProc, (LPARAM)nTheme);
+		}
 		return TRUE;
 	}
 
@@ -289,25 +354,77 @@ BOOL wbSetTheme(PWBOBJ pwbo, int nTheme)
 int wbGetTheme(PWBOBJ pwbo)
 {
 	if (!pwbo)
-		return nGlobalTheme;
+		return wbNormalizeTheme(nGlobalTheme);
 	if (!wbIsWBObj(pwbo, FALSE))
 		return WBT_THEME_DEFAULT;
 	return wbResolveTheme(pwbo);
 }
 
+BOOL wbSetThemeColor(int nTheme, int nRole, COLORREF clr)
+{
+	WBTHEMEPALETTE *p;
+	nTheme = wbNormalizeTheme(nTheme);
+	if (nTheme == WBT_THEME_DEFAULT || nTheme > WBT_THEME_CUSTOM)
+		return FALSE;
+	p = &gThemePalettes[nTheme];
+	switch (nRole)
+	{
+	case WBT_COLOR_ROLE_TEXT:
+		p->text = clr;
+		break;
+	case WBT_COLOR_ROLE_BACKGROUND:
+		p->background = clr;
+		wbEnsurePaletteBrush(nTheme);
+		break;
+	case WBT_COLOR_ROLE_ACCENT:
+		p->accent = clr;
+		break;
+	default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
+COLORREF wbGetThemeColor(int nTheme, int nRole)
+{
+	WBTHEMEPALETTE *p;
+	nTheme = wbNormalizeTheme(nTheme);
+	p = &gThemePalettes[nTheme == WBT_THEME_DEFAULT ? WBT_THEME_LIGHT : nTheme];
+	switch (nRole)
+	{
+	case WBT_COLOR_ROLE_TEXT:
+		return p->text;
+	case WBT_COLOR_ROLE_BACKGROUND:
+		return p->background;
+	case WBT_COLOR_ROLE_ACCENT:
+		return p->accent;
+	default:
+		return NOCOLOR;
+	}
+}
+
 COLORREF wbGetThemeTextColor(PWBOBJ pwbo)
 {
-	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_TEXT_DARK : WBT_COLOR_TEXT_LIGHT;
+	return wbGetEffectivePalette(pwbo)->text;
 }
 
 COLORREF wbGetThemeBackgroundColor(PWBOBJ pwbo)
 {
-	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_BACKGROUND_DARK : WBT_COLOR_BACKGROUND_LIGHT;
+	return wbGetEffectivePalette(pwbo)->background;
 }
 
 COLORREF wbGetThemeAccentColor(PWBOBJ pwbo)
 {
-	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_ACCENT_DARK : WBT_COLOR_ACCENT_LIGHT;
+	return wbGetEffectivePalette(pwbo)->accent;
+}
+
+HBRUSH wbGetThemeBackgroundBrush(PWBOBJ pwbo)
+{
+	int nTheme = wbResolveTheme(pwbo);
+	nTheme = (nTheme == WBT_THEME_DEFAULT) ? WBT_THEME_LIGHT : nTheme;
+	if (!gThemePalettes[nTheme].hbrBackground)
+		wbEnsurePaletteBrush(nTheme);
+	return gThemePalettes[nTheme].hbrBackground;
 }
 
 /* Module end */
@@ -320,6 +437,9 @@ BOOL wbEnd(void)
 		DeleteObject(hbrTabs);
 	if (hAccelTable)
 		DestroyAcceleratorTable(hAccelTable);
+	if (gThemePalettes[WBT_THEME_LIGHT].hbrBackground) DeleteObject(gThemePalettes[WBT_THEME_LIGHT].hbrBackground);
+	if (gThemePalettes[WBT_THEME_DARK].hbrBackground) DeleteObject(gThemePalettes[WBT_THEME_DARK].hbrBackground);
+	if (gThemePalettes[WBT_THEME_CUSTOM].hbrBackground) DeleteObject(gThemePalettes[WBT_THEME_CUSTOM].hbrBackground);
 	OleUninitialize();
 
 	return TRUE;

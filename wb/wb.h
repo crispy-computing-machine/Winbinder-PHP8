@@ -224,6 +224,11 @@ enum
 #define WBT_THEME_DEFAULT 0
 #define WBT_THEME_LIGHT 1
 #define WBT_THEME_DARK 2
+#define WBT_THEME_CUSTOM 3
+
+#define WBT_COLOR_ROLE_TEXT 0
+#define WBT_COLOR_ROLE_BACKGROUND 1
+#define WBT_COLOR_ROLE_ACCENT 2
 
 // Documented default theme palette (BGR COLORREF values)
 #define WBT_COLOR_TEXT_LIGHT RGB(20, 20, 20)
@@ -501,6 +506,9 @@ int wbGetTheme(PWBOBJ pwbo);
 COLORREF wbGetThemeTextColor(PWBOBJ pwbo);
 COLORREF wbGetThemeBackgroundColor(PWBOBJ pwbo);
 COLORREF wbGetThemeAccentColor(PWBOBJ pwbo);
+BOOL wbSetThemeColor(int nTheme, int nRole, COLORREF clr);
+COLORREF wbGetThemeColor(int nTheme, int nRole);
+HBRUSH wbGetThemeBackgroundBrush(PWBOBJ pwbo);
 BOOL wbIsValidClass(UINT64 uClass);
 BOOL wbGetEnabled(PWBOBJ pwbo);
 BOOL wbSetEnabled(PWBOBJ pwbo, BOOL bState);

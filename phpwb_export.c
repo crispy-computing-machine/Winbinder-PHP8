@@ -107,6 +107,8 @@ ZEND_FUNCTION(wb_set_state);
 ZEND_FUNCTION(wb_set_style);
 ZEND_FUNCTION(wb_set_theme);
 ZEND_FUNCTION(wb_get_theme);
+ZEND_FUNCTION(wb_get_theme_color);
+ZEND_FUNCTION(wb_set_theme_color);
 ZEND_FUNCTION(wb_set_visible);
 ZEND_FUNCTION(wb_sort);
 ZEND_FUNCTION(wb_create_control);
@@ -347,6 +349,8 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_style,arginfo_wb_set_style)
         ZEND_FE(wb_set_theme,arginfo_wb_set_theme)
         ZEND_FE(wb_get_theme,arginfo_wb_get_theme)
+        ZEND_FE(wb_set_theme_color,arginfo_wb_set_theme_color)
+        ZEND_FE(wb_get_theme_color,arginfo_wb_get_theme_color)
         ZEND_FE(wb_set_visible,arginfo_wb_set_visible)
         ZEND_FE(wb_sort,arginfo_wb_sort)
         ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
@@ -498,6 +502,10 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBT_THEME_DEFAULT", WBT_THEME_DEFAULT)
 	WB_ZEND_CONST(LONG, "WBT_THEME_LIGHT", WBT_THEME_LIGHT)
 	WB_ZEND_CONST(LONG, "WBT_THEME_DARK", WBT_THEME_DARK)
+	WB_ZEND_CONST(LONG, "WBT_THEME_CUSTOM", WBT_THEME_CUSTOM)
+	WB_ZEND_CONST(LONG, "WBT_COLOR_ROLE_TEXT", WBT_COLOR_ROLE_TEXT)
+	WB_ZEND_CONST(LONG, "WBT_COLOR_ROLE_BACKGROUND", WBT_COLOR_ROLE_BACKGROUND)
+	WB_ZEND_CONST(LONG, "WBT_COLOR_ROLE_ACCENT", WBT_COLOR_ROLE_ACCENT)
 
 	// Window classes
 	WB_ZEND_CONST(LONG, "AppWindow", AppWindow)
