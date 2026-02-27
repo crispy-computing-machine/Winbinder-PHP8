@@ -29,13 +29,8 @@ function process_main($window, $id)
         'body' => 'Background task completed successfully.',
         'icon' => 'info',
         'duration' => 3500,
-        'onClick' => 'handle_notification_action',
     ]);
 
     wb_set_text(wb_get_control($window, 101), "Task done. Notification dispatched.");
 }
 
-function handle_notification_action()
-{
-    wb_message_box(0, "Notification action callback executed.", "Callback", WBC_INFO);
-}

@@ -292,13 +292,12 @@ static UINT wbNotifyIconFlagFromValue(zval *icon)
 ZEND_FUNCTION(wb_notify)
 {
 	zval *options;
-	zval *zParent = NULL, *zTitle = NULL, *zBody = NULL, *zIcon = NULL, *zDuration = NULL, *zOnClick = NULL;
+	zval *zParent = NULL, *zTitle = NULL, *zBody = NULL, *zIcon = NULL, *zDuration = NULL;
 	PWBOBJ pwboParent = NULL;
 	TCHAR *szTitle = NULL, *szBody = NULL;
 	DWORD durationMs = 5000;
 	UINT iconFlags = NIIF_INFO;
 	BOOL usedSystemNotification = FALSE;
-	int fallbackResult;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_ARRAY(options)
@@ -309,7 +308,6 @@ ZEND_FUNCTION(wb_notify)
 	zBody = zend_hash_str_find(Z_ARRVAL_P(options), "body", sizeof("body") - 1);
 	zIcon = zend_hash_str_find(Z_ARRVAL_P(options), "icon", sizeof("icon") - 1);
 	zDuration = zend_hash_str_find(Z_ARRVAL_P(options), "duration", sizeof("duration") - 1);
-	zOnClick = zend_hash_str_find(Z_ARRVAL_P(options), "onClick", sizeof("onClick") - 1);
 
 	if (zParent && Z_TYPE_P(zParent) == IS_LONG)
 		pwboParent = (PWBOBJ)Z_LVAL_P(zParent);
@@ -359,26 +357,25 @@ ZEND_FUNCTION(wb_notify)
 
 	if (!usedSystemNotification)
 	{
-		UINT boxStyle = MB_OK;
-		zval retval;
+		FLASHWINFO fw;
+		UINT beepType = MB_ICONINFORMATION;
 
 		if (iconFlags == NIIF_ERROR)
-			boxStyle |= MB_ICONERROR;
+			beepType = MB_ICONERROR;
 		else if (iconFlags == NIIF_WARNING)
-			boxStyle |= MB_ICONWARNING;
-		else
-			boxStyle |= MB_ICONINFORMATION;
+			beepType = MB_ICONWARNING;
 
-		fallbackResult = wbQuietMessageBox(pwboParent, szBody, szTitle, boxStyle, durationMs);
+		wbPlaySystemSound(beepType);
 
-		if (zOnClick && Z_TYPE_P(zOnClick) == IS_STRING && fallbackResult == 1)
+		if (pwboParent && pwboParent->hwnd && IsWindow(pwboParent->hwnd))
 		{
-			zval callback;
-
-			ZVAL_COPY(&callback, zOnClick);
-			if (call_user_function(EG(function_table), NULL, &callback, &retval, 0, NULL) == SUCCESS)
-				zval_ptr_dtor(&retval);
-			zval_ptr_dtor(&callback);
+			ZeroMemory(&fw, sizeof(fw));
+			fw.cbSize = sizeof(fw);
+			fw.hwnd = pwboParent->hwnd;
+			fw.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+			fw.uCount = 2;
+			fw.dwTimeout = durationMs / 2;
+			FlashWindowEx(&fw);
 		}
 	}
 
@@ -386,7 +383,7 @@ ZEND_FUNCTION(wb_notify)
 	add_assoc_bool(return_value, "delivered", TRUE);
 	add_assoc_string(return_value, "backend", usedSystemNotification ? "windows_tray_balloon" : "in_app_banner");
 	add_assoc_bool(return_value, "system_supported", usedSystemNotification);
-	add_assoc_bool(return_value, "click_callback_supported", !usedSystemNotification);
+	add_assoc_bool(return_value, "click_callback_supported", 0);
 
 	if (szTitle)
 		wbFree(szTitle);

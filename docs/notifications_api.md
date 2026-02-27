@@ -9,7 +9,7 @@
 - `body` (`string`, optional): Notification message text.
 - `icon` (`string|int`, optional): `info` (default), `warning`, `error`, `none`, or a raw `NIIF_*` value.
 - `duration` (`int`, optional): Milliseconds (default `5000`).
-- `onClick` (`string`, optional): PHP callback function name used by fallback notifications.
+- `onClick` (`string`, optional): Reserved for future clickable notification actions (currently reported as unsupported).
 
 ## Return payload
 
@@ -18,13 +18,13 @@
 - `delivered` (`bool`): always `true` when the call completes.
 - `backend` (`string`): `windows_tray_balloon` when tray integration succeeded, else `in_app_banner`.
 - `system_supported` (`bool`): whether Windows tray balloon delivery was used.
-- `click_callback_supported` (`bool`): `false` for tray balloons in this implementation, `true` for fallback mode.
+- `click_callback_supported` (`bool`): currently `false`; clickable actions are explicitly unavailable on both backends.
 
 ## Compatibility behavior
 
 1. **Preferred path:** attempts Windows notification-area balloon via `Shell_NotifyIcon(NIM_MODIFY)`.
-2. **Fallback path:** when platform integration is unavailable, uses an in-app timed banner fallback (`wb_quiet_message_box` behavior).
-3. **Action callback:** `onClick` executes only on fallback mode when the user confirms the banner. This makes callback support explicit and deterministic across platforms.
+2. **Fallback path:** when platform integration is unavailable, uses a non-blocking in-app fallback (window flash + system sound) instead of modal dialogs.
+3. **Action callback:** callback wiring is intentionally explicit via `click_callback_supported=false` until a true clickable banner surface is added.
 
 ## Example
 
