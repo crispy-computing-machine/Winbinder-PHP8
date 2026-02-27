@@ -524,15 +524,15 @@ UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs)
 	if (!pwboTarget || !pwboTarget->hwnd || !pszCommand || !*pszCommand || !g_taskLockInit)
 		return 0;
 
-	task = (WB_ASYNC_TASK *)wbCalloc(1, sizeof(WB_ASYNC_TASK));
+	task = (WB_ASYNC_TASK *)calloc(1, sizeof(WB_ASYNC_TASK));
 	if (!task)
 		return 0;
 
 	len = (wcslen(pszCommand) + 1) * sizeof(TCHAR);
-	task->command = (TCHAR *)wbMalloc(len);
+	task->command = (TCHAR *)malloc(len);
 	if (!task->command)
 	{
-		wbFree(task);
+		free(task);
 		return 0;
 	}
 	wcscpy(task->command, pszCommand);
@@ -543,8 +543,8 @@ UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs)
 	task->cancelEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (!task->cancelEvent)
 	{
-		wbFree(task->command);
-		wbFree(task);
+		free(task->command);
+		free(task);
 		return 0;
 	}
 
@@ -562,8 +562,8 @@ UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs)
 			g_taskList = task->next;
 		LeaveCriticalSection(&g_taskLock);
 		CloseHandle(task->cancelEvent);
-		wbFree(task->command);
-		wbFree(task);
+		free(task->command);
+		free(task);
 		return 0;
 	}
 
@@ -658,7 +658,7 @@ BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *pr
 	if (value)
 		*value = current->value;
 
-	wbFree(current);
+	free(current);
 	return TRUE;
 }
 
@@ -2109,7 +2109,7 @@ static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DW
 	if (!task || !g_eventLockInit)
 		return;
 
-	evt = (WB_ASYNC_EVENT *)wbCalloc(1, sizeof(WB_ASYNC_EVENT));
+	evt = (WB_ASYNC_EVENT *)calloc(1, sizeof(WB_ASYNC_EVENT));
 	if (!evt)
 		return;
 
@@ -2225,8 +2225,8 @@ static void wbTaskCleanup(void)
 			if (task->cancelEvent)
 				CloseHandle(task->cancelEvent);
 			if (task->command)
-				wbFree(task->command);
-			wbFree(task);
+				free(task->command);
+			free(task);
 			task = next;
 		}
 	}
@@ -2242,7 +2242,7 @@ static void wbTaskCleanup(void)
 		while (evt)
 		{
 			nextEvt = evt->next;
-			wbFree(evt);
+			free(evt);
 			evt = nextEvt;
 		}
 	}
