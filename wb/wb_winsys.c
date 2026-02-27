@@ -23,6 +23,7 @@
 #include <ole2.h>			// For OleInitialize()
 #include <mmsystem.h>		// For PlaySound()
 #include <VersionHelpers.h> // For VERSIONHELPERAPI
+#include <dwmapi.h>
 
 //-------------------------------------------------------------------- CONSTANTS
 
@@ -181,6 +182,105 @@ BOOL wbInit(void)
 	wbSetCursor((PWBOBJ)InvisibleArea, TEXT("arrow"), NULL);
 
 	return TRUE;
+}
+
+
+static int nGlobalTheme = WBT_THEME_DEFAULT;
+
+static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
+{
+	BOOL bDark = (nTheme == WBT_THEME_DARK);
+	BOOL bOk = TRUE;
+
+	if (!hwnd || !IsWindow(hwnd))
+		return FALSE;
+
+	if (SetWindowTheme)
+	{
+		if (nTheme == WBT_THEME_DARK)
+		{
+			if (FAILED(SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
+				bOk = FALSE;
+		}
+		else
+		{
+			SetWindowTheme(hwnd, L"Explorer", NULL);
+		}
+	}
+
+	if (IsWindows10OrGreater())
+	{
+		if (FAILED(DwmSetWindowAttribute(hwnd, 20, &bDark, sizeof(bDark))))
+			DwmSetWindowAttribute(hwnd, 19, &bDark, sizeof(bDark));
+	}
+
+	SendMessage(hwnd, WM_THEMECHANGED, 0, 0);
+	InvalidateRect(hwnd, NULL, TRUE);
+	return bOk;
+}
+
+static BOOL CALLBACK wbThemeEnumChildProc(HWND hwnd, LPARAM lParam)
+{
+	int nTheme = (int)lParam;
+	wbApplyThemeToHwnd(hwnd, nTheme);
+	return TRUE;
+}
+
+static int wbResolveTheme(PWBOBJ pwbo)
+{
+	PWBOBJ p = pwbo;
+	while (p)
+	{
+		if (p->theme != WBT_THEME_DEFAULT)
+			return p->theme;
+		p = p->parent;
+	}
+	return nGlobalTheme;
+}
+
+BOOL wbSetTheme(PWBOBJ pwbo, int nTheme)
+{
+	if (nTheme != WBT_THEME_DEFAULT && nTheme != WBT_THEME_LIGHT && nTheme != WBT_THEME_DARK)
+		return FALSE;
+
+	if (pwbo)
+	{
+		if (!wbIsWBObj(pwbo, TRUE))
+			return FALSE;
+		pwbo->theme = nTheme;
+		nTheme = wbResolveTheme(pwbo);
+		wbApplyThemeToHwnd(pwbo->hwnd, nTheme);
+		EnumChildWindows(pwbo->hwnd, wbThemeEnumChildProc, (LPARAM)nTheme);
+		return TRUE;
+	}
+
+	nGlobalTheme = nTheme;
+	EnumThreadWindows(GetCurrentThreadId(), wbThemeEnumChildProc, (LPARAM)nTheme);
+	return TRUE;
+}
+
+int wbGetTheme(PWBOBJ pwbo)
+{
+	if (!pwbo)
+		return nGlobalTheme;
+	if (!wbIsWBObj(pwbo, FALSE))
+		return WBT_THEME_DEFAULT;
+	return wbResolveTheme(pwbo);
+}
+
+COLORREF wbGetThemeTextColor(PWBOBJ pwbo)
+{
+	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_TEXT_DARK : WBT_COLOR_TEXT_LIGHT;
+}
+
+COLORREF wbGetThemeBackgroundColor(PWBOBJ pwbo)
+{
+	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_BACKGROUND_DARK : WBT_COLOR_BACKGROUND_LIGHT;
+}
+
+COLORREF wbGetThemeAccentColor(PWBOBJ pwbo)
+{
+	return wbGetTheme(pwbo) == WBT_THEME_DARK ? WBT_COLOR_ACCENT_DARK : WBT_COLOR_ACCENT_LIGHT;
 }
 
 /* Module end */

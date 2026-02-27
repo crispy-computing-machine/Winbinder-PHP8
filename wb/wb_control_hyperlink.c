@@ -15,7 +15,6 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define COLOR_HYPERLINK RGB(0, 0, 192)
 
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
@@ -52,7 +51,7 @@ LRESULT CALLBACK HyperLinkProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         // Get font colour
         pfont = wbGetFont(pwbobj->lparam);
 
-		DrawHyperLink(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_HYPERLINK : pfont->color);
+		DrawHyperLink(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? wbGetThemeAccentColor(wbGetWBObj(hwnd)) : pfont->color);
 		EndPaint(hwnd, &ps);
 	}
 		return 0;

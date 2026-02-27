@@ -221,6 +221,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 	pwbo->item = -1;
 	pwbo->subitem = -1;
 	pwbo->style = dwWBStyle;
+	pwbo->theme = WBT_THEME_DEFAULT;
 	pwbo->parent = pwboParent;
 	pwbo->pszCallBackFn = NULL;
 	pwbo->pszCallBackObj = NULL;
@@ -317,6 +318,7 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 	CreateToolTip(pwbo, pszTooltip);
 
 	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
+	wbSetTheme(pwbo, pwbo->theme);
 
 	// Is it a modal dialog?
 
@@ -1522,6 +1524,10 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             if (pFont && pFont->color != NOCOLOR)
                 SetTextColor((HDC)wParam, pFont->color);
+            else
+                SetTextColor((HDC)wParam, wbGetThemeTextColor(pwbobj));
+
+            SetBkColor((HDC)wParam, wbGetThemeBackgroundColor(pwbobj));
 
             if (hbrTabs)
             { // Not for versions under Windows XP

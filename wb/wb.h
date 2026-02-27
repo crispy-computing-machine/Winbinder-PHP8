@@ -84,6 +84,7 @@
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Dnsapi.lib")
+#pragma comment(lib, "dwmapi.lib")
 
 //-------------------------------------------------------------------- CONSTANTS
 
@@ -220,6 +221,19 @@ enum
 #define WBC_DEFAULT 0x00000008				 // Control has a border
 #define WBC_DEFAULTPOS (signed)CW_USEDEFAULT // 0x80000000
 
+// Theme modes for wbSetTheme()/wbGetTheme()
+#define WBT_THEME_DEFAULT 0
+#define WBT_THEME_LIGHT 1
+#define WBT_THEME_DARK 2
+
+// Documented default theme palette (BGR COLORREF values)
+#define WBT_COLOR_TEXT_LIGHT RGB(20, 20, 20)
+#define WBT_COLOR_BACKGROUND_LIGHT RGB(255, 255, 255)
+#define WBT_COLOR_ACCENT_LIGHT RGB(0, 120, 215)
+#define WBT_COLOR_TEXT_DARK RGB(232, 232, 232)
+#define WBT_COLOR_BACKGROUND_DARK RGB(32, 32, 32)
+#define WBT_COLOR_ACCENT_DARK RGB(86, 156, 214)
+
 // Notification message flags (parameter param of wb_create_window)
 
 #define WBC_DBLCLICK 0x00000040
@@ -347,6 +361,7 @@ typedef struct _wbo
 	__int64 item;				// Item index
 	__int64 subitem;			// Sub-item index
 	DWORD style;			// WinBinder style
+	int theme;				// Theme override (WBT_THEME_*)
 	struct _wbo *parent;	// Parent window
 	LPTSTR pszCallBackFn;   // Callback function
 	LPDWORD pszCallBackObj; // Object for callback method
@@ -482,6 +497,11 @@ BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR dwMin, LONG_PTR dwMax);
 BOOL wbGetVisible(PWBOBJ pwbo);
 BOOL wbSetVisible(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetStyle(PWBOBJ pwbo, DWORD dwWBStyle, BOOL bSet);
+BOOL wbSetTheme(PWBOBJ pwbo, int nTheme);
+int wbGetTheme(PWBOBJ pwbo);
+COLORREF wbGetThemeTextColor(PWBOBJ pwbo);
+COLORREF wbGetThemeBackgroundColor(PWBOBJ pwbo);
+COLORREF wbGetThemeAccentColor(PWBOBJ pwbo);
 BOOL wbIsValidClass(UINT64 uClass);
 BOOL wbGetEnabled(PWBOBJ pwbo);
 BOOL wbSetEnabled(PWBOBJ pwbo, BOOL bState);

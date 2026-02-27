@@ -293,6 +293,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	pwbo->item = -1;
 	pwbo->subitem = -1;
 	pwbo->style = dwWBStyle;
+	pwbo->theme = WBT_THEME_DEFAULT;
 	pwbo->parent = pwboParent;
 	pwbo->pszCallBackFn = NULL;
 	pwbo->pszCallBackObj = NULL;
@@ -790,6 +791,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		RegisterControlInTab(pwboParent, pwbo, id, nTab);
 
 	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
+	wbSetTheme(pwbo, pwbo->theme);
 
 	return pwbo;
 }
@@ -879,6 +881,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 			pwbo->item = -1;
 			pwbo->subitem = -1;
 			pwbo->style = 0;
+			pwbo->theme = WBT_THEME_DEFAULT;
 			pwbo->parent = pwboParent;
 			pwbo->pszCallBackFn = NULL;
 			pwbo->pszCallBackObj = NULL;
@@ -910,6 +913,7 @@ PWBOBJ wbGetControl(PWBOBJ pwboParent, int id)
 					pwbo->item = -1;
 					pwbo->subitem = -1;
 					pwbo->style = 0;
+					pwbo->theme = WBT_THEME_DEFAULT;
 					pwbo->parent = pwboParent;
 					pwbo->pszCallBackFn = NULL;
 					pwbo->pszCallBackObj = NULL;

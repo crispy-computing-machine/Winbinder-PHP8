@@ -105,6 +105,8 @@ ZEND_FUNCTION(wb_set_browser_proxy);
 ZEND_FUNCTION(wb_set_range);
 ZEND_FUNCTION(wb_set_state);
 ZEND_FUNCTION(wb_set_style);
+ZEND_FUNCTION(wb_set_theme);
+ZEND_FUNCTION(wb_get_theme);
 ZEND_FUNCTION(wb_set_visible);
 ZEND_FUNCTION(wb_sort);
 ZEND_FUNCTION(wb_create_control);
@@ -343,6 +345,8 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_range,arginfo_wb_set_range)
         ZEND_FE(wb_set_state,arginfo_wb_set_state)
         ZEND_FE(wb_set_style,arginfo_wb_set_style)
+        ZEND_FE(wb_set_theme,arginfo_wb_set_theme)
+        ZEND_FE(wb_get_theme,arginfo_wb_get_theme)
         ZEND_FE(wb_set_visible,arginfo_wb_set_visible)
         ZEND_FE(wb_sort,arginfo_wb_sort)
         ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
@@ -490,6 +494,10 @@ ZEND_MINIT_FUNCTION(winbinder)
 
 	// Module initialization procedure
 	wbInit();
+
+	WB_ZEND_CONST(LONG, "WBT_THEME_DEFAULT", WBT_THEME_DEFAULT)
+	WB_ZEND_CONST(LONG, "WBT_THEME_LIGHT", WBT_THEME_LIGHT)
+	WB_ZEND_CONST(LONG, "WBT_THEME_DARK", WBT_THEME_DARK)
 
 	// Window classes
 	WB_ZEND_CONST(LONG, "AppWindow", AppWindow)

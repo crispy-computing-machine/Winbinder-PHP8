@@ -15,7 +15,6 @@
 
 //-------------------------------------------------------------------- CONSTANTS
 
-#define COLOR_LABEL RGB(0, 0, 0)
 
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
@@ -52,7 +51,7 @@ LRESULT CALLBACK LabelProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             // Get font colour
             pfont = wbGetFont(pwbobj->lparam);
 
-            DrawLabel(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? COLOR_LABEL : pfont->color);
+            DrawLabel(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? wbGetThemeTextColor(wbGetWBObj(hwnd)) : pfont->color);
             EndPaint(hwnd, &ps);
         }
             return 0;

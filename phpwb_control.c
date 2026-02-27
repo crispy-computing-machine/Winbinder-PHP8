@@ -358,6 +358,47 @@ ZEND_FUNCTION(wb_set_style)
 	RETURN_BOOL(wbSetStyle((PWBOBJ)pwbo, style, value));
 }
 
+
+ZEND_FUNCTION(wb_set_theme)
+{
+	zend_long pwbo = 0, theme;
+	if (ZEND_NUM_ARGS() == 1)
+	{
+		ZEND_PARSE_PARAMETERS_START(1, 1)
+			Z_PARAM_LONG(theme)
+		ZEND_PARSE_PARAMETERS_END();
+		RETURN_BOOL(wbSetTheme(NULL, (int)theme));
+	}
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(theme)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbSetTheme((PWBOBJ)pwbo, (int)theme));
+}
+
+ZEND_FUNCTION(wb_get_theme)
+{
+	zend_long pwbo = 0;
+	if (ZEND_NUM_ARGS() == 0)
+	{
+		RETURN_LONG(wbGetTheme(NULL));
+	}
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_LONG(WBT_THEME_DEFAULT);
+
+	RETURN_LONG(wbGetTheme((PWBOBJ)pwbo));
+}
+
 ZEND_FUNCTION(wb_get_class)
 {
 	zend_long pwbo;
@@ -1722,6 +1763,16 @@ ZEND_FUNCTION(wb_scintilla_set_line_numbers)
 static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 {
 	const char *phpKeywords = "abstract and array as break callable case catch class clone const continue declare default do else elseif enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return self static switch throw trait try unset use var while xor yield from";
+	BOOL dark = (wbGetTheme(obj) == WBT_THEME_DARK);
+	COLORREF editorBack = dark ? RGB(30, 30, 30) : WBT_COLOR_BACKGROUND_LIGHT;
+	COLORREF lineNumBack = dark ? RGB(45, 45, 48) : RGB(245, 245, 245);
+	COLORREF lineNumFore = dark ? RGB(133, 133, 133) : RGB(120, 120, 120);
+	COLORREF keyword = dark ? RGB(86, 156, 214) : RGB(0, 0, 180);
+	COLORREF variable = dark ? RGB(156, 220, 254) : RGB(150, 0, 150);
+	COLORREF number = dark ? RGB(181, 206, 168) : RGB(180, 0, 0);
+	COLORREF comment = dark ? RGB(106, 153, 85) : RGB(0, 128, 0);
+	COLORREF stringColor = dark ? RGB(206, 145, 120) : RGB(163, 21, 21);
+	COLORREF operatorColor = dark ? WBT_COLOR_TEXT_DARK : RGB(0, 0, 0);
 
 	SendMessage(obj->hwnd, SCI_SETLEXER, SCLEX_HTML, 0);
 	SendMessage(obj->hwnd, SCI_SETKEYWORDS, 0, (LPARAM)phpKeywords);
@@ -1742,25 +1793,25 @@ static void wbScintillaApplyPhpPreset(PWBOBJ obj)
 	SendMessage(obj->hwnd, SCI_SETINDENTATIONGUIDES, 1, 0);
 	SendMessage(obj->hwnd, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
 	SendMessage(obj->hwnd, SCI_SETMARGINWIDTHN, 0, 56);
-	SendMessage(obj->hwnd, SCI_SETCARETLINEVISIBLE, 1, 0);
-	SendMessage(obj->hwnd, SCI_SETCARETLINEBACK, RGB(245, 245, 245), 0);
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_DEFAULT, RGB(0, 0, 0));
-	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_DEFAULT, RGB(255, 255, 255));
 	SendMessage(obj->hwnd, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
 	SendMessage(obj->hwnd, SCI_STYLESETSIZE, STYLE_DEFAULT, 10);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_DEFAULT, dark ? WBT_COLOR_TEXT_DARK : WBT_COLOR_TEXT_LIGHT);
+	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_DEFAULT, editorBack);
 	SendMessage(obj->hwnd, SCI_STYLECLEARALL, 0, 0);
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_LINENUMBER, RGB(120, 120, 120));
-	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_LINENUMBER, RGB(245, 245, 245));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_WORD, RGB(0, 0, 180));
+	SendMessage(obj->hwnd, SCI_SETCARETLINEVISIBLE, 1, 0);
+	SendMessage(obj->hwnd, SCI_SETCARETLINEBACK, dark ? RGB(38, 79, 120) : RGB(245, 245, 245), 0);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, STYLE_LINENUMBER, lineNumFore);
+	SendMessage(obj->hwnd, SCI_STYLESETBACK, STYLE_LINENUMBER, lineNumBack);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_WORD, keyword);
 	SendMessage(obj->hwnd, SCI_STYLESETBOLD, SCE_HPHP_WORD, 1);
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_VARIABLE, RGB(150, 0, 150));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_NUMBER, RGB(180, 0, 0));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENT, RGB(0, 128, 0));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENTLINE, RGB(0, 128, 0));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING, RGB(163, 21, 21));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_SIMPLESTRING, RGB(163, 21, 21));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING_VARIABLE, RGB(150, 0, 150));
-	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_OPERATOR, RGB(0, 0, 0));
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_VARIABLE, variable);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_NUMBER, number);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENT, comment);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_COMMENTLINE, comment);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING, stringColor);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_SIMPLESTRING, stringColor);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_HSTRING_VARIABLE, variable);
+	SendMessage(obj->hwnd, SCI_STYLESETFORE, SCE_HPHP_OPERATOR, operatorColor);
 	SendMessage(obj->hwnd, SCI_SETVIEWWS, SCWS_INVISIBLE, 0);
 }
 
