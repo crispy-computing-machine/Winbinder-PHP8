@@ -25,7 +25,6 @@
 PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 {
 	int i;
-	MENUITEMINFO mi;
 	PWBOBJ pwbo;
 	HMENU hMenu, hPopup = NULL;
 	LPCTSTR pszLastPopup = NULL;
@@ -101,11 +100,6 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 	pwbo->lparam = 0;
 	pwbo->parent = pwboParent;
 
-	// ********* DOESN'T WORK
-	mi.dwItemData = (DWORD_PTR)pwbo;
-	SetMenuItemInfo((HMENU)pwbo->hwnd, 0, TRUE, &mi);
-	// ********* DOESN'T WORK
-
 	SetMenu(pwboParent->hwnd, hMenu);
 	return pwbo;
 }
@@ -125,7 +119,6 @@ BOOL wbSetMenuItemText(PWBOBJ pwbo, LPCTSTR pszText)
 
 BOOL wbGetMenuItemChecked(PWBOBJ pwbo)
 {
-	MENUITEMINFO mi;
 
 	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
@@ -143,7 +136,6 @@ BOOL wbSetMenuItemChecked(PWBOBJ pwbo, BOOL bState)
 		return FALSE;
 
 	/*
-	MENUITEMINFO mi;
 
 	mi.cbSize = sizeof(MENUITEMINFO);
 	mi.fMask = MIIM_STATE;

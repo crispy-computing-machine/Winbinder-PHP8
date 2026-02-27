@@ -335,10 +335,17 @@ static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 
 	if (pfnSetWindowTheme)
 	{
-		if (bDark)
+		if (GetParent(hwnd) == NULL)
 		{
-			if (FAILED(pfnSetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
-				bOk = FALSE;
+			if (bDark)
+			{
+				if (FAILED(pfnSetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
+					bOk = FALSE;
+			}
+			else
+			{
+				pfnSetWindowTheme(hwnd, L"Explorer", NULL);
+			}
 		}
 		else
 		{
@@ -346,7 +353,7 @@ static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 		}
 	}
 
-	if (pfnDwmSetWindowAttribute && IsWindows10OrGreater())
+	if (pfnDwmSetWindowAttribute && IsWindows10OrGreater() && GetParent(hwnd) == NULL)
 	{
 		if (FAILED(pfnDwmSetWindowAttribute(hwnd, 20, &bDark, sizeof(bDark))))
 			pfnDwmSetWindowAttribute(hwnd, 19, &bDark, sizeof(bDark));

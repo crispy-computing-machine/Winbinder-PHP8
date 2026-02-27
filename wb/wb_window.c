@@ -1531,6 +1531,8 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             hCtrl = (HWND)lParam;
             pwbobj = wbGetWBObj(hCtrl);
+            if (!pwbobj && hCtrl)
+                pwbobj = wbGetWBObj(GetParent(hCtrl));
             nCtrlFontId = (int)(INT_PTR)GetProp(hCtrl, TEXT("WB_FONT_ID"));
 
             if (nCtrlFontId > 0)
@@ -1544,6 +1546,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             else
                 SetTextColor((HDC)wParam, wbGetThemeTextColor(pwbobj));
 
+            SetBkMode((HDC)wParam, TRANSPARENT);
             SetBkColor((HDC)wParam, wbGetThemeBackgroundColor(pwbobj));
 
             if (!hbrTabs)
