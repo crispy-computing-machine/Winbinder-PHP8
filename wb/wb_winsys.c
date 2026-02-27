@@ -243,9 +243,8 @@ static void wbEnsurePaletteBrush(int nTheme)
 	WBTHEMEPALETTE *p;
 	nTheme = wbNormalizeTheme(nTheme);
 	p = &gThemePalettes[nTheme == WBT_THEME_DEFAULT ? WBT_THEME_LIGHT : nTheme];
-	if (p->hbrBackground)
-		DeleteObject(p->hbrBackground);
-	p->hbrBackground = CreateSolidBrush(p->background);
+	if (!p->hbrBackground)
+		p->hbrBackground = CreateSolidBrush(p->background);
 }
 
 static void wbRefreshMenuTheme(HWND hwnd, PWBOBJ pwbo)
@@ -259,8 +258,8 @@ static void wbRefreshMenuTheme(HWND hwnd, PWBOBJ pwbo)
 	mi.cbSize = sizeof(mi);
 	mi.fMask = MIM_BACKGROUND;
 	mi.hbrBack = wbGetThemeBackgroundBrush(pwbo);
-	SetMenuInfo(hMenu, &mi);
-	DrawMenuBar(hwnd);
+	if (SetMenuInfo(hMenu, &mi))
+		DrawMenuBar(hwnd);
 }
 
 static void wbResolveThemeApis(void)
@@ -437,7 +436,7 @@ BOOL wbSetThemeColor(int nTheme, int nRole, COLORREF clr)
 		break;
 	case WBT_COLOR_ROLE_BACKGROUND:
 		p->background = clr;
-		wbEnsurePaletteBrush(nTheme);
+		p->hbrBackground = CreateSolidBrush(p->background);
 		break;
 	case WBT_COLOR_ROLE_ACCENT:
 		p->accent = clr;
