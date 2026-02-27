@@ -279,18 +279,18 @@ typedef struct
 
 static HRESULT STDMETHODCALLTYPE WBQI_NotSupported(void *This, REFIID riid, void **ppvObject)
 {
-	typedef ULONG(STDMETHODCALLTYPE *PFN_ADDREF)(void *);
-	PFN_ADDREF addRef;
+	typedef struct
+	{
+		void *lpVtbl;
+		LONG ref;
+	} WBREFCOUNTED;
 
 	UNREFERENCED_PARAMETER(riid);
-	if (!ppvObject)
+	if (!ppvObject || !This)
 		return E_POINTER;
 
 	*ppvObject = This;
-	addRef = (PFN_ADDREF)((void **)(*(void **)This))[1];
-	if (addRef)
-		addRef(This);
-
+	InterlockedIncrement(&((WBREFCOUNTED *)This)->ref);
 	return S_OK;
 }
 
@@ -454,12 +454,15 @@ static BOOL wbBuildWebView2UserDataDir(LPWSTR pathBuffer, DWORD cchPathBuffer)
 	if (_snwprintf(baseDir, MAX_PATH, L"%lsWinBinder", tempPath) < 0)
 		return FALSE;
 
-	CreateDirectoryW(baseDir, NULL);
+	if (!CreateDirectoryW(baseDir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+		return FALSE;
 
 	if (_snwprintf(pathBuffer, cchPathBuffer, L"%ls\\WebView2Data", baseDir) < 0)
 		return FALSE;
 
-	CreateDirectoryW(pathBuffer, NULL);
+	if (!CreateDirectoryW(pathBuffer, NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
+		return FALSE;
+
 	return TRUE;
 }
 
