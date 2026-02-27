@@ -84,7 +84,6 @@
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Dnsapi.lib")
-#pragma comment(lib, "dwmapi.lib")
 
 //-------------------------------------------------------------------- CONSTANTS
 

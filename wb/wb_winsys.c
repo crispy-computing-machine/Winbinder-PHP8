@@ -23,7 +23,6 @@
 #include <ole2.h>			// For OleInitialize()
 #include <mmsystem.h>		// For PlaySound()
 #include <VersionHelpers.h> // For VERSIONHELPERAPI
-#include <dwmapi.h>
 
 //-------------------------------------------------------------------- CONSTANTS
 
@@ -187,6 +186,32 @@ BOOL wbInit(void)
 
 static int nGlobalTheme = WBT_THEME_DEFAULT;
 
+
+typedef HRESULT(WINAPI *PFNSETWINDOWTHEME)(HWND, LPCWSTR, LPCWSTR);
+typedef HRESULT(WINAPI *PFNDWMSETWINDOWATTRIBUTE)(HWND, DWORD, LPCVOID, DWORD);
+
+static PFNSETWINDOWTHEME pfnSetWindowTheme = NULL;
+static PFNDWMSETWINDOWATTRIBUTE pfnDwmSetWindowAttribute = NULL;
+static BOOL bThemeApiResolved = FALSE;
+
+static void wbResolveThemeApis(void)
+{
+	HMODULE hUxTheme;
+	HMODULE hDwmApi;
+
+	if (bThemeApiResolved)
+		return;
+
+	bThemeApiResolved = TRUE;
+	hUxTheme = LoadLibrary(TEXT("uxtheme.dll"));
+	if (hUxTheme)
+		pfnSetWindowTheme = (PFNSETWINDOWTHEME)GetProcAddress(hUxTheme, "SetWindowTheme");
+
+	hDwmApi = LoadLibrary(TEXT("dwmapi.dll"));
+	if (hDwmApi)
+		pfnDwmSetWindowAttribute = (PFNDWMSETWINDOWATTRIBUTE)GetProcAddress(hDwmApi, "DwmSetWindowAttribute");
+}
+
 static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 {
 	BOOL bDark = (nTheme == WBT_THEME_DARK);
@@ -195,23 +220,25 @@ static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 	if (!hwnd || !IsWindow(hwnd))
 		return FALSE;
 
-	if (SetWindowTheme)
+	wbResolveThemeApis();
+
+	if (pfnSetWindowTheme)
 	{
 		if (nTheme == WBT_THEME_DARK)
 		{
-			if (FAILED(SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
+			if (FAILED(pfnSetWindowTheme(hwnd, L"DarkMode_Explorer", NULL)))
 				bOk = FALSE;
 		}
 		else
 		{
-			SetWindowTheme(hwnd, L"Explorer", NULL);
+			pfnSetWindowTheme(hwnd, L"Explorer", NULL);
 		}
 	}
 
-	if (IsWindows10OrGreater())
+	if (pfnDwmSetWindowAttribute && IsWindows10OrGreater())
 	{
-		if (FAILED(DwmSetWindowAttribute(hwnd, 20, &bDark, sizeof(bDark))))
-			DwmSetWindowAttribute(hwnd, 19, &bDark, sizeof(bDark));
+		if (FAILED(pfnDwmSetWindowAttribute(hwnd, 20, &bDark, sizeof(bDark))))
+			pfnDwmSetWindowAttribute(hwnd, 19, &bDark, sizeof(bDark));
 	}
 
 	SendMessage(hwnd, WM_THEMECHANGED, 0, 0);
