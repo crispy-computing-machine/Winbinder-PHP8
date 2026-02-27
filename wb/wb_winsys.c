@@ -278,16 +278,59 @@ static void wbResolveThemeApis(void)
 		pfnDwmSetWindowAttribute = (PFNDWMSETWINDOWATTRIBUTE)GetProcAddress(hDwmApi, "DwmSetWindowAttribute");
 }
 
+static void wbApplyThemeColorsToControl(HWND hwnd, PWBOBJ pwbo)
+{
+	TCHAR szClass[64];
+	COLORREF clrText;
+	COLORREF clrBack;
+
+	if (!hwnd || !IsWindow(hwnd) || !pwbo)
+		return;
+
+	clrText = wbGetThemeTextColor(pwbo);
+	clrBack = wbGetThemeBackgroundColor(pwbo);
+	GetClassName(hwnd, szClass, NUMITEMS(szClass) - 1);
+
+	if (!lstrcmpi(szClass, WC_LISTVIEW))
+	{
+		SendMessage(hwnd, LVM_SETTEXTCOLOR, 0, clrText);
+		SendMessage(hwnd, LVM_SETBKCOLOR, 0, clrBack);
+		SendMessage(hwnd, LVM_SETTEXTBKCOLOR, 0, clrBack);
+	}
+	else if (!lstrcmpi(szClass, WC_TREEVIEW))
+	{
+		SendMessage(hwnd, TVM_SETTEXTCOLOR, 0, clrText);
+		SendMessage(hwnd, TVM_SETBKCOLOR, 0, clrBack);
+	}
+	else if (!lstrcmpi(szClass, RICHEDITCONTROL) || !lstrcmpi(szClass, TEXT("EDIT")))
+	{
+		SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, clrBack);
+	}
+	else if (!lstrcmpi(szClass, STATUSCLASSNAME))
+	{
+		SendMessage(hwnd, SB_SETBKCOLOR, 0, clrBack);
+	}
+	else if (!lstrcmpi(szClass, TOOLBARCLASSNAME))
+	{
+		SendMessage(hwnd, TB_SETBKCOLOR, 0, clrBack);
+		SendMessage(hwnd, TB_SETTEXTCOLOR, 0, clrText);
+	}
+
+	InvalidateRect(hwnd, NULL, TRUE);
+}
+
 static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 {
 	BOOL bDark;
 	BOOL bOk = TRUE;
 	PWBOBJ pwbo;
+	COLORREF clrBack;
 
 	if (!hwnd || !IsWindow(hwnd))
 		return FALSE;
 	nTheme = wbNormalizeTheme(nTheme);
-	bDark = (nTheme == WBT_THEME_DARK || nTheme == WBT_THEME_CUSTOM);
+	clrBack = wbGetThemeColor(nTheme, WBT_COLOR_ROLE_BACKGROUND);
+	bDark = ((GetRValue(clrBack) + GetGValue(clrBack) + GetBValue(clrBack)) / 3) < 128;
 	wbResolveThemeApis();
 
 	if (pfnSetWindowTheme)
@@ -311,7 +354,10 @@ static BOOL wbApplyThemeToHwnd(HWND hwnd, int nTheme)
 
 	pwbo = wbGetWBObj(hwnd);
 	if (pwbo)
+	{
 		wbRefreshMenuTheme(hwnd, pwbo);
+		wbApplyThemeColorsToControl(hwnd, pwbo);
+	}
 
 	SendMessage(hwnd, WM_THEMECHANGED, 0, 0);
 	InvalidateRect(hwnd, NULL, TRUE);

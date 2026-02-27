@@ -51,7 +51,7 @@ LRESULT CALLBACK LabelProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             // Get font colour
             pfont = wbGetFont(pwbobj->lparam);
 
-            DrawLabel(hdc, hwnd, &ps.rcPaint, pfont->color == NOCOLOR ? wbGetThemeTextColor(wbGetWBObj(hwnd)) : pfont->color);
+            DrawLabel(hdc, hwnd, &ps.rcPaint, (!pfont || pfont->color == NOCOLOR) ? wbGetThemeTextColor(wbGetWBObj(hwnd)) : pfont->color);
             EndPaint(hwnd, &ps);
         }
             return 0;
