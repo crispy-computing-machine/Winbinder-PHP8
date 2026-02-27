@@ -52,7 +52,7 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 	// Does it have a valid handle?
 	//printf("wbIsWBObj 4\n");
     HWND hwnd = ((PWBOBJ)pwbo)->hwnd;
-    if (!hwnd || !IsWindow(hwnd)) {
+    if (!hwnd) {
         if (bShowErrors)
             wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid WinBinder object handle"));
         return FALSE;

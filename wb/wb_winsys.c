@@ -283,13 +283,23 @@ static void wbApplyThemeColorsToControl(HWND hwnd, PWBOBJ pwbo)
 	TCHAR szClass[64];
 	COLORREF clrText;
 	COLORREF clrBack;
+	BOOL bDark;
 
 	if (!hwnd || !IsWindow(hwnd) || !pwbo)
 		return;
 
 	clrText = wbGetThemeTextColor(pwbo);
 	clrBack = wbGetThemeBackgroundColor(pwbo);
+	bDark = ((GetRValue(clrBack) + GetGValue(clrBack) + GetBValue(clrBack)) / 3) < 128;
 	GetClassName(hwnd, szClass, NUMITEMS(szClass) - 1);
+
+	if (pfnSetWindowTheme && !lstrcmpi(szClass, TEXT("Button")))
+	{
+		if (bDark)
+			pfnSetWindowTheme(hwnd, L"", L"");
+		else
+			pfnSetWindowTheme(hwnd, L"Explorer", NULL);
+	}
 
 	if (!lstrcmpi(szClass, WC_LISTVIEW))
 	{
