@@ -119,6 +119,7 @@ BOOL wbSetMenuItemText(PWBOBJ pwbo, LPCTSTR pszText)
 
 BOOL wbGetMenuItemChecked(PWBOBJ pwbo)
 {
+	MENUITEMINFO mi;
 
 	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
