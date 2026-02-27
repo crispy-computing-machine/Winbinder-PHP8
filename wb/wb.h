@@ -246,6 +246,12 @@ enum
 #define WBC_WEBVIEW2_NAV_COMPLETED 0x00200000
 #define WBC_WEBVIEW2_SCRIPT_MESSAGE 0x00400000
 
+
+// Internal WebView2 backend mode markers (pwbo->lparams[5])
+#define WBWV2_MODE_NONE 0
+#define WBWV2_MODE_NATIVE 1
+#define WBWV2_MODE_LEGACY_IE 2
+
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
 

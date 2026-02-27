@@ -1214,7 +1214,7 @@ LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_SIZE:
 	{
 		PWBOBJ pwbo = wbGetWBObj(hwnd);
-		if (pwbo && pwbo->uClass == WebView2Control)
+		if (pwbo && pwbo->uClass == WebView2Control && pwbo->lparams[5] == WBWV2_MODE_NATIVE)
 			wbWebView2Resize(pwbo, LOWORD(lParam), HIWORD(lParam));
 		else
 			ResizeBrowser(hwnd, LOWORD(lParam), HIWORD(lParam));
@@ -1229,7 +1229,7 @@ LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_DESTROY:
 	{
 		PWBOBJ pwbo = wbGetWBObj(hwnd);
-		if (pwbo && pwbo->uClass == WebView2Control)
+		if (pwbo && pwbo->uClass == WebView2Control && pwbo->lparams[5] == WBWV2_MODE_NATIVE)
 			wbWebView2Destroy(pwbo);
 		else
 			UnEmbedBrowserObject(hwnd);

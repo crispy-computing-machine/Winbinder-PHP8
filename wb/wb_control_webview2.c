@@ -226,6 +226,10 @@ struct ICoreWebView2NavigationCompletedEventArgs
 
 typedef HRESULT(STDAPICALLTYPE *PFN_CreateCoreWebView2EnvironmentWithOptions)(PCWSTR, PCWSTR, void *, ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *);
 
+extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
+extern BOOL DisplayHTMLString(PWBOBJ pwbo, LPCTSTR string);
+extern BOOL ExecuteHTMLScript(PWBOBJ pwbo, LPCTSTR pszScript);
+
 static HMODULE s_webview2Loader = NULL;
 static PFN_CreateCoreWebView2EnvironmentWithOptions s_createEnvironment = NULL;
 
@@ -650,6 +654,8 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control)
 		return FALSE;
 
+	pwbo->lparams[5] = WBWV2_MODE_NONE;
+
 	if (!wbEnsureWebView2Loader())
 		return FALSE;
 
@@ -710,6 +716,7 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 		return FALSE;
 	}
 
+	pwbo->lparams[5] = WBWV2_MODE_NATIVE;
 	return TRUE;
 }
 
@@ -766,28 +773,44 @@ void wbWebView2Destroy(PWBOBJ pwbo)
 
 	wbFree(data);
 	pwbo->lparams[0] = 0;
+	pwbo->lparams[5] = WBWV2_MODE_NONE;
 }
 
 BOOL wbWebView2Navigate(PWBOBJ pwbo, LPCTSTR url)
 {
-	WBWEBVIEW2DATA *data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
-	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !url || !data || !data->webview)
+	WBWEBVIEW2DATA *data;
+	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !url)
+		return FALSE;
+	if (pwbo->lparams[5] == WBWV2_MODE_LEGACY_IE)
+		return DisplayHTMLPage(pwbo, url);
+	data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
+	if (!data || !data->webview)
 		return FALSE;
 	return SUCCEEDED(data->webview->lpVtbl->Navigate(data->webview, url));
 }
 
 BOOL wbWebView2SetHtml(PWBOBJ pwbo, LPCTSTR html)
 {
-	WBWEBVIEW2DATA *data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
-	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !html || !data || !data->webview)
+	WBWEBVIEW2DATA *data;
+	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !html)
+		return FALSE;
+	if (pwbo->lparams[5] == WBWV2_MODE_LEGACY_IE)
+		return DisplayHTMLString(pwbo, html);
+	data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
+	if (!data || !data->webview)
 		return FALSE;
 	return SUCCEEDED(data->webview->lpVtbl->NavigateToString(data->webview, html));
 }
 
 BOOL wbWebView2ExecuteScript(PWBOBJ pwbo, LPCTSTR script)
 {
-	WBWEBVIEW2DATA *data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
-	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !script || !data || !data->webview)
+	WBWEBVIEW2DATA *data;
+	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !script)
+		return FALSE;
+	if (pwbo->lparams[5] == WBWV2_MODE_LEGACY_IE)
+		return ExecuteHTMLScript(pwbo, script);
+	data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
+	if (!data || !data->webview)
 		return FALSE;
 	SCRIPT_HANDLER *sh = (SCRIPT_HANDLER *)wbMalloc(sizeof(SCRIPT_HANDLER));
 	BOOL ok;
@@ -803,8 +826,16 @@ BOOL wbWebView2ExecuteScript(PWBOBJ pwbo, LPCTSTR script)
 
 BOOL wbWebView2DispatchScriptMessage(PWBOBJ pwbo, LPCTSTR message)
 {
-	WBWEBVIEW2DATA *data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
-	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !message || !data || !data->webview)
+	WBWEBVIEW2DATA *data;
+	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control || !message)
+		return FALSE;
+	if (pwbo->lparams[5] == WBWV2_MODE_LEGACY_IE)
+	{
+		wbWebView2Dispatch(pwbo, WBC_WEBVIEW2_SCRIPT_MESSAGE, (LPARAM)message);
+		return TRUE;
+	}
+	data = (WBWEBVIEW2DATA *)pwbo->lparams[0];
+	if (!data || !data->webview)
 		return FALSE;
 	return SUCCEEDED(data->webview->lpVtbl->PostWebMessageAsString(data->webview, message));
 }

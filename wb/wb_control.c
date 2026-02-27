@@ -646,7 +646,13 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 
 	case WebView2Control:
 		if (!wbWebView2InitControl(pwbo))
-			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("WebView2 runtime not available or control initialization failed."));
+		{
+			/* Fallback to legacy IE host for stability when native WebView2 init fails. */
+			if (!EmbedBrowserObject(pwbo))
+				wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("WebView2 and legacy fallback initialization failed."));
+			else
+				pwbo->lparams[5] = WBWV2_MODE_LEGACY_IE;
+		}
 		break;
 
 	case RadioButton:
