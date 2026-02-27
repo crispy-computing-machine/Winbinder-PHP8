@@ -62,6 +62,7 @@ ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
 ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wb_set_accel_table);
+ZEND_FUNCTION(wb_notify);
 
 // new PHPWB_WINSYS.C
 ZEND_FUNCTION(wb_get_clipboard);
@@ -274,6 +275,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_is_obj,arginfo_wb_is_obj)
         ZEND_FE(wb_destroy_timer,arginfo_wb_destroy_timer)
         ZEND_FE(wb_set_accel_table,arginfo_wb_set_accel_table)
+        ZEND_FE(wb_notify,arginfo_wb_notify)
 
 		// new PHPWB_WINSYS.C
         ZEND_FE(wb_get_clipboard,arginfo_wb_get_clipboard)

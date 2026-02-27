@@ -13,6 +13,7 @@
 
 #include "phpwb.h"
 #include "php_ini.h" // for cfg_get_string()
+#include <shellapi.h>
 
 //-------------------------------------------------------------------- VARIABLES
 
@@ -261,6 +262,136 @@ ZEND_FUNCTION(wb_stop_sound)
 
 	wcs = Utf82WideChar(cmd, cmd_len);
 	RETURN_BOOL(wbStopSound(wcs));
+}
+
+static UINT wbNotifyIconFlagFromValue(zval *icon)
+{
+	if (!icon)
+		return NIIF_INFO;
+
+	if (Z_TYPE_P(icon) == IS_LONG)
+		return (UINT)Z_LVAL_P(icon);
+
+	if (Z_TYPE_P(icon) == IS_STRING)
+	{
+		char *name = Z_STRVAL_P(icon);
+
+		if (!name)
+			return NIIF_INFO;
+		if (!stricmp(name, "error") || !stricmp(name, "danger"))
+			return NIIF_ERROR;
+		if (!stricmp(name, "warning") || !stricmp(name, "warn"))
+			return NIIF_WARNING;
+		if (!stricmp(name, "none"))
+			return NIIF_NONE;
+	}
+
+	return NIIF_INFO;
+}
+
+ZEND_FUNCTION(wb_notify)
+{
+	zval *options;
+	zval *zParent = NULL, *zTitle = NULL, *zBody = NULL, *zIcon = NULL, *zDuration = NULL, *zOnClick = NULL;
+	PWBOBJ pwboParent = NULL;
+	TCHAR *szTitle = NULL, *szBody = NULL;
+	DWORD durationMs = 5000;
+	UINT iconFlags = NIIF_INFO;
+	BOOL usedSystemNotification = FALSE;
+	int fallbackResult;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ARRAY(options)
+	ZEND_PARSE_PARAMETERS_END();
+
+	zParent = zend_hash_str_find(Z_ARRVAL_P(options), "parent", sizeof("parent") - 1);
+	zTitle = zend_hash_str_find(Z_ARRVAL_P(options), "title", sizeof("title") - 1);
+	zBody = zend_hash_str_find(Z_ARRVAL_P(options), "body", sizeof("body") - 1);
+	zIcon = zend_hash_str_find(Z_ARRVAL_P(options), "icon", sizeof("icon") - 1);
+	zDuration = zend_hash_str_find(Z_ARRVAL_P(options), "duration", sizeof("duration") - 1);
+	zOnClick = zend_hash_str_find(Z_ARRVAL_P(options), "onClick", sizeof("onClick") - 1);
+
+	if (zParent && Z_TYPE_P(zParent) == IS_LONG)
+		pwboParent = (PWBOBJ)Z_LVAL_P(zParent);
+
+	if (pwboParent && !wbIsWBObj((void *)pwboParent, TRUE))
+		RETURN_FALSE;
+
+	if (zDuration)
+	{
+		zval tmp;
+
+		ZVAL_COPY(&tmp, zDuration);
+		convert_to_long(&tmp);
+		if (Z_LVAL(tmp) > 0)
+			durationMs = (DWORD)Z_LVAL(tmp);
+		zval_ptr_dtor(&tmp);
+	}
+
+	if (zTitle && Z_TYPE_P(zTitle) == IS_STRING && Z_STRLEN_P(zTitle) > 0)
+		szTitle = Utf82WideChar(Z_STRVAL_P(zTitle), Z_STRLEN_P(zTitle));
+	else
+		szTitle = Utf82WideChar("WinBinder notification", sizeof("WinBinder notification") - 1);
+
+	if (zBody && Z_TYPE_P(zBody) == IS_STRING && Z_STRLEN_P(zBody) > 0)
+		szBody = Utf82WideChar(Z_STRVAL_P(zBody), Z_STRLEN_P(zBody));
+	else
+		szBody = Utf82WideChar("", 0);
+
+	iconFlags = wbNotifyIconFlagFromValue(zIcon);
+
+	if (pwboParent && pwboParent->hwnd && IsWindow(pwboParent->hwnd))
+	{
+		NOTIFYICONDATA nid;
+
+		ZeroMemory(&nid, sizeof(nid));
+		nid.cbSize = sizeof(nid);
+		nid.hWnd = pwboParent->hwnd;
+		nid.uID = 100;
+		nid.uFlags = NIF_INFO;
+		nid.dwInfoFlags = iconFlags;
+		nid.uTimeout = durationMs;
+		lstrcpyn(nid.szInfoTitle, szTitle, sizeof(nid.szInfoTitle) / sizeof(TCHAR));
+		lstrcpyn(nid.szInfo, szBody, sizeof(nid.szInfo) / sizeof(TCHAR));
+
+		usedSystemNotification = Shell_NotifyIcon(NIM_MODIFY, &nid);
+	}
+
+	if (!usedSystemNotification)
+	{
+		UINT boxStyle = MB_OK;
+		zval retval;
+
+		if (iconFlags == NIIF_ERROR)
+			boxStyle |= MB_ICONERROR;
+		else if (iconFlags == NIIF_WARNING)
+			boxStyle |= MB_ICONWARNING;
+		else
+			boxStyle |= MB_ICONINFORMATION;
+
+		fallbackResult = wbQuietMessageBox(pwboParent, szBody, szTitle, boxStyle, durationMs);
+
+		if (zOnClick && Z_TYPE_P(zOnClick) == IS_STRING && fallbackResult == 1)
+		{
+			zval callback;
+
+			ZVAL_COPY(&callback, zOnClick);
+			if (call_user_function(EG(function_table), NULL, &callback, &retval, 0, NULL) == SUCCESS)
+				zval_ptr_dtor(&retval);
+			zval_ptr_dtor(&callback);
+		}
+	}
+
+	array_init(return_value);
+	add_assoc_bool(return_value, "delivered", TRUE);
+	add_assoc_string(return_value, "backend", usedSystemNotification ? "windows_tray_balloon" : "in_app_banner");
+	add_assoc_bool(return_value, "system_supported", usedSystemNotification);
+	add_assoc_bool(return_value, "click_callback_supported", !usedSystemNotification);
+
+	if (szTitle)
+		wbFree(szTitle);
+	if (szBody)
+		wbFree(szBody);
 }
 
 ZEND_FUNCTION(wb_message_box)
