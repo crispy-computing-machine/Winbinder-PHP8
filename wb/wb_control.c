@@ -42,6 +42,7 @@ extern BOOL SetCalendarTime(PWBOBJ pwbo, time_t UnixTime);
 
 extern BOOL DisplayHTMLString(PWBOBJ pwbo, LPCTSTR string);
 extern BOOL EmbedBrowserObject(PWBOBJ pwbo);
+extern BOOL wbWebView2InitControl(PWBOBJ pwbo);
 
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
@@ -644,7 +645,8 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		break;
 
 	case WebView2Control:
-		EmbedBrowserObject(pwbo);
+		if (!wbWebView2InitControl(pwbo))
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("WebView2 runtime not available or control initialization failed."));
 		break;
 
 	case RadioButton:

@@ -48,6 +48,8 @@ static const SAFEARRAYBOUND ArrayBound = {1, 0}; // This is used by DisplayHTMLS
 static void ResizeBrowser(HWND hwnd, DWORD width, DWORD height);
 static BOOL UnEmbedBrowserObject(HWND);
 static BOOL DoPageAction(PWBOBJ pwbo, DWORD action, PVOID pvResult);
+extern void wbWebView2Resize(PWBOBJ pwbo, int width, int height);
+extern void wbWebView2Destroy(PWBOBJ pwbo);
 
 //------------------------------------------------------------------------ TYPES
 
@@ -1210,8 +1212,14 @@ LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 
 	case WM_SIZE:
-		ResizeBrowser(hwnd, LOWORD(lParam), HIWORD(lParam));
+	{
+		PWBOBJ pwbo = wbGetWBObj(hwnd);
+		if (pwbo && pwbo->uClass == WebView2Control)
+			wbWebView2Resize(pwbo, LOWORD(lParam), HIWORD(lParam));
+		else
+			ResizeBrowser(hwnd, LOWORD(lParam), HIWORD(lParam));
 		return 0;
+	}
 
 		//		case WM_CREATE:
 		//			if(EmbedBrowserObject(hwnd))
@@ -1219,8 +1227,14 @@ LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		//			return 0;
 
 	case WM_DESTROY:
-		UnEmbedBrowserObject(hwnd);
+	{
+		PWBOBJ pwbo = wbGetWBObj(hwnd);
+		if (pwbo && pwbo->uClass == WebView2Control)
+			wbWebView2Destroy(pwbo);
+		else
+			UnEmbedBrowserObject(hwnd);
 		return TRUE;
+	}
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
