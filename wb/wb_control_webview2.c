@@ -429,6 +429,32 @@ static const ICoreWebView2ExecuteScriptCompletedHandlerVtbl g_scriptVt = {
 	Script_Release,
 	Script_Invoke};
 
+
+static BOOL wbBuildWebView2UserDataDir(LPWSTR pathBuffer, DWORD cchPathBuffer)
+{
+	WCHAR tempPath[MAX_PATH];
+	WCHAR baseDir[MAX_PATH];
+	DWORD n;
+
+	if (!pathBuffer || cchPathBuffer == 0)
+		return FALSE;
+
+	n = GetTempPathW(MAX_PATH, tempPath);
+	if (!n || n >= MAX_PATH)
+		return FALSE;
+
+	if (_snwprintf(baseDir, MAX_PATH, L"%lsWinBinder", tempPath) < 0)
+		return FALSE;
+
+	CreateDirectoryW(baseDir, NULL);
+
+	if (_snwprintf(pathBuffer, cchPathBuffer, L"%ls\\WebView2Data", baseDir) < 0)
+		return FALSE;
+
+	CreateDirectoryW(pathBuffer, NULL);
+	return TRUE;
+}
+
 static BOOL wbEnsureWebView2Loader(void)
 {
 	if (s_createEnvironment)
@@ -607,6 +633,8 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 	HANDLE doneEvent;
 	DWORD wait;
 	MSG msg;
+	WCHAR userDataDir[MAX_PATH];
+	LPCWSTR pUserDataDir = NULL;
 
 	if (!wbIsWBObj(pwbo, TRUE) || pwbo->uClass != WebView2Control)
 		return FALSE;
@@ -631,7 +659,10 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 	env->doneEvent = doneEvent;
 	env->hr = E_FAIL;
 
-	if (FAILED(s_createEnvironment(NULL, NULL, NULL, &env->iface)))
+	if (wbBuildWebView2UserDataDir(userDataDir, MAX_PATH))
+		pUserDataDir = userDataDir;
+
+	if (FAILED(s_createEnvironment(NULL, pUserDataDir, NULL, &env->iface)))
 	{
 		Env_Release(env);
 		CloseHandle(doneEvent);
