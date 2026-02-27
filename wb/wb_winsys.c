@@ -16,6 +16,7 @@
 #include <shlobj.h>   // For SHGetSpecialFolderLocation()
 #include <io.h>		  // For access()
 #include <stdio.h>	// For printf() -- beep
+#include <string.h>
 
 #include <shlobj.h>			// For uxtheme.h
 #include <uxtheme.h>		// For theme functions
@@ -69,6 +70,248 @@ LPTSTR MakeWinPath(LPTSTR pszPath);
 
 extern BOOL RegisterClasses(void);
 extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
+
+
+#define MAX_WB_WATCHERS 32
+#define WB_WATCH_BUFFER_SIZE 65536
+#define MAX_WB_WATCH_EVENTS 512
+
+typedef struct _WBWATCH
+{
+	int id;
+	BOOL in_use;
+	BOOL recursive;
+	DWORD debounce_ms;
+	HANDLE dir_handle;
+	HANDLE event_handle;
+	OVERLAPPED overlapped;
+	BYTE buffer[WB_WATCH_BUFFER_SIZE];
+	TCHAR base_path[MAX_PATH_BUFFER];
+} WBWATCH;
+
+typedef struct _WBWATCHEVENT
+{
+	int watch_id;
+	int event_type;
+	DWORD tick_count;
+	TCHAR base_path[MAX_PATH_BUFFER];
+	TCHAR rel_path[MAX_PATH_BUFFER];
+} WBWATCHEVENT;
+
+static WBWATCH g_watchers[MAX_WB_WATCHERS];
+static WBWATCHEVENT g_watch_events[MAX_WB_WATCH_EVENTS];
+static int g_watch_event_count = 0;
+static int g_next_watch_id = 1;
+
+static DWORD WatchNotifyFilter(void)
+{
+	return FILE_NOTIFY_CHANGE_FILE_NAME |
+			   FILE_NOTIFY_CHANGE_DIR_NAME |
+			   FILE_NOTIFY_CHANGE_LAST_WRITE |
+			   FILE_NOTIFY_CHANGE_CREATION |
+			   FILE_NOTIFY_CHANGE_SIZE;
+}
+
+static void WatchNormalizePath(LPTSTR dst, UINT dstLen, LPCTSTR src)
+{
+	if (!dst || dstLen == 0)
+		return;
+
+	if (!src)
+	{
+		dst[0] = 0;
+		return;
+	}
+
+	lstrcpyn(dst, src, dstLen);
+	MakeWinPath(dst);
+
+	while (*dst)
+	{
+		UINT len = lstrlen(dst);
+		if (len <= 3)
+			break;
+		if (dst[len - 1] != TEXT('\'))
+			break;
+		dst[len - 1] = 0;
+	}
+}
+
+static BOOL WatchArm(WBWATCH *watch)
+{
+	DWORD bytes = 0;
+	if (!watch || !watch->in_use)
+		return FALSE;
+
+	ResetEvent(watch->event_handle);
+	ZeroMemory(&watch->overlapped, sizeof(OVERLAPPED));
+	watch->overlapped.hEvent = watch->event_handle;
+
+	if (ReadDirectoryChangesW(
+			watch->dir_handle,
+			watch->buffer,
+			sizeof(watch->buffer),
+			watch->recursive,
+			WatchNotifyFilter(),
+			&bytes,
+			&watch->overlapped,
+			NULL))
+	{
+		return TRUE;
+	}
+
+	return GetLastError() == ERROR_IO_PENDING;
+}
+
+static WBWATCH *WatchById(int watchId)
+{
+	int i;
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (g_watchers[i].in_use && g_watchers[i].id == watchId)
+			return &g_watchers[i];
+	}
+	return NULL;
+}
+
+static int MapWatchAction(DWORD action)
+{
+	switch (action)
+	{
+	case FILE_ACTION_ADDED:
+		return WBE_FILE_CREATED;
+	case FILE_ACTION_REMOVED:
+		return WBE_FILE_DELETED;
+	case FILE_ACTION_MODIFIED:
+		return WBE_FILE_MODIFIED;
+	case FILE_ACTION_RENAMED_OLD_NAME:
+		return WBE_FILE_RENAMED_OLD;
+	case FILE_ACTION_RENAMED_NEW_NAME:
+		return WBE_FILE_RENAMED_NEW;
+	}
+	return 0;
+}
+
+static BOOL WatchEventEquals(const WBWATCHEVENT *a, const WBWATCHEVENT *b)
+{
+	return a->watch_id == b->watch_id &&
+		   a->event_type == b->event_type &&
+		   lstrcmpi(a->rel_path, b->rel_path) == 0;
+}
+
+static void PushWatchEvent(const WBWATCHEVENT *evt, DWORD debounceMs)
+{
+	int i;
+	if (!evt || !evt->event_type)
+		return;
+
+	for (i = g_watch_event_count - 1; i >= 0; i--)
+	{
+		DWORD delta;
+		if (!WatchEventEquals(&g_watch_events[i], evt))
+			continue;
+		delta = evt->tick_count - g_watch_events[i].tick_count;
+		if (delta <= debounceMs)
+		{
+			g_watch_events[i].tick_count = evt->tick_count;
+			return;
+		}
+		break;
+	}
+
+	if (g_watch_event_count >= MAX_WB_WATCH_EVENTS)
+	{
+		memmove(&g_watch_events[0], &g_watch_events[1], sizeof(g_watch_events[0]) * (MAX_WB_WATCH_EVENTS - 1));
+		g_watch_event_count = MAX_WB_WATCH_EVENTS - 1;
+	}
+
+	g_watch_events[g_watch_event_count++] = *evt;
+}
+
+static void ParseWatchBuffer(WBWATCH *watch)
+{
+	DWORD bytes = 0;
+	BYTE *cursor;
+
+	if (!watch)
+		return;
+
+	if (!GetOverlappedResult(watch->dir_handle, &watch->overlapped, &bytes, FALSE))
+		return;
+	if (bytes == 0)
+		return;
+
+	cursor = watch->buffer;
+	while (cursor)
+	{
+		FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *)cursor;
+		int eventType = MapWatchAction(fni->Action);
+		WBWATCHEVENT evt;
+		int charLen = (int)(fni->FileNameLength / sizeof(WCHAR));
+		int copyLen = MIN(charLen, MAX_PATH_BUFFER - 1);
+
+		ZeroMemory(&evt, sizeof(evt));
+		evt.watch_id = watch->id;
+		evt.event_type = eventType;
+		evt.tick_count = GetTickCount();
+		lstrcpyn(evt.base_path, watch->base_path, MAX_PATH_BUFFER);
+		if (copyLen > 0)
+		{
+			memcpy(evt.rel_path, fni->FileName, copyLen * sizeof(WCHAR));
+			evt.rel_path[copyLen] = 0;
+		}
+
+		PushWatchEvent(&evt, watch->debounce_ms ? watch->debounce_ms : 200);
+
+		if (fni->NextEntryOffset == 0)
+			break;
+		cursor += fni->NextEntryOffset;
+	}
+}
+
+static int CollectWatchHandles(HANDLE *handles, int maxHandles)
+{
+	int i, count = 0;
+	if (!handles || maxHandles <= 0)
+		return 0;
+	for (i = 0; i < MAX_WB_WATCHERS && count < maxHandles; i++)
+	{
+		if (g_watchers[i].in_use && g_watchers[i].event_handle)
+			handles[count++] = g_watchers[i].event_handle;
+	}
+	return count;
+}
+
+static void PumpWatchNotifications(DWORD timeoutMs)
+{
+	HANDLE handles[MAX_WB_WATCHERS];
+	int count, i;
+	DWORD waitMs = timeoutMs;
+
+	count = CollectWatchHandles(handles, MAX_WB_WATCHERS);
+	if (count <= 0)
+		return;
+
+	while (1)
+	{
+		DWORD wr = WaitForMultipleObjects(count, handles, FALSE, waitMs);
+		if (wr < WAIT_OBJECT_0 || wr >= WAIT_OBJECT_0 + (DWORD)count)
+			break;
+
+		for (i = 0; i < MAX_WB_WATCHERS; i++)
+		{
+			if (!g_watchers[i].in_use || !g_watchers[i].event_handle)
+				continue;
+			if (WaitForSingleObject(g_watchers[i].event_handle, 0) == WAIT_OBJECT_0)
+			{
+				ParseWatchBuffer(&g_watchers[i]);
+				WatchArm(&g_watchers[i]);
+			}
+		}
+
+		waitMs = 0;
+	}
+}
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -187,6 +430,14 @@ BOOL wbInit(void)
 
 BOOL wbEnd(void)
 {
+	int i;
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (g_watchers[i].in_use)
+			wbUnwatchPath(g_watchers[i].id);
+	}
+	wbWatchClearEvents();
+
 	if (hIconFont)
 		DeleteObject(hIconFont);
 	if (hbrTabs)
@@ -196,6 +447,118 @@ BOOL wbEnd(void)
 	OleUninitialize();
 
 	return TRUE;
+}
+
+int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs)
+{
+	int i;
+	WBWATCH *watch = NULL;
+	TCHAR normalized[MAX_PATH_BUFFER];
+
+	WatchNormalizePath(normalized, MAX_PATH_BUFFER, pszPath);
+	if (!normalized[0])
+		return 0;
+
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (!g_watchers[i].in_use)
+		{
+			watch = &g_watchers[i];
+			break;
+		}
+	}
+	if (!watch)
+		return 0;
+
+	ZeroMemory(watch, sizeof(*watch));
+	watch->event_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (!watch->event_handle)
+		return 0;
+
+	watch->dir_handle = CreateFile(
+		normalized,
+		FILE_LIST_DIRECTORY,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+		NULL);
+	if (watch->dir_handle == INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(watch->event_handle);
+		watch->event_handle = NULL;
+		return 0;
+	}
+
+	watch->id = g_next_watch_id++;
+	watch->in_use = TRUE;
+	watch->recursive = bRecursive;
+	watch->debounce_ms = dwDebounceMs;
+	lstrcpyn(watch->base_path, normalized, MAX_PATH_BUFFER);
+
+	if (!WatchArm(watch))
+	{
+		wbUnwatchPath(watch->id);
+		return 0;
+	}
+
+	return watch->id;
+}
+
+BOOL wbUnwatchPath(int nWatchId)
+{
+	WBWATCH *watch = WatchById(nWatchId);
+	if (!watch)
+		return FALSE;
+
+	CancelIo(watch->dir_handle);
+	if (watch->dir_handle && watch->dir_handle != INVALID_HANDLE_VALUE)
+		CloseHandle(watch->dir_handle);
+	if (watch->event_handle)
+		CloseHandle(watch->event_handle);
+	ZeroMemory(watch, sizeof(*watch));
+	return TRUE;
+}
+
+UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx)
+{
+	UINT64 i;
+	PumpWatchNotifications(dwTimeoutMs);
+	if (!event_cb)
+		return (UINT64)g_watch_event_count;
+
+	for (i = 0; i < (UINT64)g_watch_event_count; i++)
+	{
+		event_cb(g_watch_events[i].watch_id,
+				 g_watch_events[i].event_type,
+				 g_watch_events[i].base_path,
+				 g_watch_events[i].rel_path,
+				 g_watch_events[i].tick_count,
+				 ctx);
+	}
+	return (UINT64)g_watch_event_count;
+}
+
+BOOL wbWatchGetEvent(int watchEventIndex, int *watchId, int *eventType, LPCTSTR *basePath, LPCTSTR *relativePath, DWORD *tickCount)
+{
+	if (watchEventIndex < 0 || watchEventIndex >= g_watch_event_count)
+		return FALSE;
+	if (watchId)
+		*watchId = g_watch_events[watchEventIndex].watch_id;
+	if (eventType)
+		*eventType = g_watch_events[watchEventIndex].event_type;
+	if (basePath)
+		*basePath = g_watch_events[watchEventIndex].base_path;
+	if (relativePath)
+		*relativePath = g_watch_events[watchEventIndex].rel_path;
+	if (tickCount)
+		*tickCount = g_watch_events[watchEventIndex].tick_count;
+	return TRUE;
+}
+
+void wbWatchClearEvents(void)
+{
+	g_watch_event_count = 0;
 }
 
 /*
@@ -214,26 +577,39 @@ will take our shortcut combo and process it as a dialog message.
 WPARAM wbMainLoop(void)
 {
 	MSG msg;
-	BOOL bRet;
+	HANDLE watchHandles[MAX_WB_WATCHERS];
 
-	// Main message loop
-	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
+	while (1)
 	{
-		if (bRet == -1)
+		int watchCount = CollectWatchHandles(watchHandles, MAX_WB_WATCHERS);
+		DWORD waitResult = MsgWaitForMultipleObjects(watchCount, watchHandles, FALSE, INFINITE, QS_ALLINPUT);
+
+		if (waitResult >= WAIT_OBJECT_0 && waitResult < WAIT_OBJECT_0 + (DWORD)watchCount)
 		{
-			break;
+			PumpWatchNotifications(0);
+			continue;
 		}
-		if (!TranslateAccelerator(hAccelWnd, hAccelTable, &msg))
+
+		if (waitResult == WAIT_OBJECT_0 + (DWORD)watchCount)
 		{
-			if (!hCurrentDlg || !IsDialogMessage(hCurrentDlg, &msg))
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				if (msg.message == WM_QUIT)
+					return msg.wParam;
+
+				if (!TranslateAccelerator(hAccelWnd, hAccelTable, &msg))
+				{
+					if (!hCurrentDlg || !IsDialogMessage(hCurrentDlg, &msg))
+					{
+						TranslateMessage(&msg);
+						DispatchMessage(&msg);
+					}
+				}
 			}
+
+			PumpWatchNotifications(0);
 		}
 	}
-
-	return msg.wParam;
 }
 
 // Used in wb_wait()

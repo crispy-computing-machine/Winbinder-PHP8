@@ -133,6 +133,17 @@
 #define WBWM_ENUM (WM_APP + 7)
 #define WBWM_HOOK (WM_APP + 8)
 
+// File watcher event types
+#define WBE_FILE_CREATED 1
+#define WBE_FILE_MODIFIED 2
+#define WBE_FILE_DELETED 3
+#define WBE_FILE_RENAMED_OLD 4
+#define WBE_FILE_RENAMED_NEW 5
+
+// File watcher options
+#define WBW_RECURSIVE 0x00000001
+#define WBW_COALESCE 0x00000002
+
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
 // WinBinder window and control classes
@@ -650,6 +661,11 @@ BOOL wbSetAccelerators(PWBOBJ pwbo, LPACCEL paccels, int nCount);
 DWORD wbMakeAccelFromString(const char *pszAccel);
 UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
+int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs);
+BOOL wbUnwatchPath(int nWatchId);
+UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx);
+BOOL wbWatchGetEvent(int watchEventIndex, int *watchId, int *eventType, LPCTSTR *basePath, LPCTSTR *relativePath, DWORD *tickCount);
+void wbWatchClearEvents(void);
 
 // Library-dependent functions
 
