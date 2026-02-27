@@ -1,9 +1,7 @@
 #include "wb.h"
 
-typedef HRESULT(STDAPICALLTYPE *PFN_CreateCoreWebView2EnvironmentWithOptions)(PCWSTR, PCWSTR, IUnknown *, IUnknown *);
-
 static HMODULE s_webview2Loader = NULL;
-static PFN_CreateCoreWebView2EnvironmentWithOptions s_createEnvironment = NULL;
+static FARPROC s_createEnvironment = NULL;
 
 extern BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName);
 extern BOOL DisplayHTMLString(PWBOBJ pwbo, LPCTSTR string);
@@ -20,7 +18,7 @@ static BOOL wbEnsureWebView2Loader(void)
 	if (!s_webview2Loader)
 		return FALSE;
 
-	s_createEnvironment = (PFN_CreateCoreWebView2EnvironmentWithOptions)GetProcAddress(s_webview2Loader, "CreateCoreWebView2EnvironmentWithOptions");
+	s_createEnvironment = GetProcAddress(s_webview2Loader, "CreateCoreWebView2EnvironmentWithOptions");
 	return s_createEnvironment != NULL;
 }
 
