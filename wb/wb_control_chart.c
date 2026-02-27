@@ -303,7 +303,21 @@ BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount)
 		return FALSE;
 	for (i = 0; i < nCount; i++)
 		if (ppszLabels[i])
-			pData->ppszLabels[i] = _tcsdup(ppszLabels[i]);
+		{
+			size_t nChars = _tcslen(ppszLabels[i]) + 1;
+			pData->ppszLabels[i] = wbMalloc(sizeof(TCHAR) * nChars);
+			if (!pData->ppszLabels[i])
+			{
+				int j;
+				for (j = 0; j < i; j++)
+					if (pData->ppszLabels[j])
+						wbFree(pData->ppszLabels[j]);
+				wbFree(pData->ppszLabels);
+				pData->ppszLabels = NULL;
+				return FALSE;
+			}
+			_tcscpy(pData->ppszLabels[i], ppszLabels[i]);
+		}
 	return wbChartRefresh(pwbo);
 }
 
@@ -365,4 +379,3 @@ BOOL wbChartDestroy(PWBOBJ pwbo)
 	pwbo->lparam = 0;
 	return TRUE;
 }
-
