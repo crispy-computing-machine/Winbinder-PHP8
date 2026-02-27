@@ -132,6 +132,20 @@
 #define WBWM_MIDI (WM_APP + 6)
 #define WBWM_ENUM (WM_APP + 7)
 #define WBWM_HOOK (WM_APP + 8)
+#define WBWM_TASK (WM_APP + 9)
+
+// Async task callback notifications
+#define WBC_TASK_PROGRESS 0x00110000
+#define WBC_TASK_COMPLETE 0x00110001
+#define WBC_TASK_ERROR 0x00110002
+#define WBC_TASK_CANCELLED 0x00110003
+
+// Async task status values
+#define WB_TASK_STATUS_PENDING 0
+#define WB_TASK_STATUS_RUNNING 1
+#define WB_TASK_STATUS_COMPLETED 2
+#define WB_TASK_STATUS_FAILED 3
+#define WB_TASK_STATUS_CANCELLED 4
 
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
@@ -650,6 +664,9 @@ BOOL wbSetAccelerators(PWBOBJ pwbo, LPACCEL paccels, int nCount);
 DWORD wbMakeAccelFromString(const char *pszAccel);
 UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
+UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs);
+BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode);
+BOOL wbTaskCancel(UINT64 taskId);
 
 // Library-dependent functions
 

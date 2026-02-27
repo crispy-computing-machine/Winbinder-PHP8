@@ -47,6 +47,41 @@ static HACCEL hAccelTable = NULL;		 // Accelerator table
 static HWND hAccelWnd = NULL;			 // Accelerator table window
 static HCURSOR hClassCursor[NUMCLASSES]; // Table of mouse cursors, one for each class
 
+typedef struct _wb_async_event
+{
+	HWND hwndTarget;
+	UINT64 taskId;
+	int eventCode;
+	int progress;
+	DWORD value;
+	struct _wb_async_event *next;
+} WB_ASYNC_EVENT;
+
+typedef struct _wb_async_task
+{
+	UINT64 id;
+	HWND hwndTarget;
+	TCHAR *command;
+	UINT64 estimatedMs;
+	HANDLE thread;
+	HANDLE cancelEvent;
+	volatile LONG status;
+	volatile LONG progress;
+	DWORD exitCode;
+	DWORD errorCode;
+	struct _wb_async_task *next;
+} WB_ASYNC_TASK;
+
+static CRITICAL_SECTION g_taskLock;
+static BOOL g_taskLockInit = FALSE;
+static WB_ASYNC_TASK *g_taskList = NULL;
+static UINT64 g_nextTaskId = 1;
+
+static CRITICAL_SECTION g_eventLock;
+static BOOL g_eventLockInit = FALSE;
+static WB_ASYNC_EVENT *g_eventHead = NULL;
+static WB_ASYNC_EVENT *g_eventTail = NULL;
+
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
 // Private
@@ -58,6 +93,10 @@ static BOOL _GetOSVersionString(LPTSTR pszString);
 static HCURSOR GetSysCursor(LPCTSTR pszCursor);
 static char *GetTokenExt(const char *pszBuffer, int nToken, const char *pszSep, char chGroup, BOOL fBlock, char *pszToken, int nTokLen);
 static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTokLen);
+static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DWORD value);
+static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam);
+static void wbTaskCleanup(void);
+BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value);
 
 BOOL bScintillaAvailable = FALSE;
 
@@ -180,6 +219,17 @@ BOOL wbInit(void)
 	wbSetCursor((PWBOBJ)EditBox, TEXT("ibeam"), NULL);
 	wbSetCursor((PWBOBJ)InvisibleArea, TEXT("arrow"), NULL);
 
+	if (!g_taskLockInit)
+	{
+		InitializeCriticalSection(&g_taskLock);
+		g_taskLockInit = TRUE;
+	}
+	if (!g_eventLockInit)
+	{
+		InitializeCriticalSection(&g_eventLock);
+		g_eventLockInit = TRUE;
+	}
+
 	return TRUE;
 }
 
@@ -193,6 +243,17 @@ BOOL wbEnd(void)
 		DeleteObject(hbrTabs);
 	if (hAccelTable)
 		DestroyAcceleratorTable(hAccelTable);
+	wbTaskCleanup();
+	if (g_eventLockInit)
+	{
+		DeleteCriticalSection(&g_eventLock);
+		g_eventLockInit = FALSE;
+	}
+	if (g_taskLockInit)
+	{
+		DeleteCriticalSection(&g_taskLock);
+		g_taskLockInit = FALSE;
+	}
 	OleUninitialize();
 
 	return TRUE;
@@ -453,6 +514,152 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		M_nMouseCursor = (LONG_PTR)hCursor;
 		return (hCursor != 0);
 	}
+}
+
+UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs)
+{
+	WB_ASYNC_TASK *task;
+	SIZE_T len;
+
+	if (!pwboTarget || !pwboTarget->hwnd || !pszCommand || !*pszCommand || !g_taskLockInit)
+		return 0;
+
+	task = (WB_ASYNC_TASK *)wbCalloc(1, sizeof(WB_ASYNC_TASK));
+	if (!task)
+		return 0;
+
+	len = (wcslen(pszCommand) + 1) * sizeof(TCHAR);
+	task->command = (TCHAR *)wbMalloc(len);
+	if (!task->command)
+	{
+		wbFree(task);
+		return 0;
+	}
+	wcscpy(task->command, pszCommand);
+	task->hwndTarget = pwboTarget->hwnd;
+	task->estimatedMs = estimatedMs;
+	task->status = WB_TASK_STATUS_PENDING;
+	task->progress = 0;
+	task->cancelEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (!task->cancelEvent)
+	{
+		wbFree(task->command);
+		wbFree(task);
+		return 0;
+	}
+
+	EnterCriticalSection(&g_taskLock);
+	task->id = g_nextTaskId++;
+	task->next = g_taskList;
+	g_taskList = task;
+	LeaveCriticalSection(&g_taskLock);
+
+	task->thread = CreateThread(NULL, 0, wbTaskThreadProc, task, 0, NULL);
+	if (!task->thread)
+	{
+		EnterCriticalSection(&g_taskLock);
+		if (g_taskList == task)
+			g_taskList = task->next;
+		LeaveCriticalSection(&g_taskLock);
+		CloseHandle(task->cancelEvent);
+		wbFree(task->command);
+		wbFree(task);
+		return 0;
+	}
+
+	return task->id;
+}
+
+BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode)
+{
+	WB_ASYNC_TASK *task;
+	BOOL found = FALSE;
+
+	if (!g_taskLockInit || taskId == 0)
+		return FALSE;
+
+	EnterCriticalSection(&g_taskLock);
+	for (task = g_taskList; task; task = task->next)
+	{
+		if (task->id == taskId)
+		{
+			if (pStatus)
+				*pStatus = (int)task->status;
+			if (pProgress)
+				*pProgress = (int)task->progress;
+			if (pExitCode)
+				*pExitCode = task->exitCode;
+			if (pErrorCode)
+				*pErrorCode = task->errorCode;
+			found = TRUE;
+			break;
+		}
+	}
+	LeaveCriticalSection(&g_taskLock);
+
+	return found;
+}
+
+BOOL wbTaskCancel(UINT64 taskId)
+{
+	WB_ASYNC_TASK *task;
+
+	if (!g_taskLockInit || taskId == 0)
+		return FALSE;
+
+	EnterCriticalSection(&g_taskLock);
+	for (task = g_taskList; task; task = task->next)
+	{
+		if (task->id == taskId)
+		{
+			SetEvent(task->cancelEvent);
+			LeaveCriticalSection(&g_taskLock);
+			return TRUE;
+		}
+	}
+	LeaveCriticalSection(&g_taskLock);
+
+	return FALSE;
+}
+
+BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value)
+{
+	WB_ASYNC_EVENT *current;
+	WB_ASYNC_EVENT *prev = NULL;
+
+	if (!g_eventLockInit)
+		return FALSE;
+
+	EnterCriticalSection(&g_eventLock);
+	for (current = g_eventHead; current; prev = current, current = current->next)
+	{
+		if (!hwndTarget || current->hwndTarget == hwndTarget)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				g_eventHead = current->next;
+			if (g_eventTail == current)
+				g_eventTail = prev;
+			break;
+		}
+	}
+	LeaveCriticalSection(&g_eventLock);
+
+	if (!current)
+		return FALSE;
+
+	if (taskId)
+		*taskId = current->taskId;
+	if (eventCode)
+		*eventCode = current->eventCode;
+	if (progress)
+		*progress = current->progress;
+	if (value)
+		*value = current->value;
+
+	wbFree(current);
+	return TRUE;
 }
 
 // Returns TRUE if uClass is a valid WinBinder class
@@ -1894,6 +2101,152 @@ void printthem(void)
 	printf("\n");
 }
 */
+
+static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DWORD value)
+{
+	WB_ASYNC_EVENT *evt;
+
+	if (!task || !g_eventLockInit)
+		return;
+
+	evt = (WB_ASYNC_EVENT *)wbCalloc(1, sizeof(WB_ASYNC_EVENT));
+	if (!evt)
+		return;
+
+	evt->hwndTarget = task->hwndTarget;
+	evt->taskId = task->id;
+	evt->eventCode = eventCode;
+	evt->progress = progress;
+	evt->value = value;
+
+	EnterCriticalSection(&g_eventLock);
+	if (g_eventTail)
+		g_eventTail->next = evt;
+	else
+		g_eventHead = evt;
+	g_eventTail = evt;
+	LeaveCriticalSection(&g_eventLock);
+
+	PostMessage(task->hwndTarget, WBWM_TASK, 0, 0);
+}
+
+static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam)
+{
+	WB_ASYNC_TASK *task = (WB_ASYNC_TASK *)lpParam;
+	STARTUPINFO si = {0};
+	PROCESS_INFORMATION pi = {0};
+	TCHAR cmdBuffer[2048];
+	DWORD waitResult;
+	DWORD elapsed = 0;
+
+	if (!task)
+		return 0;
+
+	task->status = WB_TASK_STATUS_RUNNING;
+	si.cb = sizeof(si);
+	_snwprintf(cmdBuffer, 2047, TEXT("cmd.exe /C %s"), task->command);
+	cmdBuffer[2047] = 0;
+
+	if (!CreateProcess(NULL, cmdBuffer, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+	{
+		task->status = WB_TASK_STATUS_FAILED;
+		task->errorCode = GetLastError();
+		wbTaskPostEvent(task, WBC_TASK_ERROR, task->progress, task->errorCode);
+		return 0;
+	}
+
+	while (1)
+	{
+		if (WaitForSingleObject(task->cancelEvent, 0) == WAIT_OBJECT_0)
+		{
+			TerminateProcess(pi.hProcess, 1);
+			task->status = WB_TASK_STATUS_CANCELLED;
+			task->exitCode = 1;
+			task->progress = 0;
+			wbTaskPostEvent(task, WBC_TASK_CANCELLED, task->progress, task->exitCode);
+			break;
+		}
+
+		waitResult = WaitForSingleObject(pi.hProcess, 200);
+		if (waitResult == WAIT_OBJECT_0)
+		{
+			GetExitCodeProcess(pi.hProcess, &task->exitCode);
+			if (task->exitCode == 0)
+			{
+				task->status = WB_TASK_STATUS_COMPLETED;
+				task->progress = 100;
+				wbTaskPostEvent(task, WBC_TASK_COMPLETE, task->progress, task->exitCode);
+			}
+			else
+			{
+				task->status = WB_TASK_STATUS_FAILED;
+				wbTaskPostEvent(task, WBC_TASK_ERROR, task->progress, task->exitCode);
+			}
+			break;
+		}
+
+		if (task->estimatedMs > 0)
+		{
+			elapsed += 200;
+			task->progress = (LONG)min(99, (elapsed * 100) / task->estimatedMs);
+			wbTaskPostEvent(task, WBC_TASK_PROGRESS, task->progress, 0);
+		}
+	}
+
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	return 0;
+}
+
+static void wbTaskCleanup(void)
+{
+	WB_ASYNC_TASK *task;
+	WB_ASYNC_TASK *next;
+	WB_ASYNC_EVENT *evt;
+	WB_ASYNC_EVENT *nextEvt;
+
+	if (g_taskLockInit)
+	{
+		EnterCriticalSection(&g_taskLock);
+		task = g_taskList;
+		g_taskList = NULL;
+		LeaveCriticalSection(&g_taskLock);
+
+		while (task)
+		{
+			next = task->next;
+			if (task->cancelEvent)
+				SetEvent(task->cancelEvent);
+			if (task->thread)
+			{
+				WaitForSingleObject(task->thread, 500);
+				CloseHandle(task->thread);
+			}
+			if (task->cancelEvent)
+				CloseHandle(task->cancelEvent);
+			if (task->command)
+				wbFree(task->command);
+			wbFree(task);
+			task = next;
+		}
+	}
+
+	if (g_eventLockInit)
+	{
+		EnterCriticalSection(&g_eventLock);
+		evt = g_eventHead;
+		g_eventHead = NULL;
+		g_eventTail = NULL;
+		LeaveCriticalSection(&g_eventLock);
+
+		while (evt)
+		{
+			nextEvt = evt->next;
+			wbFree(evt);
+			evt = nextEvt;
+		}
+	}
+}
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 
