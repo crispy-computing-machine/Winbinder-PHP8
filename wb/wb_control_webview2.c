@@ -279,11 +279,19 @@ typedef struct
 
 static HRESULT STDMETHODCALLTYPE WBQI_NotSupported(void *This, REFIID riid, void **ppvObject)
 {
-	UNREFERENCED_PARAMETER(This);
+	typedef ULONG(STDMETHODCALLTYPE *PFN_ADDREF)(void *);
+	PFN_ADDREF addRef;
+
 	UNREFERENCED_PARAMETER(riid);
-	if (ppvObject)
-		*ppvObject = NULL;
-	return E_NOINTERFACE;
+	if (!ppvObject)
+		return E_POINTER;
+
+	*ppvObject = This;
+	addRef = (PFN_ADDREF)((void **)(*(void **)This))[1];
+	if (addRef)
+		addRef(This);
+
+	return S_OK;
 }
 
 static ULONG STDMETHODCALLTYPE Env_AddRef(void *This)
@@ -671,7 +679,7 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 
 	for (;;)
 	{
-		wait = MsgWaitForMultipleObjects(1, &doneEvent, FALSE, 3000, QS_ALLINPUT);
+		wait = MsgWaitForMultipleObjects(1, &doneEvent, FALSE, INFINITE, QS_ALLINPUT);
 		if (wait == WAIT_OBJECT_0)
 			break;
 		if (wait == WAIT_OBJECT_0 + 1)
@@ -683,6 +691,7 @@ BOOL wbWebView2InitControl(PWBOBJ pwbo)
 			}
 			continue;
 		}
+		/* unexpected wait failure */
 		break;
 	}
 
