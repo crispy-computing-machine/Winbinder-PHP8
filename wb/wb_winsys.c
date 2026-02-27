@@ -479,6 +479,7 @@ BOOL wbIsValidClass(UINT64 uClass)
 	case Frame:
 	case Gauge:
 	case HTMLControl:
+	case WebView2Control:
 	case HyperLink:
 	case ImageButton:
 	case InvisibleArea:

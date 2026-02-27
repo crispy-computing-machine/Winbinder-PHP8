@@ -602,6 +602,11 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwStyle = WS_CHILD | nVisible;
 		break;
 
+	case WebView2Control:
+		pszClass = BROWSER_WINDOW_CLASS;
+		dwStyle = WS_CHILD | nVisible;
+		break;
+
 	default:
 		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Unknown control class %d"), uWinBinderClass);
 		return NULL;
@@ -635,6 +640,10 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	{
 
 	case HTMLControl:
+		EmbedBrowserObject(pwbo);
+		break;
+
+	case WebView2Control:
 		EmbedBrowserObject(pwbo);
 		break;
 
@@ -1047,6 +1056,9 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 			//				return DisplayHTMLPage(pwbo, pszText);
 			//			else
 			return DisplayHTMLString(pwbo, pszText);
+
+		case WebView2Control:
+			return wbWebView2SetHtml(pwbo, pszText);
 
 		case StatusBar:
 			if (SendMessage(pwbo->hwnd, SB_GETPARTS, 0, 0) > 1)

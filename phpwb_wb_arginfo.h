@@ -408,6 +408,30 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_browser_proxy, 0, 2, _IS_
 	ZEND_ARG_TYPE_INFO(0, proxyAddress, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_webview2_available, 0, 0, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_webview2_navigate, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, url, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_webview2_set_html, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, html, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_webview2_execute_script, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, script, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_webview2_dispatch_script_message, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, message, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_set_range, 0, 2, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, min, IS_LONG, 0)

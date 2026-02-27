@@ -495,6 +495,67 @@ BOOL DisplayHTMLPage(PWBOBJ pwbo, LPCTSTR pszWebPageName)
 	return FALSE;
 }
 
+
+BOOL ExecuteHTMLScript(PWBOBJ pwbo, LPCTSTR pszScript)
+{
+	IWebBrowser2 *webBrowser2;
+	LPDISPATCH lpDispatch;
+	IHTMLDocument2 *htmlDoc2;
+	IHTMLWindow2 *htmlWindow2;
+	IOleObject *browserObject;
+	BSTR bstrScript;
+	VARIANT result;
+
+	if (!pwbo || !pszScript)
+		return FALSE;
+
+	browserObject = *((IOleObject **)pwbo->lparams[0]);
+	if (!browserObject)
+		return FALSE;
+
+	if (!browserObject->lpVtbl->QueryInterface(browserObject, (IID *)&IID_IWebBrowser2, (void **)&webBrowser2))
+	{
+		if (!webBrowser2->lpVtbl->get_Document(webBrowser2, &lpDispatch))
+		{
+			if (!lpDispatch->lpVtbl->QueryInterface(lpDispatch, (IID *)&IID_IHTMLDocument2, (void **)&htmlDoc2))
+			{
+				if (!htmlDoc2->lpVtbl->get_parentWindow(htmlDoc2, &htmlWindow2))
+				{
+#ifdef UNICODE
+					bstrScript = SysAllocString(pszScript);
+#else
+					wchar_t *buffer;
+					DWORD size = MultiByteToWideChar(CP_ACP, 0, pszScript, -1, 0, 0);
+					if (!(buffer = (wchar_t *)GlobalAlloc(GMEM_FIXED, sizeof(wchar_t) * size)))
+						goto badalloc;
+					MultiByteToWideChar(CP_ACP, 0, pszScript, -1, buffer, size);
+					bstrScript = SysAllocString(buffer);
+					GlobalFree(buffer);
+#endif
+					if (!bstrScript)
+						goto badalloc;
+
+					VariantInit(&result);
+					htmlWindow2->lpVtbl->execScript(htmlWindow2, bstrScript, NULL, &result);
+					VariantClear(&result);
+					SysFreeString(bstrScript);
+					htmlWindow2->lpVtbl->Release(htmlWindow2);
+					htmlDoc2->lpVtbl->Release(htmlDoc2);
+					lpDispatch->lpVtbl->Release(lpDispatch);
+					webBrowser2->lpVtbl->Release(webBrowser2);
+					return TRUE;
+				}
+				htmlDoc2->lpVtbl->Release(htmlDoc2);
+			}
+			lpDispatch->lpVtbl->Release(lpDispatch);
+		}
+	badalloc:
+		webBrowser2->lpVtbl->Release(webBrowser2);
+	}
+
+	return FALSE;
+}
+
 BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress) {
     HKEY hKey;
     LONG result;

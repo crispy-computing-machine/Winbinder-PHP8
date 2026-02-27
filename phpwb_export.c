@@ -102,6 +102,11 @@ ZEND_FUNCTION(wb_set_image);
 ZEND_FUNCTION(wb_set_item_image);
 ZEND_FUNCTION(wb_set_location);
 ZEND_FUNCTION(wb_set_browser_proxy);
+ZEND_FUNCTION(wb_webview2_available);
+ZEND_FUNCTION(wb_webview2_navigate);
+ZEND_FUNCTION(wb_webview2_set_html);
+ZEND_FUNCTION(wb_webview2_execute_script);
+ZEND_FUNCTION(wb_webview2_dispatch_script_message);
 ZEND_FUNCTION(wb_set_range);
 ZEND_FUNCTION(wb_set_state);
 ZEND_FUNCTION(wb_set_style);
@@ -340,6 +345,11 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_handler,arginfo_wb_set_handler)
         ZEND_FE(wb_set_location,arginfo_wb_set_location)
         ZEND_FE(wb_set_browser_proxy,arginfo_wb_set_browser_proxy)
+        ZEND_FE(wb_webview2_available,arginfo_wb_webview2_available)
+        ZEND_FE(wb_webview2_navigate,arginfo_wb_webview2_navigate)
+        ZEND_FE(wb_webview2_set_html,arginfo_wb_webview2_set_html)
+        ZEND_FE(wb_webview2_execute_script,arginfo_wb_webview2_execute_script)
+        ZEND_FE(wb_webview2_dispatch_script_message,arginfo_wb_webview2_dispatch_script_message)
         ZEND_FE(wb_set_range,arginfo_wb_set_range)
         ZEND_FE(wb_set_state,arginfo_wb_set_state)
         ZEND_FE(wb_set_style,arginfo_wb_set_style)
@@ -509,6 +519,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "Frame", Frame)
 	WB_ZEND_CONST(LONG, "Gauge", Gauge)
 	WB_ZEND_CONST(LONG, "HTMLControl", HTMLControl)
+	WB_ZEND_CONST(LONG, "WebView2Control", WebView2Control)
 	WB_ZEND_CONST(LONG, "HyperLink", HyperLink)
 	WB_ZEND_CONST(LONG, "ImageButton", ImageButton)
 	WB_ZEND_CONST(LONG, "InvisibleArea", InvisibleArea)
@@ -569,6 +580,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SPLIT_HORIZONTAL", WBC_SPLIT_HORIZONTAL)
 
 	// Notification message flags
+	WB_ZEND_CONST(LONG, "WBC_WEBVIEW2_NAV_COMPLETED", WBC_WEBVIEW2_NAV_COMPLETED)
+	WB_ZEND_CONST(LONG, "WBC_WEBVIEW2_SCRIPT_MESSAGE", WBC_WEBVIEW2_SCRIPT_MESSAGE)
 	WB_ZEND_CONST(LONG, "WBC_DBLCLICK", WBC_DBLCLICK)
 	WB_ZEND_CONST(LONG, "WBC_MOUSEMOVE", WBC_MOUSEMOVE)
 	WB_ZEND_CONST(LONG, "WBC_MOUSEDOWN", WBC_MOUSEDOWN)

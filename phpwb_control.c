@@ -881,6 +881,88 @@ ZEND_FUNCTION(wb_sort)
 	}
 }
 
+
+ZEND_FUNCTION(wb_webview2_available)
+{
+	RETURN_BOOL(wbWebView2RuntimeAvailable());
+}
+
+ZEND_FUNCTION(wb_webview2_navigate)
+{
+	zend_long pwbo;
+	char *url;
+	size_t url_len;
+	TCHAR *wcs;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(url, url_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	wcs = Utf82WideChar(url, url_len);
+	RETURN_BOOL(wbWebView2Navigate((PWBOBJ)pwbo, wcs));
+}
+
+ZEND_FUNCTION(wb_webview2_set_html)
+{
+	zend_long pwbo;
+	char *html;
+	size_t html_len;
+	TCHAR *wcs;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(html, html_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	wcs = Utf82WideChar(html, html_len);
+	RETURN_BOOL(wbWebView2SetHtml((PWBOBJ)pwbo, wcs));
+}
+
+ZEND_FUNCTION(wb_webview2_execute_script)
+{
+	zend_long pwbo;
+	char *script;
+	size_t script_len;
+	TCHAR *wcs;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(script, script_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	wcs = Utf82WideChar(script, script_len);
+	RETURN_BOOL(wbWebView2ExecuteScript((PWBOBJ)pwbo, wcs));
+}
+
+ZEND_FUNCTION(wb_webview2_dispatch_script_message)
+{
+	zend_long pwbo;
+	char *message;
+	size_t message_len;
+	TCHAR *wcs;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(message, message_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	wcs = Utf82WideChar(message, message_len);
+	RETURN_BOOL(wbWebView2DispatchScriptMessage((PWBOBJ)pwbo, wcs));
+}
+
 ZEND_FUNCTION(wb_set_location)
 {
 	char *location;
@@ -899,10 +981,10 @@ ZEND_FUNCTION(wb_set_location)
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}
-	if (((PWBOBJ)pwbo)->uClass == HTMLControl)
+	if (((PWBOBJ)pwbo)->uClass == HTMLControl || ((PWBOBJ)pwbo)->uClass == WebView2Control)
 	{
 		wcs = Utf82WideChar(location, location_len);
-		RETURN_BOOL(DisplayHTMLPage((PWBOBJ)pwbo, wcs));
+		RETURN_BOOL(((PWBOBJ)pwbo)->uClass == WebView2Control ? wbWebView2Navigate((PWBOBJ)pwbo, wcs) : DisplayHTMLPage((PWBOBJ)pwbo, wcs));
 	}
 	else{
 		RETURN_BOOL(FALSE);

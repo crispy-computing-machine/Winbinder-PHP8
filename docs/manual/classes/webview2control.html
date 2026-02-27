@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>WebView2Control class</title>
+</head>
+<body>
+<h2>WebView2Control class</h2>
+<p>The <b>WebView2Control</b> class is a modern embedded browser control intended for hybrid desktop apps.</p>
+<p>Unlike <b>HTMLControl</b> (Internet Explorer engine), this control checks for WebView2 runtime availability at runtime and fails gracefully when the runtime is missing.</p>
+<ul>
+<li>Create with <code>wb_create_control(..., WebView2Control, ...)</code>.</li>
+<li>Navigate with <code>wb_webview2_navigate($ctrl, $url)</code>.</li>
+<li>Set inline HTML with <code>wb_webview2_set_html($ctrl, $html)</code>.</li>
+<li>Execute JavaScript with <code>wb_webview2_execute_script($ctrl, $script)</code>.</li>
+<li>Dispatch script messages into callbacks with <code>wb_webview2_dispatch_script_message($ctrl, $message)</code>.</li>
+</ul>
+<p>Compatibility: existing <b>HTMLControl</b> APIs remain unchanged for legacy code.</p>
+</body>
+</html>

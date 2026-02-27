@@ -160,6 +160,7 @@ enum
 	Frame,
 	Gauge,
 	HTMLControl,
+	WebView2Control,
 	HyperLink,
 	ImageButton,
 	InvisibleArea,
@@ -240,6 +241,10 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+
+// WebView2 notification events (callback lparam)
+#define WBC_WEBVIEW2_NAV_COMPLETED 0x00200000
+#define WBC_WEBVIEW2_SCRIPT_MESSAGE 0x00400000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -491,6 +496,11 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc);
 UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex);
 BOOL wbDeleteItems(PWBOBJ pwbo, BOOL bClearAll);
 BOOL wbRefreshControl(PWBOBJ pwbo, int xpos, int ypos, int nWidth, int nHeight, BOOL bNow);
+BOOL wbWebView2RuntimeAvailable(void);
+BOOL wbWebView2Navigate(PWBOBJ pwbo, LPCTSTR url);
+BOOL wbWebView2SetHtml(PWBOBJ pwbo, LPCTSTR html);
+BOOL wbWebView2ExecuteScript(PWBOBJ pwbo, LPCTSTR script);
+BOOL wbWebView2DispatchScriptMessage(PWBOBJ pwbo, LPCTSTR message);
 DWORD wbGetSelected(PWBOBJ pwbo);
 BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths);
 BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
