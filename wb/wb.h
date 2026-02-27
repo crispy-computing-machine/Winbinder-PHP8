@@ -91,6 +91,15 @@
 #ifndef LVIS_CHECKED
 #define LVIS_CHECKED 0x2000
 #endif
+#ifndef EM_SETBKGNDCOLOR
+#define EM_SETBKGNDCOLOR (WM_USER + 67)
+#endif
+#ifndef TB_SETBKCOLOR
+#define TB_SETBKCOLOR (WM_USER + 19)
+#endif
+#ifndef TB_SETTEXTCOLOR
+#define TB_SETTEXTCOLOR (WM_USER + 20)
+#endif
 
 // Other constants
 #define MAX_TABS 16				 // Maximum number of tabs in a TabControl
