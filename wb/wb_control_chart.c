@@ -316,7 +316,7 @@ BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount)
 				pData->ppszLabels = NULL;
 				return FALSE;
 			}
-			_tcscpy(pData->ppszLabels[i], ppszLabels[i]);
+			memcpy(pData->ppszLabels[i], ppszLabels[i], sizeof(TCHAR) * nChars);
 		}
 	return wbChartRefresh(pwbo);
 }
