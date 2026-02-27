@@ -131,7 +131,7 @@ static void WatchNormalizePath(LPTSTR dst, UINT dstLen, LPCTSTR src)
 		UINT len = lstrlen(dst);
 		if (len <= 3)
 			break;
-		if (dst[len - 1] != TEXT('\'))
+		if (dst[len - 1] != TEXT('\\'))
 			break;
 		dst[len - 1] = 0;
 	}
