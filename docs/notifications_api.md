@@ -16,13 +16,13 @@
 `wb_notify` returns an array:
 
 - `delivered` (`bool`): always `true` when the call completes.
-- `backend` (`string`): `windows_tray_balloon` when tray integration succeeded, else `in_app_banner`.
+- `backend` (`string`): `windows_toast` when toast integration succeeded, else `in_app_banner`.
 - `system_supported` (`bool`): whether Windows tray balloon delivery was used.
 - `click_callback_supported` (`bool`): currently `false`; clickable actions are explicitly unavailable on both backends.
 
 ## Compatibility behavior
 
-1. **Preferred path:** attempts Windows notification-area balloon via `Shell_NotifyIcon(NIM_MODIFY)`.
+1. **Preferred path:** attempts a native Windows toast via a hidden PowerShell call to `Windows.UI.Notifications` APIs.
 2. **Fallback path:** when platform integration is unavailable, uses a non-blocking in-app fallback (window flash + system sound) instead of modal dialogs.
 3. **Action callback:** callback wiring is intentionally explicit via `click_callback_supported=false` until a true clickable banner surface is added.
 

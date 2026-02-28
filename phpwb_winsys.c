@@ -289,6 +289,94 @@ static UINT wbNotifyIconFlagFromValue(zval *icon)
 	return NIIF_INFO;
 }
 
+static LPTSTR wbNotifyEscapePowerShellSingleQuote(LPCTSTR text)
+{
+	const TCHAR *src;
+	TCHAR *dst, *result;
+	size_t len = 0;
+
+	if (!text)
+	{
+		result = (TCHAR *)wbMalloc(sizeof(TCHAR));
+		if (result)
+			result[0] = TEXT('\0');
+		return result;
+	}
+
+	for (src = text; *src; ++src)
+	{
+		len++;
+		if (*src == TEXT('\''))
+			len++;
+	}
+
+	result = (TCHAR *)wbMalloc((len + 1) * sizeof(TCHAR));
+	if (!result)
+		return NULL;
+
+	dst = result;
+	for (src = text; *src; ++src)
+	{
+		if (*src == TEXT('\''))
+		{
+			*dst++ = TEXT('\'');
+			*dst++ = TEXT('\'');
+		}
+		else
+			*dst++ = *src;
+	}
+	*dst = TEXT('\0');
+
+	return result;
+}
+
+static BOOL wbNotifyTryWindowsToast(LPCTSTR title, LPCTSTR body, DWORD durationMs)
+{
+	LPTSTR escTitle = NULL, escBody = NULL, cmd = NULL;
+	const TCHAR *toastDuration = (durationMs >= 7000) ? TEXT("long") : TEXT("short");
+	DWORD res;
+	BOOL ok = FALSE;
+
+	escTitle = wbNotifyEscapePowerShellSingleQuote(title);
+	escBody = wbNotifyEscapePowerShellSingleQuote(body);
+	if (!escTitle || !escBody)
+		goto done;
+
+	cmd = (TCHAR *)wbMalloc(8192 * sizeof(TCHAR));
+	if (!cmd)
+		goto done;
+
+	_sntprintf(
+		cmd,
+		8191,
+		TEXT("-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command \\\"")
+		TEXT("[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;")
+		TEXT("$t=[Windows.UI.Notifications.ToastTemplateType]::ToastText02;")
+		TEXT("$x=[Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent($t);")
+		TEXT("$n=$x.GetElementsByTagName('text');")
+		TEXT("$n.Item(0).AppendChild($x.CreateTextNode('%s')) > $null;")
+		TEXT("$n.Item(1).AppendChild($x.CreateTextNode('%s')) > $null;")
+		TEXT("$x.DocumentElement.SetAttribute('duration','%s');")
+		TEXT("$toast=[Windows.UI.Notifications.ToastNotification]::new($x);")
+		TEXT("[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('WinBinder').Show($toast);\\\""),
+		escTitle,
+		escBody,
+		toastDuration);
+	cmd[8191] = TEXT('\0');
+
+	res = wbExec(TEXT("powershell.exe"), cmd, FALSE);
+	ok = (res != 0);
+
+done:
+	if (escTitle)
+		wbFree(escTitle);
+	if (escBody)
+		wbFree(escBody);
+	if (cmd)
+		wbFree(cmd);
+	return ok;
+}
+
 ZEND_FUNCTION(wb_notify)
 {
 	zval *options;
@@ -337,23 +425,7 @@ ZEND_FUNCTION(wb_notify)
 		szBody = Utf82WideChar("", 0);
 
 	iconFlags = wbNotifyIconFlagFromValue(zIcon);
-
-	if (pwboParent && pwboParent->hwnd && IsWindow(pwboParent->hwnd))
-	{
-		NOTIFYICONDATA nid;
-
-		ZeroMemory(&nid, sizeof(nid));
-		nid.cbSize = sizeof(nid);
-		nid.hWnd = pwboParent->hwnd;
-		nid.uID = 100;
-		nid.uFlags = NIF_INFO;
-		nid.dwInfoFlags = iconFlags;
-		nid.uTimeout = durationMs;
-		lstrcpyn(nid.szInfoTitle, szTitle, sizeof(nid.szInfoTitle) / sizeof(TCHAR));
-		lstrcpyn(nid.szInfo, szBody, sizeof(nid.szInfo) / sizeof(TCHAR));
-
-		usedSystemNotification = Shell_NotifyIcon(NIM_MODIFY, &nid);
-	}
+	usedSystemNotification = wbNotifyTryWindowsToast(szTitle, szBody, durationMs);
 
 	if (!usedSystemNotification)
 	{
@@ -381,7 +453,7 @@ ZEND_FUNCTION(wb_notify)
 
 	array_init(return_value);
 	add_assoc_bool(return_value, "delivered", TRUE);
-	add_assoc_string(return_value, "backend", usedSystemNotification ? "windows_tray_balloon" : "in_app_banner");
+	add_assoc_string(return_value, "backend", usedSystemNotification ? "windows_toast" : "in_app_banner");
 	add_assoc_bool(return_value, "system_supported", usedSystemNotification);
 	add_assoc_bool(return_value, "click_callback_supported", 0);
 

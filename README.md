@@ -29,7 +29,7 @@ Latest Features & Updates
 
 [Wiki - New features!](https://github.com/crispy-computing-machine/Winbinder/wiki/New-Features-Functions)
 
-- New: `wb_notify(array $options)` lightweight notifications with Windows tray integration fallback. See `docs/notifications_api.md`.
+- New: `wb_notify(array $options)` lightweight notifications with Windows toast integration fallback. See `docs/notifications_api.md`.
 
 Reporting Bugs
 ========================
