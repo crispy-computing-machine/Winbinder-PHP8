@@ -14,6 +14,7 @@
 #include "phpwb.h"
 #include "php_ini.h" // for cfg_get_string()
 #include <shellapi.h>
+#include <strsafe.h>
 
 //-------------------------------------------------------------------- VARIABLES
 
@@ -346,9 +347,9 @@ static BOOL wbNotifyTryWindowsToast(LPCTSTR title, LPCTSTR body, DWORD durationM
 	if (!cmd)
 		goto done;
 
-	_sntprintf(
+	if (FAILED(StringCchPrintf(
 		cmd,
-		8191,
+		8192,
 		TEXT("-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command \\\"")
 		TEXT("[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;")
 		TEXT("$t=[Windows.UI.Notifications.ToastTemplateType]::ToastText02;")
@@ -361,8 +362,8 @@ static BOOL wbNotifyTryWindowsToast(LPCTSTR title, LPCTSTR body, DWORD durationM
 		TEXT("[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('WinBinder').Show($toast);\\\""),
 		escTitle,
 		escBody,
-		toastDuration);
-	cmd[8191] = TEXT('\0');
+		toastDuration)))
+		goto done;
 
 	res = wbExec(TEXT("powershell.exe"), cmd, FALSE);
 	ok = (res != 0);
