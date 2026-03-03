@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>wb_task_run</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+<body>
+<h2>wb_task_run</h2>
+<p>int <b>wb_task_run</b> (int window, string command [, int estimated_ms = 0])</p>
+<p>Starts an asynchronous background task that executes <code>command</code> outside the UI thread. The function returns a task identifier, or 0 on failure.</p>
+<p>If <code>estimated_ms</code> is greater than zero, progress notifications are generated while the task runs.</p>
+
+<h2>Notifications and polling</h2>
+<p>Task notifications are delivered to the window callback through <code>$param1</code>:</p>
+<ul>
+<li><code>WBC_TASK_PROGRESS</code> (<code>$param2 = task id</code>, <code>$param3 = progress percentage</code>)</li>
+<li><code>WBC_TASK_COMPLETE</code> (<code>$param2 = task id</code>, <code>$param3 = exit code</code>)</li>
+<li><code>WBC_TASK_ERROR</code> (<code>$param2 = task id</code>, <code>$param3 = error/exit code</code>)</li>
+<li><code>WBC_TASK_CANCELLED</code> (<code>$param2 = task id</code>, <code>$param3 = exit code</code>)</li>
+</ul>
+<p>Use <b>wb_task_poll()</b> to query status and <b>wb_task_cancel()</b> to request cancellation.</p>
+
+<h2>Thread safety limits</h2>
+<p>Only the main UI thread may access WinBinder windows/controls. Background tasks must not call UI APIs directly; instead they signal completion or progress and let the window callback update the UI.</p>
+
+<h2>Example</h2>
+<p>See <code>docs/manual/examples/async_task_demo.php</code>.</p>
+</body>
+</html>
