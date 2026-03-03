@@ -184,7 +184,7 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 {
 	RECT rcPopup;
 	SIZE sizeLine1, sizeLine2, sizeLine3;
-	TCHAR szLine1[256], szLine2[256], szLine3[256];
+	TCHAR txtLine1[256], txtLine2[256], txtLine3[256];
 	TCHAR szXFallback[64], szYFallback[64], szValue[64];
 	const TCHAR *pszX;
 	const TCHAR *pszY;
@@ -208,21 +208,21 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
 
 #ifdef UNICODE
-	_snwprintf(szLine1, NUMITEMS(szLine1) - 1, L"X: %ls", pszX);
-	_snwprintf(szLine2, NUMITEMS(szLine2) - 1, L"Y: %ls", pszY);
-	_snwprintf(szLine3, NUMITEMS(szLine3) - 1, L"Value: %ls", szValue);
+		_snwprintf(txtLine1, NUMITEMS(txtLine1) - 1, L"X: %ls", pszX);
+		_snwprintf(txtLine2, NUMITEMS(txtLine2) - 1, L"Y: %ls", pszY);
+		_snwprintf(txtLine3, NUMITEMS(txtLine3) - 1, L"Value: %ls", szValue);
 #else
-	_snprintf(szLine1, NUMITEMS(szLine1) - 1, "X: %s", pszX);
-	_snprintf(szLine2, NUMITEMS(szLine2) - 1, "Y: %s", pszY);
-	_snprintf(szLine3, NUMITEMS(szLine3) - 1, "Value: %s", szValue);
+		_snprintf(txtLine1, NUMITEMS(txtLine1) - 1, "X: %s", pszX);
+		_snprintf(txtLine2, NUMITEMS(txtLine2) - 1, "Y: %s", pszY);
+		_snprintf(txtLine3, NUMITEMS(txtLine3) - 1, "Value: %s", szValue);
 #endif
-	szLine1[NUMITEMS(szLine1) - 1] = TEXT('\0');
-	szLine2[NUMITEMS(szLine2) - 1] = TEXT('\0');
-	szLine3[NUMITEMS(szLine3) - 1] = TEXT('\0');
+	txtLine1[NUMITEMS(txtLine1) - 1] = TEXT('\0');
+	txtLine2[NUMITEMS(txtLine2) - 1] = TEXT('\0');
+	txtLine3[NUMITEMS(txtLine3) - 1] = TEXT('\0');
 
-	GetTextExtentPoint32(hdc, szLine1, (int)_tcslen(szLine1), &sizeLine1);
-	GetTextExtentPoint32(hdc, szLine2, (int)_tcslen(szLine2), &sizeLine2);
-	GetTextExtentPoint32(hdc, szLine3, (int)_tcslen(szLine3), &sizeLine3);
+	GetTextExtentPoint32(hdc, txtLine1, (int)_tcslen(txtLine1), &sizeLine1);
+	GetTextExtentPoint32(hdc, txtLine2, (int)_tcslen(txtLine2), &sizeLine2);
+	GetTextExtentPoint32(hdc, txtLine3, (int)_tcslen(txtLine3), &sizeLine3);
 
 	nW = MAX(MAX(sizeLine1.cx, sizeLine2.cx), sizeLine3.cx) + 12;
 	nH = sizeLine1.cy + sizeLine2.cy + sizeLine3.cy + 12;
@@ -268,9 +268,9 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	SetTextColor(hdc, pData->clPopupText);
 	hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	hOldFont = (HFONT)SelectObject(hdc, hFont);
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, szLine1, (int)_tcslen(szLine1));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy, szLine2, (int)_tcslen(szLine2));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy + sizeLine2.cy, szLine3, (int)_tcslen(szLine3));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, txtLine1, (int)_tcslen(txtLine1));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy, txtLine2, (int)_tcslen(txtLine2));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy + sizeLine2.cy, txtLine3, (int)_tcslen(txtLine3));
 	SelectObject(hdc, hOldFont);
 }
 
