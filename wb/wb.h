@@ -675,17 +675,14 @@ BOOL wbSetAccelerators(PWBOBJ pwbo, LPACCEL paccels, int nCount);
 DWORD wbMakeAccelFromString(const char *pszAccel);
 UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
-<<<<<<< codex/add-async-task-api-with-notifications
 UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs);
 BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode);
 BOOL wbTaskCancel(UINT64 taskId);
-=======
 int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs);
 BOOL wbUnwatchPath(int nWatchId);
 UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx);
 BOOL wbWatchGetEvent(int watchEventIndex, int *watchId, int *eventType, LPCTSTR *basePath, LPCTSTR *relativePath, DWORD *tickCount);
 void wbWatchClearEvents(void);
->>>>>>> dev
 
 // Library-dependent functions
 
