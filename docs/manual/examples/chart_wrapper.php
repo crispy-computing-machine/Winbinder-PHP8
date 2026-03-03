@@ -63,6 +63,12 @@ class WBChart
         return $this;
     }
 
+    public function setYLabels(array $labels)
+    {
+        wb_chart_set_y_labels($this->handle, array_map('strval', $labels));
+        return $this;
+    }
+
     public function setColors(array $colors)
     {
         wb_chart_set_colors($this->handle, array_map('intval', $colors));

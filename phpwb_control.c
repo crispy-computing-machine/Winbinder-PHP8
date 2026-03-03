@@ -2025,7 +2025,7 @@ ZEND_FUNCTION(wb_chart_set_labels)
 	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
 		RETURN_BOOL(FALSE);
 	n = zend_hash_num_elements(Z_ARRVAL_P(labels));
-	pp = wbCalloc(n, sizeof(TCHAR *));
+	pp = wbCalloc(n, sizeof(char *));
 	if (!pp)
 		RETURN_BOOL(FALSE);
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(labels), zv)
@@ -2037,6 +2037,42 @@ ZEND_FUNCTION(wb_chart_set_labels)
 	ZEND_HASH_FOREACH_END();
 	{
 		BOOL bRet = wbChartSetLabels((PWBOBJ)pwbo, pp, n);
+		int j;
+		for (j = 0; j < n; j++)
+			if (pp[j]) wbFree((void *)pp[j]);
+		wbFree((void *)pp);
+		RETURN_BOOL(bRet);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_set_y_labels)
+{
+	zend_long pwbo;
+	zval *labels;
+	int n = 0, i = 0;
+	const char **pp;
+	zval *zv;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(labels)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+	n = zend_hash_num_elements(Z_ARRVAL_P(labels));
+	pp = wbCalloc(n, sizeof(char *));
+	if (!pp)
+		RETURN_BOOL(FALSE);
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(labels), zv)
+	{
+		zend_string *zs = zval_get_string(zv);
+		pp[i++] = wbStrDup(ZSTR_VAL(zs));
+		zend_string_release(zs);
+	}
+	ZEND_HASH_FOREACH_END();
+	{
+		BOOL bRet = wbChartSetYLabels((PWBOBJ)pwbo, pp, n);
 		int j;
 		for (j = 0; j < n; j++)
 			if (pp[j]) wbFree((void *)pp[j]);

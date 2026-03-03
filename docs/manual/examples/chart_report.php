@@ -9,6 +9,7 @@ $revenue = [120, 140, 160, 190];
 $cost = [90, 95, 105, 115];
 
 $chart->setLabels($labels)
+    ->setYLabels(['0', '50', '100', '150', '200'])
     ->setSeries(0, $revenue)
     ->setSeries(1, $cost)
     ->setColors([0x2D89EF, 0xE74856])

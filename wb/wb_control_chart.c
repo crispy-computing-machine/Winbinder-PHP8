@@ -8,9 +8,11 @@ typedef struct
 	DWORD dwMagic;
 	int nSeriesCount;
 	int nPointCount;
-	int nLabelCount;
+	int nXLabelCount;
+	int nYLabelCount;
 	double *pSeries[CHART_MAX_SERIES];
-	TCHAR **ppszLabels;
+	TCHAR **ppszXLabels;
+	TCHAR **ppszYLabels;
 	COLORREF colors[CHART_MAX_SERIES];
 	BOOL bShowAxis;
 	BOOL bShowGrid;
@@ -54,6 +56,79 @@ static TCHAR *ChartDupUtf8Label(const char *pszLabel)
 #else
 	return wbStrDup(pszLabel);
 #endif
+}
+
+static void ChartFreeLabels(TCHAR ***pppszLabels, int *pnCount)
+{
+	int i;
+	if (!pppszLabels || !pnCount || !*pppszLabels)
+	{
+		if (pnCount)
+			*pnCount = 0;
+		return;
+	}
+
+	for (i = 0; i < *pnCount; i++)
+	{
+		if ((*pppszLabels)[i])
+			wbFree((*pppszLabels)[i]);
+	}
+
+	wbFree(*pppszLabels);
+	*pppszLabels = NULL;
+	*pnCount = 0;
+}
+
+static void ChartFormatDouble(TCHAR *pszOut, int nOutChars, double value)
+{
+	if (!pszOut || nOutChars <= 0)
+		return;
+
+#ifdef UNICODE
+	_snwprintf(pszOut, nOutChars - 1, L"%.2f", value);
+#else
+	_snprintf(pszOut, nOutChars - 1, "%.2f", value);
+#endif
+	pszOut[nOutChars - 1] = TEXT('\0');
+}
+
+static BOOL ChartSetLabelSet(TCHAR ***pppszTarget, int *pnTargetCount, const char **ppszLabels, int nCount)
+{
+	int i;
+	TCHAR **ppszNew;
+
+	if (!pppszTarget || !pnTargetCount || nCount < 0)
+		return FALSE;
+
+	ChartFreeLabels(pppszTarget, pnTargetCount);
+
+	if (!ppszLabels || nCount == 0)
+		return TRUE;
+
+	ppszNew = wbCalloc(nCount, sizeof(TCHAR *));
+	if (!ppszNew)
+		return FALSE;
+
+	for (i = 0; i < nCount; i++)
+	{
+		if (ppszLabels[i])
+		{
+			ppszNew[i] = ChartDupUtf8Label(ppszLabels[i]);
+			if (!ppszNew[i])
+			{
+				int j;
+				for (j = 0; j < i; j++)
+					if (ppszNew[j])
+						wbFree(ppszNew[j]);
+				wbFree(ppszNew);
+				return FALSE;
+			}
+		}
+	}
+
+	*pppszTarget = ppszNew;
+	*pnTargetCount = nCount;
+	return TRUE;
 }
 
 static void ChartUpdateRange(PCHARTDATA pData)
@@ -222,65 +297,101 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 				SelectObject(hdc, hOld);
 
 				SetBkMode(hdc, TRANSPARENT);
-				wsprintf(szAxis, TEXT("%.2f"), pData->dAxisMax);
+				ChartFormatDouble(szAxis, NUMITEMS(szAxis), pData->dAxisMax);
 				TextOut(hdc, 4, rcPlot.top - 6, szAxis, (int)_tcslen(szAxis));
-				wsprintf(szAxis, TEXT("%.2f"), pData->dAxisMin);
+				ChartFormatDouble(szAxis, NUMITEMS(szAxis), pData->dAxisMin);
 				TextOut(hdc, 4, rcPlot.bottom - 10, szAxis, (int)_tcslen(szAxis));
+
+				if (pData->ppszYLabels && pData->nYLabelCount > 0)
+				{
+					int nLastY = pData->nYLabelCount - 1;
+					for (i = 0; i < pData->nYLabelCount; i++)
+					{
+						int yPos;
+						SIZE sz;
+						if (!pData->ppszYLabels[i])
+							continue;
+						if (nLastY <= 0)
+							yPos = (rcPlot.top + rcPlot.bottom) / 2;
+						else
+							yPos = rcPlot.bottom - ((rcPlot.bottom - rcPlot.top) * i / nLastY);
+						GetTextExtentPoint32(hdc, pData->ppszYLabels[i], (int)_tcslen(pData->ppszYLabels[i]), &sz);
+						TextOut(hdc, MAX(2, rcPlot.left - sz.cx - 8), yPos - (sz.cy / 2), pData->ppszYLabels[i], (int)_tcslen(pData->ppszYLabels[i]));
+					}
+				}
 			}
 
-			if (pData->ppszLabels && pData->nLabelCount > 0)
+			if (pData->ppszXLabels && pData->nXLabelCount > 0)
 			{
 				int nStep = 1;
 				int nPointSpacing;
-				int nMaxLabelWidth = 0;
-				int nLast = MIN(pData->nLabelCount, pData->nPointCount) - 1;
+				int nMaxLabelHeight = 0;
+				int nLast = MIN(pData->nXLabelCount, pData->nPointCount) - 1;
+				HFONT hBaseFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
+				LOGFONT lf;
+				HFONT hVerticalFont = NULL;
+				HFONT hOldFont = NULL;
 
 				nPointSpacing = (pData->nPointCount > 1) ? ((rcPlot.right - rcPlot.left) / (pData->nPointCount - 1)) : (rcPlot.right - rcPlot.left);
 				if (nPointSpacing < 1)
 					nPointSpacing = 1;
 
+				if (!hBaseFont)
+					hBaseFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+				GetObject(hBaseFont, sizeof(LOGFONT), &lf);
+				lf.lfEscapement = 900;
+				lf.lfOrientation = 900;
+				hVerticalFont = CreateFontIndirect(&lf);
+				if (hVerticalFont)
+					hOldFont = (HFONT)SelectObject(hdc, hVerticalFont);
+
 				for (i = 0; i <= nLast; i++)
 				{
 					SIZE sz;
-					if (!pData->ppszLabels[i])
+					if (!pData->ppszXLabels[i])
 						continue;
-					GetTextExtentPoint32(hdc, pData->ppszLabels[i], (int)_tcslen(pData->ppszLabels[i]), &sz);
-					if (sz.cx > nMaxLabelWidth)
-						nMaxLabelWidth = sz.cx;
+					GetTextExtentPoint32(hdc, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]), &sz);
+					if (sz.cy > nMaxLabelHeight)
+						nMaxLabelHeight = sz.cy;
 				}
 
-				if (nMaxLabelWidth > 0 && nMaxLabelWidth + 6 > nPointSpacing)
-					nStep = (nMaxLabelWidth + 6 + nPointSpacing - 1) / nPointSpacing;
+				if (nMaxLabelHeight > 0 && nMaxLabelHeight + 4 > nPointSpacing)
+					nStep = (nMaxLabelHeight + 4 + nPointSpacing - 1) / nPointSpacing;
 
 				for (i = 0; i <= nLast; i += nStep)
 				{
 					int x, y, nLabelX;
 					SIZE sz;
-					if (!pData->ppszLabels[i])
+					if (!pData->ppszXLabels[i])
 						continue;
 					ChartPointToScreen(&rcPlot, pData, i, pData->dAxisMin, &x, &y);
-					GetTextExtentPoint32(hdc, pData->ppszLabels[i], (int)_tcslen(pData->ppszLabels[i]), &sz);
-					nLabelX = x - (sz.cx / 2);
+					GetTextExtentPoint32(hdc, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]), &sz);
+					nLabelX = x - (sz.cy / 2);
 					if (nLabelX < rcClient.left + 2)
 						nLabelX = rcClient.left + 2;
-					if (nLabelX + sz.cx > rcClient.right - 2)
-						nLabelX = (rcClient.right - 2) - sz.cx;
-					TextOut(hdc, nLabelX, rcPlot.bottom + 4, pData->ppszLabels[i], (int)_tcslen(pData->ppszLabels[i]));
+					if (nLabelX + sz.cy > rcClient.right - 2)
+						nLabelX = (rcClient.right - 2) - sz.cy;
+					TextOut(hdc, nLabelX, rcPlot.bottom + 6, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]));
 				}
 
-				if (nLast > 0 && (nLast % nStep) != 0 && pData->ppszLabels[nLast])
+				if (nLast > 0 && (nLast % nStep) != 0 && pData->ppszXLabels[nLast])
 				{
 					int x, y, nLabelX;
 					SIZE sz;
 					ChartPointToScreen(&rcPlot, pData, nLast, pData->dAxisMin, &x, &y);
-					GetTextExtentPoint32(hdc, pData->ppszLabels[nLast], (int)_tcslen(pData->ppszLabels[nLast]), &sz);
-					nLabelX = x - (sz.cx / 2);
+					GetTextExtentPoint32(hdc, pData->ppszXLabels[nLast], (int)_tcslen(pData->ppszXLabels[nLast]), &sz);
+					nLabelX = x - (sz.cy / 2);
 					if (nLabelX < rcClient.left + 2)
 						nLabelX = rcClient.left + 2;
-					if (nLabelX + sz.cx > rcClient.right - 2)
-						nLabelX = (rcClient.right - 2) - sz.cx;
-					TextOut(hdc, nLabelX, rcPlot.bottom + 4, pData->ppszLabels[nLast], (int)_tcslen(pData->ppszLabels[nLast]));
+					if (nLabelX + sz.cy > rcClient.right - 2)
+						nLabelX = (rcClient.right - 2) - sz.cy;
+					TextOut(hdc, nLabelX, rcPlot.bottom + 6, pData->ppszXLabels[nLast], (int)_tcslen(pData->ppszXLabels[nLast]));
 				}
+
+				if (hOldFont)
+					SelectObject(hdc, hOldFont);
+				if (hVerticalFont)
+					DeleteObject(hVerticalFont);
 			}
 			for (i = 0; i < pData->nSeriesCount; i++)
 			{
@@ -374,40 +485,20 @@ BOOL wbChartSetSeries(PWBOBJ pwbo, int nSeries, const double *pValues, int nCoun
 BOOL wbChartSetLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount)
 {
 	PCHARTDATA pData = ChartGetData(pwbo);
-	int i;
 	if (!pData || nCount < 0)
 		return FALSE;
-	if (pData->ppszLabels)
-	{
-		for (i = 0; i < pData->nLabelCount; i++)
-			if (pData->ppszLabels[i])
-				wbFree(pData->ppszLabels[i]);
-		wbFree(pData->ppszLabels);
-		pData->ppszLabels = NULL;
-		pData->nLabelCount = 0;
-	}
-	if (nCount == 0 || !ppszLabels)
-		return TRUE;
-	pData->ppszLabels = wbCalloc(nCount, sizeof(TCHAR *));
-	if (!pData->ppszLabels)
+	if (!ChartSetLabelSet(&pData->ppszXLabels, &pData->nXLabelCount, ppszLabels, nCount))
 		return FALSE;
-	pData->nLabelCount = nCount;
-	for (i = 0; i < nCount; i++)
-		if (ppszLabels[i])
-		{
-			pData->ppszLabels[i] = ChartDupUtf8Label(ppszLabels[i]);
-			if (!pData->ppszLabels[i])
-			{
-				int j;
-				for (j = 0; j < i; j++)
-					if (pData->ppszLabels[j])
-						wbFree(pData->ppszLabels[j]);
-				wbFree(pData->ppszLabels);
-				pData->ppszLabels = NULL;
-				pData->nLabelCount = 0;
-				return FALSE;
-			}
-		}
+	return wbChartRefresh(pwbo);
+}
+
+BOOL wbChartSetYLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount)
+{
+	PCHARTDATA pData = ChartGetData(pwbo);
+	if (!pData || nCount < 0)
+		return FALSE;
+	if (!ChartSetLabelSet(&pData->ppszYLabels, &pData->nYLabelCount, ppszLabels, nCount))
+		return FALSE;
 	return wbChartRefresh(pwbo);
 }
 
@@ -457,13 +548,8 @@ BOOL wbChartDestroy(PWBOBJ pwbo)
 	for (i = 0; i < CHART_MAX_SERIES; i++)
 		if (pData->pSeries[i])
 			wbFree(pData->pSeries[i]);
-	if (pData->ppszLabels)
-	{
-		for (i = 0; i < pData->nLabelCount; i++)
-			if (pData->ppszLabels[i])
-				wbFree(pData->ppszLabels[i]);
-		wbFree(pData->ppszLabels);
-	}
+	ChartFreeLabels(&pData->ppszXLabels, &pData->nXLabelCount);
+	ChartFreeLabels(&pData->ppszYLabels, &pData->nYLabelCount);
 	pData->dwMagic = 0;
 	wbFree(pData);
 	pwbo->lparam = 0;

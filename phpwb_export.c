@@ -151,6 +151,7 @@ ZEND_FUNCTION(wb_scintilla_set_eol_view);
 ZEND_FUNCTION(wb_scintilla_show_php_autocomplete);
 ZEND_FUNCTION(wb_chart_set_series);
 ZEND_FUNCTION(wb_chart_set_labels);
+ZEND_FUNCTION(wb_chart_set_y_labels);
 ZEND_FUNCTION(wb_chart_set_colors);
 ZEND_FUNCTION(wb_chart_set_axis);
 ZEND_FUNCTION(wb_chart_refresh);
@@ -389,6 +390,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
         ZEND_FE(wb_chart_set_series,arginfo_wb_chart_set_series)
         ZEND_FE(wb_chart_set_labels,arginfo_wb_chart_set_labels)
+        ZEND_FE(wb_chart_set_y_labels,arginfo_wb_chart_set_labels)
         ZEND_FE(wb_chart_set_colors,arginfo_wb_chart_set_colors)
         ZEND_FE(wb_chart_set_axis,arginfo_wb_chart_set_axis)
         ZEND_FE(wb_chart_refresh,arginfo_wb_chart_refresh)
