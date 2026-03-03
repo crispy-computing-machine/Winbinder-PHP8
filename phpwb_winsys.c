@@ -396,6 +396,65 @@ ZEND_FUNCTION(wb_is_running)
 	RETURN_BOOL(wbIsRunning(pid));
 }
 
+ZEND_FUNCTION(wb_task_run)
+{
+	zend_long pwbo;
+	char *command;
+	size_t command_len;
+	zend_long estimated = 0;
+	TCHAR *szCommand;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(command, command_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(estimated)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || estimated < 0)
+	{
+		RETURN_LONG(0);
+	}
+
+	szCommand = Utf82WideChar(command, command_len);
+	RETURN_LONG(wbTaskRun((PWBOBJ)pwbo, szCommand, (UINT64)estimated));
+}
+
+ZEND_FUNCTION(wb_task_poll)
+{
+	zend_long taskId;
+	int status;
+	int progress;
+	DWORD exitCode;
+	DWORD errorCode;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(taskId)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbTaskPoll((UINT64)taskId, &status, &progress, &exitCode, &errorCode))
+	{
+		RETURN_NULL();
+	}
+
+	array_init(return_value);
+	add_assoc_long(return_value, "status", status);
+	add_assoc_long(return_value, "progress", progress);
+	add_assoc_long(return_value, "exit_code", exitCode);
+	add_assoc_long(return_value, "error_code", errorCode);
+}
+
+ZEND_FUNCTION(wb_task_cancel)
+{
+	zend_long taskId;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(taskId)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbTaskCancel((UINT64)taskId));
+}
+
 
 ZEND_FUNCTION(wb_get_system_info)
 {

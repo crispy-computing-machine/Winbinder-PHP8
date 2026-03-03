@@ -94,6 +94,7 @@ extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHa
 extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
+extern BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 /*
@@ -1863,6 +1864,32 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 		if(pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn) {
 			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, IDDEFAULT, WBC_DROPFILES,
 			(LPARAM)pwbobj->pbuffer, wParam);
+		}
+	}
+	break;
+
+	case WBWM_TASK:
+	{
+		PWBOBJ pwbobj = wbGetWBObj(hwnd);
+		UINT64 taskId;
+		int eventCode;
+		int progress;
+		DWORD value;
+
+		if (!pwbobj || !pwbobj->pszCallBackFn || !*pwbobj->pszCallBackFn)
+			break;
+
+		while (wbTaskDequeueEvent(hwnd, &taskId, &eventCode, &progress, &value))
+		{
+			wbCallUserFunction(
+				pwbobj->pszCallBackFn,
+				pwbobj->pszCallBackObj,
+				pwbobj,
+				pwbobj,
+				IDDEFAULT,
+				eventCode,
+				(LPARAM)taskId,
+				(LPARAM)((eventCode == WBC_TASK_PROGRESS) ? progress : value));
 		}
 	}
 	break;
