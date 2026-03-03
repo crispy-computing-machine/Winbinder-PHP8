@@ -30,6 +30,32 @@ static PCHARTDATA ChartGetData(PWBOBJ pwbo)
 	return (PCHARTDATA)pwbo->lparam;
 }
 
+static TCHAR *ChartDupUtf8Label(const char *pszLabel)
+{
+	if (!pszLabel)
+		return NULL;
+
+#ifdef UNICODE
+	{
+		int nChars = MultiByteToWideChar(CP_UTF8, 0, pszLabel, -1, NULL, 0);
+		TCHAR *pszWide;
+		if (nChars <= 0)
+			return NULL;
+		pszWide = wbMalloc(sizeof(TCHAR) * nChars);
+		if (!pszWide)
+			return NULL;
+		if (!MultiByteToWideChar(CP_UTF8, 0, pszLabel, -1, pszWide, nChars))
+		{
+			wbFree(pszWide);
+			return NULL;
+		}
+		return pszWide;
+	}
+#else
+	return wbStrDup(pszLabel);
+#endif
+}
+
 static void ChartUpdateRange(PCHARTDATA pData)
 {
 	int i, j;
@@ -309,7 +335,7 @@ BOOL wbChartSetSeries(PWBOBJ pwbo, int nSeries, const double *pValues, int nCoun
 	return wbChartRefresh(pwbo);
 }
 
-BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount)
+BOOL wbChartSetLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount)
 {
 	PCHARTDATA pData = ChartGetData(pwbo);
 	int i;
@@ -333,8 +359,7 @@ BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount)
 	for (i = 0; i < nCount; i++)
 		if (ppszLabels[i])
 		{
-			size_t nChars = _tcslen(ppszLabels[i]) + 1;
-			pData->ppszLabels[i] = wbMalloc(sizeof(TCHAR) * nChars);
+			pData->ppszLabels[i] = ChartDupUtf8Label(ppszLabels[i]);
 			if (!pData->ppszLabels[i])
 			{
 				int j;
@@ -346,7 +371,6 @@ BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount)
 				pData->nLabelCount = 0;
 				return FALSE;
 			}
-			memcpy(pData->ppszLabels[i], ppszLabels[i], sizeof(TCHAR) * nChars);
 		}
 	return wbChartRefresh(pwbo);
 }

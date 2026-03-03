@@ -2014,7 +2014,7 @@ ZEND_FUNCTION(wb_chart_set_labels)
 	zend_long pwbo;
 	zval *labels;
 	int n = 0, i = 0;
-	const TCHAR **pp;
+	const char **pp;
 	zval *zv;
 
 	ZEND_PARSE_PARAMETERS_START(2, 2)
@@ -2031,11 +2031,7 @@ ZEND_FUNCTION(wb_chart_set_labels)
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(labels), zv)
 	{
 		zend_string *zs = zval_get_string(zv);
-		#ifdef UNICODE
-		pp[i++] = Utf82WideChar(ZSTR_VAL(zs), ZSTR_LEN(zs));
-		#else
 		pp[i++] = wbStrDup(ZSTR_VAL(zs));
-		#endif
 		zend_string_release(zs);
 	}
 	ZEND_HASH_FOREACH_END();

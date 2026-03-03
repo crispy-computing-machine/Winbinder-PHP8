@@ -565,7 +565,7 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
 BOOL RegisterChartControlClass(void);
 BOOL wbChartInitControl(PWBOBJ pwbo);
 BOOL wbChartSetSeries(PWBOBJ pwbo, int nSeries, const double *pValues, int nCount);
-BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount);
+BOOL wbChartSetLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount);
 BOOL wbChartSetColors(PWBOBJ pwbo, const COLORREF *pColors, int nCount);
 BOOL wbChartSetAxis(PWBOBJ pwbo, BOOL bShowAxis, BOOL bShowGrid, double dMin, double dMax, BOOL bAutoRange);
 BOOL wbChartRefresh(PWBOBJ pwbo);
