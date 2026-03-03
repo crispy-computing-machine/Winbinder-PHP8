@@ -735,6 +735,97 @@ ZEND_FUNCTION(wb_wait)
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
 
+
+ZEND_FUNCTION(wb_watch_path)
+{
+	char *path = NULL;
+	size_t path_len = 0;
+	zend_bool recursive = 0;
+	zend_long debounce_ms = 200;
+	TCHAR *wpath;
+	int watchId;
+
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_STRING(path, path_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(recursive)
+		Z_PARAM_LONG(debounce_ms)
+	ZEND_PARSE_PARAMETERS_END();
+
+	wpath = Utf82WideChar(path, path_len);
+	if (!wpath)
+		RETURN_FALSE;
+
+	watchId = wbWatchPath(wpath, recursive ? TRUE : FALSE, (DWORD)MAX(0, debounce_ms));
+	wbFree(wpath);
+
+	if (watchId <= 0)
+		RETURN_FALSE;
+
+	RETURN_LONG(watchId);
+}
+
+ZEND_FUNCTION(wb_unwatch_path)
+{
+	zend_long watch_id;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(watch_id)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbUnwatchPath((int)watch_id));
+}
+
+ZEND_FUNCTION(wb_watch_poll)
+{
+	zend_long timeout_ms = 0;
+	zend_long max_events = 0;
+	UINT64 count, i, limit;
+
+	ZEND_PARSE_PARAMETERS_START(0, 2)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(timeout_ms)
+		Z_PARAM_LONG(max_events)
+	ZEND_PARSE_PARAMETERS_END();
+
+	count = wbWatchPoll((DWORD)MAX(0, timeout_ms), NULL, NULL);
+	limit = (max_events > 0 && (UINT64)max_events < count) ? (UINT64)max_events : count;
+
+	array_init(return_value);
+	for (i = 0; i < limit; i++)
+	{
+		int watchId = 0, eventType = 0;
+		LPCTSTR basePath = NULL, relPath = NULL;
+		DWORD tickCount = 0;
+		char *baseUtf8 = NULL, *relUtf8 = NULL;
+		zval event;
+
+		if (!wbWatchGetEvent((int)i, &watchId, &eventType, &basePath, &relPath, &tickCount))
+			continue;
+
+		array_init(&event);
+		add_assoc_long(&event, "watch_id", watchId);
+		add_assoc_long(&event, "event", eventType);
+		add_assoc_long(&event, "tick", tickCount);
+
+		baseUtf8 = WideChar2Utf8(basePath ? basePath : TEXT(""), NULL);
+		relUtf8 = WideChar2Utf8(relPath ? relPath : TEXT(""), NULL);
+		if (baseUtf8)
+		{
+			add_assoc_string(&event, "base_path", baseUtf8);
+			wbFree(baseUtf8);
+		}
+		if (relUtf8)
+		{
+			add_assoc_string(&event, "path", relUtf8);
+			wbFree(relUtf8);
+		}
+		add_next_index_zval(return_value, &event);
+	}
+
+	wbWatchClearEvents();
+}
+
 ZEND_FUNCTION(wb_is_obj)
 {
 	zend_long pwbo;
