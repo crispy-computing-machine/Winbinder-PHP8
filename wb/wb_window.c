@@ -1870,6 +1870,32 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 	}
 	break;
 
+	case WBWM_TASK:
+	{
+		PWBOBJ pwbobj = wbGetWBObj(hwnd);
+		UINT64 taskId;
+		int eventCode;
+		int progress;
+		DWORD value;
+
+		if (!pwbobj || !pwbobj->pszCallBackFn || !*pwbobj->pszCallBackFn)
+			break;
+
+		while (wbTaskDequeueEvent(hwnd, &taskId, &eventCode, &progress, &value))
+		{
+			wbCallUserFunction(
+				pwbobj->pszCallBackFn,
+				pwbobj->pszCallBackObj,
+				pwbobj,
+				pwbobj,
+				IDDEFAULT,
+				eventCode,
+				(LPARAM)taskId,
+				(LPARAM)((eventCode == WBC_TASK_PROGRESS) ? progress : value));
+		}
+	}
+	break;
+
 
 	default:
 		return DefaultWBProc(hwnd, msg, wParam, lParam);
