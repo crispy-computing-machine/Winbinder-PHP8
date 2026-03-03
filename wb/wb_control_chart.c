@@ -136,6 +136,8 @@ static BOOL ChartSetLabelSet(TCHAR ***pppszTarget, int *pnTargetCount, const cha
 	return TRUE;
 }
 
+static void ChartPointToScreen(RECT *prcPlot, PCHARTDATA pData, int nPoint, double v, int *px, int *py);
+
 static const TCHAR *ChartGetXLabel(PCHARTDATA pData, int nPoint, TCHAR *pszFallback, int nFallbackChars)
 {
 	if (pData->ppszXLabels && nPoint >= 0 && nPoint < pData->nXLabelCount && pData->ppszXLabels[nPoint])
@@ -181,7 +183,7 @@ static const TCHAR *ChartGetYLabel(PCHARTDATA pData, double value, TCHAR *pszFal
 static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA pData)
 {
 	RECT rcPopup;
-	SIZE szLine1, szLine2, szLine3;
+	SIZE sizeLine1, sizeLine2, sizeLine3;
 	TCHAR szLine1[256], szLine2[256], szLine3[256];
 	TCHAR szXFallback[64], szYFallback[64], szValue[64];
 	const TCHAR *pszX;
@@ -218,12 +220,12 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	szLine2[NUMITEMS(szLine2) - 1] = TEXT('\0');
 	szLine3[NUMITEMS(szLine3) - 1] = TEXT('\0');
 
-	GetTextExtentPoint32(hdc, szLine1, (int)_tcslen(szLine1), &szLine1);
-	GetTextExtentPoint32(hdc, szLine2, (int)_tcslen(szLine2), &szLine2);
-	GetTextExtentPoint32(hdc, szLine3, (int)_tcslen(szLine3), &szLine3);
+	GetTextExtentPoint32(hdc, szLine1, (int)_tcslen(szLine1), &sizeLine1);
+	GetTextExtentPoint32(hdc, szLine2, (int)_tcslen(szLine2), &sizeLine2);
+	GetTextExtentPoint32(hdc, szLine3, (int)_tcslen(szLine3), &sizeLine3);
 
-	nW = MAX(MAX(szLine1.cx, szLine2.cx), szLine3.cx) + 12;
-	nH = szLine1.cy + szLine2.cy + szLine3.cy + 12;
+	nW = MAX(MAX(sizeLine1.cx, sizeLine2.cx), sizeLine3.cx) + 12;
+	nH = sizeLine1.cy + sizeLine2.cy + sizeLine3.cy + 12;
 
 	ChartPointToScreen(prcPlot, pData, pData->nHoverPoint, value, &px, &py);
 	rcPopup.left = px + 10;
@@ -267,8 +269,8 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	hOldFont = (HFONT)SelectObject(hdc, hFont);
 	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, szLine1, (int)_tcslen(szLine1));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + szLine1.cy, szLine2, (int)_tcslen(szLine2));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + szLine1.cy + szLine2.cy, szLine3, (int)_tcslen(szLine3));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy, szLine2, (int)_tcslen(szLine2));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy + sizeLine2.cy, szLine3, (int)_tcslen(szLine3));
 	SelectObject(hdc, hOldFont);
 }
 
