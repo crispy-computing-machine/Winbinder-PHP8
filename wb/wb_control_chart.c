@@ -230,7 +230,29 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 
 			if (pData->ppszLabels && pData->nLabelCount > 0)
 			{
-				for (i = 0; i < pData->nLabelCount && i < pData->nPointCount; i++)
+				int nStep = 1;
+				int nPointSpacing;
+				int nMaxLabelWidth = 0;
+				int nLast = MIN(pData->nLabelCount, pData->nPointCount) - 1;
+
+				nPointSpacing = (pData->nPointCount > 1) ? ((rcPlot.right - rcPlot.left) / (pData->nPointCount - 1)) : (rcPlot.right - rcPlot.left);
+				if (nPointSpacing < 1)
+					nPointSpacing = 1;
+
+				for (i = 0; i <= nLast; i++)
+				{
+					SIZE sz;
+					if (!pData->ppszLabels[i])
+						continue;
+					GetTextExtentPoint32(hdc, pData->ppszLabels[i], (int)_tcslen(pData->ppszLabels[i]), &sz);
+					if (sz.cx > nMaxLabelWidth)
+						nMaxLabelWidth = sz.cx;
+				}
+
+				if (nMaxLabelWidth > 0 && nMaxLabelWidth + 6 > nPointSpacing)
+					nStep = (nMaxLabelWidth + 6 + nPointSpacing - 1) / nPointSpacing;
+
+				for (i = 0; i <= nLast; i += nStep)
 				{
 					int x, y, nLabelX;
 					SIZE sz;
@@ -244,6 +266,20 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 					if (nLabelX + sz.cx > rcClient.right - 2)
 						nLabelX = (rcClient.right - 2) - sz.cx;
 					TextOut(hdc, nLabelX, rcPlot.bottom + 4, pData->ppszLabels[i], (int)_tcslen(pData->ppszLabels[i]));
+				}
+
+				if (nLast > 0 && (nLast % nStep) != 0 && pData->ppszLabels[nLast])
+				{
+					int x, y, nLabelX;
+					SIZE sz;
+					ChartPointToScreen(&rcPlot, pData, nLast, pData->dAxisMin, &x, &y);
+					GetTextExtentPoint32(hdc, pData->ppszLabels[nLast], (int)_tcslen(pData->ppszLabels[nLast]), &sz);
+					nLabelX = x - (sz.cx / 2);
+					if (nLabelX < rcClient.left + 2)
+						nLabelX = rcClient.left + 2;
+					if (nLabelX + sz.cx > rcClient.right - 2)
+						nLabelX = (rcClient.right - 2) - sz.cx;
+					TextOut(hdc, nLabelX, rcPlot.bottom + 4, pData->ppszLabels[nLast], (int)_tcslen(pData->ppszLabels[nLast]));
 				}
 			}
 			for (i = 0; i < pData->nSeriesCount; i++)
