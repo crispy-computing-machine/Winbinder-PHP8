@@ -94,6 +94,7 @@ extern PWBOBJ AssignHandlerToTabs(HWND hwndParent, LPDWORD pszObj, LPCTSTR pszHa
 extern LRESULT CALLBACK BrowserWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL RegisterImageButtonClass(void);
 extern BOOL RegisterSplitterClass(void);
+extern BOOL RegisterChartControlClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 /*
@@ -851,6 +852,8 @@ BOOL RegisterClasses(void)
 	if (!RegisterImageButtonClass())
 		return FALSE;
 	if (!RegisterSplitterClass())
+		return FALSE;
+	if (!RegisterChartControlClass())
 		return FALSE;
 
 	return TRUE;
