@@ -1973,3 +1973,135 @@ ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
 
 
 //------------------------------------------------------------------ END OF FILE
+
+ZEND_FUNCTION(wb_chart_set_series)
+{
+	zend_long pwbo, series;
+	zval *values;
+	int n = 0, i = 0;
+	double *buf;
+	zval *zv;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(series)
+		Z_PARAM_ARRAY(values)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+
+	n = zend_hash_num_elements(Z_ARRVAL_P(values));
+	if (n <= 0)
+		RETURN_BOOL(FALSE);
+	buf = wbMalloc(sizeof(double) * n);
+	if (!buf)
+		RETURN_BOOL(FALSE);
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(values), zv)
+	{
+		buf[i++] = zval_get_double(zv);
+	}
+	ZEND_HASH_FOREACH_END();
+	{
+		BOOL bRet = wbChartSetSeries((PWBOBJ)pwbo, (int)series, buf, n);
+		wbFree(buf);
+		RETURN_BOOL(bRet);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_set_labels)
+{
+	zend_long pwbo;
+	zval *labels;
+	int n = 0, i = 0;
+	const TCHAR **pp;
+	zval *zv;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(labels)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+	n = zend_hash_num_elements(Z_ARRVAL_P(labels));
+	pp = wbCalloc(n, sizeof(TCHAR *));
+	if (!pp)
+		RETURN_BOOL(FALSE);
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(labels), zv)
+	{
+		zend_string *zs = zval_get_string(zv);
+		pp[i++] = Utf82WideChar(ZSTR_VAL(zs), ZSTR_LEN(zs));
+		zend_string_release(zs);
+	}
+	ZEND_HASH_FOREACH_END();
+	{
+		BOOL bRet = wbChartSetLabels((PWBOBJ)pwbo, pp, n);
+		int j;
+		for (j = 0; j < n; j++)
+			if (pp[j]) wbFree((void *)pp[j]);
+		wbFree((void *)pp);
+		RETURN_BOOL(bRet);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_set_colors)
+{
+	zend_long pwbo;
+	zval *colors;
+	int n = 0, i = 0;
+	COLORREF *pc;
+	zval *zv;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(colors)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+	n = zend_hash_num_elements(Z_ARRVAL_P(colors));
+	pc = wbCalloc(n, sizeof(COLORREF));
+	if (!pc)
+		RETURN_BOOL(FALSE);
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(colors), zv)
+	{
+		pc[i++] = (COLORREF)zval_get_long(zv);
+	}
+	ZEND_HASH_FOREACH_END();
+	{
+		BOOL bRet = wbChartSetColors((PWBOBJ)pwbo, pc, n);
+		wbFree(pc);
+		RETURN_BOOL(bRet);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_set_axis)
+{
+	zend_long pwbo;
+	zend_bool showAxis, showGrid, autoRange;
+	double minV, maxV;
+	ZEND_PARSE_PARAMETERS_START(6, 6)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(showAxis)
+		Z_PARAM_BOOL(showGrid)
+		Z_PARAM_DOUBLE(minV)
+		Z_PARAM_DOUBLE(maxV)
+		Z_PARAM_BOOL(autoRange)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+	RETURN_BOOL(wbChartSetAxis((PWBOBJ)pwbo, showAxis, showGrid, minV, maxV, autoRange));
+}
+
+ZEND_FUNCTION(wb_chart_refresh)
+{
+	zend_long pwbo;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+	RETURN_BOOL(wbChartRefresh((PWBOBJ)pwbo));
+}

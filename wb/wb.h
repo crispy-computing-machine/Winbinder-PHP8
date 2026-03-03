@@ -123,6 +123,7 @@
 #define BROWSER_WINDOW_CLASS TEXT("wbHTMLWnd")
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
 #define SPLITTER_CLASS TEXT("wbSplitter")
+#define CHART_CONTROL_CLASS TEXT("wbChartControl")
 
 // Custom WinBinder messages
 #define WBWM_NOTIFYICON (WM_APP + 2)
@@ -180,9 +181,10 @@ enum
 	ScintillaEdit,
 	Timer,
 	Splitter,
+	ChartControl,
 };
 
-#define NUMCLASSES Splitter // Must be the last class
+#define NUMCLASSES ChartControl // Must be the last class
 
 // Style flags (parameter style of wb_create_window)
 
@@ -240,6 +242,8 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_CHART_POINT_CLICK 0x00200000
+#define WBC_CHART_POINT_HOVER 0x00400000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -556,6 +560,16 @@ HTREEITEM wbAddTreeViewItemSibling(PWBOBJ pwbo, HTREEITEM hItem, LPTSTR lpszItem
 HTREEITEM wbGetTreeViewItemParent(PWBOBJ pwbo, HTREEITEM hItem);
 HTREEITEM wbGetTreeViewItemSelected(PWBOBJ pwbo);
 HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
+
+// WB_CONTROL_CHART.C
+BOOL RegisterChartControlClass(void);
+BOOL wbChartInitControl(PWBOBJ pwbo);
+BOOL wbChartSetSeries(PWBOBJ pwbo, int nSeries, const double *pValues, int nCount);
+BOOL wbChartSetLabels(PWBOBJ pwbo, const TCHAR **ppszLabels, int nCount);
+BOOL wbChartSetColors(PWBOBJ pwbo, const COLORREF *pColors, int nCount);
+BOOL wbChartSetAxis(PWBOBJ pwbo, BOOL bShowAxis, BOOL bShowGrid, double dMin, double dMax, BOOL bAutoRange);
+BOOL wbChartRefresh(PWBOBJ pwbo);
+BOOL wbChartDestroy(PWBOBJ pwbo);
 
 // WB_CONTROL_TAB.C
 

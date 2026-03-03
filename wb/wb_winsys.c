@@ -497,6 +497,7 @@ BOOL wbIsValidClass(UINT64 uClass)
 	case ToolBar:
 	case TreeView:
 	case ScintillaEdit:
+	case ChartControl:
 		return TRUE;
 	}
 	return FALSE;

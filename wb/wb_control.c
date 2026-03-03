@@ -51,6 +51,7 @@ BOOL IsBitmap(HANDLE handle);
 BOOL IsIcon(HANDLE handle);
 BOOL RegisterImageButtonClass(void);
 BOOL RegisterSplitterClass(void);
+BOOL RegisterChartControlClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 // Private
@@ -418,6 +419,11 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | nVisible;
 		break;
 
+	case ChartControl:
+		pszClass = CHART_CONTROL_CLASS;
+		dwStyle = WS_CHILD | WS_TABSTOP | WS_BORDER | nVisible;
+		break;
+
 	case CheckBox:
 		pszClass = TEXT("BUTTON");
 		dwStyle = WS_CHILD | WS_TABSTOP | BS_AUTOCHECKBOX | BS_NOTIFY | nVisible;
@@ -757,6 +763,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
+	case ChartControl:
+		if (!wbChartInitControl(pwbo))
+			return NULL;
+		CreateToolTip(pwbo, pszTooltip);
+		break;
+
 	case Splitter:
 	{
 		PSPLITTERDATA pData = wbMalloc(sizeof(SPLITTERDATA));
@@ -814,6 +826,10 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 		if (pwbo->lparam)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
+	}
+	else if (pwbo->uClass == ChartControl)
+	{
+		wbChartDestroy(pwbo);
 	}
 	return DestroyWindow(pwbo->hwnd);
 }
