@@ -149,6 +149,11 @@ ZEND_FUNCTION(wb_scintilla_calltip_cancel);
 ZEND_FUNCTION(wb_scintilla_set_whitespace_view);
 ZEND_FUNCTION(wb_scintilla_set_eol_view);
 ZEND_FUNCTION(wb_scintilla_show_php_autocomplete);
+ZEND_FUNCTION(wb_chart_set_series);
+ZEND_FUNCTION(wb_chart_set_labels);
+ZEND_FUNCTION(wb_chart_set_colors);
+ZEND_FUNCTION(wb_chart_set_axis);
+ZEND_FUNCTION(wb_chart_refresh);
 
 // PHPWB_DRAW.C
 ZEND_FUNCTION(wb_get_pixel);
@@ -382,6 +387,11 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_scintilla_set_whitespace_view,arginfo_wb_scintilla_set_whitespace_view)
         ZEND_FE(wb_scintilla_set_eol_view,arginfo_wb_scintilla_set_eol_view)
         ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
+        ZEND_FE(wb_chart_set_series,arginfo_wb_chart_set_series)
+        ZEND_FE(wb_chart_set_labels,arginfo_wb_chart_set_labels)
+        ZEND_FE(wb_chart_set_colors,arginfo_wb_chart_set_colors)
+        ZEND_FE(wb_chart_set_axis,arginfo_wb_chart_set_axis)
+        ZEND_FE(wb_chart_refresh,arginfo_wb_chart_refresh)
 
         // PHPWB_CONTROL_LISTVIEW.C
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
@@ -528,6 +538,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
 	WB_ZEND_CONST(LONG, "ScintillaEdit", ScintillaEdit)
 	WB_ZEND_CONST(LONG, "Splitter", Splitter)
+	WB_ZEND_CONST(LONG, "ChartControl", ChartControl)
 	WB_ZEND_CONST(LONG, "Timer", Timer)
 
 	// System constants
@@ -584,6 +595,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_CHART_POINT_CLICK", WBC_CHART_POINT_CLICK)
+	WB_ZEND_CONST(LONG, "WBC_CHART_POINT_HOVER", WBC_CHART_POINT_HOVER)
 	WB_ZEND_CONST(LONG, "WBC_LV_SELECTED", WBC_LV_SELECTED)
 
 	// Additional notification message flags
