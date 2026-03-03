@@ -60,6 +60,9 @@ ZEND_FUNCTION(wb_set_registry_key);
 ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
+ZEND_FUNCTION(wb_watch_path);
+ZEND_FUNCTION(wb_unwatch_path);
+ZEND_FUNCTION(wb_watch_poll);
 ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wb_set_accel_table);
 
@@ -271,6 +274,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_registry_key,arginfo_wb_set_registry_key)
         ZEND_FE(wb_create_timer,arginfo_wb_create_timer)
         ZEND_FE(wb_wait,arginfo_wb_wait)
+        ZEND_FE(wb_watch_path,arginfo_wb_watch_path)
+        ZEND_FE(wb_unwatch_path,arginfo_wb_unwatch_path)
+        ZEND_FE(wb_watch_poll,arginfo_wb_watch_poll)
         ZEND_FE(wb_is_obj,arginfo_wb_is_obj)
         ZEND_FE(wb_destroy_timer,arginfo_wb_destroy_timer)
         ZEND_FE(wb_set_accel_table,arginfo_wb_set_accel_table)

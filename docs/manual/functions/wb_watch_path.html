@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>wb_watch_path</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="purple" alink="red">
+<h2>wb_watch_path</h2>
+<p>int|false <b>wb_watch_path</b> (string path [, bool recursive = false [, int debounce = 200]])</p>
+<p>Starts a Win32 directory change watcher for <i>path</i>. The function returns a watcher id that can be used with <b>wb_watch_poll()</b> and <b>wb_unwatch_path()</b>.</p>
+<h1>Parameters</h1>
+<p><b>path</b> is the directory to watch. <b>recursive</b> enables recursive monitoring of subdirectories. <b>debounce</b> sets the coalescing window (milliseconds) used to collapse bursts of duplicate notifications.</p>
+<h1>Return values</h1>
+<p>Returns an integer watcher id on success, or <code>false</code> on failure.</p>
+<h1>See also</h1>
+<p><a href="wb_watch_poll.html">wb_watch_poll</a><br><a href="wb_unwatch_path.html">wb_unwatch_path</a></p>
+</body>
+</html>
