@@ -12,9 +12,11 @@ for ($i = 0; $i < 30; $i++) {
 }
 
 $chart->setLabels($labels)
+    ->setYLabels(['0', '25', '50', '75', '100'])
     ->setSeries(0, $series)
     ->setColors([0x00AA66])
-    ->setAxis(true, true, 0, 100, true);
+    ->setAxis(true, true, 0, 100, true)
+    ->setPopup(true, 0xE1FFFF, 0x000000, 0x4D4D4D);
 
 wb_create_timer($main, 1, 1000);
 

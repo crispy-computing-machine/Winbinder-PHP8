@@ -984,6 +984,14 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_chart_set_colors, 0, 2, _IS_B
 	ZEND_ARG_TYPE_INFO(0, colors, IS_ARRAY, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_chart_set_popup, 0, 5, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, enabled, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, backgroundColor, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, textColor, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, borderColor, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_chart_set_axis, 0, 6, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, showAxis, _IS_BOOL, 0)

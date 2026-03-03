@@ -569,6 +569,7 @@ BOOL wbChartSetLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount);
 BOOL wbChartSetYLabels(PWBOBJ pwbo, const char **ppszLabels, int nCount);
 BOOL wbChartSetColors(PWBOBJ pwbo, const COLORREF *pColors, int nCount);
 BOOL wbChartSetAxis(PWBOBJ pwbo, BOOL bShowAxis, BOOL bShowGrid, double dMin, double dMax, BOOL bAutoRange);
+BOOL wbChartSetPopup(PWBOBJ pwbo, BOOL bEnabled, COLORREF clBack, COLORREF clText, COLORREF clBorder);
 BOOL wbChartRefresh(PWBOBJ pwbo);
 BOOL wbChartDestroy(PWBOBJ pwbo);
 

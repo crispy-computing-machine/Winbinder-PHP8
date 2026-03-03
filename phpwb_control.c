@@ -2112,6 +2112,26 @@ ZEND_FUNCTION(wb_chart_set_colors)
 	}
 }
 
+ZEND_FUNCTION(wb_chart_set_popup)
+{
+	zend_long pwbo;
+	zend_bool enabled;
+	zend_long bg, text, border;
+
+	ZEND_PARSE_PARAMETERS_START(5, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(enabled)
+		Z_PARAM_LONG(bg)
+		Z_PARAM_LONG(text)
+		Z_PARAM_LONG(border)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != ChartControl)
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbChartSetPopup((PWBOBJ)pwbo, enabled, (COLORREF)bg, (COLORREF)text, (COLORREF)border));
+}
+
 ZEND_FUNCTION(wb_chart_set_axis)
 {
 	zend_long pwbo;

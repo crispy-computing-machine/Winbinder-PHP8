@@ -14,6 +14,7 @@ $chart->setLabels($labels)
     ->setSeries(1, $cost)
     ->setColors([0x2D89EF, 0xE74856])
     ->setAxis(true, true, 0, 220, false)
+    ->setPopup(true, 0xFFF4CE, 0x1E1E1E, 0xA0A0A0)
     ->refresh();
 
 function process_report($window, $id, $ctrl, $param1, $param2)

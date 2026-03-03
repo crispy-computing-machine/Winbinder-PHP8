@@ -153,6 +153,7 @@ ZEND_FUNCTION(wb_chart_set_series);
 ZEND_FUNCTION(wb_chart_set_labels);
 ZEND_FUNCTION(wb_chart_set_y_labels);
 ZEND_FUNCTION(wb_chart_set_colors);
+ZEND_FUNCTION(wb_chart_set_popup);
 ZEND_FUNCTION(wb_chart_set_axis);
 ZEND_FUNCTION(wb_chart_refresh);
 
@@ -392,6 +393,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_chart_set_labels,arginfo_wb_chart_set_labels)
         ZEND_FE(wb_chart_set_y_labels,arginfo_wb_chart_set_labels)
         ZEND_FE(wb_chart_set_colors,arginfo_wb_chart_set_colors)
+        ZEND_FE(wb_chart_set_popup,arginfo_wb_chart_set_popup)
         ZEND_FE(wb_chart_set_axis,arginfo_wb_chart_set_axis)
         ZEND_FE(wb_chart_refresh,arginfo_wb_chart_refresh)
 

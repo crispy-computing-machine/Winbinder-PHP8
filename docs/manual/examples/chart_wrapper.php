@@ -81,6 +81,12 @@ class WBChart
         return $this;
     }
 
+    public function setPopup($enabled = true, $backgroundColor = 0xE1FFFF, $textColor = 0x000000, $borderColor = 0x5A5A5A)
+    {
+        wb_chart_set_popup($this->handle, (bool)$enabled, (int)$backgroundColor, (int)$textColor, (int)$borderColor);
+        return $this;
+    }
+
     public function refresh()
     {
         wb_chart_refresh($this->handle);

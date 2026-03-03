@@ -19,6 +19,11 @@ typedef struct
 	BOOL bAutoRange;
 	double dAxisMin;
 	double dAxisMax;
+	BOOL bPopupEnabled;
+	COLORREF clPopupBack;
+	COLORREF clPopupText;
+	COLORREF clPopupBorder;
+	BOOL bMouseTracking;
 	int nHoverSeries;
 	int nHoverPoint;
 } CHARTDATA, *PCHARTDATA;
@@ -131,6 +136,142 @@ static BOOL ChartSetLabelSet(TCHAR ***pppszTarget, int *pnTargetCount, const cha
 	return TRUE;
 }
 
+static const TCHAR *ChartGetXLabel(PCHARTDATA pData, int nPoint, TCHAR *pszFallback, int nFallbackChars)
+{
+	if (pData->ppszXLabels && nPoint >= 0 && nPoint < pData->nXLabelCount && pData->ppszXLabels[nPoint])
+		return pData->ppszXLabels[nPoint];
+
+	if (pszFallback && nFallbackChars > 1)
+	{
+#ifdef UNICODE
+		_snwprintf(pszFallback, nFallbackChars - 1, L"%d", nPoint);
+#else
+		_snprintf(pszFallback, nFallbackChars - 1, "%d", nPoint);
+#endif
+		pszFallback[nFallbackChars - 1] = TEXT('\0');
+		return pszFallback;
+	}
+
+	return TEXT("");
+}
+
+static const TCHAR *ChartGetYLabel(PCHARTDATA pData, double value, TCHAR *pszFallback, int nFallbackChars)
+{
+	if (pData->ppszYLabels && pData->nYLabelCount > 0)
+	{
+		double span = pData->dAxisMax - pData->dAxisMin;
+		int idx = 0;
+		if (span > 0)
+		{
+			double t = (value - pData->dAxisMin) / span;
+			if (t < 0)
+				t = 0;
+			if (t > 1)
+				t = 1;
+			idx = (int)(t * (pData->nYLabelCount - 1) + 0.5);
+		}
+		if (idx >= 0 && idx < pData->nYLabelCount && pData->ppszYLabels[idx])
+			return pData->ppszYLabels[idx];
+	}
+
+	ChartFormatDouble(pszFallback, nFallbackChars, value);
+	return pszFallback;
+}
+
+static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA pData)
+{
+	RECT rcPopup;
+	SIZE szLine1, szLine2, szLine3;
+	TCHAR szLine1[256], szLine2[256], szLine3[256];
+	TCHAR szXFallback[64], szYFallback[64], szValue[64];
+	const TCHAR *pszX;
+	const TCHAR *pszY;
+	int px, py;
+	int nW, nH;
+	double value;
+	HBRUSH hbr;
+	HPEN hPen, hOldPen;
+	HFONT hFont, hOldFont;
+
+	if (!pData->bPopupEnabled || pData->nHoverSeries < 0 || pData->nHoverPoint < 0)
+		return;
+	if (pData->nHoverSeries >= pData->nSeriesCount || !pData->pSeries[pData->nHoverSeries])
+		return;
+	if (pData->nHoverPoint >= pData->nPointCount)
+		return;
+
+	value = pData->pSeries[pData->nHoverSeries][pData->nHoverPoint];
+	pszX = ChartGetXLabel(pData, pData->nHoverPoint, szXFallback, NUMITEMS(szXFallback));
+	pszY = ChartGetYLabel(pData, value, szYFallback, NUMITEMS(szYFallback));
+	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
+
+#ifdef UNICODE
+	_snwprintf(szLine1, NUMITEMS(szLine1) - 1, L"X: %ls", pszX);
+	_snwprintf(szLine2, NUMITEMS(szLine2) - 1, L"Y: %ls", pszY);
+	_snwprintf(szLine3, NUMITEMS(szLine3) - 1, L"Value: %ls", szValue);
+#else
+	_snprintf(szLine1, NUMITEMS(szLine1) - 1, "X: %s", pszX);
+	_snprintf(szLine2, NUMITEMS(szLine2) - 1, "Y: %s", pszY);
+	_snprintf(szLine3, NUMITEMS(szLine3) - 1, "Value: %s", szValue);
+#endif
+	szLine1[NUMITEMS(szLine1) - 1] = TEXT('\0');
+	szLine2[NUMITEMS(szLine2) - 1] = TEXT('\0');
+	szLine3[NUMITEMS(szLine3) - 1] = TEXT('\0');
+
+	GetTextExtentPoint32(hdc, szLine1, (int)_tcslen(szLine1), &szLine1);
+	GetTextExtentPoint32(hdc, szLine2, (int)_tcslen(szLine2), &szLine2);
+	GetTextExtentPoint32(hdc, szLine3, (int)_tcslen(szLine3), &szLine3);
+
+	nW = MAX(MAX(szLine1.cx, szLine2.cx), szLine3.cx) + 12;
+	nH = szLine1.cy + szLine2.cy + szLine3.cy + 12;
+
+	ChartPointToScreen(prcPlot, pData, pData->nHoverPoint, value, &px, &py);
+	rcPopup.left = px + 10;
+	rcPopup.top = py - nH - 10;
+	rcPopup.right = rcPopup.left + nW;
+	rcPopup.bottom = rcPopup.top + nH;
+
+	if (rcPopup.right > prcClient->right - 2)
+	{
+		rcPopup.right = prcClient->right - 2;
+		rcPopup.left = rcPopup.right - nW;
+	}
+	if (rcPopup.left < prcClient->left + 2)
+	{
+		rcPopup.left = prcClient->left + 2;
+		rcPopup.right = rcPopup.left + nW;
+	}
+	if (rcPopup.top < prcClient->top + 2)
+	{
+		rcPopup.top = py + 10;
+		rcPopup.bottom = rcPopup.top + nH;
+	}
+	if (rcPopup.bottom > prcClient->bottom - 2)
+	{
+		rcPopup.bottom = prcClient->bottom - 2;
+		rcPopup.top = rcPopup.bottom - nH;
+	}
+
+	hbr = CreateSolidBrush(pData->clPopupBack);
+	FillRect(hdc, &rcPopup, hbr);
+	DeleteObject(hbr);
+
+	hPen = CreatePen(PS_SOLID, 1, pData->clPopupBorder);
+	hOldPen = (HPEN)SelectObject(hdc, hPen);
+	Rectangle(hdc, rcPopup.left, rcPopup.top, rcPopup.right, rcPopup.bottom);
+	SelectObject(hdc, hOldPen);
+	DeleteObject(hPen);
+
+	SetBkMode(hdc, TRANSPARENT);
+	SetTextColor(hdc, pData->clPopupText);
+	hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+	hOldFont = (HFONT)SelectObject(hdc, hFont);
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, szLine1, (int)_tcslen(szLine1));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + szLine1.cy, szLine2, (int)_tcslen(szLine2));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + szLine1.cy + szLine2.cy, szLine3, (int)_tcslen(szLine3));
+	SelectObject(hdc, hOldFont);
+}
+
 static void ChartUpdateRange(PCHARTDATA pData)
 {
 	int i, j;
@@ -217,7 +358,17 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 	case WM_MOUSEMOVE:
 		if (pwbo && pData)
 		{
+			TRACKMOUSEEVENT tme;
 			int series = -1, point = -1;
+			if (!pData->bMouseTracking)
+			{
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.dwFlags = TME_LEAVE;
+				tme.hwndTrack = hwnd;
+				tme.dwHoverTime = 0;
+				TrackMouseEvent(&tme);
+				pData->bMouseTracking = TRUE;
+			}
 			GetClientRect(hwnd, &rcClient);
 			rcPlot = rcClient;
 			rcPlot.left += 40;
@@ -236,6 +387,18 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 				}
 			}
 			else if (pData->nHoverSeries != -1 || pData->nHoverPoint != -1)
+			{
+				pData->nHoverSeries = -1;
+				pData->nHoverPoint = -1;
+				InvalidateRect(hwnd, NULL, FALSE);
+			}
+		}
+		break;
+	case WM_MOUSELEAVE:
+		if (pData)
+		{
+			pData->bMouseTracking = FALSE;
+			if (pData->nHoverSeries != -1 || pData->nHoverPoint != -1)
 			{
 				pData->nHoverSeries = -1;
 				pData->nHoverPoint = -1;
@@ -302,96 +465,6 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 				ChartFormatDouble(szAxis, NUMITEMS(szAxis), pData->dAxisMin);
 				TextOut(hdc, 4, rcPlot.bottom - 10, szAxis, (int)_tcslen(szAxis));
 
-				if (pData->ppszYLabels && pData->nYLabelCount > 0)
-				{
-					int nLastY = pData->nYLabelCount - 1;
-					for (i = 0; i < pData->nYLabelCount; i++)
-					{
-						int yPos;
-						SIZE sz;
-						if (!pData->ppszYLabels[i])
-							continue;
-						if (nLastY <= 0)
-							yPos = (rcPlot.top + rcPlot.bottom) / 2;
-						else
-							yPos = rcPlot.bottom - ((rcPlot.bottom - rcPlot.top) * i / nLastY);
-						GetTextExtentPoint32(hdc, pData->ppszYLabels[i], (int)_tcslen(pData->ppszYLabels[i]), &sz);
-						TextOut(hdc, MAX(2, rcPlot.left - sz.cx - 8), yPos - (sz.cy / 2), pData->ppszYLabels[i], (int)_tcslen(pData->ppszYLabels[i]));
-					}
-				}
-			}
-
-			if (pData->ppszXLabels && pData->nXLabelCount > 0)
-			{
-				int nStep = 1;
-				int nPointSpacing;
-				int nMaxLabelHeight = 0;
-				int nLast = MIN(pData->nXLabelCount, pData->nPointCount) - 1;
-				HFONT hBaseFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
-				LOGFONT lf;
-				HFONT hVerticalFont = NULL;
-				HFONT hOldFont = NULL;
-
-				nPointSpacing = (pData->nPointCount > 1) ? ((rcPlot.right - rcPlot.left) / (pData->nPointCount - 1)) : (rcPlot.right - rcPlot.left);
-				if (nPointSpacing < 1)
-					nPointSpacing = 1;
-
-				if (!hBaseFont)
-					hBaseFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-				GetObject(hBaseFont, sizeof(LOGFONT), &lf);
-				lf.lfEscapement = 900;
-				lf.lfOrientation = 900;
-				hVerticalFont = CreateFontIndirect(&lf);
-				if (hVerticalFont)
-					hOldFont = (HFONT)SelectObject(hdc, hVerticalFont);
-
-				for (i = 0; i <= nLast; i++)
-				{
-					SIZE sz;
-					if (!pData->ppszXLabels[i])
-						continue;
-					GetTextExtentPoint32(hdc, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]), &sz);
-					if (sz.cy > nMaxLabelHeight)
-						nMaxLabelHeight = sz.cy;
-				}
-
-				if (nMaxLabelHeight > 0 && nMaxLabelHeight + 4 > nPointSpacing)
-					nStep = (nMaxLabelHeight + 4 + nPointSpacing - 1) / nPointSpacing;
-
-				for (i = 0; i <= nLast; i += nStep)
-				{
-					int x, y, nLabelX;
-					SIZE sz;
-					if (!pData->ppszXLabels[i])
-						continue;
-					ChartPointToScreen(&rcPlot, pData, i, pData->dAxisMin, &x, &y);
-					GetTextExtentPoint32(hdc, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]), &sz);
-					nLabelX = x - (sz.cy / 2);
-					if (nLabelX < rcClient.left + 2)
-						nLabelX = rcClient.left + 2;
-					if (nLabelX + sz.cy > rcClient.right - 2)
-						nLabelX = (rcClient.right - 2) - sz.cy;
-					TextOut(hdc, nLabelX, rcPlot.bottom + 6, pData->ppszXLabels[i], (int)_tcslen(pData->ppszXLabels[i]));
-				}
-
-				if (nLast > 0 && (nLast % nStep) != 0 && pData->ppszXLabels[nLast])
-				{
-					int x, y, nLabelX;
-					SIZE sz;
-					ChartPointToScreen(&rcPlot, pData, nLast, pData->dAxisMin, &x, &y);
-					GetTextExtentPoint32(hdc, pData->ppszXLabels[nLast], (int)_tcslen(pData->ppszXLabels[nLast]), &sz);
-					nLabelX = x - (sz.cy / 2);
-					if (nLabelX < rcClient.left + 2)
-						nLabelX = rcClient.left + 2;
-					if (nLabelX + sz.cy > rcClient.right - 2)
-						nLabelX = (rcClient.right - 2) - sz.cy;
-					TextOut(hdc, nLabelX, rcPlot.bottom + 6, pData->ppszXLabels[nLast], (int)_tcslen(pData->ppszXLabels[nLast]));
-				}
-
-				if (hOldFont)
-					SelectObject(hdc, hOldFont);
-				if (hVerticalFont)
-					DeleteObject(hVerticalFont);
 			}
 			for (i = 0; i < pData->nSeriesCount; i++)
 			{
@@ -416,6 +489,7 @@ static LRESULT CALLBACK ChartControlProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
 				SelectObject(hdc, hOld);
 				DeleteObject(hPen);
 			}
+			ChartDrawPopup(hdc, &rcClient, &rcPlot, pData);
 			DeleteObject(hAxisPen);
 			EndPaint(hwnd, &ps);
 			return 0;
@@ -454,6 +528,11 @@ BOOL wbChartInitControl(PWBOBJ pwbo)
 	pData->bAutoRange = TRUE;
 	pData->dAxisMin = 0;
 	pData->dAxisMax = 100;
+	pData->bPopupEnabled = TRUE;
+	pData->clPopupBack = RGB(255, 255, 225);
+	pData->clPopupText = RGB(0, 0, 0);
+	pData->clPopupBorder = RGB(90, 90, 90);
+	pData->bMouseTracking = FALSE;
 	pData->nHoverSeries = -1;
 	pData->nHoverPoint = -1;
 	pData->colors[0] = RGB(0, 122, 204);
@@ -527,6 +606,23 @@ BOOL wbChartSetAxis(PWBOBJ pwbo, BOOL bShowAxis, BOOL bShowGrid, double dMin, do
 		pData->dAxisMax = (dMax > dMin) ? dMax : dMin + 1;
 	}
 	ChartUpdateRange(pData);
+	return wbChartRefresh(pwbo);
+}
+
+BOOL wbChartSetPopup(PWBOBJ pwbo, BOOL bEnabled, COLORREF clBack, COLORREF clText, COLORREF clBorder)
+{
+	PCHARTDATA pData = ChartGetData(pwbo);
+	if (!pData)
+		return FALSE;
+	pData->bPopupEnabled = bEnabled;
+	pData->clPopupBack = clBack;
+	pData->clPopupText = clText;
+	pData->clPopupBorder = clBorder;
+	if (!bEnabled)
+	{
+		pData->nHoverSeries = -1;
+		pData->nHoverPoint = -1;
+	}
 	return wbChartRefresh(pwbo);
 }
 
