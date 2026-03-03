@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>wb_watch_poll</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="purple" alink="red">
+<h2>wb_watch_poll</h2>
+<p>array <b>wb_watch_poll</b> ([int timeout = 0 [, int maxEvents = 0]])</p>
+<p>Polls all active directory watchers and returns accumulated events. This can be called from timer callbacks, application loops, or auto-reload routines.</p>
+<h1>Event fields</h1>
+<p>Each returned event is an array with:</p>
+<p><code>watch_id</code> (watcher id), <code>event</code> (WBE_* constant), <code>tick</code> (GetTickCount timestamp), <code>base_path</code> (watched directory), and <code>path</code> (relative changed file path).</p>
+<h1>Supported event constants</h1>
+<p><code>WBE_FILE_CREATED</code>, <code>WBE_FILE_MODIFIED</code>, <code>WBE_FILE_DELETED</code>, <code>WBE_FILE_RENAMED_OLD</code>, <code>WBE_FILE_RENAMED_NEW</code>.</p>
+<h1>See also</h1>
+<p><a href="wb_watch_path.html">wb_watch_path</a><br><a href="wb_unwatch_path.html">wb_unwatch_path</a></p>
+</body>
+</html>

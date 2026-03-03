@@ -35,6 +35,7 @@ on the class of the control that generated the message.</p>
 NOTE: </font></b>In the callback function,
 <i>param1</i> can receive the value <span class="code"><code>IDDEFAULT</code></span>
 to refer to the parent window itself instead of a control.</p>
+<p><b><font color="#CC6600">THREAD SAFETY:</font></b> background tasks started with <code>wb_task_run()</code> execute outside the UI thread. They must never read or modify WinBinder controls directly. Use callback notifications (<code>WBC_TASK_PROGRESS</code>, <code>WBC_TASK_COMPLETE</code>, <code>WBC_TASK_ERROR</code>, <code>WBC_TASK_CANCELLED</code>) to marshal updates to the main thread.</p>
 <h1>Events</h1>
 <p>Look at the table in the <a href="window_messages.html">window messages 
 and events</a> 
@@ -65,7 +66,7 @@ The following notification flags are available:</p>
             <p><code>WBC_MOUSEMOVE</code></p>
         </td>
         <td width="440">
-            <p>The mouse cursor was moved over the main window.น</p>
+            <p>The mouse cursor was moved over the main window.ยน</p>
         </td>
     </tr>
     <tr>
@@ -73,7 +74,7 @@ The following notification flags are available:</p>
             <p><span class="code"><code>WBC_MOUSEDOWN</code></span></p>
         </td>
         <td width="440">
-            <p>A mouse button was pressed on the main window.น</p>
+            <p>A mouse button was pressed on the main window.ยน</p>
         </td>
     </tr>
     <tr>
@@ -81,7 +82,7 @@ The following notification flags are available:</p>
             <p><code>WBC_MOUSEUP</code></p>
         </td>
         <td width="440">
-            <p>A mouse button was released on the main window.น</p>
+            <p>A mouse button was released on the main window.ยน</p>
         </td>
     </tr>
     <tr>
@@ -89,7 +90,7 @@ The following notification flags are available:</p>
             <p><code>WBC_KEYDOWN</code></p>
         </td>
         <td width="440">
-            <p>A key was pressed when a given control has the focus.น</p>
+            <p>A key was pressed when a given control has the focus.ยน</p>
         </td>
     </tr>
     <tr>
@@ -97,7 +98,7 @@ The following notification flags are available:</p>
             <p><span class="code"><code>WBC_KEYUP</code></span></p>
         </td>
         <td width="440">
-            <p>A key was released when a given control has the focus.น</p>
+            <p>A key was released when a given control has the focus.ยน</p>
         </td>
     </tr>
     <tr>
@@ -133,7 +134,7 @@ The following notification flags are available:</p>
         </td>
     </tr>
 </table>
-<p>น Mouse and keyboard notification messages can be further filtered using
+<p>ยน Mouse and keyboard notification messages can be further filtered using
 the following additional notification message flags:</p>
 <ul>
     <p><code>WBC_ALT<br>WBC_CONTROL<br>WBC_SHIFT<br>WBC_LBUTTON<br>WBC_MBUTTON<br>WBC_RBUTTON</code></p>
