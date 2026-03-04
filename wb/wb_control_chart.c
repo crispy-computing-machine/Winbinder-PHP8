@@ -180,6 +180,27 @@ static const TCHAR *ChartGetYLabel(PCHARTDATA pData, double value, TCHAR *pszFal
 	return pszFallback;
 }
 
+static void ChartBuildPopupLine(TCHAR *pszOut, int nOutChars, const TCHAR *pszPrefix, const TCHAR *pszValue)
+{
+	size_t nLen;
+
+	if (!pszOut || nOutChars <= 0)
+		return;
+
+	if (!pszPrefix)
+		pszPrefix = TEXT("");
+	if (!pszValue)
+		pszValue = TEXT("");
+
+	_tcsncpy(pszOut, pszPrefix, nOutChars - 1);
+	pszOut[nOutChars - 1] = TEXT('\0');
+
+	nLen = _tcslen(pszOut);
+	if ((int)nLen < nOutChars - 1)
+		_tcsncat(pszOut, pszValue, (size_t)(nOutChars - 1 - (int)nLen));
+	pszOut[nOutChars - 1] = TEXT('\0');
+}
+
 static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA pData)
 {
 	RECT rcPopup;
@@ -207,18 +228,9 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	pszY = ChartGetYLabel(pData, value, szYFallback, NUMITEMS(szYFallback));
 	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
 
-#ifdef UNICODE
-	_snwprintf(txtLine1, NUMITEMS(txtLine1) - 1, L"X: %ls", pszX);
-	_snwprintf(txtLine2, NUMITEMS(txtLine2) - 1, L"Y: %ls", pszY);
-	_snwprintf(txtLine3, NUMITEMS(txtLine3) - 1, L"Value: %ls", szValue);
-#else
-	_snprintf(txtLine1, NUMITEMS(txtLine1) - 1, "X: %s", pszX);
-	_snprintf(txtLine2, NUMITEMS(txtLine2) - 1, "Y: %s", pszY);
-	_snprintf(txtLine3, NUMITEMS(txtLine3) - 1, "Value: %s", szValue);
-#endif
-	txtLine1[NUMITEMS(txtLine1) - 1] = TEXT('\0');
-	txtLine2[NUMITEMS(txtLine2) - 1] = TEXT('\0');
-	txtLine3[NUMITEMS(txtLine3) - 1] = TEXT('\0');
+	ChartBuildPopupLine(txtLine1, NUMITEMS(txtLine1), TEXT("X: "), pszX);
+	ChartBuildPopupLine(txtLine2, NUMITEMS(txtLine2), TEXT("Y: "), pszY);
+	ChartBuildPopupLine(txtLine3, NUMITEMS(txtLine3), TEXT("Value: "), szValue);
 
 	GetTextExtentPoint32(hdc, txtLine1, (int)_tcslen(txtLine1), &sizeLine1);
 	GetTextExtentPoint32(hdc, txtLine2, (int)_tcslen(txtLine2), &sizeLine2);
