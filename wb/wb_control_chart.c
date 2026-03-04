@@ -207,9 +207,15 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	pszY = ChartGetYLabel(pData, value, szYFallback, NUMITEMS(szYFallback));
 	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
 
-	_sntprintf(txtLine1, NUMITEMS(txtLine1) - 1, TEXT("X: %s"), pszX);
-	_sntprintf(txtLine2, NUMITEMS(txtLine2) - 1, TEXT("Y: %s"), pszY);
-	_sntprintf(txtLine3, NUMITEMS(txtLine3) - 1, TEXT("Value: %s"), szValue);
+#ifdef UNICODE
+	_snwprintf(txtLine1, NUMITEMS(txtLine1) - 1, L"X: %s", pszX);
+	_snwprintf(txtLine2, NUMITEMS(txtLine2) - 1, L"Y: %s", pszY);
+	_snwprintf(txtLine3, NUMITEMS(txtLine3) - 1, L"Value: %s", szValue);
+#else
+	_snprintf(txtLine1, NUMITEMS(txtLine1) - 1, "X: %s", pszX);
+	_snprintf(txtLine2, NUMITEMS(txtLine2) - 1, "Y: %s", pszY);
+	_snprintf(txtLine3, NUMITEMS(txtLine3) - 1, "Value: %s", szValue);
+#endif
 	txtLine1[NUMITEMS(txtLine1) - 1] = TEXT('\0');
 	txtLine2[NUMITEMS(txtLine2) - 1] = TEXT('\0');
 	txtLine3[NUMITEMS(txtLine3) - 1] = TEXT('\0');
