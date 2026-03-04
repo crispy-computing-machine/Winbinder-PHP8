@@ -180,6 +180,25 @@ static const TCHAR *ChartGetYLabel(PCHARTDATA pData, double value, TCHAR *pszFal
 	return pszFallback;
 }
 
+static void ChartComposePopupLine(TCHAR *pszOut, int nOutChars, LPCTSTR pszPrefix, LPCTSTR pszValue)
+{
+	int nLen;
+
+	if (!pszOut || nOutChars <= 0)
+		return;
+
+	if (!pszPrefix)
+		pszPrefix = TEXT("");
+	if (!pszValue)
+		pszValue = TEXT("");
+
+	lstrcpyn(pszOut, pszPrefix, nOutChars);
+	nLen = lstrlen(pszOut);
+	if (nLen < nOutChars - 1)
+		lstrcpyn(pszOut + nLen, pszValue, nOutChars - nLen);
+	pszOut[nOutChars - 1] = TEXT('\0');
+}
+
 static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA pData)
 {
 	RECT rcPopup;
@@ -207,12 +226,9 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	pszY = ChartGetYLabel(pData, value, szYFallback, NUMITEMS(szYFallback));
 	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
 
-	wsprintf(txtLine1, TEXT("X: %s"), pszX);
-	wsprintf(txtLine2, TEXT("Y: %s"), pszY);
-	wsprintf(txtLine3, TEXT("Value: %s"), szValue);
-	txtLine1[NUMITEMS(txtLine1) - 1] = TEXT('\0');
-	txtLine2[NUMITEMS(txtLine2) - 1] = TEXT('\0');
-	txtLine3[NUMITEMS(txtLine3) - 1] = TEXT('\0');
+	ChartComposePopupLine(txtLine1, NUMITEMS(txtLine1), TEXT("X: "), pszX);
+	ChartComposePopupLine(txtLine2, NUMITEMS(txtLine2), TEXT("Y: "), pszY);
+	ChartComposePopupLine(txtLine3, NUMITEMS(txtLine3), TEXT("Value: "), szValue);
 
 	GetTextExtentPoint32(hdc, txtLine1, (int)_tcslen(txtLine1), &sizeLine1);
 	GetTextExtentPoint32(hdc, txtLine2, (int)_tcslen(txtLine2), &sizeLine2);
