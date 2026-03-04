@@ -180,33 +180,17 @@ static const TCHAR *ChartGetYLabel(PCHARTDATA pData, double value, TCHAR *pszFal
 	return pszFallback;
 }
 
-static void ChartComposePopupLine(TCHAR *pszOut, int nOutChars, LPCTSTR pszPrefix, LPCTSTR pszValue)
-{
-	int nLen;
-
-	if (!pszOut || nOutChars <= 0)
-		return;
-
-	if (!pszPrefix)
-		pszPrefix = TEXT("");
-	if (!pszValue)
-		pszValue = TEXT("");
-
-	lstrcpyn(pszOut, pszPrefix, nOutChars);
-	nLen = lstrlen(pszOut);
-	if (nLen < nOutChars - 1)
-		lstrcpyn(pszOut + nLen, pszValue, nOutChars - nLen);
-	pszOut[nOutChars - 1] = TEXT('\0');
-}
-
 static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA pData)
 {
 	RECT rcPopup;
-	SIZE sizeLine1, sizeLine2, sizeLine3;
-	TCHAR txtLine1[256], txtLine2[256], txtLine3[256];
+	SIZE sizePrefixX, sizePrefixY, sizePrefixV;
+	SIZE sizeX, sizeY, sizeV;
 	TCHAR szXFallback[64], szYFallback[64], szValue[64];
 	const TCHAR *pszX;
 	const TCHAR *pszY;
+	const TCHAR *pszPrefixX = TEXT("X: ");
+	const TCHAR *pszPrefixY = TEXT("Y: ");
+	const TCHAR *pszPrefixV = TEXT("Value: ");
 	int px, py;
 	int nW, nH;
 	double value;
@@ -226,16 +210,15 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	pszY = ChartGetYLabel(pData, value, szYFallback, NUMITEMS(szYFallback));
 	ChartFormatDouble(szValue, NUMITEMS(szValue), value);
 
-	ChartComposePopupLine(txtLine1, NUMITEMS(txtLine1), TEXT("X: "), pszX);
-	ChartComposePopupLine(txtLine2, NUMITEMS(txtLine2), TEXT("Y: "), pszY);
-	ChartComposePopupLine(txtLine3, NUMITEMS(txtLine3), TEXT("Value: "), szValue);
+	GetTextExtentPoint32(hdc, pszPrefixX, (int)_tcslen(pszPrefixX), &sizePrefixX);
+	GetTextExtentPoint32(hdc, pszPrefixY, (int)_tcslen(pszPrefixY), &sizePrefixY);
+	GetTextExtentPoint32(hdc, pszPrefixV, (int)_tcslen(pszPrefixV), &sizePrefixV);
+	GetTextExtentPoint32(hdc, pszX, (int)_tcslen(pszX), &sizeX);
+	GetTextExtentPoint32(hdc, pszY, (int)_tcslen(pszY), &sizeY);
+	GetTextExtentPoint32(hdc, szValue, (int)_tcslen(szValue), &sizeV);
 
-	GetTextExtentPoint32(hdc, txtLine1, (int)_tcslen(txtLine1), &sizeLine1);
-	GetTextExtentPoint32(hdc, txtLine2, (int)_tcslen(txtLine2), &sizeLine2);
-	GetTextExtentPoint32(hdc, txtLine3, (int)_tcslen(txtLine3), &sizeLine3);
-
-	nW = MAX(MAX(sizeLine1.cx, sizeLine2.cx), sizeLine3.cx) + 12;
-	nH = sizeLine1.cy + sizeLine2.cy + sizeLine3.cy + 12;
+	nW = MAX(MAX(sizePrefixX.cx + sizeX.cx, sizePrefixY.cx + sizeY.cx), sizePrefixV.cx + sizeV.cx) + 12;
+	nH = sizeX.cy + sizeY.cy + sizeV.cy + 12;
 
 	ChartPointToScreen(prcPlot, pData, pData->nHoverPoint, value, &px, &py);
 	rcPopup.left = px + 10;
@@ -278,9 +261,12 @@ static void ChartDrawPopup(HDC hdc, RECT *prcClient, RECT *prcPlot, PCHARTDATA p
 	SetTextColor(hdc, pData->clPopupText);
 	hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	hOldFont = (HFONT)SelectObject(hdc, hFont);
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, txtLine1, (int)_tcslen(txtLine1));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy, txtLine2, (int)_tcslen(txtLine2));
-	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeLine1.cy + sizeLine2.cy, txtLine3, (int)_tcslen(txtLine3));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4, pszPrefixX, (int)_tcslen(pszPrefixX));
+	TextOut(hdc, rcPopup.left + 6 + sizePrefixX.cx, rcPopup.top + 4, pszX, (int)_tcslen(pszX));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeX.cy, pszPrefixY, (int)_tcslen(pszPrefixY));
+	TextOut(hdc, rcPopup.left + 6 + sizePrefixY.cx, rcPopup.top + 4 + sizeX.cy, pszY, (int)_tcslen(pszY));
+	TextOut(hdc, rcPopup.left + 6, rcPopup.top + 4 + sizeX.cy + sizeY.cy, pszPrefixV, (int)_tcslen(pszPrefixV));
+	TextOut(hdc, rcPopup.left + 6 + sizePrefixV.cx, rcPopup.top + 4 + sizeX.cy + sizeY.cy, szValue, (int)_tcslen(szValue));
 	SelectObject(hdc, hOldFont);
 }
 
