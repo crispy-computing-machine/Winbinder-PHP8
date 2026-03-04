@@ -43,7 +43,22 @@ static TCHAR *ChartDupUtf8Label(const char *pszLabel)
 		return NULL;
 
 #ifdef UNICODE
-	return Utf82WideChar(pszLabel, 0);
+	{
+		int nChars = MultiByteToWideChar(CP_UTF8, 0, pszLabel, -1, NULL, 0);
+		TCHAR *pszWide;
+		if (nChars <= 0)
+			return NULL;
+		pszWide = wbMalloc(sizeof(TCHAR) * nChars);
+		if (!pszWide)
+			return NULL;
+		if (!MultiByteToWideChar(CP_UTF8, 0, pszLabel, -1, pszWide, nChars))
+		{
+			wbFree(pszWide);
+			return NULL;
+		}
+		pszWide[nChars - 1] = TEXT('\0');
+		return pszWide;
+	}
 #else
 	return wbStrDup(pszLabel);
 #endif
