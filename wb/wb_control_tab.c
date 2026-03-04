@@ -13,6 +13,70 @@
 
 #include "wb.h"
 
+#define WB_TAB_FLAG_CLOSABLE 0x00000001
+#define WB_TAB_FLAG_PINNED 0x00000002
+
+static BOOL wbTabGetItemData(PWBOBJ pwboTab, int nItem, LRESULT *pFlags)
+{
+	TC_ITEM tcitem = {0};
+
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+		return FALSE;
+
+	if (nItem < 0 || nItem >= TabCtrl_GetItemCount(pwboTab->hwnd))
+		return FALSE;
+
+	tcitem.mask = TCIF_PARAM;
+	if (!TabCtrl_GetItem(pwboTab->hwnd, nItem, &tcitem))
+		return FALSE;
+
+	if (pFlags)
+		*pFlags = tcitem.lParam;
+
+	return TRUE;
+}
+
+static BOOL wbTabSetItemData(PWBOBJ pwboTab, int nItem, LRESULT flags)
+{
+	TC_ITEM tcitem = {0};
+
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+		return FALSE;
+
+	tcitem.mask = TCIF_PARAM;
+	tcitem.lParam = flags;
+
+	return TabCtrl_SetItem(pwboTab->hwnd, nItem, &tcitem);
+}
+
+static BOOL wbTabShouldNotify(PWBOBJ pwboTab, DWORD dwEvent)
+{
+	PWBOBJ pwboParent;
+
+	if (!pwboTab || !pwboTab->parent)
+		return FALSE;
+
+	pwboParent = pwboTab->parent;
+	if (!(pwboParent->style & WBC_NOTIFY))
+		return FALSE;
+
+	return BITTEST(pwboParent->lparam, dwEvent);
+}
+
+static UINT64 wbTabNotify(PWBOBJ pwboTab, DWORD dwEvent, LPARAM lParam1, LPARAM lParam2)
+{
+	if (!wbTabShouldNotify(pwboTab, dwEvent))
+		return 0;
+
+	if (pwboTab->pszCallBackFn && *pwboTab->pszCallBackFn)
+		return wbCallUserFunction(pwboTab->pszCallBackFn, pwboTab->pszCallBackObj, pwboTab->parent, pwboTab, pwboTab->id, dwEvent, lParam1, lParam2);
+
+	if (pwboTab->parent && pwboTab->parent->pszCallBackFn && *pwboTab->parent->pszCallBackFn)
+		return wbCallUserFunction(pwboTab->parent->pszCallBackFn, pwboTab->parent->pszCallBackObj, pwboTab->parent, pwboTab, pwboTab->id, dwEvent, lParam1, lParam2);
+
+	return 0;
+}
+
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
 /* Create tabs according to the tab control title */
@@ -55,10 +119,10 @@ BOOL wbCreateTabItem(PWBOBJ pwboTab, LPCTSTR pszItem)
 	if (!pszItem || !*pszItem)
 		return FALSE;
 
-	tcitem.mask = TCIF_TEXT;
+	tcitem.mask = TCIF_TEXT | TCIF_PARAM;
 	tcitem.cchTextMax = 0;
 	tcitem.iImage = 0;
-	tcitem.lParam = 0;
+	tcitem.lParam = WB_TAB_FLAG_CLOSABLE;
 	tcitem.pszText = (LPTSTR)pszItem;
 
 	// Create the tab
@@ -135,6 +199,222 @@ BOOL wbSelectTab(PWBOBJ pwboTab, int nItem)
 		return FALSE;
 	for (i = 0; i < pTabData->nPages; i++)
 		ShowWindow(pTabData->page[i].hwnd, (int)i == nSelTab ? SW_SHOW : SW_HIDE);
+
+	return TRUE;
+}
+
+BOOL wbSetTabClosable(PWBOBJ pwboTab, int nItem, BOOL bClosable)
+{
+	LRESULT flags;
+
+	if (!wbTabGetItemData(pwboTab, nItem, &flags))
+		return FALSE;
+
+	if (bClosable)
+		flags |= WB_TAB_FLAG_CLOSABLE;
+	else
+		flags &= ~WB_TAB_FLAG_CLOSABLE;
+
+	return wbTabSetItemData(pwboTab, nItem, flags);
+}
+
+BOOL wbMoveTab(PWBOBJ pwboTab, int nFrom, int nTo, BOOL bNotify)
+{
+	PTABDATA pTabData;
+	TC_ITEM tcitem = {0};
+	TCHAR szText[MAX_ITEM_STRING];
+	int nCount;
+	int nSel;
+	HWND hPage;
+	UINT64 i;
+	BYTE oldIndex;
+
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+		return FALSE;
+
+	nCount = TabCtrl_GetItemCount(pwboTab->hwnd);
+	if (nFrom < 0 || nTo < 0 || nFrom >= nCount || nTo >= nCount)
+		return FALSE;
+
+	if (nFrom == nTo)
+		return TRUE;
+
+	pTabData = (PTABDATA)pwboTab->lparam;
+	if (!pTabData)
+		return FALSE;
+
+	tcitem.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
+	tcitem.pszText = szText;
+	tcitem.cchTextMax = NUMITEMS(szText);
+	if (!TabCtrl_GetItem(pwboTab->hwnd, nFrom, &tcitem))
+		return FALSE;
+
+	if (!TabCtrl_DeleteItem(pwboTab->hwnd, nFrom))
+		return FALSE;
+
+	if (nFrom < nTo)
+		nTo--;
+
+	if (TabCtrl_InsertItem(pwboTab->hwnd, nTo, &tcitem) < 0)
+		return FALSE;
+
+	hPage = pTabData->page[nFrom].hwnd;
+	if (nFrom < nTo)
+	{
+		for (i = nFrom; i < (UINT64)nTo; i++)
+			pTabData->page[i].hwnd = pTabData->page[i + 1].hwnd;
+	}
+	else
+	{
+		for (i = nFrom; i > (UINT64)nTo; i--)
+			pTabData->page[i].hwnd = pTabData->page[i - 1].hwnd;
+	}
+	pTabData->page[nTo].hwnd = hPage;
+
+	for (i = 0; i < pTabData->nCtrls; i++)
+	{
+		oldIndex = pTabData->ctrl[i].nTab;
+		if (oldIndex == nFrom)
+			pTabData->ctrl[i].nTab = (BYTE)nTo;
+		else if (nFrom < nTo && oldIndex > nFrom && oldIndex <= nTo)
+			pTabData->ctrl[i].nTab--;
+		else if (nFrom > nTo && oldIndex >= nTo && oldIndex < nFrom)
+			pTabData->ctrl[i].nTab++;
+	}
+
+	nSel = TabCtrl_GetCurSel(pwboTab->hwnd);
+	if (nSel >= 0)
+		wbSelectTab(pwboTab, nSel);
+
+	if (bNotify)
+		wbTabNotify(pwboTab, WBC_TAB_REORDERED, nFrom, nTo);
+
+	return TRUE;
+}
+
+BOOL wbPinTab(PWBOBJ pwboTab, int nItem, BOOL bPinned, BOOL bNotify)
+{
+	LRESULT flags;
+	int nCount;
+	int nTarget;
+	int i;
+	BOOL bMoved = FALSE;
+
+	if (!wbTabGetItemData(pwboTab, nItem, &flags))
+		return FALSE;
+
+	if (bPinned)
+		flags |= WB_TAB_FLAG_PINNED;
+	else
+		flags &= ~WB_TAB_FLAG_PINNED;
+
+	if (!wbTabSetItemData(pwboTab, nItem, flags))
+		return FALSE;
+
+	nCount = TabCtrl_GetItemCount(pwboTab->hwnd);
+	nTarget = nItem;
+
+	if (bPinned)
+	{
+		nTarget = 0;
+		for (i = 0; i < nCount; i++)
+		{
+			LRESULT f = 0;
+			if (i == nItem)
+				continue;
+			if (!wbTabGetItemData(pwboTab, i, &f))
+				continue;
+			if (f & WB_TAB_FLAG_PINNED)
+				nTarget = i + 1;
+		}
+	}
+	else
+	{
+		nTarget = nCount - 1;
+		for (i = 0; i < nCount; i++)
+		{
+			LRESULT f = 0;
+			if (i == nItem)
+				continue;
+			if (!wbTabGetItemData(pwboTab, i, &f))
+				continue;
+			if (!(f & WB_TAB_FLAG_PINNED))
+			{
+				nTarget = i;
+				break;
+			}
+		}
+	}
+
+	if (nTarget != nItem)
+		bMoved = wbMoveTab(pwboTab, nItem, nTarget, FALSE);
+
+	if (bNotify)
+		wbTabNotify(pwboTab, WBC_TAB_PINNED, bMoved ? nTarget : nItem, bPinned);
+
+	return TRUE;
+}
+
+BOOL wbCloseTab(PWBOBJ pwboTab, int nItem, BOOL bNotify)
+{
+	PTABDATA pTabData;
+	LRESULT flags = 0;
+	int nCount;
+	int nSel;
+	int nNextSel;
+	UINT64 i;
+
+	if (!pwboTab || !pwboTab->hwnd || !IsWindow(pwboTab->hwnd))
+		return FALSE;
+
+	nCount = TabCtrl_GetItemCount(pwboTab->hwnd);
+	if (nItem < 0 || nItem >= nCount)
+		return FALSE;
+
+	if (!wbTabGetItemData(pwboTab, nItem, &flags))
+		return FALSE;
+
+	if (!(flags & WB_TAB_FLAG_CLOSABLE))
+		return FALSE;
+
+	if (bNotify && wbTabNotify(pwboTab, WBC_TAB_CLOSING, nItem, nCount))
+		return FALSE;
+
+	pTabData = (PTABDATA)pwboTab->lparam;
+	if (!pTabData)
+		return FALSE;
+
+	nSel = TabCtrl_GetCurSel(pwboTab->hwnd);
+	if (!TabCtrl_DeleteItem(pwboTab->hwnd, nItem))
+		return FALSE;
+
+	DestroyWindow(pTabData->page[nItem].hwnd);
+	for (i = nItem; i + 1 < pTabData->nPages; i++)
+		pTabData->page[i].hwnd = pTabData->page[i + 1].hwnd;
+	if (pTabData->nPages)
+		pTabData->nPages--;
+
+	for (i = 0; i < pTabData->nCtrls; i++)
+	{
+		if (pTabData->ctrl[i].nTab == nItem)
+			pTabData->ctrl[i].nTab = 0;
+		else if (pTabData->ctrl[i].nTab > nItem)
+			pTabData->ctrl[i].nTab--;
+	}
+
+	nCount = TabCtrl_GetItemCount(pwboTab->hwnd);
+	if (nCount > 0)
+	{
+		nNextSel = (nSel > nItem) ? nSel - 1 : nSel;
+		if (nNextSel >= nCount)
+			nNextSel = nCount - 1;
+		if (nNextSel < 0)
+			nNextSel = 0;
+		wbSelectTab(pwboTab, nNextSel);
+	}
+
+	if (bNotify)
+		wbTabNotify(pwboTab, WBC_TAB_CLOSED, nItem, nCount);
 
 	return TRUE;
 }

@@ -948,6 +948,78 @@ ZEND_FUNCTION(wb_select_tab)
 	RETURN_BOOL(wbSelectTab((PWBOBJ)pwbo, ntab));
 }
 
+ZEND_FUNCTION(wb_tab_set_closable)
+{
+	zend_long pwbo;
+	zend_long ntab;
+	zend_bool closable = TRUE;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(ntab)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(closable)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbSetTabClosable((PWBOBJ)pwbo, (int)ntab, closable));
+}
+
+ZEND_FUNCTION(wb_tab_close)
+{
+	zend_long pwbo;
+	zend_long ntab;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(ntab)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbCloseTab((PWBOBJ)pwbo, (int)ntab, TRUE));
+}
+
+ZEND_FUNCTION(wb_tab_move)
+{
+	zend_long pwbo;
+	zend_long from;
+	zend_long to;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(from)
+		Z_PARAM_LONG(to)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbMoveTab((PWBOBJ)pwbo, (int)from, (int)to, TRUE));
+}
+
+ZEND_FUNCTION(wb_tab_pin)
+{
+	zend_long pwbo;
+	zend_long ntab;
+	zend_bool pinned = TRUE;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(ntab)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(pinned)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(wbPinTab((PWBOBJ)pwbo, (int)ntab, pinned, TRUE));
+}
+
 ZEND_FUNCTION(wb_set_value)
 {
 	zend_long pwbo, value, item = 0, subitem = 0;

@@ -112,6 +112,10 @@ ZEND_FUNCTION(wb_create_item);
 ZEND_FUNCTION(wb_create_statusbar_items);
 ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
+ZEND_FUNCTION(wb_tab_set_closable);
+ZEND_FUNCTION(wb_tab_close);
+ZEND_FUNCTION(wb_tab_move);
+ZEND_FUNCTION(wb_tab_pin);
 ZEND_FUNCTION(wb_set_text);
 ZEND_FUNCTION(wb_set_value);
 ZEND_FUNCTION(wb_set_splitter_position);
@@ -346,6 +350,10 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_visible,arginfo_wb_set_visible)
         ZEND_FE(wb_sort,arginfo_wb_sort)
         ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
+        ZEND_FE(wb_tab_set_closable,arginfo_wb_tab_set_closable)
+        ZEND_FE(wb_tab_close,arginfo_wb_tab_close)
+        ZEND_FE(wb_tab_move,arginfo_wb_tab_move)
+        ZEND_FE(wb_tab_pin,arginfo_wb_tab_pin)
         ZEND_FE(wb_set_value,arginfo_wb_set_value)
         ZEND_FE(wb_set_splitter_position,arginfo_wb_set_splitter_position)
         ZEND_FE(wb_get_splitter_position,arginfo_wb_get_splitter_position)
@@ -584,6 +592,10 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_TAB_CLOSING", WBC_TAB_CLOSING)
+	WB_ZEND_CONST(LONG, "WBC_TAB_CLOSED", WBC_TAB_CLOSED)
+	WB_ZEND_CONST(LONG, "WBC_TAB_REORDERED", WBC_TAB_REORDERED)
+	WB_ZEND_CONST(LONG, "WBC_TAB_PINNED", WBC_TAB_PINNED)
 	WB_ZEND_CONST(LONG, "WBC_LV_SELECTED", WBC_LV_SELECTED)
 
 	// Additional notification message flags
@@ -680,7 +692,7 @@ ZEND_MINIT_FUNCTION(winbinder)
  
  	// Default params/styles for window
  	WB_ZEND_CONST(LONG, "WBC_DEFAULT_STYLES", WBC_VISIBLE|WBC_CUSTOMDRAW|WBC_TASKBAR|WBC_NOTIFY|WBC_ALT|WBC_CONTROL|WBC_SHIFT|WBC_LBUTTON|WBC_MBUTTON|WBC_RBUTTON);
-	WB_ZEND_CONST(LONG, "WBC_DEFAULT_PARAMS", WBC_DBLCLICK | WBC_MOUSEMOVE | WBC_MOUSEDOWN | WBC_MOUSEUP | WBC_KEYDOWN | WBC_KEYUP | WBC_GETFOCUS | WBC_REDRAW | WBC_RESIZE | WBC_HEADERSEL);
+	WB_ZEND_CONST(LONG, "WBC_DEFAULT_PARAMS", WBC_DBLCLICK | WBC_MOUSEMOVE | WBC_MOUSEDOWN | WBC_MOUSEUP | WBC_KEYDOWN | WBC_KEYUP | WBC_GETFOCUS | WBC_REDRAW | WBC_RESIZE | WBC_HEADERSEL | WBC_TAB_CLOSING | WBC_TAB_CLOSED | WBC_TAB_REORDERED | WBC_TAB_PINNED);
 
 	// Limits
 	WB_ZEND_CONST(LONG, "WBC_MAX_TABS", 16); // Maximum number of tabs in a TabControl

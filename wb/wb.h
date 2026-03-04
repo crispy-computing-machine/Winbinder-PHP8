@@ -240,6 +240,10 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_TAB_CLOSING 0x00200000
+#define WBC_TAB_CLOSED 0x00400000
+#define WBC_TAB_REORDERED 0x00800000
+#define WBC_TAB_PINNED 0x01000000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -562,6 +566,10 @@ HTREEITEM *wbGetTreeViewItemChildren(PWBOBJ pwbo, HTREEITEM hItem);
 BOOL wbSetTabControlText(PWBOBJ pwboTab, LPCTSTR pszText);
 BOOL wbCreateTabItem(PWBOBJ pwbo, LPCTSTR pszItem);
 BOOL wbSelectTab(PWBOBJ pwboTab, int nItem);
+BOOL wbSetTabClosable(PWBOBJ pwboTab, int nItem, BOOL bClosable);
+BOOL wbCloseTab(PWBOBJ pwboTab, int nItem, BOOL bNotify);
+BOOL wbMoveTab(PWBOBJ pwboTab, int nFrom, int nTo, BOOL bNotify);
+BOOL wbPinTab(PWBOBJ pwboTab, int nItem, BOOL bPinned, BOOL bNotify);
 BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLORREF clTransparent);
 BOOL wbSetTabControlItemImages(PWBOBJ pwbo, int item, int nImageIndex);
 

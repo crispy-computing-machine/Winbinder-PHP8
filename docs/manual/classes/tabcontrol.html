@@ -81,6 +81,32 @@ $ctrl, $lparam1=0, $lparam2=0) <BR>{ <BR>&nbsp; &nbsp;global $statusbar; <BR><BR
 WBC_HEADERSEL) <BR>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;wb_set_text($statusbar, &quot;Tab $lparam2 
 selected.&quot;); <BR>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;break;<BR>&nbsp; &nbsp;} <BR>} <BR><BR>?&gt; </td></tr>
 </table>
+
+<h1><b>Modern tab UX APIs</b></h1>
+<p>The TabControl wrapper now includes helpers for closeable/pinned/reordered tabs while keeping the classic APIs intact:</p>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5" >
+<tr><td><p><code>// mark a tab as closeable (default is TRUE)
+wb_tab_set_closable($tab, 2, TRUE);
+
+// close one tab (fires a cancelable WBC_TAB_CLOSING event first)
+wb_tab_close($tab, 2);
+
+// move tab from index 3 to index 1
+wb_tab_move($tab, 3, 1);
+
+// pin or unpin tabs (pinned tabs stay grouped in front)
+wb_tab_pin($tab, 0, TRUE);
+wb_tab_pin($tab, 0, FALSE);</code></p></td></tr>
+</table>
+<p>New notification flags for parent windows created with <span class="code">WBC_NOTIFY</span> are:</p>
+<ul>
+    <li><span class="code">WBC_TAB_CLOSING</span> (cancelable: return non-zero from callback to prevent close)</li>
+    <li><span class="code">WBC_TAB_CLOSED</span></li>
+    <li><span class="code">WBC_TAB_REORDERED</span></li>
+    <li><span class="code">WBC_TAB_PINNED</span></li>
+</ul>
+<p>See <a href="../examples/tabcontrol_multi_document.php"><b>tabcontrol_multi_document.php</b></a> for a multi-document editor style flow that demonstrates close, pin and move behavior.</p>
+
 <h1><b>See also</b></h1>
 <p><a href="../functions/wb_create_items.html"><b>wb_create_control<br>wb_create_items</b></a><b><br></b><a href="../reference/classes_control.html">Control
 classes</a></p>
