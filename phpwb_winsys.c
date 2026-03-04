@@ -1238,7 +1238,7 @@ ZEND_FUNCTION(wb_send_key)
 		uSent = SendInput(kcount*2, inputs, sizeof(INPUT));
 		RETURN_BOOL(uSent == (kcount*2));
 	} else {
-		php_error_docref(NULL, E_WARNING, "Parameter 1 should be a an long or an array of longs");
+		wbError(TEXT("wb_send_key"), MB_ICONWARNING, TEXT("Parameter 1 should be a long or an array of longs"));
 		RETURN_BOOL(FALSE);
 	}
 }

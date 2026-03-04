@@ -66,18 +66,39 @@ BOOL wbError(LPCTSTR szFunction, int nType, LPCTSTR pszFmt, ...)
 		break;
 	}
 
-	// Normal error with stack trace
-	php_error_docref(NULL, messageType, str);
-
-
-	/* if not debug mode show friendly error box (only for fatal errors)
-	if (INI_INT("winbinder.debug_level") == 0 && messageType == E_ERROR)
-	{
-		szMsg = Utf82WideChar(str, 0);
-		szTitle = Utf82WideChar("wbError", 0);
-		wbMessageBox(NULL, szMsg, szTitle, nType);
-	}
+	/*
+		winbinder.debug_level modes:
+		0 => Message box only
+		1 => PHP error only
+		2 => Both PHP error and message box
 	*/
+	switch (INI_INT("winbinder.debug_level"))
+	{
+		case 0:
+			szMsg = Utf82WideChar(str, 0);
+			szTitle = Utf82WideChar("WinBinder", 0);
+			wbMessageBox(NULL, szMsg, szTitle, nType);
+			if (szMsg)
+				efree(szMsg);
+			if (szTitle)
+				efree(szTitle);
+			break;
+
+		case 1:
+			php_error_docref(NULL, messageType, str);
+			break;
+
+		default:
+			php_error_docref(NULL, messageType, str);
+			szMsg = Utf82WideChar(str, 0);
+			szTitle = Utf82WideChar("WinBinder", 0);
+			wbMessageBox(NULL, szMsg, szTitle, nType);
+			if (szMsg)
+				efree(szMsg);
+			if (szTitle)
+				efree(szTitle);
+			break;
+	}
 	return FALSE;
 }
 
