@@ -1,0 +1,33 @@
+<html>
+
+<head>
+<title>ScintillaEdit class</title>
+<meta name="generator" content="Namo WebEditor v5.0">
+<link rel="stylesheet" href="../help.css">
+</head>
+
+<body>
+<!--KW:
+ScintillaEdit
+Class,ScintillaEdit
+Control class,ScintillaEdit
+-->
+<h2>ScintillaEdit</h2>
+<p>ScintillaEdit is a source-code editing control backed by the Scintilla runtime.</p>
+
+<h1>Windows class</h1>
+<p>Scintilla</p>
+
+<h1>Description</h1>
+<p>This class provides a text editing surface suitable for code. Phase 3 adds PHP-editor setup support via <code>wb_scintilla_apply_php_preset()</code>, plus lexer/keyword/style configuration helpers (<code>wb_scintilla_set_lexer()</code>, <code>wb_scintilla_set_keywords()</code>, <code>wb_scintilla_set_style()</code>). Phase 4 adds callback notification mapping for editor events: <code>WBC_SCN_MODIFIED</code>, <code>WBC_SCN_UPDATEUI</code>, <code>WBC_SCN_MARGINCLICK</code>, and <code>WBC_SCN_CHARADDED</code>. Phase 5 adds IDE ergonomics helpers for autocomplete/calltips and visibility toggles for whitespace and EOL markers.</p>
+<p><b>Runtime dependency:</b> <code>SciLexer.dll</code> must be available at startup. If the runtime is missing, ScintillaEdit controls cannot be created.</p>
+
+<h1>See also</h1>
+<p><a href="../functions/wb_create_control.html">wb_create_control()</a><br>
+<a href="../reference/classes_control.html">Control classes</a><br>
+<a href="../examples/scintilla_basic.php">scintilla_basic.php</a><br>
+<code>WBC_SCLEX_HTML</code>, <code>WBC_SC_STYLE_DEFAULT</code>, <code>WBC_SC_STYLE_LINENUMBER</code>, <code>WBC_SCN_MODIFIED</code>, <code>WBC_SCN_UPDATEUI</code>, <code>WBC_SCN_MARGINCLICK</code>, <code>WBC_SCN_CHARADDED</code><br><code>wb_scintilla_autocomplete_show()</code>, <code>wb_scintilla_show_php_autocomplete()</code>, <code>wb_scintilla_calltip_show()</code>, <code>wb_scintilla_set_whitespace_view()</code>, <code>wb_scintilla_set_eol_view()</code></p>
+
+</body>
+
+</html>

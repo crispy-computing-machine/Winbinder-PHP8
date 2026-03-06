@@ -476,6 +476,17 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwExStyle |= WS_EX_CLIENTEDGE;
 		break;
 
+	case ScintillaEdit:
+		if (!bScintillaAvailable)
+		{
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Cannot create ScintillaEdit control because SciLexer.dll was not loaded"));
+			return NULL;
+		}
+		pszClass = TEXT("Scintilla");
+		dwStyle = WS_CHILD | WS_TABSTOP | WS_VSCROLL | WS_HSCROLL | nVisible;
+		dwExStyle |= WS_EX_CLIENTEDGE;
+		break;
+
 	case ListBox:
 		pszClass = TEXT("LISTBOX");
 		dwStyle = WS_CHILD | WS_TABSTOP | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | nVisible;
@@ -1049,14 +1060,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		case PopupWindow:
 		case ResizableWindow:
 		case ToolDialog:
-		{
-			BOOL bSet = SetWindowText(pwbo->hwnd, pszText);
-			if (bSet)
-			{
-				RedrawWindow(pwbo->hwnd, NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
-			}
-			return bSet;
-		}
+			return SetWindowText(pwbo->hwnd, pszText);
 
 		default:
 
@@ -1174,7 +1178,7 @@ BOOL wbGetRtfText(PWBOBJ pwbo, char **unc)
 	{
 		EDITSTREAM es = {0};
 		es.dwCookie = (DWORD_PTR)unc;
-		es.pfnCallback = &EditStreamOutCallback;
+		es.pfnCallback = (EDITSTREAMCALLBACK)EditStreamOutCallback;
 		SendMessage(pwbo->hwnd, EM_STREAMOUT, (WPARAM)(SF_RTF), (LPARAM)&es);
 		//use SF_TEXT|SF_UNICODE  then you need
 		return TRUE;

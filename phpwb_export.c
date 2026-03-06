@@ -60,6 +60,9 @@ ZEND_FUNCTION(wb_set_registry_key);
 ZEND_FUNCTION(wb_create_timer);
 ZEND_FUNCTION(wb_destroy_timer);
 ZEND_FUNCTION(wb_wait);
+ZEND_FUNCTION(wb_watch_path);
+ZEND_FUNCTION(wb_unwatch_path);
+ZEND_FUNCTION(wb_watch_poll);
 ZEND_FUNCTION(wb_is_obj);
 ZEND_FUNCTION(wb_set_accel_table);
 
@@ -76,6 +79,9 @@ ZEND_FUNCTION(wb_get_system_timezone);
 ZEND_FUNCTION(wb_expand_env);
 ZEND_FUNCTION(wb_send_key);
 ZEND_FUNCTION(wb_is_running);
+ZEND_FUNCTION(wb_task_run);
+ZEND_FUNCTION(wb_task_poll);
+ZEND_FUNCTION(wb_task_cancel);
 
 // PHPWB_CONTROL.C
 ZEND_FUNCTION(wb_delete_items);
@@ -118,6 +124,37 @@ ZEND_FUNCTION(wb_set_splitter_position);
 ZEND_FUNCTION(wb_get_splitter_position);
 ZEND_FUNCTION(wb_set_splitter_panes);
 ZEND_FUNCTION(wb_set_splitter_minsize);
+ZEND_FUNCTION(wb_scintilla_set_text);
+ZEND_FUNCTION(wb_scintilla_get_text);
+ZEND_FUNCTION(wb_scintilla_append_text);
+ZEND_FUNCTION(wb_scintilla_clear_all);
+ZEND_FUNCTION(wb_scintilla_get_current_pos);
+ZEND_FUNCTION(wb_scintilla_set_selection);
+ZEND_FUNCTION(wb_scintilla_get_selection_start);
+ZEND_FUNCTION(wb_scintilla_get_selection_end);
+ZEND_FUNCTION(wb_scintilla_goto_line);
+ZEND_FUNCTION(wb_scintilla_get_line_count);
+ZEND_FUNCTION(wb_scintilla_set_readonly);
+ZEND_FUNCTION(wb_scintilla_undo);
+ZEND_FUNCTION(wb_scintilla_redo);
+ZEND_FUNCTION(wb_scintilla_cut);
+ZEND_FUNCTION(wb_scintilla_copy);
+ZEND_FUNCTION(wb_scintilla_paste);
+ZEND_FUNCTION(wb_scintilla_set_tab_width);
+ZEND_FUNCTION(wb_scintilla_set_use_tabs);
+ZEND_FUNCTION(wb_scintilla_set_indent_guides);
+ZEND_FUNCTION(wb_scintilla_set_line_numbers);
+ZEND_FUNCTION(wb_scintilla_set_lexer);
+ZEND_FUNCTION(wb_scintilla_set_keywords);
+ZEND_FUNCTION(wb_scintilla_set_style);
+ZEND_FUNCTION(wb_scintilla_apply_php_preset);
+ZEND_FUNCTION(wb_scintilla_autocomplete_show);
+ZEND_FUNCTION(wb_scintilla_autocomplete_cancel);
+ZEND_FUNCTION(wb_scintilla_calltip_show);
+ZEND_FUNCTION(wb_scintilla_calltip_cancel);
+ZEND_FUNCTION(wb_scintilla_set_whitespace_view);
+ZEND_FUNCTION(wb_scintilla_set_eol_view);
+ZEND_FUNCTION(wb_scintilla_show_php_autocomplete);
 
 // PHPWB_DRAW.C
 ZEND_FUNCTION(wb_get_pixel);
@@ -240,6 +277,9 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_registry_key,arginfo_wb_set_registry_key)
         ZEND_FE(wb_create_timer,arginfo_wb_create_timer)
         ZEND_FE(wb_wait,arginfo_wb_wait)
+        ZEND_FE(wb_watch_path,arginfo_wb_watch_path)
+        ZEND_FE(wb_unwatch_path,arginfo_wb_unwatch_path)
+        ZEND_FE(wb_watch_poll,arginfo_wb_watch_poll)
         ZEND_FE(wb_is_obj,arginfo_wb_is_obj)
         ZEND_FE(wb_destroy_timer,arginfo_wb_destroy_timer)
         ZEND_FE(wb_set_accel_table,arginfo_wb_set_accel_table)
@@ -257,6 +297,9 @@ zend_function_entry winbinder_functions[] =
 		ZEND_FE(wb_expand_env,arginfo_wb_expand_env)
 		ZEND_FE(wb_send_key,arginfo_wb_send_key)
 		ZEND_FE(wb_is_running,arginfo_wb_is_running)
+		ZEND_FE(wb_task_run,arginfo_wb_task_run)
+		ZEND_FE(wb_task_poll,arginfo_wb_task_poll)
+		ZEND_FE(wb_task_cancel,arginfo_wb_task_cancel)
 
 		
 
@@ -320,6 +363,37 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_splitter_position,arginfo_wb_get_splitter_position)
         ZEND_FE(wb_set_splitter_panes,arginfo_wb_set_splitter_panes)
         ZEND_FE(wb_set_splitter_minsize,arginfo_wb_set_splitter_minsize)
+        ZEND_FE(wb_scintilla_set_text,arginfo_wb_scintilla_set_text)
+        ZEND_FE(wb_scintilla_get_text,arginfo_wb_scintilla_get_text)
+        ZEND_FE(wb_scintilla_append_text,arginfo_wb_scintilla_append_text)
+        ZEND_FE(wb_scintilla_clear_all,arginfo_wb_scintilla_clear_all)
+        ZEND_FE(wb_scintilla_get_current_pos,arginfo_wb_scintilla_get_current_pos)
+        ZEND_FE(wb_scintilla_set_selection,arginfo_wb_scintilla_set_selection)
+        ZEND_FE(wb_scintilla_get_selection_start,arginfo_wb_scintilla_get_selection_start)
+        ZEND_FE(wb_scintilla_get_selection_end,arginfo_wb_scintilla_get_selection_end)
+        ZEND_FE(wb_scintilla_goto_line,arginfo_wb_scintilla_goto_line)
+        ZEND_FE(wb_scintilla_get_line_count,arginfo_wb_scintilla_get_line_count)
+        ZEND_FE(wb_scintilla_set_readonly,arginfo_wb_scintilla_set_readonly)
+        ZEND_FE(wb_scintilla_undo,arginfo_wb_scintilla_undo)
+        ZEND_FE(wb_scintilla_redo,arginfo_wb_scintilla_redo)
+        ZEND_FE(wb_scintilla_cut,arginfo_wb_scintilla_cut)
+        ZEND_FE(wb_scintilla_copy,arginfo_wb_scintilla_copy)
+        ZEND_FE(wb_scintilla_paste,arginfo_wb_scintilla_paste)
+        ZEND_FE(wb_scintilla_set_tab_width,arginfo_wb_scintilla_set_tab_width)
+        ZEND_FE(wb_scintilla_set_use_tabs,arginfo_wb_scintilla_set_use_tabs)
+        ZEND_FE(wb_scintilla_set_indent_guides,arginfo_wb_scintilla_set_indent_guides)
+        ZEND_FE(wb_scintilla_set_line_numbers,arginfo_wb_scintilla_set_line_numbers)
+        ZEND_FE(wb_scintilla_set_lexer,arginfo_wb_scintilla_set_lexer)
+        ZEND_FE(wb_scintilla_set_keywords,arginfo_wb_scintilla_set_keywords)
+        ZEND_FE(wb_scintilla_set_style,arginfo_wb_scintilla_set_style)
+        ZEND_FE(wb_scintilla_apply_php_preset,arginfo_wb_scintilla_apply_php_preset)
+        ZEND_FE(wb_scintilla_autocomplete_show,arginfo_wb_scintilla_autocomplete_show)
+        ZEND_FE(wb_scintilla_autocomplete_cancel,arginfo_wb_scintilla_autocomplete_cancel)
+        ZEND_FE(wb_scintilla_calltip_show,arginfo_wb_scintilla_calltip_show)
+        ZEND_FE(wb_scintilla_calltip_cancel,arginfo_wb_scintilla_calltip_cancel)
+        ZEND_FE(wb_scintilla_set_whitespace_view,arginfo_wb_scintilla_set_whitespace_view)
+        ZEND_FE(wb_scintilla_set_eol_view,arginfo_wb_scintilla_set_eol_view)
+        ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
 
         // PHPWB_CONTROL_LISTVIEW.C
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
@@ -464,6 +538,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TabControl", TabControl)
 	WB_ZEND_CONST(LONG, "ToolBar", ToolBar)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
+	WB_ZEND_CONST(LONG, "ScintillaEdit", ScintillaEdit)
 	WB_ZEND_CONST(LONG, "Splitter", Splitter)
 	WB_ZEND_CONST(LONG, "Timer", Timer)
 
@@ -517,6 +592,19 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_REDRAW", WBC_REDRAW)
 	WB_ZEND_CONST(LONG, "WBC_HEADERSEL", WBC_HEADERSEL)
 	WB_ZEND_CONST(LONG, "WBC_DROPFILES", WBC_DROPFILES)
+	WB_ZEND_CONST(LONG, "WBC_SCN_MODIFIED", WBC_SCN_MODIFIED)
+	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
+	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
+	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
+	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)
+	WB_ZEND_CONST(LONG, "WBC_TASK_ERROR", WBC_TASK_ERROR)
+	WB_ZEND_CONST(LONG, "WBC_TASK_CANCELLED", WBC_TASK_CANCELLED)
+	WB_ZEND_CONST(LONG, "WB_TASK_STATUS_PENDING", WB_TASK_STATUS_PENDING)
+	WB_ZEND_CONST(LONG, "WB_TASK_STATUS_RUNNING", WB_TASK_STATUS_RUNNING)
+	WB_ZEND_CONST(LONG, "WB_TASK_STATUS_COMPLETED", WB_TASK_STATUS_COMPLETED)
+	WB_ZEND_CONST(LONG, "WB_TASK_STATUS_FAILED", WB_TASK_STATUS_FAILED)
+	WB_ZEND_CONST(LONG, "WB_TASK_STATUS_CANCELLED", WB_TASK_STATUS_CANCELLED)
 	WB_ZEND_CONST(LONG, "WBC_LV_SELECTED", WBC_LV_SELECTED)
 
 	// Additional notification message flags
@@ -623,6 +711,11 @@ ZEND_MINIT_FUNCTION(winbinder)
  	WB_ZEND_CONST(LONG, "WBC_MAX_ITEM_STRING", 1024); // Maximum string in a ListView / TreeView
  	WB_ZEND_CONST(LONG, "WBC_MAX_TREEVIEW_LEVELS", 25); // Maximum treeview levels
  	WB_ZEND_CONST(LONG, "WBC_MAX_IMAGELIST_IMAGES", 128); // Maximum images inside a ImageList
+
+	// Scintilla lexer/style helper constants
+	WB_ZEND_CONST(LONG, "WBC_SCLEX_HTML", 4);
+	WB_ZEND_CONST(LONG, "WBC_SC_STYLE_DEFAULT", 32);
+	WB_ZEND_CONST(LONG, "WBC_SC_STYLE_LINENUMBER", 33);
 
 	// Additional
 	#include "phpwb_export_constants.c" // For Windows constants as PHP constants

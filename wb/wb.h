@@ -132,6 +132,31 @@
 #define WBWM_MIDI (WM_APP + 6)
 #define WBWM_ENUM (WM_APP + 7)
 #define WBWM_HOOK (WM_APP + 8)
+#define WBWM_TASK (WM_APP + 9)
+
+// Async task callback notifications
+#define WBC_TASK_PROGRESS 0x00110000
+#define WBC_TASK_COMPLETE 0x00110001
+#define WBC_TASK_ERROR 0x00110002
+#define WBC_TASK_CANCELLED 0x00110003
+
+// Async task status values
+#define WB_TASK_STATUS_PENDING 0
+#define WB_TASK_STATUS_RUNNING 1
+#define WB_TASK_STATUS_COMPLETED 2
+#define WB_TASK_STATUS_FAILED 3
+#define WB_TASK_STATUS_CANCELLED 4
+
+// File watcher event types
+#define WBE_FILE_CREATED 1
+#define WBE_FILE_MODIFIED 2
+#define WBE_FILE_DELETED 3
+#define WBE_FILE_RENAMED_OLD 4
+#define WBE_FILE_RENAMED_NEW 5
+
+// File watcher options
+#define WBW_RECURSIVE 0x00000001
+#define WBW_COALESCE 0x00000002
 
 //----------------------------------------------------------- EXPORTED CONSTANTS
 
@@ -177,6 +202,7 @@ enum
 	TabControl,
 	ToolBar,
 	TreeView,
+	ScintillaEdit,
 	Timer,
 	Splitter,
 };
@@ -235,6 +261,10 @@ enum
 #define WBC_HEADERSEL 0x00008000
 
 #define WBC_DROPFILES 0x00010000
+#define WBC_SCN_MODIFIED 0x00020000
+#define WBC_SCN_UPDATEUI 0x00040000
+#define WBC_SCN_MARGINCLICK 0x00080000
+#define WBC_SCN_CHARADDED 0x00100000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -438,6 +468,7 @@ extern HFONT hIconFont;		   // Icon font
 extern WNDPROC lpfnTabProcOld; // Original tab control procedure
 extern COLORREF clrTabs;	   // Color for tab control backgrounds
 extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
+extern BOOL bScintillaAvailable;
 
 //------------------------------------------------------------ PUBLIC PROTOTYPES
 
@@ -445,6 +476,7 @@ extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
 
 BOOL wbSaveBitmap(HBITMAP hbm, LPCTSTR pszFileName);
 HANDLE wbRotateBitmap(HANDLE hBitmap, float angle);
+HBITMAP wbResizeBitmap(HBITMAP hBitmap, int newWidth, int newHeight);
 DWORD wbGetImageDimensions(HBITMAP hbm);
 HBITMAP wbReplaceColors(HDC cvTarget, HBITMAP hbm, COLORREF clTransparent, COLORREF clNew);
 HBITMAP wbCreateBitmap(int nWidth, int nHeight, BITMAPINFO *hbmpData, void *lpDIBBits);
@@ -643,6 +675,14 @@ BOOL wbSetAccelerators(PWBOBJ pwbo, LPACCEL paccels, int nCount);
 DWORD wbMakeAccelFromString(const char *pszAccel);
 UINT64 wbCheckInput(PWBOBJ pwbo, DWORD dwFlags, DWORD dwTimeout);
 BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
+UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs);
+BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode);
+BOOL wbTaskCancel(UINT64 taskId);
+int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs);
+BOOL wbUnwatchPath(int nWatchId);
+UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx);
+BOOL wbWatchGetEvent(int watchEventIndex, int *watchId, int *eventType, LPCTSTR *basePath, LPCTSTR *relativePath, DWORD *tickCount);
+void wbWatchClearEvents(void);
 
 // Library-dependent functions
 

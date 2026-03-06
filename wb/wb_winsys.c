@@ -16,6 +16,7 @@
 #include <shlobj.h>   // For SHGetSpecialFolderLocation()
 #include <io.h>		  // For access()
 #include <stdio.h>	// For printf() -- beep
+#include <string.h>
 
 #include <shlobj.h>			// For uxtheme.h
 #include <uxtheme.h>		// For theme functions
@@ -47,6 +48,41 @@ static HACCEL hAccelTable = NULL;		 // Accelerator table
 static HWND hAccelWnd = NULL;			 // Accelerator table window
 static HCURSOR hClassCursor[NUMCLASSES]; // Table of mouse cursors, one for each class
 
+typedef struct _wb_async_event
+{
+	HWND hwndTarget;
+	UINT64 taskId;
+	int eventCode;
+	int progress;
+	DWORD value;
+	struct _wb_async_event *next;
+} WB_ASYNC_EVENT;
+
+typedef struct _wb_async_task
+{
+	UINT64 id;
+	HWND hwndTarget;
+	TCHAR *command;
+	UINT64 estimatedMs;
+	HANDLE thread;
+	HANDLE cancelEvent;
+	volatile LONG status;
+	volatile LONG progress;
+	DWORD exitCode;
+	DWORD errorCode;
+	struct _wb_async_task *next;
+} WB_ASYNC_TASK;
+
+static CRITICAL_SECTION g_taskLock;
+static BOOL g_taskLockInit = FALSE;
+static WB_ASYNC_TASK *g_taskList = NULL;
+static UINT64 g_nextTaskId = 1;
+
+static CRITICAL_SECTION g_eventLock;
+static BOOL g_eventLockInit = FALSE;
+static WB_ASYNC_EVENT *g_eventHead = NULL;
+static WB_ASYNC_EVENT *g_eventTail = NULL;
+
 //---------------------------------------------------------- FUNCTION PROTOTYPES
 
 // Private
@@ -58,6 +94,12 @@ static BOOL _GetOSVersionString(LPTSTR pszString);
 static HCURSOR GetSysCursor(LPCTSTR pszCursor);
 static char *GetTokenExt(const char *pszBuffer, int nToken, const char *pszSep, char chGroup, BOOL fBlock, char *pszToken, int nTokLen);
 static char *GetToken(const char *pszBuffer, int nToken, char *pszToken, int nTokLen);
+static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DWORD value);
+static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam);
+static void wbTaskCleanup(void);
+BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value);
+
+BOOL bScintillaAvailable = FALSE;
 
 // Public to wb_* modules
 
@@ -67,6 +109,248 @@ LPTSTR MakeWinPath(LPTSTR pszPath);
 
 extern BOOL RegisterClasses(void);
 extern char *WideChar2Utf8(LPCTSTR wcs, int *len);
+
+
+#define MAX_WB_WATCHERS 32
+#define WB_WATCH_BUFFER_SIZE 65536
+#define MAX_WB_WATCH_EVENTS 512
+
+typedef struct _WBWATCH
+{
+	int id;
+	BOOL in_use;
+	BOOL recursive;
+	DWORD debounce_ms;
+	HANDLE dir_handle;
+	HANDLE event_handle;
+	OVERLAPPED overlapped;
+	BYTE buffer[WB_WATCH_BUFFER_SIZE];
+	TCHAR base_path[MAX_PATH_BUFFER];
+} WBWATCH;
+
+typedef struct _WBWATCHEVENT
+{
+	int watch_id;
+	int event_type;
+	DWORD tick_count;
+	TCHAR base_path[MAX_PATH_BUFFER];
+	TCHAR rel_path[MAX_PATH_BUFFER];
+} WBWATCHEVENT;
+
+static WBWATCH g_watchers[MAX_WB_WATCHERS];
+static WBWATCHEVENT g_watch_events[MAX_WB_WATCH_EVENTS];
+static int g_watch_event_count = 0;
+static int g_next_watch_id = 1;
+
+static DWORD WatchNotifyFilter(void)
+{
+	return FILE_NOTIFY_CHANGE_FILE_NAME |
+			   FILE_NOTIFY_CHANGE_DIR_NAME |
+			   FILE_NOTIFY_CHANGE_LAST_WRITE |
+			   FILE_NOTIFY_CHANGE_CREATION |
+			   FILE_NOTIFY_CHANGE_SIZE;
+}
+
+static void WatchNormalizePath(LPTSTR dst, UINT dstLen, LPCTSTR src)
+{
+	if (!dst || dstLen == 0)
+		return;
+
+	if (!src)
+	{
+		dst[0] = 0;
+		return;
+	}
+
+	lstrcpyn(dst, src, dstLen);
+	MakeWinPath(dst);
+
+	while (*dst)
+	{
+		UINT len = lstrlen(dst);
+		if (len <= 3)
+			break;
+		if (dst[len - 1] != TEXT('\\'))
+			break;
+		dst[len - 1] = 0;
+	}
+}
+
+static BOOL WatchArm(WBWATCH *watch)
+{
+	DWORD bytes = 0;
+	if (!watch || !watch->in_use)
+		return FALSE;
+
+	ResetEvent(watch->event_handle);
+	ZeroMemory(&watch->overlapped, sizeof(OVERLAPPED));
+	watch->overlapped.hEvent = watch->event_handle;
+
+	if (ReadDirectoryChangesW(
+			watch->dir_handle,
+			watch->buffer,
+			sizeof(watch->buffer),
+			watch->recursive,
+			WatchNotifyFilter(),
+			&bytes,
+			&watch->overlapped,
+			NULL))
+	{
+		return TRUE;
+	}
+
+	return GetLastError() == ERROR_IO_PENDING;
+}
+
+static WBWATCH *WatchById(int watchId)
+{
+	int i;
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (g_watchers[i].in_use && g_watchers[i].id == watchId)
+			return &g_watchers[i];
+	}
+	return NULL;
+}
+
+static int MapWatchAction(DWORD action)
+{
+	switch (action)
+	{
+	case FILE_ACTION_ADDED:
+		return WBE_FILE_CREATED;
+	case FILE_ACTION_REMOVED:
+		return WBE_FILE_DELETED;
+	case FILE_ACTION_MODIFIED:
+		return WBE_FILE_MODIFIED;
+	case FILE_ACTION_RENAMED_OLD_NAME:
+		return WBE_FILE_RENAMED_OLD;
+	case FILE_ACTION_RENAMED_NEW_NAME:
+		return WBE_FILE_RENAMED_NEW;
+	}
+	return 0;
+}
+
+static BOOL WatchEventEquals(const WBWATCHEVENT *a, const WBWATCHEVENT *b)
+{
+	return a->watch_id == b->watch_id &&
+		   a->event_type == b->event_type &&
+		   lstrcmpi(a->rel_path, b->rel_path) == 0;
+}
+
+static void PushWatchEvent(const WBWATCHEVENT *evt, DWORD debounceMs)
+{
+	int i;
+	if (!evt || !evt->event_type)
+		return;
+
+	for (i = g_watch_event_count - 1; i >= 0; i--)
+	{
+		DWORD delta;
+		if (!WatchEventEquals(&g_watch_events[i], evt))
+			continue;
+		delta = evt->tick_count - g_watch_events[i].tick_count;
+		if (delta <= debounceMs)
+		{
+			g_watch_events[i].tick_count = evt->tick_count;
+			return;
+		}
+		break;
+	}
+
+	if (g_watch_event_count >= MAX_WB_WATCH_EVENTS)
+	{
+		memmove(&g_watch_events[0], &g_watch_events[1], sizeof(g_watch_events[0]) * (MAX_WB_WATCH_EVENTS - 1));
+		g_watch_event_count = MAX_WB_WATCH_EVENTS - 1;
+	}
+
+	g_watch_events[g_watch_event_count++] = *evt;
+}
+
+static void ParseWatchBuffer(WBWATCH *watch)
+{
+	DWORD bytes = 0;
+	BYTE *cursor;
+
+	if (!watch)
+		return;
+
+	if (!GetOverlappedResult(watch->dir_handle, &watch->overlapped, &bytes, FALSE))
+		return;
+	if (bytes == 0)
+		return;
+
+	cursor = watch->buffer;
+	while (cursor)
+	{
+		FILE_NOTIFY_INFORMATION *fni = (FILE_NOTIFY_INFORMATION *)cursor;
+		int eventType = MapWatchAction(fni->Action);
+		WBWATCHEVENT evt;
+		int charLen = (int)(fni->FileNameLength / sizeof(WCHAR));
+		int copyLen = MIN(charLen, MAX_PATH_BUFFER - 1);
+
+		ZeroMemory(&evt, sizeof(evt));
+		evt.watch_id = watch->id;
+		evt.event_type = eventType;
+		evt.tick_count = GetTickCount();
+		lstrcpyn(evt.base_path, watch->base_path, MAX_PATH_BUFFER);
+		if (copyLen > 0)
+		{
+			memcpy(evt.rel_path, fni->FileName, copyLen * sizeof(WCHAR));
+			evt.rel_path[copyLen] = 0;
+		}
+
+		PushWatchEvent(&evt, watch->debounce_ms ? watch->debounce_ms : 200);
+
+		if (fni->NextEntryOffset == 0)
+			break;
+		cursor += fni->NextEntryOffset;
+	}
+}
+
+static int CollectWatchHandles(HANDLE *handles, int maxHandles)
+{
+	int i, count = 0;
+	if (!handles || maxHandles <= 0)
+		return 0;
+	for (i = 0; i < MAX_WB_WATCHERS && count < maxHandles; i++)
+	{
+		if (g_watchers[i].in_use && g_watchers[i].event_handle)
+			handles[count++] = g_watchers[i].event_handle;
+	}
+	return count;
+}
+
+static void PumpWatchNotifications(DWORD timeoutMs)
+{
+	HANDLE handles[MAX_WB_WATCHERS];
+	int count, i;
+	DWORD waitMs = timeoutMs;
+
+	count = CollectWatchHandles(handles, MAX_WB_WATCHERS);
+	if (count <= 0)
+		return;
+
+	while (1)
+	{
+		DWORD wr = WaitForMultipleObjects(count, handles, FALSE, waitMs);
+		if (wr < WAIT_OBJECT_0 || wr >= WAIT_OBJECT_0 + (DWORD)count)
+			break;
+
+		for (i = 0; i < MAX_WB_WATCHERS; i++)
+		{
+			if (!g_watchers[i].in_use || !g_watchers[i].event_handle)
+				continue;
+			if (WaitForSingleObject(g_watchers[i].event_handle, 0) == WAIT_OBJECT_0)
+			{
+				ParseWatchBuffer(&g_watchers[i]);
+				WatchArm(&g_watchers[i]);
+			}
+		}
+
+		waitMs = 0;
+	}
+}
 
 //------------------------------------------------------------- PUBLIC FUNCTIONS
 
@@ -90,6 +374,9 @@ BOOL wbInit(void)
 	InitCommonControls();
 	if (!LoadLibrary(TEXT("RICHED20.DLL"))) // This is version 2.0 of the DLL
 		LoadLibrary(TEXT("RICHED32.DLL"));
+	bScintillaAvailable = (LoadLibrary(TEXT("SciLexer.dll")) != NULL);
+	if (!bScintillaAvailable)
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Scintilla runtime (SciLexer.dll) not found. ScintillaEdit controls will be unavailable."));
 	icex.dwSize = sizeof(icex);
 	icex.dwICC = ICC_DATE_CLASSES; // Load date and time picker control class
 	InitCommonControlsEx(&icex);
@@ -175,6 +462,17 @@ BOOL wbInit(void)
 	wbSetCursor((PWBOBJ)EditBox, TEXT("ibeam"), NULL);
 	wbSetCursor((PWBOBJ)InvisibleArea, TEXT("arrow"), NULL);
 
+	if (!g_taskLockInit)
+	{
+		InitializeCriticalSection(&g_taskLock);
+		g_taskLockInit = TRUE;
+	}
+	if (!g_eventLockInit)
+	{
+		InitializeCriticalSection(&g_eventLock);
+		g_eventLockInit = TRUE;
+	}
+
 	return TRUE;
 }
 
@@ -182,15 +480,146 @@ BOOL wbInit(void)
 
 BOOL wbEnd(void)
 {
+	int i;
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (g_watchers[i].in_use)
+			wbUnwatchPath(g_watchers[i].id);
+	}
+	wbWatchClearEvents();
+
 	if (hIconFont)
 		DeleteObject(hIconFont);
 	if (hbrTabs)
 		DeleteObject(hbrTabs);
 	if (hAccelTable)
 		DestroyAcceleratorTable(hAccelTable);
+	wbTaskCleanup();
+	if (g_eventLockInit)
+	{
+		DeleteCriticalSection(&g_eventLock);
+		g_eventLockInit = FALSE;
+	}
+	if (g_taskLockInit)
+	{
+		DeleteCriticalSection(&g_taskLock);
+		g_taskLockInit = FALSE;
+	}
 	OleUninitialize();
 
 	return TRUE;
+}
+
+int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs)
+{
+	int i;
+	WBWATCH *watch = NULL;
+	TCHAR normalized[MAX_PATH_BUFFER];
+
+	WatchNormalizePath(normalized, MAX_PATH_BUFFER, pszPath);
+	if (!normalized[0])
+		return 0;
+
+	for (i = 0; i < MAX_WB_WATCHERS; i++)
+	{
+		if (!g_watchers[i].in_use)
+		{
+			watch = &g_watchers[i];
+			break;
+		}
+	}
+	if (!watch)
+		return 0;
+
+	ZeroMemory(watch, sizeof(*watch));
+	watch->event_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (!watch->event_handle)
+		return 0;
+
+	watch->dir_handle = CreateFile(
+		normalized,
+		FILE_LIST_DIRECTORY,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+		NULL);
+	if (watch->dir_handle == INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(watch->event_handle);
+		watch->event_handle = NULL;
+		return 0;
+	}
+
+	watch->id = g_next_watch_id++;
+	watch->in_use = TRUE;
+	watch->recursive = bRecursive;
+	watch->debounce_ms = dwDebounceMs;
+	lstrcpyn(watch->base_path, normalized, MAX_PATH_BUFFER);
+
+	if (!WatchArm(watch))
+	{
+		wbUnwatchPath(watch->id);
+		return 0;
+	}
+
+	return watch->id;
+}
+
+BOOL wbUnwatchPath(int nWatchId)
+{
+	WBWATCH *watch = WatchById(nWatchId);
+	if (!watch)
+		return FALSE;
+
+	CancelIo(watch->dir_handle);
+	if (watch->dir_handle && watch->dir_handle != INVALID_HANDLE_VALUE)
+		CloseHandle(watch->dir_handle);
+	if (watch->event_handle)
+		CloseHandle(watch->event_handle);
+	ZeroMemory(watch, sizeof(*watch));
+	return TRUE;
+}
+
+UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx)
+{
+	UINT64 i;
+	PumpWatchNotifications(dwTimeoutMs);
+	if (!event_cb)
+		return (UINT64)g_watch_event_count;
+
+	for (i = 0; i < (UINT64)g_watch_event_count; i++)
+	{
+		event_cb(g_watch_events[i].watch_id,
+				 g_watch_events[i].event_type,
+				 g_watch_events[i].base_path,
+				 g_watch_events[i].rel_path,
+				 g_watch_events[i].tick_count,
+				 ctx);
+	}
+	return (UINT64)g_watch_event_count;
+}
+
+BOOL wbWatchGetEvent(int watchEventIndex, int *watchId, int *eventType, LPCTSTR *basePath, LPCTSTR *relativePath, DWORD *tickCount)
+{
+	if (watchEventIndex < 0 || watchEventIndex >= g_watch_event_count)
+		return FALSE;
+	if (watchId)
+		*watchId = g_watch_events[watchEventIndex].watch_id;
+	if (eventType)
+		*eventType = g_watch_events[watchEventIndex].event_type;
+	if (basePath)
+		*basePath = g_watch_events[watchEventIndex].base_path;
+	if (relativePath)
+		*relativePath = g_watch_events[watchEventIndex].rel_path;
+	if (tickCount)
+		*tickCount = g_watch_events[watchEventIndex].tick_count;
+	return TRUE;
+}
+
+void wbWatchClearEvents(void)
+{
+	g_watch_event_count = 0;
 }
 
 /*
@@ -209,26 +638,39 @@ will take our shortcut combo and process it as a dialog message.
 WPARAM wbMainLoop(void)
 {
 	MSG msg;
-	BOOL bRet;
+	HANDLE watchHandles[MAX_WB_WATCHERS];
 
-	// Main message loop
-	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
+	while (1)
 	{
-		if (bRet == -1)
+		int watchCount = CollectWatchHandles(watchHandles, MAX_WB_WATCHERS);
+		DWORD waitResult = MsgWaitForMultipleObjects(watchCount, watchHandles, FALSE, INFINITE, QS_ALLINPUT);
+
+		if (waitResult >= WAIT_OBJECT_0 && waitResult < WAIT_OBJECT_0 + (DWORD)watchCount)
 		{
-			break;
+			PumpWatchNotifications(0);
+			continue;
 		}
-		if (!TranslateAccelerator(hAccelWnd, hAccelTable, &msg))
+
+		if (waitResult == WAIT_OBJECT_0 + (DWORD)watchCount)
 		{
-			if (!hCurrentDlg || !IsDialogMessage(hCurrentDlg, &msg))
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				if (msg.message == WM_QUIT)
+					return msg.wParam;
+
+				if (!TranslateAccelerator(hAccelWnd, hAccelTable, &msg))
+				{
+					if (!hCurrentDlg || !IsDialogMessage(hCurrentDlg, &msg))
+					{
+						TranslateMessage(&msg);
+						DispatchMessage(&msg);
+					}
+				}
 			}
+
+			PumpWatchNotifications(0);
 		}
 	}
-
-	return msg.wParam;
 }
 
 // Used in wb_wait()
@@ -346,9 +788,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		if (!pszCursor || !*pszCursor) {
 			hCursor = GetSysCursor(TEXT("arrow"));
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
                 if (!hCursor)
                 {
@@ -386,9 +829,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		    // pszCursor is NULL (reset cursor)
 			hCursor = GetSysCursor(TEXT("arrow"));
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
             } else {
                 // System cursor name
@@ -421,9 +865,10 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		    // pszCursor is NULL
 			hCursor = hClassCursor[pwbo->uClass];
 		} else {
-            if(wbFindFile(pszCursor, MAX_PATH)) {
+            wcsncpy(szFile, pszCursor, MAX_PATH - 1);
+            szFile[MAX_PATH - 1] = TEXT('\0');
+            if(wbFindFile(szFile, MAX_PATH)) {
                 // Assume it's a file path for a custom cursor
-                wcsncpy(szFile, pszCursor, MAX_PATH - 1);
                 hCursor = LoadCursorFromFile(szFile);
                 if (!hCursor)
                 {
@@ -445,6 +890,152 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle)
 		M_nMouseCursor = (LONG_PTR)hCursor;
 		return (hCursor != 0);
 	}
+}
+
+UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs)
+{
+	WB_ASYNC_TASK *task;
+	SIZE_T len;
+
+	if (!pwboTarget || !pwboTarget->hwnd || !pszCommand || !*pszCommand || !g_taskLockInit)
+		return 0;
+
+	task = (WB_ASYNC_TASK *)calloc(1, sizeof(WB_ASYNC_TASK));
+	if (!task)
+		return 0;
+
+	len = (wcslen(pszCommand) + 1) * sizeof(TCHAR);
+	task->command = (TCHAR *)malloc(len);
+	if (!task->command)
+	{
+		free(task);
+		return 0;
+	}
+	wcscpy(task->command, pszCommand);
+	task->hwndTarget = pwboTarget->hwnd;
+	task->estimatedMs = estimatedMs;
+	task->status = WB_TASK_STATUS_PENDING;
+	task->progress = 0;
+	task->cancelEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (!task->cancelEvent)
+	{
+		free(task->command);
+		free(task);
+		return 0;
+	}
+
+	EnterCriticalSection(&g_taskLock);
+	task->id = g_nextTaskId++;
+	task->next = g_taskList;
+	g_taskList = task;
+	LeaveCriticalSection(&g_taskLock);
+
+	task->thread = CreateThread(NULL, 0, wbTaskThreadProc, task, 0, NULL);
+	if (!task->thread)
+	{
+		EnterCriticalSection(&g_taskLock);
+		if (g_taskList == task)
+			g_taskList = task->next;
+		LeaveCriticalSection(&g_taskLock);
+		CloseHandle(task->cancelEvent);
+		free(task->command);
+		free(task);
+		return 0;
+	}
+
+	return task->id;
+}
+
+BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode)
+{
+	WB_ASYNC_TASK *task;
+	BOOL found = FALSE;
+
+	if (!g_taskLockInit || taskId == 0)
+		return FALSE;
+
+	EnterCriticalSection(&g_taskLock);
+	for (task = g_taskList; task; task = task->next)
+	{
+		if (task->id == taskId)
+		{
+			if (pStatus)
+				*pStatus = (int)task->status;
+			if (pProgress)
+				*pProgress = (int)task->progress;
+			if (pExitCode)
+				*pExitCode = task->exitCode;
+			if (pErrorCode)
+				*pErrorCode = task->errorCode;
+			found = TRUE;
+			break;
+		}
+	}
+	LeaveCriticalSection(&g_taskLock);
+
+	return found;
+}
+
+BOOL wbTaskCancel(UINT64 taskId)
+{
+	WB_ASYNC_TASK *task;
+
+	if (!g_taskLockInit || taskId == 0)
+		return FALSE;
+
+	EnterCriticalSection(&g_taskLock);
+	for (task = g_taskList; task; task = task->next)
+	{
+		if (task->id == taskId)
+		{
+			SetEvent(task->cancelEvent);
+			LeaveCriticalSection(&g_taskLock);
+			return TRUE;
+		}
+	}
+	LeaveCriticalSection(&g_taskLock);
+
+	return FALSE;
+}
+
+BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value)
+{
+	WB_ASYNC_EVENT *current;
+	WB_ASYNC_EVENT *prev = NULL;
+
+	if (!g_eventLockInit)
+		return FALSE;
+
+	EnterCriticalSection(&g_eventLock);
+	for (current = g_eventHead; current; prev = current, current = current->next)
+	{
+		if (!hwndTarget || current->hwndTarget == hwndTarget)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				g_eventHead = current->next;
+			if (g_eventTail == current)
+				g_eventTail = prev;
+			break;
+		}
+	}
+	LeaveCriticalSection(&g_eventLock);
+
+	if (!current)
+		return FALSE;
+
+	if (taskId)
+		*taskId = current->taskId;
+	if (eventCode)
+		*eventCode = current->eventCode;
+	if (progress)
+		*progress = current->progress;
+	if (value)
+		*value = current->value;
+
+	free(current);
+	return TRUE;
 }
 
 // Returns TRUE if uClass is a valid WinBinder class
@@ -488,6 +1079,7 @@ BOOL wbIsValidClass(UINT64 uClass)
 	case TabControl:
 	case ToolBar:
 	case TreeView:
+	case ScintillaEdit:
 		return TRUE;
 	}
 	return FALSE;
@@ -977,7 +1569,7 @@ DWORD wbExec(LPCTSTR pszPgm, LPCTSTR pszParm, BOOL bShowWindow)
 
 		// Shell execute
 		// If the function succeeds, it returns a value greater than 32.
-		bRet = ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
+		bRet = (DWORD)(ULONG_PTR)ShellExecute(GetActiveWindow(), TEXT("open"), szApp, pszPgm, NULL, bShowWindow ? SW_SHOWNORMAL : SW_HIDE);
 	}
 	else
 	{
@@ -1262,7 +1854,7 @@ LONG_PTR wbGetSystemInfo(LPCTSTR pszInfo, BOOL *pbIsString, LPTSTR pszString, UI
 	{
 
 		*pbIsString = FALSE;
-		return (LONG_PTR)hAppInstance;
+		return (DWORD)(ULONG_PTR)hAppInstance;
 	}
 	else if (!lstrcmpi(pszInfo, L"ospath"))
 	{
@@ -1885,6 +2477,152 @@ void printthem(void)
 	printf("\n");
 }
 */
+
+static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DWORD value)
+{
+	WB_ASYNC_EVENT *evt;
+
+	if (!task || !g_eventLockInit)
+		return;
+
+	evt = (WB_ASYNC_EVENT *)calloc(1, sizeof(WB_ASYNC_EVENT));
+	if (!evt)
+		return;
+
+	evt->hwndTarget = task->hwndTarget;
+	evt->taskId = task->id;
+	evt->eventCode = eventCode;
+	evt->progress = progress;
+	evt->value = value;
+
+	EnterCriticalSection(&g_eventLock);
+	if (g_eventTail)
+		g_eventTail->next = evt;
+	else
+		g_eventHead = evt;
+	g_eventTail = evt;
+	LeaveCriticalSection(&g_eventLock);
+
+	PostMessage(task->hwndTarget, WBWM_TASK, 0, 0);
+}
+
+static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam)
+{
+	WB_ASYNC_TASK *task = (WB_ASYNC_TASK *)lpParam;
+	STARTUPINFO si = {0};
+	PROCESS_INFORMATION pi = {0};
+	TCHAR cmdBuffer[2048];
+	DWORD waitResult;
+	DWORD elapsed = 0;
+
+	if (!task)
+		return 0;
+
+	task->status = WB_TASK_STATUS_RUNNING;
+	si.cb = sizeof(si);
+	_snwprintf(cmdBuffer, 2047, TEXT("cmd.exe /C %s"), task->command);
+	cmdBuffer[2047] = 0;
+
+	if (!CreateProcess(NULL, cmdBuffer, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+	{
+		task->status = WB_TASK_STATUS_FAILED;
+		task->errorCode = GetLastError();
+		wbTaskPostEvent(task, WBC_TASK_ERROR, task->progress, task->errorCode);
+		return 0;
+	}
+
+	while (1)
+	{
+		if (WaitForSingleObject(task->cancelEvent, 0) == WAIT_OBJECT_0)
+		{
+			TerminateProcess(pi.hProcess, 1);
+			task->status = WB_TASK_STATUS_CANCELLED;
+			task->exitCode = 1;
+			task->progress = 0;
+			wbTaskPostEvent(task, WBC_TASK_CANCELLED, task->progress, task->exitCode);
+			break;
+		}
+
+		waitResult = WaitForSingleObject(pi.hProcess, 200);
+		if (waitResult == WAIT_OBJECT_0)
+		{
+			GetExitCodeProcess(pi.hProcess, &task->exitCode);
+			if (task->exitCode == 0)
+			{
+				task->status = WB_TASK_STATUS_COMPLETED;
+				task->progress = 100;
+				wbTaskPostEvent(task, WBC_TASK_COMPLETE, task->progress, task->exitCode);
+			}
+			else
+			{
+				task->status = WB_TASK_STATUS_FAILED;
+				wbTaskPostEvent(task, WBC_TASK_ERROR, task->progress, task->exitCode);
+			}
+			break;
+		}
+
+		if (task->estimatedMs > 0)
+		{
+			elapsed += 200;
+			task->progress = (LONG)min(99, (elapsed * 100) / task->estimatedMs);
+			wbTaskPostEvent(task, WBC_TASK_PROGRESS, task->progress, 0);
+		}
+	}
+
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	return 0;
+}
+
+static void wbTaskCleanup(void)
+{
+	WB_ASYNC_TASK *task;
+	WB_ASYNC_TASK *next;
+	WB_ASYNC_EVENT *evt;
+	WB_ASYNC_EVENT *nextEvt;
+
+	if (g_taskLockInit)
+	{
+		EnterCriticalSection(&g_taskLock);
+		task = g_taskList;
+		g_taskList = NULL;
+		LeaveCriticalSection(&g_taskLock);
+
+		while (task)
+		{
+			next = task->next;
+			if (task->cancelEvent)
+				SetEvent(task->cancelEvent);
+			if (task->thread)
+			{
+				WaitForSingleObject(task->thread, 500);
+				CloseHandle(task->thread);
+			}
+			if (task->cancelEvent)
+				CloseHandle(task->cancelEvent);
+			if (task->command)
+				free(task->command);
+			free(task);
+			task = next;
+		}
+	}
+
+	if (g_eventLockInit)
+	{
+		EnterCriticalSection(&g_eventLock);
+		evt = g_eventHead;
+		g_eventHead = NULL;
+		g_eventTail = NULL;
+		LeaveCriticalSection(&g_eventLock);
+
+		while (evt)
+		{
+			nextEvt = evt->next;
+			free(evt);
+			evt = nextEvt;
+		}
+	}
+}
 
 //------------------------------------------------------------ PRIVATE FUNCTIONS
 

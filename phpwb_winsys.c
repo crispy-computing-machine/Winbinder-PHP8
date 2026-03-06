@@ -396,6 +396,65 @@ ZEND_FUNCTION(wb_is_running)
 	RETURN_BOOL(wbIsRunning(pid));
 }
 
+ZEND_FUNCTION(wb_task_run)
+{
+	zend_long pwbo;
+	char *command;
+	size_t command_len;
+	zend_long estimated = 0;
+	TCHAR *szCommand;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(command, command_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(estimated)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || estimated < 0)
+	{
+		RETURN_LONG(0);
+	}
+
+	szCommand = Utf82WideChar(command, command_len);
+	RETURN_LONG(wbTaskRun((PWBOBJ)pwbo, szCommand, (UINT64)estimated));
+}
+
+ZEND_FUNCTION(wb_task_poll)
+{
+	zend_long taskId;
+	int status;
+	int progress;
+	DWORD exitCode;
+	DWORD errorCode;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(taskId)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbTaskPoll((UINT64)taskId, &status, &progress, &exitCode, &errorCode))
+	{
+		RETURN_NULL();
+	}
+
+	array_init(return_value);
+	add_assoc_long(return_value, "status", status);
+	add_assoc_long(return_value, "progress", progress);
+	add_assoc_long(return_value, "exit_code", exitCode);
+	add_assoc_long(return_value, "error_code", errorCode);
+}
+
+ZEND_FUNCTION(wb_task_cancel)
+{
+	zend_long taskId;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(taskId)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbTaskCancel((UINT64)taskId));
+}
+
 
 ZEND_FUNCTION(wb_get_system_info)
 {
@@ -676,6 +735,97 @@ ZEND_FUNCTION(wb_wait)
 	RETURN_LONG(wbCheckInput((PWBOBJ)pwbo, flags, pause));
 }
 
+
+ZEND_FUNCTION(wb_watch_path)
+{
+	char *path = NULL;
+	size_t path_len = 0;
+	zend_bool recursive = 0;
+	zend_long debounce_ms = 200;
+	TCHAR *wpath;
+	int watchId;
+
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+		Z_PARAM_STRING(path, path_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(recursive)
+		Z_PARAM_LONG(debounce_ms)
+	ZEND_PARSE_PARAMETERS_END();
+
+	wpath = Utf82WideChar(path, path_len);
+	if (!wpath)
+		RETURN_FALSE;
+
+	watchId = wbWatchPath(wpath, recursive ? TRUE : FALSE, (DWORD)MAX(0, debounce_ms));
+	wbFree(wpath);
+
+	if (watchId <= 0)
+		RETURN_FALSE;
+
+	RETURN_LONG(watchId);
+}
+
+ZEND_FUNCTION(wb_unwatch_path)
+{
+	zend_long watch_id;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(watch_id)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbUnwatchPath((int)watch_id));
+}
+
+ZEND_FUNCTION(wb_watch_poll)
+{
+	zend_long timeout_ms = 0;
+	zend_long max_events = 0;
+	UINT64 count, i, limit;
+
+	ZEND_PARSE_PARAMETERS_START(0, 2)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(timeout_ms)
+		Z_PARAM_LONG(max_events)
+	ZEND_PARSE_PARAMETERS_END();
+
+	count = wbWatchPoll((DWORD)MAX(0, timeout_ms), NULL, NULL);
+	limit = (max_events > 0 && (UINT64)max_events < count) ? (UINT64)max_events : count;
+
+	array_init(return_value);
+	for (i = 0; i < limit; i++)
+	{
+		int watchId = 0, eventType = 0;
+		LPCTSTR basePath = NULL, relPath = NULL;
+		DWORD tickCount = 0;
+		char *baseUtf8 = NULL, *relUtf8 = NULL;
+		zval event;
+
+		if (!wbWatchGetEvent((int)i, &watchId, &eventType, &basePath, &relPath, &tickCount))
+			continue;
+
+		array_init(&event);
+		add_assoc_long(&event, "watch_id", watchId);
+		add_assoc_long(&event, "event", eventType);
+		add_assoc_long(&event, "tick", tickCount);
+
+		baseUtf8 = WideChar2Utf8(basePath ? basePath : TEXT(""), NULL);
+		relUtf8 = WideChar2Utf8(relPath ? relPath : TEXT(""), NULL);
+		if (baseUtf8)
+		{
+			add_assoc_string(&event, "base_path", baseUtf8);
+			wbFree(baseUtf8);
+		}
+		if (relUtf8)
+		{
+			add_assoc_string(&event, "path", relUtf8);
+			wbFree(relUtf8);
+		}
+		add_next_index_zval(return_value, &event);
+	}
+
+	wbWatchClearEvents();
+}
+
 ZEND_FUNCTION(wb_is_obj)
 {
 	zend_long pwbo;
@@ -902,7 +1052,7 @@ ZEND_FUNCTION(wb_get_mouse_pos)
 ZEND_FUNCTION(wb_wmi_query)
 {
 	char *wquery;
-	int wquery_size;
+	size_t wquery_size;
 
 	
 	HRESULT hr;
@@ -955,9 +1105,9 @@ ZEND_FUNCTION(wb_wmi_query)
 			VARIANT val;
 			VARTYPE vt = 0;
 			LPSAFEARRAY pFieldArray = NULL;
-			zval *subarray;
+			zval subarray;
 
-			array_init(subarray);
+			array_init(&subarray);
 
 			hr = result->lpVtbl->GetNames(result, NULL, WBEM_FLAG_ALWAYS | WBEM_FLAG_NONSYSTEM_ONLY, NULL, &pFieldArray);
 			
@@ -970,28 +1120,28 @@ ZEND_FUNCTION(wb_wmi_query)
 				//https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-oaut/3fe7db9f-5803-4dc4-9d14-5425d3f5461f
 				switch(val.vt){
 					case VT_NULL:
-						add_assoc_null(subarray, propn);
+						add_assoc_null(&subarray, propn);
 						break;
 					case VT_BOOL:
-						add_assoc_bool(subarray, propn, val.boolVal);
+						add_assoc_bool(&subarray, propn, val.boolVal);
 						break;
 					case VT_BSTR:
 						propv = ConvertBSTRToLPSTR(val.bstrVal);
-						add_assoc_string(subarray, propn, propv);
+						add_assoc_string(&subarray, propn, propv);
 						free(propv);
 						break;
 					case VT_I4:
-						add_assoc_long(subarray, propn, val.intVal);
+						add_assoc_long(&subarray, propn, val.intVal);
 						break;
 				
 					default:
 						sprintf(err, "(Variant type 0x%04x not supported)", val.vt);
-						add_assoc_string(subarray, propn, err);
+						add_assoc_string(&subarray, propn, err);
 				
 				}
 				free(propn);
 			}
-			add_next_index_zval(return_value, subarray);
+			add_next_index_zval(return_value, &subarray);
 			result->lpVtbl->Release(result);
 		}
 	}
@@ -1013,7 +1163,8 @@ ZEND_FUNCTION(wb_wmi_query)
 // https://msdn.microsoft.com/en-ca/library/windows/desktop/ms724385(v=vs.85).aspx
 ZEND_FUNCTION(wb_get_system_metric)
 {
-	int idx, val;
+	zend_long idx;
+	int val;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(idx)
@@ -1035,7 +1186,7 @@ ZEND_FUNCTION(wb_get_system_timezone)
 ZEND_FUNCTION(wb_expand_env)
 {
 	char *path;
-	int path_size;
+	size_t path_size;
 	char buffer[MAXPATHLEN];
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
@@ -1087,7 +1238,7 @@ ZEND_FUNCTION(wb_send_key)
 		uSent = SendInput(kcount*2, inputs, sizeof(INPUT));
 		RETURN_BOOL(uSent == (kcount*2));
 	} else {
-		php_error_docref(NULL, E_WARNING, "Parameter 1 should be a an long or an array of longs");
+		wbError(TEXT("wb_send_key"), MB_ICONWARNING, TEXT("Parameter 1 should be a long or an array of longs"));
 		RETURN_BOOL(FALSE);
 	}
 }
