@@ -90,6 +90,114 @@ extern BOOL SetProxyForWebBrowser(PWBOBJ pwbo, const char* proxyAddress);
 #define SCE_HPHP_OPERATOR 127
 #endif
 
+static BOOL wbPhpDateTimeSystemToUnix(const SYSTEMTIME *lpSystemTime, time_t *pUnixTime)
+{
+	struct tm tmValue;
+	time_t value;
+
+	if (!lpSystemTime || !pUnixTime)
+		return FALSE;
+
+	memset(&tmValue, 0, sizeof(tmValue));
+	tmValue.tm_year = lpSystemTime->wYear - 1900;
+	tmValue.tm_mon = lpSystemTime->wMonth - 1;
+	tmValue.tm_mday = lpSystemTime->wDay;
+	tmValue.tm_hour = lpSystemTime->wHour;
+	tmValue.tm_min = lpSystemTime->wMinute;
+	tmValue.tm_sec = lpSystemTime->wSecond;
+	tmValue.tm_isdst = -1;
+
+	value = mktime(&tmValue);
+	if (value == (time_t)-1)
+		return FALSE;
+
+	*pUnixTime = value;
+	return TRUE;
+}
+
+static BOOL wbPhpDateTimeUnixToSystem(time_t unixTime, LPSYSTEMTIME lpSystemTime)
+{
+	struct tm *tmLocal;
+
+	if (!lpSystemTime)
+		return FALSE;
+
+	tmLocal = localtime(&unixTime);
+	if (!tmLocal)
+		return FALSE;
+
+	memset(lpSystemTime, 0, sizeof(SYSTEMTIME));
+	lpSystemTime->wYear = (WORD)(tmLocal->tm_year + 1900);
+	lpSystemTime->wMonth = (WORD)(tmLocal->tm_mon + 1);
+	lpSystemTime->wDay = (WORD)tmLocal->tm_mday;
+	lpSystemTime->wHour = (WORD)tmLocal->tm_hour;
+	lpSystemTime->wMinute = (WORD)tmLocal->tm_min;
+	lpSystemTime->wSecond = (WORD)tmLocal->tm_sec;
+	lpSystemTime->wDayOfWeek = (WORD)tmLocal->tm_wday;
+	return TRUE;
+}
+
+static BOOL wbPhpDateTimeZvalToUnix(zval *zdt, time_t *pUnixTime, BOOL *pIsNull)
+{
+	if (!zdt || !pUnixTime)
+		return FALSE;
+
+	if (pIsNull)
+		*pIsNull = FALSE;
+
+	if (Z_TYPE_P(zdt) == IS_NULL)
+	{
+		if (pIsNull)
+			*pIsNull = TRUE;
+		*pUnixTime = 0;
+		return TRUE;
+	}
+
+	if (Z_TYPE_P(zdt) == IS_LONG)
+	{
+		*pUnixTime = (time_t)Z_LVAL_P(zdt);
+		return TRUE;
+	}
+
+	if (Z_TYPE_P(zdt) == IS_STRING)
+	{
+		int y=0, m=0, d=0, hh=0, mm=0, ss=0;
+		struct tm tmValue;
+		time_t parsed;
+		if (sscanf(Z_STRVAL_P(zdt), "%d-%d-%d %d:%d:%d", &y, &m, &d, &hh, &mm, &ss) < 3 &&
+			sscanf(Z_STRVAL_P(zdt), "%d-%d-%dT%d:%d:%d", &y, &m, &d, &hh, &mm, &ss) < 3)
+			return FALSE;
+		memset(&tmValue, 0, sizeof(tmValue));
+		tmValue.tm_year = y - 1900;
+		tmValue.tm_mon = m - 1;
+		tmValue.tm_mday = d;
+		tmValue.tm_hour = hh;
+		tmValue.tm_min = mm;
+		tmValue.tm_sec = ss;
+		tmValue.tm_isdst = -1;
+		parsed = mktime(&tmValue);
+		if (parsed == (time_t)-1)
+			return FALSE;
+		*pUnixTime = parsed;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void wbPhpDateTimeFormatIso(const SYSTEMTIME *lpSystemTime, char *buf, size_t buflen)
+{
+	if (!lpSystemTime || !buf || buflen < 20)
+		return;
+	snprintf(buf, buflen, "%04u-%02u-%02uT%02u:%02u:%02u",
+		(unsigned int)lpSystemTime->wYear,
+		(unsigned int)lpSystemTime->wMonth,
+		(unsigned int)lpSystemTime->wDay,
+		(unsigned int)lpSystemTime->wHour,
+		(unsigned int)lpSystemTime->wMinute,
+		(unsigned int)lpSystemTime->wSecond);
+}
+
 static PWBOBJ wbPhpGetScintillaObj(zend_long pwbo)
 {
 	PWBOBJ obj = (PWBOBJ)pwbo;
@@ -969,6 +1077,232 @@ ZEND_FUNCTION(wb_set_value)
 	((PWBOBJ)pwbo)->subitem = subitem;
 
 	RETURN_BOOL(wbSetValue((PWBOBJ)pwbo, value));
+}
+
+
+ZEND_FUNCTION(wb_get_datetime)
+{
+	zend_long pwbo;
+	zend_bool as_iso = 0;
+	zend_bool as_iso_isnull;
+	SYSTEMTIME st;
+	time_t unixTime;
+	char iso[32] = {0};
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL_OR_NULL(as_iso, as_iso_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_NULL();
+
+	if (DateTime_GetSystemtime(((PWBOBJ)pwbo)->hwnd, &st) != GDT_VALID)
+		RETURN_NULL();
+
+	if (as_iso)
+	{
+		wbPhpDateTimeFormatIso(&st, iso, sizeof(iso));
+		RETURN_STRING(iso);
+	}
+
+	if (!wbPhpDateTimeSystemToUnix(&st, &unixTime))
+		RETURN_NULL();
+	RETURN_LONG((zend_long)unixTime);
+}
+
+ZEND_FUNCTION(wb_set_datetime)
+{
+	zend_long pwbo;
+	zval *zdt;
+	time_t unixTime;
+	BOOL isNull = FALSE;
+	SYSTEMTIME st;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zdt)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_BOOL(FALSE);
+
+	if (!wbPhpDateTimeZvalToUnix(zdt, &unixTime, &isNull))
+		RETURN_BOOL(FALSE);
+
+	if (isNull)
+		RETURN_BOOL(DateTime_SetSystemtime(((PWBOBJ)pwbo)->hwnd, GDT_NONE, NULL));
+
+	if (!wbPhpDateTimeUnixToSystem(unixTime, &st))
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(DateTime_SetSystemtime(((PWBOBJ)pwbo)->hwnd, GDT_VALID, &st));
+}
+
+ZEND_FUNCTION(wb_get_datetime_bounds)
+{
+	zend_long pwbo;
+	zend_bool as_iso = 0;
+	zend_bool as_iso_isnull;
+	SYSTEMTIME st[2];
+	DWORD flags;
+	time_t unixTime = 0;
+	char iso[32] = {0};
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL_OR_NULL(as_iso, as_iso_isnull)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_NULL();
+
+	flags = (DWORD)DateTime_GetRange(((PWBOBJ)pwbo)->hwnd, st);
+	array_init(return_value);
+
+	if (flags & GDTR_MIN)
+	{
+		if (as_iso)
+		{
+			wbPhpDateTimeFormatIso(&st[0], iso, sizeof(iso));
+			add_assoc_string(return_value, "min", iso);
+		}
+		else if (wbPhpDateTimeSystemToUnix(&st[0], &unixTime))
+			add_assoc_long(return_value, "min", (zend_long)unixTime);
+		else
+			add_assoc_null(return_value, "min");
+	}
+	else
+		add_assoc_null(return_value, "min");
+
+	if (flags & GDTR_MAX)
+	{
+		if (as_iso)
+		{
+			wbPhpDateTimeFormatIso(&st[1], iso, sizeof(iso));
+			add_assoc_string(return_value, "max", iso);
+		}
+		else if (wbPhpDateTimeSystemToUnix(&st[1], &unixTime))
+			add_assoc_long(return_value, "max", (zend_long)unixTime);
+		else
+			add_assoc_null(return_value, "max");
+	}
+	else
+		add_assoc_null(return_value, "max");
+}
+
+ZEND_FUNCTION(wb_set_datetime_bounds)
+{
+	zend_long pwbo;
+	zval *zmin, *zmax;
+	time_t minTime = 0, maxTime = 0;
+	BOOL minIsNull = FALSE, maxIsNull = FALSE;
+	SYSTEMTIME st[2];
+	DWORD flags = 0;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL(zmin)
+		Z_PARAM_ZVAL(zmax)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_BOOL(FALSE);
+
+	if (!wbPhpDateTimeZvalToUnix(zmin, &minTime, &minIsNull) || !wbPhpDateTimeZvalToUnix(zmax, &maxTime, &maxIsNull))
+		RETURN_BOOL(FALSE);
+
+	if (!minIsNull && wbPhpDateTimeUnixToSystem(minTime, &st[0]))
+		flags |= GDTR_MIN;
+	if (!maxIsNull && wbPhpDateTimeUnixToSystem(maxTime, &st[1]))
+		flags |= GDTR_MAX;
+
+	RETURN_BOOL(DateTime_SetRange(((PWBOBJ)pwbo)->hwnd, flags, st));
+}
+
+ZEND_FUNCTION(wb_get_datetime_format)
+{
+	zend_long pwbo;
+	PWBOBJ pObj;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_NULL();
+
+	pObj = (PWBOBJ)pwbo;
+	if (!pObj->lparams[7])
+		RETURN_NULL();
+
+	RETURN_STRING(WideChar2Utf8((LPCTSTR)pObj->lparams[7], NULL));
+}
+
+ZEND_FUNCTION(wb_set_datetime_format)
+{
+	zend_long pwbo;
+	char *format;
+	size_t format_len;
+	TCHAR *wcs;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(format, format_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_BOOL(FALSE);
+
+	wcs = Utf82WideChar(format, format_len);
+	if (!DateTime_SetFormat(((PWBOBJ)pwbo)->hwnd, wcs))
+		RETURN_BOOL(FALSE);
+
+	if (((PWBOBJ)pwbo)->lparams[7])
+		wbFree((void *)((PWBOBJ)pwbo)->lparams[7]);
+	((PWBOBJ)pwbo)->lparams[7] = (LONG_PTR)wcs;
+	RETURN_BOOL(TRUE);
+}
+
+ZEND_FUNCTION(wb_get_datetime_empty)
+{
+	zend_long pwbo;
+	SYSTEMTIME st;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_BOOL(FALSE);
+
+	RETURN_BOOL(DateTime_GetSystemtime(((PWBOBJ)pwbo)->hwnd, &st) == GDT_NONE);
+}
+
+ZEND_FUNCTION(wb_set_datetime_empty)
+{
+	zend_long pwbo;
+	zend_bool empty;
+	SYSTEMTIME st;
+	time_t now;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_BOOL(empty)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
+		RETURN_BOOL(FALSE);
+
+	if (empty)
+		RETURN_BOOL(DateTime_SetSystemtime(((PWBOBJ)pwbo)->hwnd, GDT_NONE, NULL));
+
+	now = time(NULL);
+	if (!wbPhpDateTimeUnixToSystem(now, &st))
+		RETURN_BOOL(FALSE);
+	RETURN_BOOL(DateTime_SetSystemtime(((PWBOBJ)pwbo)->hwnd, GDT_VALID, &st));
 }
 
 ZEND_FUNCTION(wb_set_splitter_position)

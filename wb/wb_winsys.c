@@ -1056,6 +1056,7 @@ BOOL wbIsValidClass(UINT64 uClass)
 
 	case Accel:
 	case Calendar:
+	case DateTimePicker:
 	case CheckBox:
 	case ComboBox:
 	case EditBox:

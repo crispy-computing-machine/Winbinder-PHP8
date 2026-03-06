@@ -120,6 +120,14 @@ ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
 ZEND_FUNCTION(wb_set_text);
 ZEND_FUNCTION(wb_set_value);
+ZEND_FUNCTION(wb_get_datetime);
+ZEND_FUNCTION(wb_set_datetime);
+ZEND_FUNCTION(wb_get_datetime_bounds);
+ZEND_FUNCTION(wb_set_datetime_bounds);
+ZEND_FUNCTION(wb_get_datetime_format);
+ZEND_FUNCTION(wb_set_datetime_format);
+ZEND_FUNCTION(wb_get_datetime_empty);
+ZEND_FUNCTION(wb_set_datetime_empty);
 ZEND_FUNCTION(wb_set_splitter_position);
 ZEND_FUNCTION(wb_get_splitter_position);
 ZEND_FUNCTION(wb_set_splitter_panes);
@@ -359,6 +367,14 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_sort,arginfo_wb_sort)
         ZEND_FE(wb_select_tab,arginfo_wb_select_tab)
         ZEND_FE(wb_set_value,arginfo_wb_set_value)
+        ZEND_FE(wb_get_datetime,arginfo_wb_get_datetime)
+        ZEND_FE(wb_set_datetime,arginfo_wb_set_datetime)
+        ZEND_FE(wb_get_datetime_bounds,arginfo_wb_get_datetime_bounds)
+        ZEND_FE(wb_set_datetime_bounds,arginfo_wb_set_datetime_bounds)
+        ZEND_FE(wb_get_datetime_format,arginfo_wb_get_datetime_format)
+        ZEND_FE(wb_set_datetime_format,arginfo_wb_set_datetime_format)
+        ZEND_FE(wb_get_datetime_empty,arginfo_wb_get_datetime_empty)
+        ZEND_FE(wb_set_datetime_empty,arginfo_wb_set_datetime_empty)
         ZEND_FE(wb_set_splitter_position,arginfo_wb_set_splitter_position)
         ZEND_FE(wb_get_splitter_position,arginfo_wb_get_splitter_position)
         ZEND_FE(wb_set_splitter_panes,arginfo_wb_set_splitter_panes)
@@ -515,6 +531,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	// WinBinder control classes
 	WB_ZEND_CONST(LONG, "Accel", Accel)
 	WB_ZEND_CONST(LONG, "Calendar", Calendar)
+	WB_ZEND_CONST(LONG, "DateTimePicker", DateTimePicker)
 	WB_ZEND_CONST(LONG, "CheckBox", CheckBox)
 	WB_ZEND_CONST(LONG, "ComboBox", ComboBox)
 	WB_ZEND_CONST(LONG, "EditBox", EditBox)
@@ -596,6 +613,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_DTP_ISO", WBC_DTP_ISO)
 	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
 	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)
 	WB_ZEND_CONST(LONG, "WBC_TASK_ERROR", WBC_TASK_ERROR)
