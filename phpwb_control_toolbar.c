@@ -137,7 +137,7 @@ ZEND_FUNCTION(wb_toolbar_attach_split_menu)
 		Z_PARAM_LONG(lMenu)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (!wbIsWBObj((void *)lToolbar, TRUE) || !wbIsWBObj((void *)lMenu, TRUE))
+	if (!wbIsWBObj((void *)lToolbar, TRUE))
 	{
 		RETURN_FALSE;
 	}

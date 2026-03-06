@@ -183,10 +183,16 @@ BOOL wbToolbarAttachSplitMenu(PWBOBJ pwboToolbar, int nButtonId, PWBOBJ pwboMenu
 	TBBUTTONINFO tbbi = {0};
 	PWBSPLITBTN pSplit;
 
-	if (!pwboToolbar || pwboToolbar->uClass != ToolBar || !IsWindow(pwboToolbar->hwnd))
+	if (!pwboToolbar || IsBadReadPtr(pwboToolbar, sizeof(WBOBJ)))
 		return FALSE;
 
-	if (!pwboMenu || pwboMenu->uClass != Menu || !pwboMenu->hwnd || !IsMenu((HMENU)pwboMenu->hwnd))
+	if (pwboToolbar->uClass != ToolBar || !pwboToolbar->hwnd || !IsWindow(pwboToolbar->hwnd))
+		return FALSE;
+
+	if (!pwboMenu || IsBadReadPtr(pwboMenu, sizeof(WBOBJ)))
+		return FALSE;
+
+	if (pwboMenu->uClass != Menu || !pwboMenu->hwnd || !IsMenu((HMENU)pwboMenu->hwnd))
 		return FALSE;
 
 	pSplit = FindOrCreateSplitButton(pwboToolbar->hwnd, nButtonId);
