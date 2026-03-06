@@ -1403,9 +1403,13 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                 if (HIWORD(wParam) == BN_CLICKED)
                 {
                     if (wbPanelGetExpanded(pwbobj))
+                    {
                         CALL_CALLBACK(LOWORD(wParam), WBC_PANEL_EXPANDED, HIWORD(wParam), 0);
+                    }
                     else
+                    {
                         CALL_CALLBACK(LOWORD(wParam), WBC_PANEL_COLLAPSED, HIWORD(wParam), 0);
+                    }
                 }
                 break;
 
