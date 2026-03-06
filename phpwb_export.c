@@ -119,6 +119,10 @@ ZEND_FUNCTION(wb_create_statusbar_items);
 ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
 ZEND_FUNCTION(wb_set_text);
+ZEND_FUNCTION(wb_attach_tooltip);
+ZEND_FUNCTION(wb_remove_tooltip);
+ZEND_FUNCTION(wb_show_tooltip_balloon);
+ZEND_FUNCTION(wb_hide_tooltip);
 ZEND_FUNCTION(wb_set_value);
 ZEND_FUNCTION(wb_set_splitter_position);
 ZEND_FUNCTION(wb_get_splitter_position);
@@ -336,6 +340,10 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_statusbar_items,arginfo_wb_create_statusbar_items)
         ZEND_FE(wb_get_text,arginfo_wb_get_text)
         ZEND_FE(wb_set_text,arginfo_wb_set_text)
+        ZEND_FE(wb_attach_tooltip,arginfo_wb_attach_tooltip)
+        ZEND_FE(wb_remove_tooltip,arginfo_wb_remove_tooltip)
+        ZEND_FE(wb_show_tooltip_balloon,arginfo_wb_show_tooltip_balloon)
+        ZEND_FE(wb_hide_tooltip,arginfo_wb_hide_tooltip)
         ZEND_FE(wb_delete_items,arginfo_wb_delete_items)
         ZEND_FE(wb_get_class,arginfo_wb_get_class)
         ZEND_FE(wb_get_control,arginfo_wb_get_control)

@@ -985,6 +985,113 @@ BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths)
 	return SendMessage(pwbo->hwnd, SB_SETPARTS, nParts, (LPARAM)aWidths);
 }
 
+BOOL wbAttachToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		return wbSetText(pwbo, pszTooltip ? pszTooltip : TEXT(""), 0, TRUE);
+	}
+
+	return CreateToolTip(pwbo, pszTooltip ? pszTooltip : TEXT("")) != NULL;
+}
+
+BOOL wbRemoveToolTip(PWBOBJ pwbo)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		DestroyWindow((HWND)M_ToolTipWnd);
+		M_ToolTipWnd = 0;
+	}
+
+	return TRUE;
+}
+
+BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nSeverity)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+	DWORD dwIcon = TTI_NONE;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (!M_ToolTipWnd || !IsWindow((HWND)M_ToolTipWnd))
+	{
+		if (!CreateToolTip(pwbo, TEXT("")))
+			return FALSE;
+	}
+
+	hwndTT = (HWND)M_ToolTipWnd;
+
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
+	ti.uId = (UINT_PTR)pwbo->hwnd;
+	ti.hinst = NULL;
+	ti.lpszText = (LPTSTR)(pszText ? pszText : TEXT(""));
+	GetClientRect(pwbo->hwnd, &ti.rect);
+
+	SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 640);
+	SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)TTI_NONE, (LPARAM)TEXT(""));
+	SendMessage(hwndTT, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+
+	switch (nSeverity)
+	{
+	case 2:
+		dwIcon = TTI_ERROR;
+		break;
+	case 1:
+		dwIcon = TTI_WARNING;
+		break;
+	default:
+		dwIcon = TTI_INFO;
+		break;
+	}
+
+	if (pszTitle && *pszTitle)
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)pszTitle);
+	else
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)TEXT("Validation"));
+
+	SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POPUP, 0, 0);
+
+	return TRUE;
+}
+
+BOOL wbHideToolTip(PWBOBJ pwbo)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	hwndTT = (HWND)M_ToolTipWnd;
+	if (!hwndTT || !IsWindow(hwndTT))
+		return TRUE;
+
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
+	ti.uId = (UINT_PTR)pwbo->hwnd;
+	ti.hinst = NULL;
+	ti.lpszText = TEXT("");
+	GetClientRect(pwbo->hwnd, &ti.rect);
+
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POP, 0, 0);
+
+	return TRUE;
+}
+
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 {
 	TCHAR *pszText;
@@ -1001,13 +1108,17 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		TOOLINFO ti;
 
 		hwndTT = (HWND)M_ToolTipWnd;
-		if (!hwndTT)
-			return FALSE;
+		if (!hwndTT || !IsWindow(hwndTT))
+		{
+			if (!wbAttachToolTip(pwbo, pszText))
+				return FALSE;
+			hwndTT = (HWND)M_ToolTipWnd;
+		}
 
 		ti.cbSize = sizeof(TOOLINFO);
-		ti.uFlags = 0;
-		ti.hwnd = pwbo->hwnd;
-		ti.uId = 0;
+		ti.uFlags = TTF_IDISHWND;
+		ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
+		ti.uId = (UINT_PTR)pwbo->hwnd;
 		ti.hinst = NULL;
 		ti.lpszText = (LPTSTR)pszText;
 
@@ -2206,9 +2317,9 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	// Create a tool that contains the desired control (pwbo->hwnd)
 
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_SUBCLASS;
-	ti.hwnd = pwbo->hwnd;
-	ti.uId = 0;
+	ti.uFlags = TTF_SUBCLASS | TTF_TRACK | TTF_IDISHWND;
+	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
+	ti.uId = (UINT_PTR)pwbo->hwnd;
 	ti.hinst = NULL;
 
 	// Get the window text
