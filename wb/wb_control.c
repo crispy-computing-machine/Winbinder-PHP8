@@ -1049,6 +1049,121 @@ BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths)
 	return SendMessage(pwbo->hwnd, SB_SETPARTS, nParts, (LPARAM)aWidths);
 }
 
+BOOL wbAttachToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		return wbSetText(pwbo, pszTooltip ? pszTooltip : TEXT(""), 0, TRUE);
+	}
+
+	return CreateToolTip(pwbo, pszTooltip ? pszTooltip : TEXT("")) != NULL;
+}
+
+BOOL wbRemoveToolTip(PWBOBJ pwbo)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		DestroyWindow((HWND)M_ToolTipWnd);
+		M_ToolTipWnd = 0;
+	}
+
+	return TRUE;
+}
+
+BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nSeverity)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+	RECT rc;
+	LONG x;
+	LONG y;
+	DWORD dwIcon = TTI_NONE;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (!M_ToolTipWnd || !IsWindow((HWND)M_ToolTipWnd))
+	{
+		if (!CreateToolTip(pwbo, TEXT("")))
+			return FALSE;
+	}
+
+	hwndTT = (HWND)M_ToolTipWnd;
+
+	memset(&ti, 0, sizeof(TOOLINFO));
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
+	ti.hinst = NULL;
+	ti.lpszText = (LPTSTR)(pszText ? pszText : TEXT(""));
+	GetClientRect(pwbo->hwnd, &ti.rect);
+	GetWindowRect(pwbo->hwnd, &rc);
+
+	x = rc.left + ((rc.right - rc.left) / 2);
+	y = rc.bottom;
+
+	SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 640);
+	SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)TTI_NONE, (LPARAM)TEXT(""));
+	SendMessage(hwndTT, TTM_SETTOOLINFO, 0, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+
+	switch (nSeverity)
+	{
+	case 2:
+		dwIcon = TTI_ERROR;
+		break;
+	case 1:
+		dwIcon = TTI_WARNING;
+		break;
+	default:
+		dwIcon = TTI_INFO;
+		break;
+	}
+
+	if (pszTitle && *pszTitle)
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)pszTitle);
+	else
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)TEXT("Validation"));
+
+	SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
+	SendMessage(hwndTT, TTM_TRACKPOSITION, 0, (LPARAM)MAKELPARAM(x, y));
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POPUP, 0, 0);
+
+	return TRUE;
+}
+
+BOOL wbHideToolTip(PWBOBJ pwbo)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	hwndTT = (HWND)M_ToolTipWnd;
+	if (!hwndTT || !IsWindow(hwndTT))
+		return TRUE;
+
+	memset(&ti, 0, sizeof(TOOLINFO));
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
+
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POP, 0, 0);
+
+	return TRUE;
+}
+
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 {
 	TCHAR *pszText;
@@ -1065,8 +1180,12 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		TOOLINFO ti;
 
 		hwndTT = (HWND)M_ToolTipWnd;
-		if (!hwndTT)
-			return FALSE;
+		if (!hwndTT || !IsWindow(hwndTT))
+		{
+			if (!wbAttachToolTip(pwbo, pszText))
+				return FALSE;
+			hwndTT = (HWND)M_ToolTipWnd;
+		}
 
 		ti.cbSize = sizeof(TOOLINFO);
 		ti.uFlags = 0;
@@ -2293,7 +2412,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	// Create the ToolTip control.
 
 	hwndTT = CreateWindow(TOOLTIPS_CLASS, NULL,
-						  TTS_ALWAYSTIP,
+						  TTS_ALWAYSTIP | TTS_BALLOON,
 						  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 						  pwbo->hwnd,
 						  NULL, NULL, NULL);

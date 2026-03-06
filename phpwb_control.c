@@ -1662,6 +1662,138 @@ ZEND_FUNCTION(wb_set_text)
 }
 */
 
+ZEND_FUNCTION(wb_attach_tooltip)
+{
+	zend_long pwbo;
+	zval *ztext;
+	zend_bool show_now = 0;
+	char *text = NULL;
+	TCHAR *wcsText = NULL;
+	BOOL ret;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ZVAL_OR_NULL(ztext)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(show_now)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	if (ztext && Z_TYPE_P(ztext) == IS_STRING)
+	{
+		text = Z_STRVAL_P(ztext);
+		wcsText = Utf82WideChar(text, Z_STRLEN_P(ztext));
+	}
+
+	ret = wbAttachToolTip((PWBOBJ)pwbo, wcsText);
+	if (!ret)
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	if (show_now && wcsText && *wcsText)
+	{
+		wbShowToolTipBalloon((PWBOBJ)pwbo, wcsText, NULL, 0);
+	}
+
+	RETURN_BOOL(ret);
+}
+
+ZEND_FUNCTION(wb_remove_tooltip)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	RETURN_BOOL(wbRemoveToolTip((PWBOBJ)pwbo));
+}
+
+static int wbPhpTooltipSeverity(zval *zseverity)
+{
+	if (!zseverity || Z_TYPE_P(zseverity) == IS_NULL)
+		return 0;
+
+	if (Z_TYPE_P(zseverity) == IS_LONG)
+	{
+		zend_long sev = Z_LVAL_P(zseverity);
+		if (sev < 0)
+			sev = 0;
+		if (sev > 2)
+			sev = 2;
+		return (int)sev;
+	}
+
+	if (Z_TYPE_P(zseverity) == IS_STRING)
+	{
+		if (!_stricmp(Z_STRVAL_P(zseverity), "warn") || !_stricmp(Z_STRVAL_P(zseverity), "warning"))
+			return 1;
+		if (!_stricmp(Z_STRVAL_P(zseverity), "error"))
+			return 2;
+	}
+
+	return 0;
+}
+
+ZEND_FUNCTION(wb_show_tooltip_balloon)
+{
+	zend_long pwbo;
+	char *text;
+	size_t text_len;
+	zval *zseverity;
+	zval *ztitle;
+	TCHAR *wcsText;
+	TCHAR *wcsTitle = NULL;
+	int severity;
+
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(text, text_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ZVAL_OR_NULL(zseverity)
+		Z_PARAM_ZVAL_OR_NULL(ztitle)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	severity = wbPhpTooltipSeverity(zseverity);
+	wcsText = Utf82WideChar(text, text_len);
+
+	if (ztitle && Z_TYPE_P(ztitle) == IS_STRING)
+		wcsTitle = Utf82WideChar(Z_STRVAL_P(ztitle), Z_STRLEN_P(ztitle));
+
+	RETURN_BOOL(wbShowToolTipBalloon((PWBOBJ)pwbo, wcsText, wcsTitle, severity));
+}
+
+ZEND_FUNCTION(wb_hide_tooltip)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	RETURN_BOOL(wbHideToolTip((PWBOBJ)pwbo));
+}
+
 ZEND_FUNCTION(wb_get_text)
 {
 	TCHAR *ptext = NULL;

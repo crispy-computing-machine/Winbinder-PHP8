@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>wb_show_tooltip_balloon</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+<body>
+<h2>wb_show_tooltip_balloon</h2>
+<p>bool <b>wb_show_tooltip_balloon</b> (int wbobject, string text [, mixed severity = "info" [, string title = NULL]])</p>
+<p>Shows a contextual balloon tooltip near <i>wbobject</i>. Severity accepts <code>"info"</code>, <code>"warn"</code>, <code>"error"</code> (or constants <code>WBT_SEVERITY_INFO</code>, <code>WBT_SEVERITY_WARN</code>, <code>WBT_SEVERITY_ERROR</code>).</p>
+<p>This is useful for validation feedback and inline hints. Balloons are explicitly anchored to the control bounds and shown in tracking mode, so they appear immediately at a predictable location (for example after validation). For hover-only hints, continue using <a href="wb_attach_tooltip.html"><b>wb_attach_tooltip</b></a>; for immediate attach + display, use <code>wb_attach_tooltip($ctrl, $text, true)</code>.</p>
+<h1><b>See also</b></h1>
+<p><a href="wb_hide_tooltip.html"><b>wb_hide_tooltip</b></a><br><a href="wb_attach_tooltip.html"><b>wb_attach_tooltip</b></a><br><a href="../examples/validation_tooltip_demo.php">validation_tooltip_demo.php</a><br><a href="../reference/functions_category.html#control">Control functions</a><br><a href="../reference/functions_category.html#window">Window functions</a></p>
+</body>
+</html>
