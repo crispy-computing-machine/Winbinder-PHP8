@@ -165,6 +165,55 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 }
 
 
+static BOOL DateTimePickerUnixToSystemTime(time_t unixTime, LPSYSTEMTIME lpSystemTime)
+{
+	struct tm *tmLocal;
+
+	if (!lpSystemTime)
+		return FALSE;
+
+	tmLocal = localtime(&unixTime);
+	if (!tmLocal)
+		return FALSE;
+
+	ZeroMemory(lpSystemTime, sizeof(SYSTEMTIME));
+	lpSystemTime->wYear = (WORD)(tmLocal->tm_year + 1900);
+	lpSystemTime->wMonth = (WORD)(tmLocal->tm_mon + 1);
+	lpSystemTime->wDay = (WORD)tmLocal->tm_mday;
+	lpSystemTime->wHour = (WORD)tmLocal->tm_hour;
+	lpSystemTime->wMinute = (WORD)tmLocal->tm_min;
+	lpSystemTime->wSecond = (WORD)tmLocal->tm_sec;
+	lpSystemTime->wDayOfWeek = (WORD)tmLocal->tm_wday;
+
+	return TRUE;
+}
+
+static BOOL DateTimePickerSystemTimeToUnix(const SYSTEMTIME *lpSystemTime, time_t *pUnixTime)
+{
+	struct tm tmValue;
+	time_t value;
+
+	if (!lpSystemTime || !pUnixTime)
+		return FALSE;
+
+	ZeroMemory(&tmValue, sizeof(tmValue));
+	tmValue.tm_year = lpSystemTime->wYear - 1900;
+	tmValue.tm_mon = lpSystemTime->wMonth - 1;
+	tmValue.tm_mday = lpSystemTime->wDay;
+	tmValue.tm_hour = lpSystemTime->wHour;
+	tmValue.tm_min = lpSystemTime->wMinute;
+	tmValue.tm_sec = lpSystemTime->wSecond;
+	tmValue.tm_isdst = -1;
+
+	value = mktime(&tmValue);
+	if (value == (time_t)-1)
+		return FALSE;
+
+	*pUnixTime = value;
+	return TRUE;
+}
+
+
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -393,6 +442,15 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	case Calendar:
 		pszClass = MONTHCAL_CLASS;
 		dwStyle = (BITTEST(dwWBStyle, WBC_BORDER) ? WS_BORDER : 0) | WS_CHILD | WS_VISIBLE | MCS_DAYSTATE | nVisible;
+		break;
+
+	case DateTimePicker:
+		pszClass = DATETIMEPICK_CLASS;
+		dwStyle = (BITTEST(dwWBStyle, WBC_BORDER) ? WS_BORDER : 0) | WS_CHILD | WS_TABSTOP | DTS_SHORTDATECENTURYFORMAT | nVisible;
+		if (BITTEST(dwWBStyle, WBC_NUMBER))
+			dwStyle |= DTS_TIMEFORMAT | DTS_UPDOWN;
+		if (BITTEST(lParam, WBC_DTP_ISO))
+			dwStyle |= DTS_SHOWNONE;
 		break;
 
 	case PushButton:
@@ -747,6 +805,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		break;
 
 	case Calendar:
+	case DateTimePicker:
 	case ListBox:
 	case ComboBox:
 	case Gauge:
@@ -1666,6 +1725,14 @@ BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue)
 	case Calendar:
 		return SetCalendarTime(pwbo, dwValue);
 
+	case DateTimePicker:
+	{
+		SYSTEMTIME st;
+		if (!DateTimePickerUnixToSystemTime((time_t)dwValue, &st))
+			return FALSE;
+		return DateTime_SetSystemtime(pwbo->hwnd, GDT_VALID, &st);
+	}
+
 	case Splitter:
 		return wbSetSplitterPosition(pwbo, (int)dwValue, FALSE);
 
@@ -1723,6 +1790,18 @@ BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR lMin, LONG_PTR lMax)
 	case ScrollBar:
 		SendMessage(pwbo->hwnd, SBM_SETRANGE, lMin, lMax);
 		break;
+
+	case DateTimePicker:
+	{
+		SYSTEMTIME st[2];
+		DWORD flags = 0;
+		if (lMin > 0 && DateTimePickerUnixToSystemTime((time_t)lMin, &st[0]))
+			flags |= GDTR_MIN;
+		if (lMax > 0 && DateTimePickerUnixToSystemTime((time_t)lMax, &st[1]))
+			flags |= GDTR_MAX;
+		DateTime_SetRange(pwbo->hwnd, flags, st);
+		break;
+	}
 	}
 
 	return TRUE;
@@ -1738,6 +1817,17 @@ DWORD wbGetValue(PWBOBJ pwbo)
 
 	case Calendar:
 		return GetCalendarTime(pwbo);
+
+	case DateTimePicker:
+	{
+		SYSTEMTIME st;
+		time_t unixTime = 0;
+		if (DateTime_GetSystemtime(pwbo->hwnd, &st) != GDT_VALID)
+			return 0;
+		if (!DateTimePickerSystemTimeToUnix(&st, &unixTime))
+			return 0;
+		return (DWORD)unixTime;
+	}
 
 	case ListBox:
 		if (pwbo->item < 0)

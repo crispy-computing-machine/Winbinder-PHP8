@@ -179,6 +179,7 @@ enum
 
 	Accel,
 	Calendar,
+	DateTimePicker,
 	CheckBox,
 	ComboBox,
 	EditBox,
@@ -265,6 +266,7 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_DTP_ISO 0x00200000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
