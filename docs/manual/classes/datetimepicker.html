@@ -1,0 +1,35 @@
+<html>
+
+<head>
+<title>DateTimePicker class</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+
+<body>
+<h2>DateTimePicker class</h2>
+<p>The <b>DateTimePicker</b> control provides compact date/time input with optional null selection support.</p>
+
+<h1>Creating the control</h1>
+<p>Create it with <b>wb_create_control()</b> and class <b>DateTimePicker</b>. Use <b>WBC_NUMBER</b> for time-only spinner mode, and pass <b>WBC_DTP_ISO</b> in the <i>param</i> argument to enable nullable UI and ISO-formatted callback payloads.</p>
+
+<h1>Date and time APIs</h1>
+<p>Use the dedicated PHP APIs:</p>
+<ul>
+<li><b>wb_get_datetime()</b> / <b>wb_set_datetime()</b> to read or write the selected value (timestamp or ISO string).</li>
+<li><b>wb_get_datetime_bounds()</b> / <b>wb_set_datetime_bounds()</b> to manage minimum/maximum allowed values.</li>
+<li><b>wb_get_datetime_format()</b> / <b>wb_set_datetime_format()</b> to read/write the display format string (getter returns the custom format set through the API).</li>
+<li><b>wb_get_datetime_empty()</b> / <b>wb_set_datetime_empty()</b> to read/write empty (null) state when supported.</li>
+</ul>
+
+<h1>Notifications</h1>
+<p>In callbacks, DateTimePicker change notifications are dispatched through the normal control callback path. The payload is normalized as follows:</p>
+<ul>
+<li>Default: <i>param1</i> = Unix timestamp of selected date/time.</li>
+<li>When created with <b>WBC_DTP_ISO</b> in <i>param</i>: <i>param1</i> = compact ISO numeric value <code>YYYYMMDDHHMMSS</code>.</li>
+<li><i>param2</i> = 1 when control is empty, otherwise 0.</li>
+</ul>
+
+<p><a href="../reference/classes_control.html">Control classes</a></p>
+</body>
+
+</html>

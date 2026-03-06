@@ -165,6 +165,55 @@ static void SplitterLayout(PWBOBJ pwbo, BOOL bFromRatio)
 }
 
 
+static BOOL DateTimePickerUnixToSystemTime(time_t unixTime, LPSYSTEMTIME lpSystemTime)
+{
+	struct tm *tmLocal;
+
+	if (!lpSystemTime)
+		return FALSE;
+
+	tmLocal = localtime(&unixTime);
+	if (!tmLocal)
+		return FALSE;
+
+	ZeroMemory(lpSystemTime, sizeof(SYSTEMTIME));
+	lpSystemTime->wYear = (WORD)(tmLocal->tm_year + 1900);
+	lpSystemTime->wMonth = (WORD)(tmLocal->tm_mon + 1);
+	lpSystemTime->wDay = (WORD)tmLocal->tm_mday;
+	lpSystemTime->wHour = (WORD)tmLocal->tm_hour;
+	lpSystemTime->wMinute = (WORD)tmLocal->tm_min;
+	lpSystemTime->wSecond = (WORD)tmLocal->tm_sec;
+	lpSystemTime->wDayOfWeek = (WORD)tmLocal->tm_wday;
+
+	return TRUE;
+}
+
+static BOOL DateTimePickerSystemTimeToUnix(const SYSTEMTIME *lpSystemTime, time_t *pUnixTime)
+{
+	struct tm tmValue;
+	time_t value;
+
+	if (!lpSystemTime || !pUnixTime)
+		return FALSE;
+
+	ZeroMemory(&tmValue, sizeof(tmValue));
+	tmValue.tm_year = lpSystemTime->wYear - 1900;
+	tmValue.tm_mon = lpSystemTime->wMonth - 1;
+	tmValue.tm_mday = lpSystemTime->wDay;
+	tmValue.tm_hour = lpSystemTime->wHour;
+	tmValue.tm_min = lpSystemTime->wMinute;
+	tmValue.tm_sec = lpSystemTime->wSecond;
+	tmValue.tm_isdst = -1;
+
+	value = mktime(&tmValue);
+	if (value == (time_t)-1)
+		return FALSE;
+
+	*pUnixTime = value;
+	return TRUE;
+}
+
+
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -393,6 +442,15 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	case Calendar:
 		pszClass = MONTHCAL_CLASS;
 		dwStyle = (BITTEST(dwWBStyle, WBC_BORDER) ? WS_BORDER : 0) | WS_CHILD | WS_VISIBLE | MCS_DAYSTATE | nVisible;
+		break;
+
+	case DateTimePicker:
+		pszClass = DATETIMEPICK_CLASS;
+		dwStyle = (BITTEST(dwWBStyle, WBC_BORDER) ? WS_BORDER : 0) | WS_CHILD | WS_TABSTOP | DTS_SHORTDATECENTURYFORMAT | nVisible;
+		if (BITTEST(dwWBStyle, WBC_NUMBER))
+			dwStyle |= DTS_TIMEFORMAT | DTS_UPDOWN;
+		if (BITTEST(lParam, WBC_DTP_ISO))
+			dwStyle |= DTS_SHOWNONE;
 		break;
 
 	case PushButton:
@@ -747,6 +805,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		break;
 
 	case Calendar:
+	case DateTimePicker:
 	case ListBox:
 	case ComboBox:
 	case Gauge:
@@ -814,6 +873,11 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 		if (pwbo->lparam)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
+	}
+	else if (pwbo->uClass == DateTimePicker)
+	{
+		if (pwbo->lparams[7])
+			wbFree((void *)pwbo->lparams[7]);
 	}
 	return DestroyWindow(pwbo->hwnd);
 }
@@ -985,6 +1049,121 @@ BOOL wbSetStatusBarParts(PWBOBJ pwbo, int nParts, int *aWidths)
 	return SendMessage(pwbo->hwnd, SB_SETPARTS, nParts, (LPARAM)aWidths);
 }
 
+BOOL wbAttachToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		return wbSetText(pwbo, pszTooltip ? pszTooltip : TEXT(""), 0, TRUE);
+	}
+
+	return CreateToolTip(pwbo, pszTooltip ? pszTooltip : TEXT("")) != NULL;
+}
+
+BOOL wbRemoveToolTip(PWBOBJ pwbo)
+{
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (M_ToolTipWnd && IsWindow((HWND)M_ToolTipWnd))
+	{
+		DestroyWindow((HWND)M_ToolTipWnd);
+		M_ToolTipWnd = 0;
+	}
+
+	return TRUE;
+}
+
+BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nSeverity)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+	RECT rc;
+	LONG x;
+	LONG y;
+	DWORD dwIcon = TTI_NONE;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	if (!M_ToolTipWnd || !IsWindow((HWND)M_ToolTipWnd))
+	{
+		if (!CreateToolTip(pwbo, TEXT("")))
+			return FALSE;
+	}
+
+	hwndTT = (HWND)M_ToolTipWnd;
+
+	memset(&ti, 0, sizeof(TOOLINFO));
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
+	ti.hinst = NULL;
+	ti.lpszText = (LPTSTR)(pszText ? pszText : TEXT(""));
+	GetClientRect(pwbo->hwnd, &ti.rect);
+	GetWindowRect(pwbo->hwnd, &rc);
+
+	x = rc.left + ((rc.right - rc.left) / 2);
+	y = rc.bottom;
+
+	SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 640);
+	SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)TTI_NONE, (LPARAM)TEXT(""));
+	SendMessage(hwndTT, TTM_SETTOOLINFO, 0, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+
+	switch (nSeverity)
+	{
+	case 2:
+		dwIcon = TTI_ERROR;
+		break;
+	case 1:
+		dwIcon = TTI_WARNING;
+		break;
+	default:
+		dwIcon = TTI_INFO;
+		break;
+	}
+
+	if (pszTitle && *pszTitle)
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)pszTitle);
+	else
+		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)TEXT("Validation"));
+
+	SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
+	SendMessage(hwndTT, TTM_TRACKPOSITION, 0, (LPARAM)MAKELPARAM(x, y));
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POPUP, 0, 0);
+
+	return TRUE;
+}
+
+BOOL wbHideToolTip(PWBOBJ pwbo)
+{
+	HWND hwndTT;
+	TOOLINFO ti;
+
+	if (!wbIsWBObj(pwbo, TRUE))
+		return FALSE;
+
+	hwndTT = (HWND)M_ToolTipWnd;
+	if (!hwndTT || !IsWindow(hwndTT))
+		return TRUE;
+
+	memset(&ti, 0, sizeof(TOOLINFO));
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
+
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
+	SendMessage(hwndTT, TTM_POP, 0, 0);
+
+	return TRUE;
+}
+
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 {
 	TCHAR *pszText;
@@ -1001,8 +1180,12 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		TOOLINFO ti;
 
 		hwndTT = (HWND)M_ToolTipWnd;
-		if (!hwndTT)
-			return FALSE;
+		if (!hwndTT || !IsWindow(hwndTT))
+		{
+			if (!wbAttachToolTip(pwbo, pszText))
+				return FALSE;
+			hwndTT = (HWND)M_ToolTipWnd;
+		}
 
 		ti.cbSize = sizeof(TOOLINFO);
 		ti.uFlags = 0;
@@ -1666,6 +1849,14 @@ BOOL wbSetValue(PWBOBJ pwbo, DWORD dwValue)
 	case Calendar:
 		return SetCalendarTime(pwbo, dwValue);
 
+	case DateTimePicker:
+	{
+		SYSTEMTIME st;
+		if (!DateTimePickerUnixToSystemTime((time_t)dwValue, &st))
+			return FALSE;
+		return DateTime_SetSystemtime(pwbo->hwnd, GDT_VALID, &st);
+	}
+
 	case Splitter:
 		return wbSetSplitterPosition(pwbo, (int)dwValue, FALSE);
 
@@ -1723,6 +1914,18 @@ BOOL wbSetRange(PWBOBJ pwbo, LONG_PTR lMin, LONG_PTR lMax)
 	case ScrollBar:
 		SendMessage(pwbo->hwnd, SBM_SETRANGE, lMin, lMax);
 		break;
+
+	case DateTimePicker:
+	{
+		SYSTEMTIME st[2];
+		DWORD flags = 0;
+		if (lMin > 0 && DateTimePickerUnixToSystemTime((time_t)lMin, &st[0]))
+			flags |= GDTR_MIN;
+		if (lMax > 0 && DateTimePickerUnixToSystemTime((time_t)lMax, &st[1]))
+			flags |= GDTR_MAX;
+		DateTime_SetRange(pwbo->hwnd, flags, st);
+		break;
+	}
 	}
 
 	return TRUE;
@@ -1738,6 +1941,17 @@ DWORD wbGetValue(PWBOBJ pwbo)
 
 	case Calendar:
 		return GetCalendarTime(pwbo);
+
+	case DateTimePicker:
+	{
+		SYSTEMTIME st;
+		time_t unixTime = 0;
+		if (DateTime_GetSystemtime(pwbo->hwnd, &st) != GDT_VALID)
+			return 0;
+		if (!DateTimePickerSystemTimeToUnix(&st, &unixTime))
+			return 0;
+		return (DWORD)unixTime;
+	}
 
 	case ListBox:
 		if (pwbo->item < 0)
@@ -2198,7 +2412,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	// Create the ToolTip control.
 
 	hwndTT = CreateWindow(TOOLTIPS_CLASS, NULL,
-						  TTS_ALWAYSTIP,
+						  TTS_ALWAYSTIP | TTS_BALLOON,
 						  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 						  pwbo->hwnd,
 						  NULL, NULL, NULL);

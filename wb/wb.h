@@ -179,6 +179,7 @@ enum
 
 	Accel,
 	Calendar,
+	DateTimePicker,
 	CheckBox,
 	ComboBox,
 	EditBox,
@@ -265,6 +266,7 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_DTP_ISO 0x00200000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -511,6 +513,10 @@ BOOL wbIsValidClass(UINT64 uClass);
 BOOL wbGetEnabled(PWBOBJ pwbo);
 BOOL wbSetEnabled(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszText, int nItem, BOOL bTooltip);
+BOOL wbAttachToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
+BOOL wbRemoveToolTip(PWBOBJ pwbo);
+BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nSeverity);
+BOOL wbHideToolTip(PWBOBJ pwbo);
 BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT64 nMaxChars, int nIndex);
 BOOL wbGetRtfText(PWBOBJ pwbo, char **unc);
 UINT64 wbGetTextLength(PWBOBJ pwbo, int nIndex);

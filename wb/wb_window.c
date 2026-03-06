@@ -127,6 +127,44 @@ VOID CALLBACK TimeProc(PVOID lpParam, BOOLEAN TimerOrWaitFired);
 static DWORD CenterWindow(HWND hwndMovable, HWND hwndFixed);
 static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 static DWORD GetUniqueStringId(LPCTSTR szStr);
+
+
+static time_t DateTimeNotifySystemToUnixTime(const SYSTEMTIME *lpSysTime)
+{
+	struct tm tmValue;
+	time_t value;
+
+	if (!lpSysTime)
+		return 0;
+
+	ZeroMemory(&tmValue, sizeof(tmValue));
+	tmValue.tm_year = lpSysTime->wYear - 1900;
+	tmValue.tm_mon = lpSysTime->wMonth - 1;
+	tmValue.tm_mday = lpSysTime->wDay;
+	tmValue.tm_hour = lpSysTime->wHour;
+	tmValue.tm_min = lpSysTime->wMinute;
+	tmValue.tm_sec = lpSysTime->wSecond;
+	tmValue.tm_isdst = -1;
+
+	value = mktime(&tmValue);
+	if (value == (time_t)-1)
+		return 0;
+
+	return value;
+}
+
+static LONG_PTR DateTimeNotifySystemToIsoCompact(const SYSTEMTIME *lpSysTime)
+{
+	if (!lpSysTime)
+		return 0;
+
+	return (LONG_PTR)lpSysTime->wYear * 10000000000LL +
+		(LONG_PTR)lpSysTime->wMonth * 100000000LL +
+		(LONG_PTR)lpSysTime->wDay * 1000000LL +
+		(LONG_PTR)lpSysTime->wHour * 10000LL +
+		(LONG_PTR)lpSysTime->wMinute * 100LL +
+		(LONG_PTR)lpSysTime->wSecond;
+}
 static time_t CalendarNotifySelToUnixTime(const SYSTEMTIME *lpSysTime);
 
 // Procedures for WinBinder classes
@@ -1049,6 +1087,33 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                         {
                             CALL_CALLBACK(pwbobj->id, eventType, scn->position, scn->line);
                         }
+                    }
+                }
+                break;
+
+                case DateTimePicker:
+                {
+                    LPNMDATETIMECHANGE pdtChange = (LPNMDATETIMECHANGE)lParam;
+                    LONG_PTR payload1 = 0;
+                    LONG_PTR payload2 = 0;
+
+                    if (((LPNMHDR)lParam)->code == DTN_DATETIMECHANGE)
+                    {
+                        if (pdtChange->dwFlags == GDT_NONE)
+                        {
+                            payload1 = 0;
+                        }
+                        else if (BITTEST(pwbobj->lparam, WBC_DTP_ISO))
+                        {
+                            payload1 = DateTimeNotifySystemToIsoCompact(&pdtChange->st);
+                        }
+                        else
+                        {
+                            payload1 = DateTimeNotifySystemToUnixTime(&pdtChange->st);
+                        }
+
+                        payload2 = (pdtChange->dwFlags == GDT_NONE) ? 1 : 0;
+                        CALL_CALLBACK(((LPNMHDR)lParam)->idFrom, payload1, payload2, 0);
                     }
                 }
                 break;
