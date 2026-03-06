@@ -6,8 +6,9 @@ $input = wb_create_control($win, EditBox, "", 90, 16, 300, 24, 1001);
 $ok = wb_create_control($win, PushButton, "Validate", 90, 56, 90, 28, 1002);
 $close = wb_create_control($win, PushButton, "Close", 190, 56, 90, 28, 1003);
 
-wb_attach_tooltip($input, "Enter a valid e-mail address.");
-wb_attach_tooltip($ok, "Validates and shows contextual balloon hints.");
+wb_attach_tooltip($input, "Enter a valid e-mail address.", true);
+wb_attach_tooltip($ok, "Validates and shows contextual balloon hints.
+Click to validate the field now.");
 wb_set_handler($win, "process_main");
 wb_main_loop();
 
@@ -16,6 +17,10 @@ function process_main($window, $id, $ctrl)
     global $input;
 
     switch ($id) {
+        case 1001:
+            wb_attach_tooltip($input, "Use name@example.com format.", true);
+            return;
+
         case 1002:
             $email = trim(wb_get_text($input));
             if ($email === "") {
