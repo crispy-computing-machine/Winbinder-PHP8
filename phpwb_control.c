@@ -1225,8 +1225,7 @@ ZEND_FUNCTION(wb_set_datetime_bounds)
 ZEND_FUNCTION(wb_get_datetime_format)
 {
 	zend_long pwbo;
-	WCHAR format[128] = {0};
-	int len;
+	PWBOBJ pObj;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
 		Z_PARAM_LONG(pwbo)
@@ -1235,11 +1234,11 @@ ZEND_FUNCTION(wb_get_datetime_format)
 	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != DateTimePicker)
 		RETURN_NULL();
 
-	len = (int)SendMessage(((PWBOBJ)pwbo)->hwnd, DTM_GETFORMAT, sizeof(format) / sizeof(format[0]), (LPARAM)format);
-	if (len <= 0)
+	pObj = (PWBOBJ)pwbo;
+	if (!pObj->lparams[7])
 		RETURN_NULL();
 
-	RETURN_STRING(WideChar2Utf8(format, NULL));
+	RETURN_STRING(WideChar2Utf8((LPCTSTR)pObj->lparams[7], NULL));
 }
 
 ZEND_FUNCTION(wb_set_datetime_format)
@@ -1258,7 +1257,13 @@ ZEND_FUNCTION(wb_set_datetime_format)
 		RETURN_BOOL(FALSE);
 
 	wcs = Utf82WideChar(format, format_len);
-	RETURN_BOOL(DateTime_SetFormat(((PWBOBJ)pwbo)->hwnd, wcs));
+	if (!DateTime_SetFormat(((PWBOBJ)pwbo)->hwnd, wcs))
+		RETURN_BOOL(FALSE);
+
+	if (((PWBOBJ)pwbo)->lparams[7])
+		wbFree((void *)((PWBOBJ)pwbo)->lparams[7]);
+	((PWBOBJ)pwbo)->lparams[7] = (LONG_PTR)wcs;
+	RETURN_BOOL(TRUE);
 }
 
 ZEND_FUNCTION(wb_get_datetime_empty)

@@ -874,6 +874,11 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
 	}
+	else if (pwbo->uClass == DateTimePicker)
+	{
+		if (pwbo->lparams[7])
+			wbFree((void *)pwbo->lparams[7]);
+	}
 	return DestroyWindow(pwbo->hwnd);
 }
 
