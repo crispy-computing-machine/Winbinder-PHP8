@@ -7,6 +7,7 @@ $ok = wb_create_control($win, PushButton, "Validate", 90, 56, 90, 28, 1002);
 $close = wb_create_control($win, PushButton, "Close", 190, 56, 90, 28, 1003);
 
 wb_attach_tooltip($input, "Enter a valid e-mail address.");
+wb_attach_tooltip($ok, "Validates and shows contextual balloon hints.");
 wb_set_handler($win, "process_main");
 wb_main_loop();
 

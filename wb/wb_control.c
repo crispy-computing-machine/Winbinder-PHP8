@@ -1030,9 +1030,9 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 	hwndTT = (HWND)M_ToolTipWnd;
 
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
-	ti.uId = (UINT_PTR)pwbo->hwnd;
+	ti.uFlags = TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
 	ti.hinst = NULL;
 	ti.lpszText = (LPTSTR)(pszText ? pszText : TEXT(""));
 	GetClientRect(pwbo->hwnd, &ti.rect);
@@ -1060,7 +1060,6 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)TEXT("Validation"));
 
 	SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
-	SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
 	SendMessage(hwndTT, TTM_POPUP, 0, 0);
 
 	return TRUE;
@@ -1069,7 +1068,6 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 BOOL wbHideToolTip(PWBOBJ pwbo)
 {
 	HWND hwndTT;
-	TOOLINFO ti;
 
 	if (!wbIsWBObj(pwbo, TRUE))
 		return FALSE;
@@ -1078,15 +1076,6 @@ BOOL wbHideToolTip(PWBOBJ pwbo)
 	if (!hwndTT || !IsWindow(hwndTT))
 		return TRUE;
 
-	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
-	ti.uId = (UINT_PTR)pwbo->hwnd;
-	ti.hinst = NULL;
-	ti.lpszText = TEXT("");
-	GetClientRect(pwbo->hwnd, &ti.rect);
-
-	SendMessage(hwndTT, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
 	SendMessage(hwndTT, TTM_POP, 0, 0);
 
 	return TRUE;
@@ -1116,9 +1105,9 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		}
 
 		ti.cbSize = sizeof(TOOLINFO);
-		ti.uFlags = TTF_IDISHWND;
-		ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
-		ti.uId = (UINT_PTR)pwbo->hwnd;
+		ti.uFlags = 0;
+		ti.hwnd = pwbo->hwnd;
+		ti.uId = 0;
 		ti.hinst = NULL;
 		ti.lpszText = (LPTSTR)pszText;
 
@@ -2309,7 +2298,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	// Create the ToolTip control.
 
 	hwndTT = CreateWindow(TOOLTIPS_CLASS, NULL,
-						  TTS_ALWAYSTIP,
+						  TTS_ALWAYSTIP | TTS_BALLOON,
 						  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 						  pwbo->hwnd,
 						  NULL, NULL, NULL);
@@ -2317,9 +2306,9 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip)
 	// Create a tool that contains the desired control (pwbo->hwnd)
 
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_SUBCLASS | TTF_TRACK | TTF_IDISHWND;
-	ti.hwnd = pwbo->parent ? pwbo->parent->hwnd : pwbo->hwnd;
-	ti.uId = (UINT_PTR)pwbo->hwnd;
+	ti.uFlags = TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
 	ti.hinst = NULL;
 
 	// Get the window text
