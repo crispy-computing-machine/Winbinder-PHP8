@@ -202,6 +202,8 @@ ZEND_FUNCTION(wb_set_menu_item_image);
 
 // PHPWB_CONTROL_TOOLBAR.C
 ZEND_FUNCTION(wb_create_toolbar);
+ZEND_FUNCTION(wb_toolbar_attach_split_menu);
+ZEND_FUNCTION(wb_toolbar_set_split_default);
 
 // PHPWB_CONTROL_TREEVIEW.C
 ZEND_FUNCTION(wb_create_treeview_item);
@@ -421,6 +423,8 @@ zend_function_entry winbinder_functions[] =
 
         // PHPWB_CONTROL_TOOLBAR.C
         ZEND_FE(wb_create_toolbar,arginfo_wb_create_toolbar)
+        ZEND_FE(wb_toolbar_attach_split_menu,arginfo_wb_toolbar_attach_split_menu)
+        ZEND_FE(wb_toolbar_set_split_default,arginfo_wb_toolbar_set_split_default)
 
         // PHPWB_CONTROL_TREEVIEW.C
         ZEND_FE(wb_create_treeview_item,arginfo_wb_create_treeview_item)
@@ -596,6 +600,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_SPLIT_PRIMARY", WBC_SPLIT_PRIMARY)
+	WB_ZEND_CONST(LONG, "WBC_SPLIT_DROPDOWN", WBC_SPLIT_DROPDOWN)
 	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
 	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)
 	WB_ZEND_CONST(LONG, "WBC_TASK_ERROR", WBC_TASK_ERROR)

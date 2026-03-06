@@ -265,6 +265,8 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_SPLIT_PRIMARY 0x00200000
+#define WBC_SPLIT_DROPDOWN 0x00400000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -562,6 +564,9 @@ BOOL wbSetMenuItemImage(PWBOBJ pwbo, HANDLE hImage);
 // WB_CONTROL_TOOLBAR.C
 
 PWBOBJ wbCreateToolbar(PWBOBJ pwboParent, PWBITEM pitem[], int nItems, int nBtnWidth, int nBtnHeight, HBITMAP hbm);
+BOOL wbToolbarAttachSplitMenu(PWBOBJ pwboToolbar, int nButtonId, PWBOBJ pwboMenu);
+BOOL wbToolbarSetSplitDefault(PWBOBJ pwboToolbar, int nButtonId, int nDefaultCommand);
+BOOL wbToolbarGetSplitInfo(HWND hwndToolbar, int nButtonId, HMENU *phMenu, int *pnDefaultCommand);
 
 // WB_CONTROL_TREEVIEW.C
 

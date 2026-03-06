@@ -20,6 +20,20 @@
 static HWND CreateToolbar(HWND hwndParent, int nButtons, int nBtnWidth, int nBtnHeight, HBITMAP hbm);
 static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint);
 
+typedef struct _WBSPLITBTN
+{
+	HWND hwndToolbar;
+	int nButtonId;
+	HMENU hMenu;
+	int nDefaultCommand;
+	struct _WBSPLITBTN *pNext;
+} WBSPLITBTN, *PWBSPLITBTN;
+
+static PWBSPLITBTN g_pSplitButtons = NULL;
+
+static PWBSPLITBTN FindSplitButton(HWND hwndToolbar, int nButtonId);
+static PWBSPLITBTN FindOrCreateSplitButton(HWND hwndToolbar, int nButtonId);
+
 // External
 
 extern void SetToolBarHandle(HWND hCtrl);
@@ -89,6 +103,7 @@ static HWND CreateToolbar(HWND hwndParent, int nButtons, int nBtnWidth, int nBtn
 		return NULL;
 
 	SetToolBarHandle(hTBWnd);
+	SendMessage(hTBWnd, TB_SETEXTENDEDSTYLE, 0, TBSTYLE_EX_DRAWDDARROWS);
 
 	// Create an ImageList with transparent bitmaps
 
@@ -159,6 +174,96 @@ static BOOL CreateToolbarButton(HWND hwnd, int id, int nIndex, LPCTSTR pszHint)
 			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Could not create separator in toolbar"));
 	}
 	return bRet;
+}
+
+
+
+BOOL wbToolbarAttachSplitMenu(PWBOBJ pwboToolbar, int nButtonId, PWBOBJ pwboMenu)
+{
+	TBBUTTONINFO tbbi = {0};
+	PWBSPLITBTN pSplit;
+
+	if (!pwboToolbar || pwboToolbar->uClass != ToolBar || !IsWindow(pwboToolbar->hwnd))
+		return FALSE;
+
+	if (!pwboMenu || pwboMenu->uClass != Menu || !pwboMenu->hwnd || !IsMenu((HMENU)pwboMenu->hwnd))
+		return FALSE;
+
+	pSplit = FindOrCreateSplitButton(pwboToolbar->hwnd, nButtonId);
+	if (!pSplit)
+		return FALSE;
+
+	pSplit->hMenu = (HMENU)pwboMenu->hwnd;
+	if (pSplit->nDefaultCommand == 0)
+		pSplit->nDefaultCommand = nButtonId;
+
+	tbbi.cbSize = sizeof(TBBUTTONINFO);
+	tbbi.dwMask = TBIF_STYLE;
+	tbbi.fsStyle = TBSTYLE_BUTTON | TBSTYLE_DROPDOWN;
+
+	if (!SendMessage(pwboToolbar->hwnd, TB_SETBUTTONINFO, nButtonId, (LPARAM)&tbbi))
+		return FALSE;
+
+	return TRUE;
+}
+
+BOOL wbToolbarSetSplitDefault(PWBOBJ pwboToolbar, int nButtonId, int nDefaultCommand)
+{
+	PWBSPLITBTN pSplit;
+
+	if (!pwboToolbar || pwboToolbar->uClass != ToolBar || !IsWindow(pwboToolbar->hwnd))
+		return FALSE;
+
+	pSplit = FindSplitButton(pwboToolbar->hwnd, nButtonId);
+	if (!pSplit)
+		return FALSE;
+
+	pSplit->nDefaultCommand = nDefaultCommand;
+	return TRUE;
+}
+
+BOOL wbToolbarGetSplitInfo(HWND hwndToolbar, int nButtonId, HMENU *phMenu, int *pnDefaultCommand)
+{
+	PWBSPLITBTN pSplit = FindSplitButton(hwndToolbar, nButtonId);
+	if (!pSplit || !pSplit->hMenu)
+		return FALSE;
+
+	if (phMenu)
+		*phMenu = pSplit->hMenu;
+	if (pnDefaultCommand)
+		*pnDefaultCommand = pSplit->nDefaultCommand;
+	return TRUE;
+}
+
+static PWBSPLITBTN FindSplitButton(HWND hwndToolbar, int nButtonId)
+{
+	PWBSPLITBTN pItem = g_pSplitButtons;
+	while (pItem)
+	{
+		if (pItem->hwndToolbar == hwndToolbar && pItem->nButtonId == nButtonId)
+			return pItem;
+		pItem = pItem->pNext;
+	}
+	return NULL;
+}
+
+static PWBSPLITBTN FindOrCreateSplitButton(HWND hwndToolbar, int nButtonId)
+{
+	PWBSPLITBTN pItem = FindSplitButton(hwndToolbar, nButtonId);
+	if (pItem)
+		return pItem;
+
+	pItem = wbMalloc(sizeof(WBSPLITBTN));
+	if (!pItem)
+		return NULL;
+
+	pItem->hwndToolbar = hwndToolbar;
+	pItem->nButtonId = nButtonId;
+	pItem->hMenu = NULL;
+	pItem->nDefaultCommand = nButtonId;
+	pItem->pNext = g_pSplitButtons;
+	g_pSplitButtons = pItem;
+	return pItem;
 }
 
 //------------------------------------------------------------------ END OF FILE

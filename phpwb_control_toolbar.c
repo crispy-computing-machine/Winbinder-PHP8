@@ -126,4 +126,41 @@ ZEND_FUNCTION(wb_create_toolbar)
 	RETURN_LONG(l);
 }
 
+
+ZEND_FUNCTION(wb_toolbar_attach_split_menu)
+{
+	zend_long lToolbar, button_id, lMenu;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(lToolbar)
+		Z_PARAM_LONG(button_id)
+		Z_PARAM_LONG(lMenu)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)lToolbar, TRUE) || !wbIsWBObj((void *)lMenu, TRUE))
+	{
+		RETURN_FALSE;
+	}
+
+	RETURN_BOOL(wbToolbarAttachSplitMenu((PWBOBJ)lToolbar, (int)button_id, (PWBOBJ)lMenu));
+}
+
+ZEND_FUNCTION(wb_toolbar_set_split_default)
+{
+	zend_long lToolbar, button_id, default_command;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(lToolbar)
+		Z_PARAM_LONG(button_id)
+		Z_PARAM_LONG(default_command)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)lToolbar, TRUE))
+	{
+		RETURN_FALSE;
+	}
+
+	RETURN_BOOL(wbToolbarSetSplitDefault((PWBOBJ)lToolbar, (int)button_id, (int)default_command));
+}
+
 //------------------------------------------------------------------ END OF FILE

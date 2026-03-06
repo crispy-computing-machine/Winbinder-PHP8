@@ -12,11 +12,23 @@ Classes,ToolBar
 Toolbars
 -->
 <h2>ToolBar class</h2>
-<p>A ToolBar is an horizontal bar container with buttons.</p>
+<p>A ToolBar is a horizontal bar container with buttons.</p>
+
+<h1><b>Split buttons</b></h1>
+<p>ToolBar buttons can now be configured as split buttons with independent primary and
+arrow-click behavior.</p>
+<ul>
+<li>Use <code>wb_toolbar_attach_split_menu($toolbar, $buttonId, $menu)</code> to attach a dropdown menu.</li>
+<li>Use <code>wb_toolbar_set_split_default($toolbar, $buttonId, $commandId)</code> to change the default action used by the primary click.</li>
+<li>In your callback, <code>$lparam1</code> is <code>WBC_SPLIT_PRIMARY</code> for primary clicks and
+<code>WBC_SPLIT_DROPDOWN</code> for arrow clicks.</li>
+<li>For split events, <code>$lparam2</code> contains the selected/default command id.</li>
+</ul>
+
+<p>See <a href="../examples/toolbar_split_run.php">toolbar_split_run.php</a> for a "Run" + "Run With Options" pattern.</p>
 
 <h1><b>See also</b></h1>
-<p><a href="../reference/classes_control.html">Control
-classes</a></p>
+<p><a href="../reference/classes_control.html">Control classes</a></p>
 
 <p>&nbsp;</p>
 

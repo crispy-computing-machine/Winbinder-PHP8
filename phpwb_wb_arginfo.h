@@ -751,6 +751,18 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_wb_create_toolbar, 0, 2, MAY_BE_
 	ZEND_ARG_TYPE_MASK(0, image, MAY_BE_NULL|MAY_BE_STRING, "null")
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_toolbar_attach_split_menu, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, toolbar, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, button_id, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, menu, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_toolbar_set_split_default, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, toolbar, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, button_id, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, default_command, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_create_treeview_item, 0, 2, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, caption, IS_STRING, 0)

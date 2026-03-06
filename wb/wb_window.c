@@ -921,11 +921,54 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             if (!_wcsicmp(szClass, TOOLBARCLASSNAME))
             { // Toolbar
-
                 if (!hTBWnd)
                     hTBWnd = ((LPNMHDR)lParam)->hwndFrom;
+
+                if (((LPNMHDR)lParam)->code == TBN_DROPDOWN)
+                {
+                    LPNMTOOLBAR pnm = (LPNMTOOLBAR)lParam;
+                    PWBOBJ pToolbarObj = wbGetWBObj(hCtrl);
+                    HMENU hMenu = NULL;
+                    int nDefaultCommand = pnm->iItem;
+
+                    if (wbToolbarGetSplitInfo(hCtrl, pnm->iItem, &hMenu, &nDefaultCommand) && hMenu)
+                    {
+                        RECT rcBtn;
+                        TPMPARAMS tpm = {0};
+                        int nCommand = 0;
+
+                        SendMessage(hCtrl, TB_GETRECT, pnm->iItem, (LPARAM)&rcBtn);
+                        MapWindowPoints(hCtrl, NULL, (LPPOINT)&rcBtn, 2);
+
+                        tpm.cbSize = sizeof(tpm);
+                        tpm.rcExclude = rcBtn;
+
+                        nCommand = TrackPopupMenuEx(hMenu,
+                                                    TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN | TPM_LEFTBUTTON,
+                                                    rcBtn.left,
+                                                    rcBtn.bottom,
+                                                    hwnd,
+                                                    &tpm);
+
+                        if (pToolbarObj && pToolbarObj->parent && pToolbarObj->parent->pszCallBackFn && *pToolbarObj->parent->pszCallBackFn)
+                        {
+                            wbCallUserFunction(pToolbarObj->parent->pszCallBackFn,
+                                               pToolbarObj->parent->pszCallBackObj,
+                                               pToolbarObj->parent,
+                                               pToolbarObj,
+                                               pnm->iItem,
+                                               WBC_SPLIT_DROPDOWN,
+                                               nCommand,
+                                               nDefaultCommand);
+                        }
+
+                        return TBDDRET_DEFAULT;
+                    }
+                }
+
                 break;
-            }  else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))  { // Tooltip
+            }
+            else if (!_wcsicmp(szClass, TOOLTIPS_CLASS))  { // Tooltip
 
                 if (((LPNMHDR)lParam)->code == TTN_NEEDTEXT)
                 {
@@ -1390,7 +1433,19 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
                 if (HIWORD(wParam) == BN_CLICKED)
                 {
-                    CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                    if (pwbobj->uClass == ToolBar)
+                    {
+                        HMENU hSplitMenu = NULL;
+                        int nDefaultCommand = LOWORD(wParam);
+                        if (wbToolbarGetSplitInfo(pwbobj->hwnd, LOWORD(wParam), &hSplitMenu, &nDefaultCommand))
+                            CALL_CALLBACK(LOWORD(wParam), WBC_SPLIT_PRIMARY, nDefaultCommand, HIWORD(wParam));
+                        else
+                            CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                    }
+                    else
+                    {
+                        CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                    }
                 }
                 else if (HIWORD(wParam) == BN_SETFOCUS)
                 {
