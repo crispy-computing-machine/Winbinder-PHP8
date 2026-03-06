@@ -1016,6 +1016,9 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 {
 	HWND hwndTT;
 	TOOLINFO ti;
+	RECT rc;
+	LONG x;
+	LONG y;
 	DWORD dwIcon = TTI_NONE;
 
 	if (!wbIsWBObj(pwbo, TRUE))
@@ -1029,16 +1032,22 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 
 	hwndTT = (HWND)M_ToolTipWnd;
 
+	memset(&ti, 0, sizeof(TOOLINFO));
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_SUBCLASS;
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
 	ti.hwnd = pwbo->hwnd;
 	ti.uId = 0;
 	ti.hinst = NULL;
 	ti.lpszText = (LPTSTR)(pszText ? pszText : TEXT(""));
 	GetClientRect(pwbo->hwnd, &ti.rect);
+	GetWindowRect(pwbo->hwnd, &rc);
+
+	x = rc.left + ((rc.right - rc.left) / 2);
+	y = rc.bottom;
 
 	SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 640);
 	SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)TTI_NONE, (LPARAM)TEXT(""));
+	SendMessage(hwndTT, TTM_SETTOOLINFO, 0, (LPARAM)&ti);
 	SendMessage(hwndTT, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 
 	switch (nSeverity)
@@ -1060,6 +1069,8 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 		SendMessage(hwndTT, TTM_SETTITLE, (WPARAM)dwIcon, (LPARAM)TEXT("Validation"));
 
 	SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
+	SendMessage(hwndTT, TTM_TRACKPOSITION, 0, (LPARAM)MAKELPARAM(x, y));
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
 	SendMessage(hwndTT, TTM_POPUP, 0, 0);
 
 	return TRUE;
@@ -1068,6 +1079,7 @@ BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nS
 BOOL wbHideToolTip(PWBOBJ pwbo)
 {
 	HWND hwndTT;
+	TOOLINFO ti;
 
 	if (!wbIsWBObj(pwbo, TRUE))
 		return FALSE;
@@ -1076,6 +1088,13 @@ BOOL wbHideToolTip(PWBOBJ pwbo)
 	if (!hwndTT || !IsWindow(hwndTT))
 		return TRUE;
 
+	memset(&ti, 0, sizeof(TOOLINFO));
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.uFlags = TTF_TRACK | TTF_SUBCLASS;
+	ti.hwnd = pwbo->hwnd;
+	ti.uId = 0;
+
+	SendMessage(hwndTT, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
 	SendMessage(hwndTT, TTM_POP, 0, 0);
 
 	return TRUE;

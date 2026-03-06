@@ -1332,12 +1332,16 @@ ZEND_FUNCTION(wb_attach_tooltip)
 {
 	zend_long pwbo;
 	zval *ztext;
+	zend_bool show_now = 0;
 	char *text = NULL;
 	TCHAR *wcsText = NULL;
+	BOOL ret;
 
-	ZEND_PARSE_PARAMETERS_START(2, 2)
+	ZEND_PARSE_PARAMETERS_START(2, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ZVAL_OR_NULL(ztext)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(show_now)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE))
@@ -1351,7 +1355,18 @@ ZEND_FUNCTION(wb_attach_tooltip)
 		wcsText = Utf82WideChar(text, Z_STRLEN_P(ztext));
 	}
 
-	RETURN_BOOL(wbAttachToolTip((PWBOBJ)pwbo, wcsText));
+	ret = wbAttachToolTip((PWBOBJ)pwbo, wcsText);
+	if (!ret)
+	{
+		RETURN_BOOL(FALSE);
+	}
+
+	if (show_now && wcsText && *wcsText)
+	{
+		wbShowToolTipBalloon((PWBOBJ)pwbo, wcsText, NULL, 0);
+	}
+
+	RETURN_BOOL(ret);
 }
 
 ZEND_FUNCTION(wb_remove_tooltip)
