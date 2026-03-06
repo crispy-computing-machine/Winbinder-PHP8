@@ -1438,9 +1438,13 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                         HMENU hSplitMenu = NULL;
                         int nDefaultCommand = LOWORD(wParam);
                         if (wbToolbarGetSplitInfo(pwbobj->hwnd, LOWORD(wParam), &hSplitMenu, &nDefaultCommand))
+                        {
                             CALL_CALLBACK(LOWORD(wParam), WBC_SPLIT_PRIMARY, nDefaultCommand, HIWORD(wParam));
+                        }
                         else
+                        {
                             CALL_CALLBACK(LOWORD(wParam), 0, HIWORD(wParam), 0);
+                        }
                     }
                     else
                     {
