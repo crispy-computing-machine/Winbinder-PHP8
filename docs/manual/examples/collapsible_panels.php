@@ -1,6 +1,6 @@
 <?php
 
-$win = wb_create_window(NULL, AppWindow, 'Settings', WBC_NOTIFY, WBC_RESIZE, 80, 80, 520, 500);
+$win = wb_create_window(NULL, AppWindow, 'Settings', 80, 80, 520, 500, WBC_NOTIFY, WBC_RESIZE);
 
 $groups = [];
 $groups[] = create_group($win, 101, 'General', '⚙', [

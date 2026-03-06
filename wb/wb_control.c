@@ -130,29 +130,49 @@ static void PanelBuildHeaderText(PPANELDATA pData, TCHAR *pszOut, int nOut)
 		(pData->pszHeader && *pData->pszHeader) ? pData->pszHeader : TEXT(""));
 }
 
-static BOOL CALLBACK PanelChildVisibilityProc(HWND hwndChild, LPARAM lParam)
+static void PanelSetDirectChildVisibility(PPANELDATA pData, HWND hwndPanel)
 {
-	PPANELDATA pData = (PPANELDATA)lParam;
-	if (hwndChild == pData->hwndHeader)
-		return TRUE;
-	ShowWindow(hwndChild, pData->bExpanded ? SW_SHOW : SW_HIDE);
-	return TRUE;
+	HWND hwndChild;
+	if (!pData || !hwndPanel)
+		return;
+	hwndChild = GetWindow(hwndPanel, GW_CHILD);
+	while (hwndChild)
+	{
+		if (hwndChild != pData->hwndHeader)
+			ShowWindow(hwndChild, pData->bExpanded ? SW_SHOW : SW_HIDE);
+		hwndChild = GetWindow(hwndChild, GW_HWNDNEXT);
+	}
 }
 
-static BOOL CALLBACK PanelShiftSiblingProc(HWND hwndChild, LPARAM lParam)
+typedef struct
 {
+	HWND hwndPanel;
+	HWND hwndParent;
+	int nShiftFrom;
+	int nDelta;
+} PANEL_SHIFT_CTX;
+
+static void PanelShiftDirectSiblings(PANEL_SHIFT_CTX *ctx)
+{
+	HWND hwndChild;
 	RECT rc;
 	POINT pt;
-	struct ShiftCtx { HWND hwndPanel; HWND hwndParent; int nShiftFrom; int nDelta; } *ctx;
-	ctx = (struct ShiftCtx*)lParam;
-	if (hwndChild == ctx->hwndPanel)
-		return TRUE;
-	GetWindowRect(hwndChild, &rc);
-	pt.x = rc.left; pt.y = rc.top;
-	ScreenToClient(ctx->hwndParent, &pt);
-	if (pt.y >= ctx->nShiftFrom)
-		MoveWindow(hwndChild, pt.x, pt.y + ctx->nDelta, rc.right - rc.left, rc.bottom - rc.top, TRUE);
-	return TRUE;
+	if (!ctx || !ctx->hwndParent)
+		return;
+	hwndChild = GetWindow(ctx->hwndParent, GW_CHILD);
+	while (hwndChild)
+	{
+		if (hwndChild != ctx->hwndPanel)
+		{
+			GetWindowRect(hwndChild, &rc);
+			pt.x = rc.left;
+			pt.y = rc.top;
+			ScreenToClient(ctx->hwndParent, &pt);
+			if (pt.y >= ctx->nShiftFrom)
+				MoveWindow(hwndChild, pt.x, pt.y + ctx->nDelta, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+		}
+		hwndChild = GetWindow(hwndChild, GW_HWNDNEXT);
+	}
 }
 
 static void PanelNotifyParentResize(PWBOBJ pwbo)
@@ -917,7 +937,7 @@ BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded)
 	int nOldHeight, nNewHeight, nDelta;
 	PPANELDATA pData = PanelGetData(pwbo);
 	TCHAR szHeader[512];
-	struct ShiftCtx { HWND hwndPanel; HWND hwndParent; int nShiftFrom; int nDelta; } ctx;
+	PANEL_SHIFT_CTX ctx;
 
 	if (!pData)
 		return FALSE;
@@ -935,7 +955,7 @@ BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded)
 	pData->bExpanded = bExpanded;
 	nNewHeight = pData->bExpanded ? pData->nExpandedHeight : pData->nCollapsedHeight;
 	MoveWindow(pwbo->hwnd, pt.x, pt.y, rc.right - rc.left, nNewHeight, TRUE);
-	EnumChildWindows(pwbo->hwnd, PanelChildVisibilityProc, (LPARAM)pData);
+	PanelSetDirectChildVisibility(pData, pwbo->hwnd);
 	PanelBuildHeaderText(pData, szHeader, 511);
 	SetWindowText(pData->hwndHeader, szHeader);
 
@@ -946,7 +966,7 @@ BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded)
 		ctx.hwndParent = pwbo->parent->hwnd;
 		ctx.nShiftFrom = pt.y + nOldHeight;
 		ctx.nDelta = nDelta;
-		EnumChildWindows(pwbo->parent->hwnd, PanelShiftSiblingProc, (LPARAM)&ctx);
+		PanelShiftDirectSiblings(&ctx);
 	}
 	if (pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 		SendMessage(pwbo->parent->hwnd, WM_COMMAND, MAKELONG((WORD)pwbo->id, BN_CLICKED), (LPARAM)pwbo->hwnd);
