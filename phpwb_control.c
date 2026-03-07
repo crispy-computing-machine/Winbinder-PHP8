@@ -376,7 +376,11 @@ ZEND_FUNCTION(wb_set_state)
 	{ // Set expanded / collapsed state
 		RETURN_BOOL(wbSetTreeViewItemState((PWBOBJ)pwbo, (HTREEITEM)item, state));
 	}
-	
+	if (((PWBOBJ)pwbo)->uClass == Frame)
+	{ // Set expanded / collapsed state for panel frames
+		RETURN_BOOL(wbPanelSetExpanded((PWBOBJ)pwbo, state));
+	}
+
 	RETURN_BOOL(FALSE);
 }
 
@@ -401,8 +405,70 @@ ZEND_FUNCTION(wb_get_state)
 	{ // Get expanded / collapsed state
 		RETURN_BOOL(wbGetTreeViewItemState((PWBOBJ)pwbo, (HTREEITEM)item));
 	}
+	if (((PWBOBJ)pwbo)->uClass == Frame)
+	{ // Get expanded / collapsed state for panel frames
+		RETURN_BOOL(wbPanelGetExpanded((PWBOBJ)pwbo));
+	}
 	else {
 		RETURN_NULL();
+	}
+}
+
+
+ZEND_FUNCTION(wb_panel_toggle)
+{
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_BOOL(FALSE);
+	}
+	RETURN_BOOL(wbPanelToggle((PWBOBJ)pwbo));
+}
+
+ZEND_FUNCTION(wb_panel_set_header)
+{
+	zend_long pwbo;
+	zend_string *text;
+	zval *icon = NULL;
+	HANDLE hIcon = NULL;
+	BOOL bOwnIcon = FALSE;
+
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STR(text)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ZVAL(icon)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE)){
+		RETURN_BOOL(FALSE);
+	}
+
+	if (icon && Z_TYPE_P(icon) != IS_NULL)
+	{
+		if (Z_TYPE_P(icon) == IS_LONG)
+		{
+			hIcon = (HANDLE)(LONG_PTR)Z_LVAL_P(icon);
+		}
+		else if (Z_TYPE_P(icon) == IS_STRING)
+		{
+			TCHAR *wPath = Utf82WideChar(Z_STRVAL_P(icon), Z_STRLEN_P(icon));
+			hIcon = wbLoadImage(wPath, 0, 0);
+			bOwnIcon = hIcon ? TRUE : FALSE;
+		}
+		else
+		{
+			RETURN_BOOL(FALSE);
+		}
+	}
+
+	{
+		TCHAR *wText = Utf82WideChar(ZSTR_VAL(text), ZSTR_LEN(text));
+		RETURN_BOOL(wbPanelSetHeader((PWBOBJ)pwbo, wText, hIcon, bOwnIcon));
 	}
 }
 
@@ -440,7 +506,7 @@ ZEND_FUNCTION(wb_get_parent)
 }
 
 ZEND_FUNCTION(wb_get_focus){
-	
+
 	RETURN_LONG((LONG_PTR)wbGetFocus());
 
 }
@@ -645,7 +711,7 @@ ZEND_FUNCTION(wb_set_image)
 	HANDLE hImage = NULL;
 	TCHAR *wcs = 0;
 	zend_bool trcolor_isnull, index_isnull, param_isnull;
-	
+
 	// if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz!|lll", &pwbo, &source, &trcolor, &index, &param) == FAILURE)
 	// ZEND_PARSE_PARAMETERS_START() takes two arguments minimal and maximal parameters count.
 	ZEND_PARSE_PARAMETERS_START(2, 5)
@@ -923,7 +989,7 @@ ZEND_FUNCTION(wb_delete_items)
 		RETURN_NULL();
 	}
 
-	if (!zitems){ 
+	if (!zitems){
 		// Delete all items
 		RETURN_LONG(wbDeleteItems((PWBOBJ)pwbo, TRUE));
 	}
@@ -1519,7 +1585,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 			{
 				convertedCaption = Utf82WideChar(captionUtf8, 0);
 			}
-			
+
 			if (!wbSetText((PWBOBJ)pwbo, convertedCaption ? convertedCaption : TEXT(""), i, FALSE)){
 				bRet = FALSE;
 			}
@@ -1530,7 +1596,7 @@ ZEND_FUNCTION(wb_create_statusbar_items)
 			i++;
 		}
 	}
-	
+
 	RETURN_BOOL(bRet);
 
 	default:
@@ -1842,7 +1908,7 @@ ZEND_FUNCTION(wb_get_text)
 		else
 		{
 			wbGetText((PWBOBJ)pwbo, ptext, len, index);
-			
+
 			if (*ptext)
 			{
 				str = WideChar2Utf8(ptext, &str_len);

@@ -1464,6 +1464,20 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                 }
                 break;
 
+            case Frame:
+                if (HIWORD(wParam) == BN_CLICKED)
+                {
+                    if (wbPanelGetExpanded(pwbobj))
+                    {
+                        CALL_CALLBACK(LOWORD(wParam), WBC_PANEL_EXPANDED, HIWORD(wParam), 0);
+                    }
+                    else
+                    {
+                        CALL_CALLBACK(LOWORD(wParam), WBC_PANEL_COLLAPSED, HIWORD(wParam), 0);
+                    }
+                }
+                break;
+
                 //					default:				// TODO: Maybe delete these lines,
                 //						bProcess = TRUE;	// but must be sure first
                 //						CALL_CALLBACK(LOWORD(wParam), 0, 0);
