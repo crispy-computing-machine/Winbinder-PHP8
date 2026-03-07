@@ -3,20 +3,20 @@
 $win = wb_create_window(NULL, AppWindow, 'Settings', 80, 80, 520, 500, WBC_NOTIFY, WBC_RESIZE);
 
 $groups = [];
-$groups[] = create_group($win, 101, 'General', '⚙', [
+$groups[] = create_group($win, 101, 'General', null, [
     ['Label', 'Language'],
     ['EditBox', 'English (US)'],
     ['CheckBox', 'Check for updates automatically'],
 ]);
 
-$groups[] = create_group($win, 102, 'Editor', '📝', [
+$groups[] = create_group($win, 102, 'Editor', null, [
     ['CheckBox', 'Use soft tabs'],
     ['Label', 'Tab width'],
     ['EditBox', '4'],
     ['CheckBox', 'Show line numbers'],
 ]);
 
-$groups[] = create_group($win, 103, 'Advanced', '🧪', [
+$groups[] = create_group($win, 103, 'Advanced', null, [
     ['CheckBox', 'Enable experimental features'],
     ['CheckBox', 'Verbose logs'],
     ['EditBox', 'Custom arguments...'],

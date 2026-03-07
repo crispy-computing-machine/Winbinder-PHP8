@@ -99,7 +99,9 @@ typedef struct
 	int nCollapsedHeight;
 	HWND hwndHeader;
 	LPTSTR pszHeader;
-	LPTSTR pszIcon;
+	HANDLE hIcon;
+	UINT uIconType;
+	BOOL bOwnIcon;
 } PANELDATA, *PPANELDATA;
 
 static PPANELDATA PanelGetData(PWBOBJ pwbo)
@@ -125,9 +127,69 @@ static LPTSTR PanelDupText(LPCTSTR pszText)
 
 static void PanelBuildHeaderText(PPANELDATA pData, TCHAR *pszOut, int nOut)
 {
-	wsprintf(pszOut, TEXT("%s %s %s"), pData->bExpanded ? TEXT("▾") : TEXT("▸"),
-		(pData->pszIcon && *pData->pszIcon) ? pData->pszIcon : TEXT(""),
+	wsprintf(pszOut, TEXT("%s %s"), pData->bExpanded ? TEXT("▾") : TEXT("▸"),
 		(pData->pszHeader && *pData->pszHeader) ? pData->pszHeader : TEXT(""));
+}
+
+static void PanelReleaseHeaderIcon(PPANELDATA pData)
+{
+	if (!pData || !pData->hIcon)
+		return;
+	if (pData->bOwnIcon)
+	{
+		if (pData->uIconType == IMAGE_ICON)
+			DestroyIcon((HICON)pData->hIcon);
+		else if (pData->uIconType == IMAGE_BITMAP)
+			DeleteObject((HGDIOBJ)pData->hIcon);
+	}
+	pData->hIcon = NULL;
+	pData->uIconType = 0;
+	pData->bOwnIcon = FALSE;
+}
+
+static BOOL PanelApplyHeaderIcon(PPANELDATA pData, HANDLE hIcon, BOOL bOwnIcon)
+{
+	LONG_PTR style;
+	if (!pData || !pData->hwndHeader)
+		return FALSE;
+
+	style = GetWindowLongPtr(pData->hwndHeader, GWL_STYLE);
+	style &= ~(BS_ICON | BS_BITMAP);
+
+	PanelReleaseHeaderIcon(pData);
+
+	if (!hIcon)
+	{
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_ICON, 0);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_BITMAP, 0);
+		InvalidateRect(pData->hwndHeader, NULL, TRUE);
+		return TRUE;
+	}
+
+	if (IsIcon(hIcon))
+	{
+		style |= BS_ICON;
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
+		pData->uIconType = IMAGE_ICON;
+	}
+	else if (IsBitmap(hIcon))
+	{
+		style |= BS_BITMAP;
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hIcon);
+		pData->uIconType = IMAGE_BITMAP;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	pData->hIcon = hIcon;
+	pData->bOwnIcon = bOwnIcon ? TRUE : FALSE;
+	InvalidateRect(pData->hwndHeader, NULL, TRUE);
+	return TRUE;
 }
 
 static void PanelSetDirectChildVisibility(PPANELDATA pData, HWND hwndPanel)
@@ -778,13 +840,15 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 			pData->nCollapsedHeight = PANEL_COLLAPSED_HEIGHT;
 			pData->nExpandedHeight = nHeight;
 			pData->pszHeader = PanelDupText(pszCaption);
-			pData->pszIcon = PanelDupText(TEXT(""));
+			pData->hIcon = NULL;
+			pData->uIconType = 0;
+			pData->bOwnIcon = FALSE;
 			pData->hwndHeader = CreateWindowEx(0, TEXT("BUTTON"), TEXT(""), WS_CHILD | WS_VISIBLE | BS_FLAT | BS_NOTIFY,
 				6, 2, max(0, nWidth - 12), PANEL_COLLAPSED_HEIGHT - 4, pwbo->hwnd, (HMENU)(INT_PTR)(pwbo->id + PANEL_HEADER_ID_OFFSET), hAppInstance, NULL);
 			if (pData->hwndHeader)
 				SendMessage(pData->hwndHeader, WM_SETFONT, (WPARAM)hIconFont, 0);
 			pwbo->lparam = (LPARAM)pData;
-			wbPanelSetHeader(pwbo, pszCaption, TEXT(""));
+			wbPanelSetHeader(pwbo, pszCaption, NULL, FALSE);
 		}
 		break;
 
@@ -907,7 +971,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 }
 
 
-BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszIcon)
+BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon)
 {
 	PPANELDATA pData = PanelGetData(pwbo);
 	TCHAR szHeader[512];
@@ -915,13 +979,10 @@ BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszIcon)
 		return FALSE;
 	if (pData->pszHeader)
 		wbFree(pData->pszHeader);
-	if (pData->pszIcon)
-		wbFree(pData->pszIcon);
 	pData->pszHeader = PanelDupText(pszText);
-	pData->pszIcon = PanelDupText(pszIcon);
 	PanelBuildHeaderText(pData, szHeader, 511);
 	SetWindowText(pData->hwndHeader, szHeader);
-	return TRUE;
+	return PanelApplyHeaderIcon(pData, hIcon, bOwnIcon);
 }
 
 BOOL wbPanelGetExpanded(PWBOBJ pwbo)
@@ -1010,7 +1071,7 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 		{
 			pData->dwMagic = 0;
 			if (pData->pszHeader) wbFree(pData->pszHeader);
-			if (pData->pszIcon) wbFree(pData->pszIcon);
+			PanelReleaseHeaderIcon(pData);
 			wbFree((void *)pData);
 		}
 	}

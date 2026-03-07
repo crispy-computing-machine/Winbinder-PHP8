@@ -325,25 +325,43 @@ ZEND_FUNCTION(wb_panel_set_header)
 {
 	zend_long pwbo;
 	zend_string *text;
-	zend_string *icon = NULL;
+	zval *icon = NULL;
+	HANDLE hIcon = NULL;
+	BOOL bOwnIcon = FALSE;
 
 	ZEND_PARSE_PARAMETERS_START(2, 3)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_STR(text)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STR_OR_NULL(icon)
+		Z_PARAM_ZVAL(icon)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (!wbIsWBObj((void *)pwbo, TRUE)){
 		RETURN_BOOL(FALSE);
 	}
 
+	if (icon && Z_TYPE_P(icon) != IS_NULL)
 	{
-		TCHAR *wText = Utf82WideChar(ZSTR_VAL(text), ZSTR_LEN(text));
-		TCHAR *wIcon = (icon && ZSTR_LEN(icon) > 0) ? Utf82WideChar(ZSTR_VAL(icon), ZSTR_LEN(icon)) : TEXT("");
-		RETURN_BOOL(wbPanelSetHeader((PWBOBJ)pwbo, wText, wIcon));
+		if (Z_TYPE_P(icon) == IS_LONG)
+		{
+			hIcon = (HANDLE)(LONG_PTR)Z_LVAL_P(icon);
+		}
+		else if (Z_TYPE_P(icon) == IS_STRING)
+		{
+			TCHAR *wPath = Utf82WideChar(Z_STRVAL_P(icon), Z_STRLEN_P(icon));
+			hIcon = wbLoadImage(wPath, 0, 0);
+			bOwnIcon = hIcon ? TRUE : FALSE;
+		}
+		else
+		{
+			RETURN_BOOL(FALSE);
+		}
 	}
 
+	{
+		TCHAR *wText = Utf82WideChar(ZSTR_VAL(text), ZSTR_LEN(text));
+		RETURN_BOOL(wbPanelSetHeader((PWBOBJ)pwbo, wText, hIcon, bOwnIcon));
+	}
 }
 
 /* Gets the parent of a control or control item */

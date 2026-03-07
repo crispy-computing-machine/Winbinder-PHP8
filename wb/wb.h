@@ -527,7 +527,7 @@ BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
 BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded);
 BOOL wbPanelToggle(PWBOBJ pwbo);
-BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszIcon);
+BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon);
 BOOL wbPanelGetExpanded(PWBOBJ pwbo);
 
 // WB_CONTROL_COMBO.C
