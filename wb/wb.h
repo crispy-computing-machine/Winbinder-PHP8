@@ -269,6 +269,7 @@ enum
 #define WBC_SCN_CHARADDED 0x00100000
 #define WBC_PANEL_EXPANDED 0x00200000
 #define WBC_PANEL_COLLAPSED 0x00400000
+#define WBC_DTP_ISO 0x00200000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
