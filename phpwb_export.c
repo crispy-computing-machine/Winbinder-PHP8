@@ -209,6 +209,8 @@ ZEND_FUNCTION(wb_clear_listview_colors);
 
 // PHPWB_CONTROL_MENU.C
 ZEND_FUNCTION(wb_create_menu);
+ZEND_FUNCTION(wb_create_popup_menu);
+ZEND_FUNCTION(wb_track_popup_menu);
 ZEND_FUNCTION(wb_get_menu_item_checked);
 ZEND_FUNCTION(wb_set_menu_item_checked);
 ZEND_FUNCTION(wb_set_menu_item_selected);
@@ -442,6 +444,8 @@ zend_function_entry winbinder_functions[] =
 
         // PHPWB_CONTROL_MENU.C
         ZEND_FE(wb_create_menu,arginfo_wb_create_menu)
+        ZEND_FE(wb_create_popup_menu,arginfo_wb_create_popup_menu)
+        ZEND_FE(wb_track_popup_menu,arginfo_wb_track_popup_menu)
         ZEND_FE(wb_get_menu_item_checked,arginfo_wb_get_menu_item_checked)
         ZEND_FE(wb_set_menu_item_checked,arginfo_wb_set_menu_item_checked)
         ZEND_FE(wb_set_menu_item_selected,arginfo_wb_set_menu_item_selected)
