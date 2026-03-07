@@ -67,8 +67,9 @@ function process_main($window, $id, $ctrl, $param1, $param2)
         for ($i = 101; $i <= 103; $i++) {
             $panel = wb_get_control($window, $i);
             if ($panel) {
-                $size = wb_get_size($window);
-                wb_set_size($panel, $size[0] - 30, null);
+                $winSize = wb_get_size($window);
+                $panelSize = wb_get_size($panel);
+                wb_set_size($panel, $winSize[0] - 30, $panelSize[1]);
             }
         }
     }

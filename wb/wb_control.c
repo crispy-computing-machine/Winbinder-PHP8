@@ -127,7 +127,7 @@ static LPTSTR PanelDupText(LPCTSTR pszText)
 
 static void PanelBuildHeaderText(PPANELDATA pData, TCHAR *pszOut, int nOut)
 {
-	wsprintf(pszOut, TEXT("%s %s"), pData->bExpanded ? TEXT("▾") : TEXT("▸"),
+	wsprintf(pszOut, TEXT("%s %s"), pData->bExpanded ? TEXT("[-]") : TEXT("[+]"),
 		(pData->pszHeader && *pData->pszHeader) ? pData->pszHeader : TEXT(""));
 }
 
