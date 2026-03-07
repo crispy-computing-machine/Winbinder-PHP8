@@ -87,6 +87,163 @@ typedef struct
 
 #define SPLITTER_MAGIC 0x53504C54 /* 'SPLT' */
 
+#define PANEL_MAGIC 0x50414E4C /* 'PANL' */
+#define PANEL_COLLAPSED_HEIGHT 24
+#define PANEL_HEADER_ID_OFFSET 0x6000
+
+typedef struct
+{
+	DWORD dwMagic;
+	BOOL bExpanded;
+	int nExpandedHeight;
+	int nCollapsedHeight;
+	HWND hwndHeader;
+	LPTSTR pszHeader;
+	HANDLE hIcon;
+	UINT uIconType;
+	BOOL bOwnIcon;
+} PANELDATA, *PPANELDATA;
+
+static PPANELDATA PanelGetData(PWBOBJ pwbo)
+{
+	if (!pwbo || pwbo->uClass != Frame || !pwbo->lparam)
+		return NULL;
+	if (((PPANELDATA)pwbo->lparam)->dwMagic != PANEL_MAGIC)
+		return NULL;
+	return (PPANELDATA)pwbo->lparam;
+}
+
+static LPTSTR PanelDupText(LPCTSTR pszText)
+{
+	UINT64 nLen;
+	LPTSTR pszCopy;
+	if (!pszText)
+		pszText = TEXT("");
+	nLen = wcslen(pszText);
+	pszCopy = wbMalloc((nLen + 1) * sizeof(TCHAR));
+	wcscpy(pszCopy, pszText);
+	return pszCopy;
+}
+
+static void PanelBuildHeaderText(PPANELDATA pData, TCHAR *pszOut, int nOut)
+{
+	wsprintf(pszOut, TEXT("%s %s"), pData->bExpanded ? TEXT("[-]") : TEXT("[+]"),
+		(pData->pszHeader && *pData->pszHeader) ? pData->pszHeader : TEXT(""));
+}
+
+static void PanelReleaseHeaderIcon(PPANELDATA pData)
+{
+	if (!pData || !pData->hIcon)
+		return;
+	if (pData->bOwnIcon)
+	{
+		if (pData->uIconType == IMAGE_ICON)
+			DestroyIcon((HICON)pData->hIcon);
+		else if (pData->uIconType == IMAGE_BITMAP)
+			DeleteObject((HGDIOBJ)pData->hIcon);
+	}
+	pData->hIcon = NULL;
+	pData->uIconType = 0;
+	pData->bOwnIcon = FALSE;
+}
+
+static BOOL PanelApplyHeaderIcon(PPANELDATA pData, HANDLE hIcon, BOOL bOwnIcon)
+{
+	LONG_PTR style;
+	if (!pData || !pData->hwndHeader)
+		return FALSE;
+
+	style = GetWindowLongPtr(pData->hwndHeader, GWL_STYLE);
+	style &= ~(BS_ICON | BS_BITMAP);
+
+	PanelReleaseHeaderIcon(pData);
+
+	if (!hIcon)
+	{
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_ICON, 0);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_BITMAP, 0);
+		InvalidateRect(pData->hwndHeader, NULL, TRUE);
+		return TRUE;
+	}
+
+	if (IsIcon(hIcon))
+	{
+		style |= BS_ICON;
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
+		pData->uIconType = IMAGE_ICON;
+	}
+	else if (IsBitmap(hIcon))
+	{
+		style |= BS_BITMAP;
+		SetWindowLongPtr(pData->hwndHeader, GWL_STYLE, style);
+		SendMessage(pData->hwndHeader, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hIcon);
+		pData->uIconType = IMAGE_BITMAP;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	pData->hIcon = hIcon;
+	pData->bOwnIcon = bOwnIcon ? TRUE : FALSE;
+	InvalidateRect(pData->hwndHeader, NULL, TRUE);
+	return TRUE;
+}
+
+static void PanelSetDirectChildVisibility(PPANELDATA pData, HWND hwndPanel)
+{
+	HWND hwndChild;
+	if (!pData || !hwndPanel)
+		return;
+	hwndChild = GetWindow(hwndPanel, GW_CHILD);
+	while (hwndChild)
+	{
+		if (hwndChild != pData->hwndHeader)
+			ShowWindow(hwndChild, pData->bExpanded ? SW_SHOW : SW_HIDE);
+		hwndChild = GetWindow(hwndChild, GW_HWNDNEXT);
+	}
+}
+
+typedef struct
+{
+	HWND hwndPanel;
+	HWND hwndParent;
+	int nShiftFrom;
+	int nDelta;
+} PANEL_SHIFT_CTX;
+
+static void PanelShiftDirectSiblings(PANEL_SHIFT_CTX *ctx)
+{
+	HWND hwndChild;
+	RECT rc;
+	POINT pt;
+	if (!ctx || !ctx->hwndParent)
+		return;
+	hwndChild = GetWindow(ctx->hwndParent, GW_CHILD);
+	while (hwndChild)
+	{
+		if (hwndChild != ctx->hwndPanel)
+		{
+			GetWindowRect(hwndChild, &rc);
+			pt.x = rc.left;
+			pt.y = rc.top;
+			ScreenToClient(ctx->hwndParent, &pt);
+			if (pt.y >= ctx->nShiftFrom)
+				MoveWindow(hwndChild, pt.x, pt.y + ctx->nDelta, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+		}
+		hwndChild = GetWindow(hwndChild, GW_HWNDNEXT);
+	}
+}
+
+static void PanelNotifyParentResize(PWBOBJ pwbo)
+{
+	if (pwbo && pwbo->parent && pwbo->parent->hwnd)
+		SendMessage(pwbo->parent->hwnd, WM_SIZE, SIZE_RESTORED, 0);
+}
+
+
 static PSPLITTERDATA SplitterGetData(PWBOBJ pwbo)
 {
 	if (!pwbo || pwbo->uClass != Splitter)
@@ -732,6 +889,25 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		if (!wcsicmp(pszClass, TEXT("BUTTON"))) // Only for group boxes!
 			lpfnFrameProcOld = (WNDPROC)SetWindowLongPtr(pwbo->hwnd, GWLP_WNDPROC, (LONG_PTR)FrameProc);
+		if (BITTEST(pwbo->style, WBC_PANEL))
+		{
+			PPANELDATA pData = wbMalloc(sizeof(PANELDATA));
+			ZeroMemory(pData, sizeof(PANELDATA));
+			pData->dwMagic = PANEL_MAGIC;
+			pData->bExpanded = TRUE;
+			pData->nCollapsedHeight = PANEL_COLLAPSED_HEIGHT;
+			pData->nExpandedHeight = nHeight;
+			pData->pszHeader = PanelDupText(pszCaption);
+			pData->hIcon = NULL;
+			pData->uIconType = 0;
+			pData->bOwnIcon = FALSE;
+			pData->hwndHeader = CreateWindowEx(0, TEXT("BUTTON"), TEXT(""), WS_CHILD | WS_VISIBLE | BS_FLAT | BS_NOTIFY,
+				6, 2, max(0, nWidth - 12), PANEL_COLLAPSED_HEIGHT - 4, pwbo->hwnd, (HMENU)(INT_PTR)(pwbo->id + PANEL_HEADER_ID_OFFSET), hAppInstance, NULL);
+			if (pData->hwndHeader)
+				SendMessage(pData->hwndHeader, WM_SETFONT, (WPARAM)hIconFont, 0);
+			pwbo->lparam = (LPARAM)pData;
+			wbPanelSetHeader(pwbo, pszCaption, NULL, FALSE);
+		}
 		break;
 
 	case InvisibleArea: // Subclasses InvisibleArea to process WM_MOUSEMOVE
@@ -853,6 +1029,85 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	return pwbo;
 }
 
+
+BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon)
+{
+	PPANELDATA pData = PanelGetData(pwbo);
+	TCHAR szHeader[512];
+	if (!pData)
+		return FALSE;
+	if (pData->pszHeader)
+		wbFree(pData->pszHeader);
+	pData->pszHeader = PanelDupText(pszText);
+	PanelBuildHeaderText(pData, szHeader, 511);
+	SetWindowText(pData->hwndHeader, szHeader);
+	return PanelApplyHeaderIcon(pData, hIcon, bOwnIcon);
+}
+
+BOOL wbPanelGetExpanded(PWBOBJ pwbo)
+{
+	PPANELDATA pData = PanelGetData(pwbo);
+	return pData ? pData->bExpanded : FALSE;
+}
+
+BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded)
+{
+	RECT rc;
+	POINT pt;
+	int nOldHeight, nNewHeight, nDelta;
+	PPANELDATA pData = PanelGetData(pwbo);
+	TCHAR szHeader[512];
+	PANEL_SHIFT_CTX ctx;
+
+	if (!pData)
+		return FALSE;
+
+	bExpanded = bExpanded ? TRUE : FALSE;
+	if (pData->bExpanded == bExpanded)
+		return TRUE;
+
+	GetWindowRect(pwbo->hwnd, &rc);
+	pt.x = rc.left; pt.y = rc.top;
+	ScreenToClient(pwbo->parent->hwnd, &pt);
+	nOldHeight = rc.bottom - rc.top;
+	if (pData->bExpanded)
+		pData->nExpandedHeight = nOldHeight;
+	pData->bExpanded = bExpanded;
+	nNewHeight = pData->bExpanded ? pData->nExpandedHeight : pData->nCollapsedHeight;
+	MoveWindow(pwbo->hwnd, pt.x, pt.y, rc.right - rc.left, nNewHeight, TRUE);
+	PanelSetDirectChildVisibility(pData, pwbo->hwnd);
+	PanelBuildHeaderText(pData, szHeader, 511);
+	SetWindowText(pData->hwndHeader, szHeader);
+
+	nDelta = nNewHeight - nOldHeight;
+	if (nDelta != 0)
+	{
+		ctx.hwndPanel = pwbo->hwnd;
+		ctx.hwndParent = pwbo->parent->hwnd;
+		ctx.nShiftFrom = pt.y + nOldHeight;
+		ctx.nDelta = nDelta;
+		PanelShiftDirectSiblings(&ctx);
+	}
+	if (pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
+		SendMessage(pwbo->parent->hwnd, WM_COMMAND, MAKELONG((WORD)pwbo->id, BN_CLICKED), (LPARAM)pwbo->hwnd);
+
+	if (pwbo->parent && pwbo->parent->hwnd)
+	{
+		RedrawWindow(pwbo->parent->hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+	}
+	RedrawWindow(pwbo->hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+	PanelNotifyParentResize(pwbo);
+	return TRUE;
+}
+
+BOOL wbPanelToggle(PWBOBJ pwbo)
+{
+	PPANELDATA pData = PanelGetData(pwbo);
+	if (!pData)
+		return FALSE;
+	return wbPanelSetExpanded(pwbo, !pData->bExpanded);
+}
+
 /* Destroy a control created by wbCreateControl(). */
 
 BOOL wbDestroyControl(PWBOBJ pwbo)
@@ -874,6 +1129,16 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
 	}
+	else if (pwbo->uClass == Frame && pwbo->lparam)
+	{
+		PPANELDATA pData = PanelGetData(pwbo);
+		if (pData)
+		{
+			pData->dwMagic = 0;
+			if (pData->pszHeader) wbFree(pData->pszHeader);
+			PanelReleaseHeaderIcon(pData);
+			wbFree((void *)pData);
+		}
 	else if (pwbo->uClass == DateTimePicker)
 	{
 		if (pwbo->lparams[7])
@@ -2536,13 +2801,32 @@ static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	case WM_SETFOCUS:
 	case WM_HSCROLL: // For scroll bars
 	case WM_VSCROLL:
-	case WM_COMMAND: // Passes commands to parent window
 	case WM_NOTIFY:
 	{
 		HWND hwndParent = GetParent(hwnd);
 
 		if (hwndParent)
 			SendMessage(hwndParent, msg, wParam, lParam);
+
+		hCurrentDlg = hwnd;
+	}
+	break;
+
+	case WM_COMMAND:
+	{
+		PWBOBJ pwbo = wbGetWBObj(hwnd);
+		PPANELDATA pData = PanelGetData(pwbo);
+		if (pData && (HWND)lParam == pData->hwndHeader && HIWORD(wParam) == BN_CLICKED)
+		{
+			wbPanelToggle(pwbo);
+			return 0;
+		}
+
+		{
+			HWND hwndParent = GetParent(hwnd);
+			if (hwndParent)
+				SendMessage(hwndParent, msg, wParam, lParam);
+		}
 
 		hCurrentDlg = hwnd;
 	}

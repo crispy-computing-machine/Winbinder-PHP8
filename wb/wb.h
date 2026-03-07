@@ -237,6 +237,7 @@ enum
 #define WBC_SORT 0x00040000
 #define WBC_GROUP 0x00080000				 // For radio button groups
 #define WBC_SINGLE 0x00100000				 // Single selection for ListViews
+#define WBC_PANEL 0x00800000				 // Collapsible panel behavior for Frame controls
 #define WBC_CUSTOMDRAW 0x10000000			 // For main windows
 #define WBC_NOHEADER 0x10000000				 // for list views
 #define WBC_TRANSPARENT 0x20000000			 // For ImageButtons
@@ -266,6 +267,8 @@ enum
 #define WBC_SCN_UPDATEUI 0x00040000
 #define WBC_SCN_MARGINCLICK 0x00080000
 #define WBC_SCN_CHARADDED 0x00100000
+#define WBC_PANEL_EXPANDED 0x00200000
+#define WBC_PANEL_COLLAPSED 0x00400000
 #define WBC_DTP_ISO 0x00200000
 
 // ListView item-changed event discriminators (callback lParam1)
@@ -528,6 +531,10 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
 int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
 BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
+BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded);
+BOOL wbPanelToggle(PWBOBJ pwbo);
+BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon);
+BOOL wbPanelGetExpanded(PWBOBJ pwbo);
 
 // WB_CONTROL_COMBO.C
 

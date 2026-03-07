@@ -110,6 +110,8 @@ ZEND_FUNCTION(wb_set_location);
 ZEND_FUNCTION(wb_set_browser_proxy);
 ZEND_FUNCTION(wb_set_range);
 ZEND_FUNCTION(wb_set_state);
+ZEND_FUNCTION(wb_panel_toggle);
+ZEND_FUNCTION(wb_panel_set_header);
 ZEND_FUNCTION(wb_set_style);
 ZEND_FUNCTION(wb_set_visible);
 ZEND_FUNCTION(wb_sort);
@@ -370,6 +372,8 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_set_browser_proxy,arginfo_wb_set_browser_proxy)
         ZEND_FE(wb_set_range,arginfo_wb_set_range)
         ZEND_FE(wb_set_state,arginfo_wb_set_state)
+        ZEND_FE(wb_panel_toggle,arginfo_wb_panel_toggle)
+        ZEND_FE(wb_panel_set_header,arginfo_wb_panel_set_header)
         ZEND_FE(wb_set_style,arginfo_wb_set_style)
         ZEND_FE(wb_set_visible,arginfo_wb_set_visible)
         ZEND_FE(wb_sort,arginfo_wb_sort)
@@ -604,6 +608,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_NOHEADER", WBC_NOHEADER)
 	WB_ZEND_CONST(LONG, "WBC_SPLIT_VERTICAL", WBC_SPLIT_VERTICAL)
 	WB_ZEND_CONST(LONG, "WBC_SPLIT_HORIZONTAL", WBC_SPLIT_HORIZONTAL)
+	WB_ZEND_CONST(LONG, "WBC_PANEL", WBC_PANEL)
 
 	// Notification message flags
 	WB_ZEND_CONST(LONG, "WBC_DBLCLICK", WBC_DBLCLICK)
@@ -621,6 +626,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_PANEL_EXPANDED", WBC_PANEL_EXPANDED)
+	WB_ZEND_CONST(LONG, "WBC_PANEL_COLLAPSED", WBC_PANEL_COLLAPSED)
 	WB_ZEND_CONST(LONG, "WBC_DTP_ISO", WBC_DTP_ISO)
 	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
 	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)
