@@ -1031,6 +1031,12 @@ BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded)
 	}
 	if (pwbo->parent && pwbo->parent->pszCallBackFn && *pwbo->parent->pszCallBackFn)
 		SendMessage(pwbo->parent->hwnd, WM_COMMAND, MAKELONG((WORD)pwbo->id, BN_CLICKED), (LPARAM)pwbo->hwnd);
+
+	if (pwbo->parent && pwbo->parent->hwnd)
+	{
+		RedrawWindow(pwbo->parent->hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+	}
+	RedrawWindow(pwbo->hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
 	PanelNotifyParentResize(pwbo);
 	return TRUE;
 }
