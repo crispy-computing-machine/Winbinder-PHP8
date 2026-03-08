@@ -12,11 +12,11 @@ const ID_POP_EXIT = 1005;
 
 $win = wb_create_window(NULL, AppWindow, "Popup menu demo", 120, 120, 520, 320, WBC_NOTIFY, WBC_MOUSEDOWN);
 wb_create_control($win, Label, "Right-click anywhere in this window.", 14, 16, 360, 20, 0);
-wb_create_control($win, Label, "Use 'Toggle Paste enabled' and 'Toggle checked item' to test state updates.", 14, 40, 470, 20, 0);
+wb_create_control($win, Label, "Paste starts disabled. Use 'Toggle Paste enabled' and 'Toggle checked item' to test state updates.", 14, 40, 470, 20, 0);
 
 $popup = wb_create_popup_menu(array(
     array(ID_POP_COPY, "&Copy\tCtrl+C", "Copy selection", ""),
-    array(ID_POP_PASTE, "&Paste\tCtrl+V", "Paste from clipboard", ""),
+    array(ID_POP_PASTE, "&Paste\tCtrl+V", "Paste from clipboard", "", "", WBC_DISABLED),
     null,
     array(ID_POP_TOGGLE_CHECK, "Toggle &checked item", "Toggle checked state", ""),
     array(ID_POP_TOGGLE_ENABLED, "Toggle &Paste enabled", "Enable/disable Paste", ""),
@@ -34,7 +34,7 @@ if (file_exists($iconPath)) {
 }
 
 $menuState = array(
-    'pasteEnabled' => true,
+    'pasteEnabled' => false,
     'checked' => false,
 );
 
@@ -74,8 +74,7 @@ function process_main($window, $id, $ctrl, $param1 = 0, $param2 = 0)
 
         case ID_POP_TOGGLE_ENABLED:
             $menuState['pasteEnabled'] = !$menuState['pasteEnabled'];
-            $pasteItem = wb_get_control($popup, ID_POP_PASTE);
-            wb_set_enabled($pasteItem, $menuState['pasteEnabled']);
+            wb_set_menu_item_enabled($popup, ID_POP_PASTE, $menuState['pasteEnabled'] ? 1 : 0);
             return;
 
         case ID_POP_EXIT:

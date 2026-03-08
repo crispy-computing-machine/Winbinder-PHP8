@@ -57,7 +57,7 @@ static BOOL wbBuildMenuItemsFromArray(zval *zarray, PWBITEM **ppitem, int *pnite
 		switch (Z_TYPE_P(entry))
 		{
 		case IS_ARRAY:
-			parse_array(entry, "lssss", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->pszImage, &str_accel);
+			parse_array(entry, "lssssl", &pitem[i]->id, &pitem[i]->pszCaption, &pitem[i]->pszHint, &pitem[i]->pszImage, &str_accel, &pitem[i]->lparam);
 			pitem[i]->pszCaption = Utf82WideChar((const char *)pitem[i]->pszCaption, 0);
 			pitem[i]->pszHint = Utf82WideChar((const char *)pitem[i]->pszHint, 0);
 			pitem[i]->pszImage = Utf82WideChar((const char *)pitem[i]->pszImage, 0);
@@ -206,6 +206,37 @@ ZEND_FUNCTION(wb_get_menu_item_checked)
 	((PWBOBJ)pwbo)->id = id;
 
 	RETURN_BOOL(wbGetMenuItemChecked((PWBOBJ)pwbo));
+}
+
+ZEND_FUNCTION(wb_get_menu_item_enabled)
+{
+	zend_long id;
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+	ZEND_PARSE_PARAMETERS_END();
+
+	((PWBOBJ)pwbo)->id = id;
+
+	RETURN_BOOL(wbGetEnabled((PWBOBJ)pwbo));
+}
+
+ZEND_FUNCTION(wb_set_menu_item_enabled)
+{
+	zend_long id, b;
+	zend_long pwbo;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_LONG(id)
+		Z_PARAM_LONG(b)
+	ZEND_PARSE_PARAMETERS_END();
+
+	((PWBOBJ)pwbo)->id = id;
+
+	RETURN_BOOL(wbSetEnabled((PWBOBJ)pwbo, b));
 }
 
 ZEND_FUNCTION(wb_set_menu_item_checked)

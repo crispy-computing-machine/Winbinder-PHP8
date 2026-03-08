@@ -51,7 +51,7 @@ static HMENU wbBuildMenuFromItems(PWBITEM pitem[], int nItems, BOOL bPopup)
 			if (pitem[i]->pszCaption && *pitem[i]->pszCaption)
 			{
 				HMENU hTarget = hPopup ? hPopup : hMenu;
-				AppendMenu(hTarget, MF_STRING, pitem[i]->id, pitem[i]->pszCaption);
+				AppendMenu(hTarget, MF_STRING | ((pitem[i]->lparam & WBC_DISABLED) ? MF_GRAYED : 0), pitem[i]->id, pitem[i]->pszCaption);
 				if (pitem[i]->pszImage && *pitem[i]->pszImage)
 				{
 					HBITMAP hImage = wbLoadImage(pitem[i]->pszImage, 0, 0);

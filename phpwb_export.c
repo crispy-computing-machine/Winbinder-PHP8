@@ -212,6 +212,8 @@ ZEND_FUNCTION(wb_create_menu);
 ZEND_FUNCTION(wb_create_popup_menu);
 ZEND_FUNCTION(wb_track_popup_menu);
 ZEND_FUNCTION(wb_get_menu_item_checked);
+ZEND_FUNCTION(wb_get_menu_item_enabled);
+ZEND_FUNCTION(wb_set_menu_item_enabled);
 ZEND_FUNCTION(wb_set_menu_item_checked);
 ZEND_FUNCTION(wb_set_menu_item_selected);
 ZEND_FUNCTION(wb_set_menu_item_image);
@@ -447,6 +449,8 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_popup_menu,arginfo_wb_create_popup_menu)
         ZEND_FE(wb_track_popup_menu,arginfo_wb_track_popup_menu)
         ZEND_FE(wb_get_menu_item_checked,arginfo_wb_get_menu_item_checked)
+        ZEND_FE(wb_get_menu_item_enabled,arginfo_wb_get_menu_item_enabled)
+        ZEND_FE(wb_set_menu_item_enabled,arginfo_wb_set_menu_item_enabled)
         ZEND_FE(wb_set_menu_item_checked,arginfo_wb_set_menu_item_checked)
         ZEND_FE(wb_set_menu_item_selected,arginfo_wb_set_menu_item_selected)
         ZEND_FE(wb_set_menu_item_image,arginfo_wb_set_menu_item_image)
