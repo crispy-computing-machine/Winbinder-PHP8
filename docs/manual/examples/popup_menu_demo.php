@@ -33,6 +33,8 @@ if (file_exists($iconPath)) {
     }
 }
 
+$pasteItem = wb_get_control($popup, ID_POP_PASTE);
+
 $menuState = array(
     'pasteEnabled' => false,
     'checked' => false,
@@ -43,7 +45,7 @@ wb_main_loop();
 
 function process_main($window, $id, $ctrl, $param1 = 0, $param2 = 0)
 {
-    global $popup, $menuState;
+    global $popup, $menuState, $pasteItem;
 
     switch ($id) {
         // Open popup on right mouse down at cursor x/y from callback payload
@@ -74,8 +76,9 @@ function process_main($window, $id, $ctrl, $param1 = 0, $param2 = 0)
 
         case ID_POP_TOGGLE_ENABLED:
             $menuState['pasteEnabled'] = !$menuState['pasteEnabled'];
-            $pasteItem = wb_get_control($popup, ID_POP_PASTE);
-            wb_set_enabled($pasteItem, $menuState['pasteEnabled'] ? 1 : 0);
+            if ($pasteItem && wb_is_obj($pasteItem)) {
+                wb_set_enabled($pasteItem, $menuState['pasteEnabled'] ? 1 : 0);
+            }
             return;
 
         case ID_POP_EXIT:
