@@ -60,7 +60,7 @@ Each item can be a string or an array. Possible values for each item are:</p>
         </td>
     </tr>
 </table>
-<p>Menu items can be enabled/disabled with <code>wb_set_menu_item_enabled($menu, $id, $enabled)</code> and queried with <code>wb_get_menu_item_enabled($menu, $id)</code>.
+<p>Menu items can be enabled/disabled with the generic APIs: first retrieve an item object with <code>wb_get_control($menu, $id)</code>, then call <code>wb_set_enabled($item, $enabled)</code> (or <code>wb_get_enabled($item)</code>).
 You can also provide <code>WBC_DISABLED</code> as the 6th element in a menu item array to create it disabled.</p>
 <p>A menu item is an array that contains the following elements:</p>
 <p><i>Identifier:</i> The integer value associated with the menu item.<br><i>Caption:</i>

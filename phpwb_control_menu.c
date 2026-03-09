@@ -208,37 +208,6 @@ ZEND_FUNCTION(wb_get_menu_item_checked)
 	RETURN_BOOL(wbGetMenuItemChecked((PWBOBJ)pwbo));
 }
 
-ZEND_FUNCTION(wb_get_menu_item_enabled)
-{
-	zend_long id;
-	zend_long pwbo;
-
-	ZEND_PARSE_PARAMETERS_START(2, 2)
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(id)
-	ZEND_PARSE_PARAMETERS_END();
-
-	((PWBOBJ)pwbo)->id = id;
-
-	RETURN_BOOL(wbGetEnabled((PWBOBJ)pwbo));
-}
-
-ZEND_FUNCTION(wb_set_menu_item_enabled)
-{
-	zend_long id, b;
-	zend_long pwbo;
-
-	ZEND_PARSE_PARAMETERS_START(3, 3)
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_LONG(id)
-		Z_PARAM_LONG(b)
-	ZEND_PARSE_PARAMETERS_END();
-
-	((PWBOBJ)pwbo)->id = id;
-
-	RETURN_BOOL(wbSetEnabled((PWBOBJ)pwbo, b));
-}
-
 ZEND_FUNCTION(wb_set_menu_item_checked)
 {
 	zend_long id, b;

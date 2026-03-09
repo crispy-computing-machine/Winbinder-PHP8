@@ -74,7 +74,8 @@ function process_main($window, $id, $ctrl, $param1 = 0, $param2 = 0)
 
         case ID_POP_TOGGLE_ENABLED:
             $menuState['pasteEnabled'] = !$menuState['pasteEnabled'];
-            wb_set_menu_item_enabled($popup, ID_POP_PASTE, $menuState['pasteEnabled'] ? 1 : 0);
+            $pasteItem = wb_get_control($popup, ID_POP_PASTE);
+            wb_set_enabled($pasteItem, $menuState['pasteEnabled'] ? 1 : 0);
             return;
 
         case ID_POP_EXIT:
