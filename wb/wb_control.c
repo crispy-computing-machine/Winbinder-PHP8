@@ -1139,6 +1139,7 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 			PanelReleaseHeaderIcon(pData);
 			wbFree((void *)pData);
 		}
+	}
 	else if (pwbo->uClass == DateTimePicker)
 	{
 		if (pwbo->lparams[7])

@@ -567,6 +567,8 @@ void wbAdjustListViewItemColorsAfterDelete(PWBOBJ pwbo, int nItem);
 // WB_CONTROL_MENU.C
 
 PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems);
+PWBOBJ wbCreatePopupMenu(PWBITEM pitem[], int nItems);
+DWORD wbTrackPopupMenu(PWBOBJ pwboMenu, PWBOBJ pwboParent, int xPos, int yPos, DWORD dwFlags);
 BOOL wbGetMenuItemChecked(PWBOBJ pwbo);
 BOOL wbSetMenuItemChecked(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetMenuItemSelected(PWBOBJ pwbo);
