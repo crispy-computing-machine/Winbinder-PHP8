@@ -13,80 +13,68 @@
 
 #include "wb.h"
 
-//----------------------------------------------------------- EXPORTED FUNCTIONS
+//------------------------------------------------------------- LOCAL FUNCTIONS
 
-/*
- Receive an array of WBITEM items
- Today it shows only the "checked" image,
- with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
- Solution: use owner-drawn menus
-*/
-
-PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
+static HMENU wbBuildMenuFromItems(PWBITEM pitem[], int nItems, BOOL bPopup)
 {
 	int i;
-	MENUITEMINFO mi;
-	PWBOBJ pwbo;
 	HMENU hMenu, hPopup = NULL;
 	LPCTSTR pszLastPopup = NULL;
 
-	if (!pwboParent || !pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+	hMenu = bPopup ? CreatePopupMenu() : CreateMenu();
+	if (!hMenu)
 		return NULL;
-
-	// Start building the menu
-
-	hMenu = CreateMenu();
 
 	for (i = 0; i < nItems; i++)
 	{
-
 		if (!pitem[i])
 		{
-
-			AppendMenu(hPopup, MF_SEPARATOR, 0, NULL);
+			if (hPopup)
+				AppendMenu(hPopup, MF_SEPARATOR, 0, NULL);
 		}
 		else if (!pitem[i]->id)
 		{
-
 			if (pitem[i]->pszCaption && *pitem[i]->pszCaption)
-			{ // Attach a pop-up menu to a top-level menu
+			{
 				if (hPopup && pszLastPopup)
-				{
-					AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
-				}
-				hPopup = CreateMenu();
+					AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hPopup, pszLastPopup);
+				hPopup = CreatePopupMenu();
 				pszLastPopup = pitem[i]->pszCaption;
 			}
-			else
-			{ // Separator
+			else if (hPopup)
+			{
 				AppendMenu(hPopup, MF_SEPARATOR, 0, NULL);
 			}
 		}
 		else
 		{
-
 			if (pitem[i]->pszCaption && *pitem[i]->pszCaption)
-			{ // Create a submenu item
-				AppendMenu(hPopup, MF_STRING, pitem[i]->id, pitem[i]->pszCaption);
+			{
+				HMENU hTarget = hPopup ? hPopup : hMenu;
+				AppendMenu(hTarget, MF_STRING | ((pitem[i]->lparam & WBC_DISABLED) ? MF_GRAYED : 0), pitem[i]->id, pitem[i]->pszCaption);
 				if (pitem[i]->pszImage && *pitem[i]->pszImage)
 				{
 					HBITMAP hImage = wbLoadImage(pitem[i]->pszImage, 0, 0);
-
 					if (hImage)
-						SetMenuItemBitmaps(hPopup, pitem[i]->id, MF_BYCOMMAND, hImage, hImage);
+						SetMenuItemBitmaps(hTarget, pitem[i]->id, MF_BYCOMMAND, hImage, hImage);
 				}
 			}
 		}
 	}
 
-	// Create last first-level menu
-
 	if (hPopup && pszLastPopup)
-	{
-		AppendMenu(hMenu, MF_POPUP, (UINT64)hPopup, pszLastPopup);
-	}
+		AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hPopup, pszLastPopup);
 
-	// Attach the menu to the window
+	return hMenu;
+}
+
+static PWBOBJ wbCreateMenuObject(PWBOBJ pwboParent, HMENU hMenu)
+{
+	PWBOBJ pwbo;
+	MENUITEMINFO mi;
+
+	if (!hMenu)
+		return NULL;
 
 	pwbo = wbMalloc(sizeof(WBOBJ));
 	pwbo->hwnd = (HWND)hMenu;
@@ -100,13 +88,99 @@ PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
 	pwbo->lparam = 0;
 	pwbo->parent = pwboParent;
 
-	// ********* DOESN'T WORK
+	ZeroMemory(&mi, sizeof(MENUITEMINFO));
+	mi.cbSize = sizeof(MENUITEMINFO);
+	mi.fMask = MIIM_DATA;
 	mi.dwItemData = (DWORD_PTR)pwbo;
 	SetMenuItemInfo((HMENU)pwbo->hwnd, 0, TRUE, &mi);
-	// ********* DOESN'T WORK
+
+	return pwbo;
+}
+
+//----------------------------------------------------------- EXPORTED FUNCTIONS
+
+/*
+ Receive an array of WBITEM items
+ Today it shows only the "checked" image,
+ with 13 x 13 bitmaps only. Whites get transparent, colors are faded.
+ Solution: use owner-drawn menus
+*/
+
+PWBOBJ wbCreateMenu(PWBOBJ pwboParent, PWBITEM pitem[], int nItems)
+{
+	HMENU hMenu;
+	PWBOBJ pwbo;
+
+	if (!pwboParent || !pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+		return NULL;
+
+	hMenu = wbBuildMenuFromItems(pitem, nItems, FALSE);
+	if (!hMenu)
+		return NULL;
+
+	pwbo = wbCreateMenuObject(pwboParent, hMenu);
+	if (!pwbo)
+	{
+		DestroyMenu(hMenu);
+		return NULL;
+	}
 
 	SetMenu(pwboParent->hwnd, hMenu);
 	return pwbo;
+}
+
+PWBOBJ wbCreatePopupMenu(PWBITEM pitem[], int nItems)
+{
+	HMENU hMenu;
+
+	hMenu = wbBuildMenuFromItems(pitem, nItems, TRUE);
+	if (!hMenu)
+		return NULL;
+
+	return wbCreateMenuObject(NULL, hMenu);
+}
+
+DWORD wbTrackPopupMenu(PWBOBJ pwboMenu, PWBOBJ pwboParent, int xPos, int yPos, DWORD dwFlags)
+{
+	POINT pt;
+	HWND hwndParent;
+	DWORD dwRet;
+
+	if (!pwboMenu || !pwboMenu->hwnd || !IsMenu((HMENU)pwboMenu->hwnd))
+		return 0;
+	if (!pwboParent || !pwboParent->hwnd || !IsWindow(pwboParent->hwnd))
+		return 0;
+
+	hwndParent = pwboParent->hwnd;
+	pt.x = xPos;
+	pt.y = yPos;
+	if (xPos < 0 || yPos < 0)
+	{
+		GetCursorPos(&pt);
+	}
+	else
+	{
+		ClientToScreen(hwndParent, &pt);
+	}
+
+	SetForegroundWindow(hwndParent);
+	dwRet = TrackPopupMenu((HMENU)pwboMenu->hwnd,
+		dwFlags | TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
+		pt.x,
+		pt.y,
+		0,
+		hwndParent,
+		NULL);
+	PostMessage(hwndParent, WM_NULL, 0, 0);
+
+	if (dwRet)
+	{
+		PWBOBJ pwbobj = wbGetWBObj(hwndParent);
+		if (pwbobj && pwbobj->pszCallBackFn && *pwbobj->pszCallBackFn)
+			wbCallUserFunction(pwbobj->pszCallBackFn, pwbobj->pszCallBackObj, pwbobj, pwbobj, dwRet, 0, 0, 0);
+	}
+
+	return dwRet;
 }
 
 /* Sest the text of a menu item */
@@ -140,16 +214,6 @@ BOOL wbSetMenuItemChecked(PWBOBJ pwbo, BOOL bState)
 {
 	if (!pwbo || !pwbo->hwnd || !IsMenu((HMENU)pwbo->hwnd))
 		return FALSE;
-
-	/*
-	MENUITEMINFO mi;
-
-	mi.cbSize = sizeof(MENUITEMINFO);
-	mi.fMask = MIIM_STATE;
-	mi.fState = bState ? MFS_CHECKED : MFS_UNCHECKED;
-
-	return SetMenuItemInfo(pwbo->hwnd, pwbo->id, FALSE, &mi);
-	*/
 
 	return (CheckMenuItem((HMENU)pwbo->hwnd, pwbo->id, bState ? MF_CHECKED : MF_UNCHECKED) != 0xFFFFFFFF);
 }

@@ -51,18 +51,17 @@ BOOL wbIsWBObj(void *pwbo, BOOL bShowErrors)
 
 	// Does it have a valid handle?
 	//printf("wbIsWBObj 4\n");
-    HWND hwnd = ((PWBOBJ)pwbo)->hwnd;
-    if (!hwnd || !IsWindow(hwnd)) {
-        if (bShowErrors)
-            wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid WinBinder object handle"));
-        return FALSE;
-    }
+	if (!((PWBOBJ)pwbo)->hwnd)
+	{
+		if (bShowErrors)
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid WinBinder object handle"));
+		return FALSE;
+	}
 
-    //printf("wbIsWBObj 5\n");
+	// Menu objects store HMENU in the same field used by window objects for HWND.
 	if (IsMenu((HMENU)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
-    //printf("wbIsWBObj 6\n");
 	if (IsWindow((HWND)((PWBOBJ)pwbo)->hwnd))
 		return TRUE;
 
