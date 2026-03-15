@@ -1,0 +1,30 @@
+<html>
+<head>
+<title>ChartControl</title>
+<link rel="stylesheet" href="../help.css">
+</head>
+<body>
+<h2>ChartControl</h2>
+<p>A lightweight chart control for plotting series data in WinBinder.</p>
+<p>Create with <a href="../functions/wb_create_control.html">wb_create_control()</a> using class <code>ChartControl</code>.</p>
+<ul>
+<li>Supported types (v1): <code>line</code>, <code>bar</code>, <code>scatter</code>.</li>
+<li>Input points accepted as associative arrays (<code>x</code>, <code>y</code>, optional <code>label</code>) or compact arrays <code>[x, y]</code>.</li>
+<li>String x-values are normalized to categorical indexes and preserved as labels.</li>
+<li>Hover emits <code>WBC_CHART_POINT_HOVER</code>; click emits <code>WBC_CHART_POINT_CLICK</code>.</li>
+</ul>
+<p>Related functions:<br>
+<a href="../functions/wb_chart_set_data.html">wb_chart_set_data</a><br>
+<a href="../functions/wb_chart_set_options.html">wb_chart_set_options</a><br>
+<a href="../functions/wb_chart_set_colors.html">wb_chart_set_colors</a><br>
+<a href="../functions/wb_chart_redraw.html">wb_chart_redraw</a></p>
+
+<h3>Future v2 notes</h3>
+<ul>
+<li>Stacked bars.</li>
+<li>Multiple Y axes.</li>
+<li>Zoom / pan interactions.</li>
+<li>Live streaming updates.</li>
+</ul>
+</body>
+</html>

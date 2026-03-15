@@ -121,6 +121,10 @@ ZEND_FUNCTION(wb_create_statusbar_items);
 ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
 ZEND_FUNCTION(wb_set_text);
+ZEND_FUNCTION(wb_chart_set_data);
+ZEND_FUNCTION(wb_chart_set_options);
+ZEND_FUNCTION(wb_chart_set_colors);
+ZEND_FUNCTION(wb_chart_redraw);
 ZEND_FUNCTION(wb_attach_tooltip);
 ZEND_FUNCTION(wb_remove_tooltip);
 ZEND_FUNCTION(wb_show_tooltip_balloon);
@@ -352,6 +356,10 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_statusbar_items,arginfo_wb_create_statusbar_items)
         ZEND_FE(wb_get_text,arginfo_wb_get_text)
         ZEND_FE(wb_set_text,arginfo_wb_set_text)
+        ZEND_FE(wb_chart_set_data,arginfo_wb_chart_set_data)
+        ZEND_FE(wb_chart_set_options,arginfo_wb_chart_set_options)
+        ZEND_FE(wb_chart_set_colors,arginfo_wb_chart_set_colors)
+        ZEND_FE(wb_chart_redraw,arginfo_wb_chart_redraw)
         ZEND_FE(wb_attach_tooltip,arginfo_wb_attach_tooltip)
         ZEND_FE(wb_remove_tooltip,arginfo_wb_remove_tooltip)
         ZEND_FE(wb_show_tooltip_balloon,arginfo_wb_show_tooltip_balloon)
@@ -573,6 +581,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
 	WB_ZEND_CONST(LONG, "ScintillaEdit", ScintillaEdit)
 	WB_ZEND_CONST(LONG, "Splitter", Splitter)
+	WB_ZEND_CONST(LONG, "ChartControl", ChartControl)
 	WB_ZEND_CONST(LONG, "Timer", Timer)
 
 	// System constants
@@ -633,6 +642,8 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_PANEL_EXPANDED", WBC_PANEL_EXPANDED)
 	WB_ZEND_CONST(LONG, "WBC_PANEL_COLLAPSED", WBC_PANEL_COLLAPSED)
 	WB_ZEND_CONST(LONG, "WBC_DTP_ISO", WBC_DTP_ISO)
+	WB_ZEND_CONST(LONG, "WBC_CHART_POINT_HOVER", WBC_CHART_POINT_HOVER)
+	WB_ZEND_CONST(LONG, "WBC_CHART_POINT_CLICK", WBC_CHART_POINT_CLICK)
 	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
 	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)
 	WB_ZEND_CONST(LONG, "WBC_TASK_ERROR", WBC_TASK_ERROR)
@@ -723,6 +734,9 @@ ZEND_MINIT_FUNCTION(winbinder)
 
 	// RTFEditBox
 	WB_ZEND_CONST(LONG, "WBC_RTF_TEXT", WBC_RTF_TEXT);
+	WB_ZEND_CONST(LONG, "WBC_CHART_LINE", 0);
+	WB_ZEND_CONST(LONG, "WBC_CHART_BAR", 1);
+	WB_ZEND_CONST(LONG, "WBC_CHART_SCATTER", 2);
 
 	// Draw Styles
  	WB_ZEND_CONST(LONG, "WBC_DRAW_SOLID", 0); // 0 Solid line (the default style)

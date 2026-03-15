@@ -123,6 +123,7 @@
 #define BROWSER_WINDOW_CLASS TEXT("wbHTMLWnd")
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
 #define SPLITTER_CLASS TEXT("wbSplitter")
+#define CHART_CONTROL_CLASS TEXT("wbChartControl")
 
 // Custom WinBinder messages
 #define WBWM_NOTIFYICON (WM_APP + 2)
@@ -206,9 +207,10 @@ enum
 	ScintillaEdit,
 	Timer,
 	Splitter,
+	ChartControl,
 };
 
-#define NUMCLASSES Splitter // Must be the last class
+#define NUMCLASSES ChartControl // Must be the last class
 
 // Style flags (parameter style of wb_create_window)
 
@@ -270,6 +272,8 @@ enum
 #define WBC_PANEL_EXPANDED 0x00200000
 #define WBC_PANEL_COLLAPSED 0x00400000
 #define WBC_DTP_ISO 0x00200000
+#define WBC_CHART_POINT_HOVER 0x00800000
+#define WBC_CHART_POINT_CLICK 0x01000000
 
 // ListView item-changed event discriminators (callback lParam1)
 #define WBC_LV_SELECTED 0x00000001
@@ -465,6 +469,26 @@ typedef struct
 	DWORD dwBackground;
 } LISTVIEWCOLOR;
 
+typedef struct
+{
+	double x;
+	double y;
+	LPTSTR xLabel;
+	LPTSTR label;
+} WBCHARTPOINT;
+
+typedef struct
+{
+	LPTSTR name;
+	int type;
+	COLORREF lineColor;
+	COLORREF fillColor;
+	COLORREF pointColor;
+	int pointCount;
+	WBCHARTPOINT *points;
+} WBCHARTSERIES;
+
+
 //------------------------------------------------- GLOBAL VARIABLE DECLARATIONS
 
 extern HINSTANCE hAppInstance; // Instance handle
@@ -518,6 +542,14 @@ BOOL wbSetEnabled(PWBOBJ pwbo, BOOL bState);
 BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszText, int nItem, BOOL bTooltip);
 BOOL wbAttachToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 BOOL wbRemoveToolTip(PWBOBJ pwbo);
+BOOL RegisterChartControlClass(void);
+BOOL wbChartInit(PWBOBJ pwbo, LONG_PTR notifyMask);
+BOOL wbChartDestroy(PWBOBJ pwbo);
+BOOL wbChartSetData(PWBOBJ pwbo, WBCHARTSERIES *series, int count);
+BOOL wbChartSetOptions(PWBOBJ pwbo, LPCTSTR title, LPCTSTR xAxis, LPCTSTR yAxis, int padding,
+	BOOL hasMinX, double minX, BOOL hasMaxX, double maxX, BOOL hasMinY, double minY, BOOL hasMaxY, double maxY);
+BOOL wbChartSetColors(PWBOBJ pwbo, COLORREF *palette, int count);
+BOOL wbChartRedraw(PWBOBJ pwbo);
 BOOL wbShowToolTipBalloon(PWBOBJ pwbo, LPCTSTR pszText, LPCTSTR pszTitle, int nSeverity);
 BOOL wbHideToolTip(PWBOBJ pwbo);
 BOOL wbGetText(PWBOBJ pwbo, LPTSTR pszText, UINT64 nMaxChars, int nIndex);

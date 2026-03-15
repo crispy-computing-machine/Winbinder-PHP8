@@ -2505,3 +2505,205 @@ ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
 
 
 //------------------------------------------------------------------ END OF FILE
+
+static int wbChartTypeFromString(const char *type)
+{
+	if (!type)
+		return 0;
+	if (!_stricmp(type, "line"))
+		return 0;
+	if (!_stricmp(type, "bar"))
+		return 1;
+	if (!_stricmp(type, "scatter"))
+		return 2;
+	return -1;
+}
+
+ZEND_FUNCTION(wb_chart_set_data)
+{
+	zval *zseries;
+	zend_long pwbo;
+	PWBOBJ obj;
+	HashTable *ht;
+	zval *zv;
+	int i, count;
+	WBCHARTSERIES *series;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(zseries)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_FALSE;
+	obj = (PWBOBJ)pwbo;
+	if (obj->uClass != ChartControl)
+		RETURN_FALSE;
+
+	ht = Z_ARRVAL_P(zseries);
+	count = zend_hash_num_elements(ht);
+	series = count > 0 ? wbCalloc(count, sizeof(WBCHARTSERIES)) : NULL;
+
+	i = 0;
+	ZEND_HASH_FOREACH_VAL(ht, zv)
+	{
+		zval *zname, *zpoints, *ztype;
+		HashTable *pt;
+		zval *zp;
+		int j, pcount;
+		if (Z_TYPE_P(zv) != IS_ARRAY)
+		{
+			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series entry must be an array"));
+			RETURN_FALSE;
+		}
+		zname = zend_hash_str_find(Z_ARRVAL_P(zv), "name", sizeof("name") - 1);
+		zpoints = zend_hash_str_find(Z_ARRVAL_P(zv), "points", sizeof("points") - 1);
+		ztype = zend_hash_str_find(Z_ARRVAL_P(zv), "type", sizeof("type") - 1);
+		if (!zpoints || Z_TYPE_P(zpoints) != IS_ARRAY)
+		{
+			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] missing valid points array"), i);
+			RETURN_FALSE;
+		}
+		series[i].name = zname && Z_TYPE_P(zname) == IS_STRING ? Utf82WideChar(Z_STRVAL_P(zname), 0) : Utf82WideChar("Series", 0);
+		series[i].type = (ztype && Z_TYPE_P(ztype) == IS_STRING) ? wbChartTypeFromString(Z_STRVAL_P(ztype)) : 0;
+		if (series[i].type < 0)
+		{
+			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] has invalid type"), i);
+			RETURN_FALSE;
+		}
+		series[i].lineColor = NOCOLOR;
+		series[i].fillColor = NOCOLOR;
+		series[i].pointColor = NOCOLOR;
+		pt = Z_ARRVAL_P(zpoints);
+		pcount = zend_hash_num_elements(pt);
+		series[i].pointCount = pcount;
+		series[i].points = pcount > 0 ? wbCalloc(pcount, sizeof(WBCHARTPOINT)) : NULL;
+		j = 0;
+		ZEND_HASH_FOREACH_VAL(pt, zp)
+		{
+			if (Z_TYPE_P(zp) == IS_ARRAY)
+			{
+				zval *zx = zend_hash_str_find(Z_ARRVAL_P(zp), "x", sizeof("x") - 1);
+				zval *zy = zend_hash_str_find(Z_ARRVAL_P(zp), "y", sizeof("y") - 1);
+				zval *zl = zend_hash_str_find(Z_ARRVAL_P(zp), "label", sizeof("label") - 1);
+				if (!zx || !zy)
+				{
+					zval *z0 = zend_hash_index_find(Z_ARRVAL_P(zp), 0);
+					zval *z1 = zend_hash_index_find(Z_ARRVAL_P(zp), 1);
+					zx = z0;
+					zy = z1;
+				}
+				if (!zx || !zy)
+				{
+					wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
+					RETURN_FALSE;
+				}
+				if (Z_TYPE_P(zx) == IS_STRING)
+				{
+					series[i].points[j].x = (double)j;
+					series[i].points[j].xLabel = Utf82WideChar(Z_STRVAL_P(zx), 0);
+				}
+				else
+					series[i].points[j].x = zval_get_double(zx);
+				series[i].points[j].y = zval_get_double(zy);
+				if (zl && Z_TYPE_P(zl) == IS_STRING)
+					series[i].points[j].label = Utf82WideChar(Z_STRVAL_P(zl), 0);
+			}
+			else
+			{
+				wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
+				RETURN_FALSE;
+			}
+			j++;
+		}
+		ZEND_HASH_FOREACH_END();
+		i++;
+	}
+	ZEND_HASH_FOREACH_END();
+
+	RETURN_BOOL(wbChartSetData(obj, series, count));
+}
+
+ZEND_FUNCTION(wb_chart_set_options)
+{
+	zend_long pwbo;
+	zval *zopts;
+	PWBOBJ obj;
+	zval *z;
+	TCHAR *title = NULL, *xAxis = NULL, *yAxis = NULL;
+	int padding = 28;
+	BOOL hasMinX = FALSE, hasMaxX = FALSE, hasMinY = FALSE, hasMaxY = FALSE;
+	double minX = 0, maxX = 0, minY = 0, maxY = 0;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(zopts)
+	ZEND_PARSE_PARAMETERS_END();
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_FALSE;
+	obj = (PWBOBJ)pwbo;
+	if (obj->uClass != ChartControl)
+		RETURN_FALSE;
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "title", 5)) && Z_TYPE_P(z) == IS_STRING) title = Utf82WideChar(Z_STRVAL_P(z), 0);
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "x_label", 7)) && Z_TYPE_P(z) == IS_STRING) xAxis = Utf82WideChar(Z_STRVAL_P(z), 0);
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "y_label", 7)) && Z_TYPE_P(z) == IS_STRING) yAxis = Utf82WideChar(Z_STRVAL_P(z), 0);
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "padding", 7))) padding = (int)zval_get_long(z);
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "min_x", 5))) { hasMinX = TRUE; minX = zval_get_double(z);}
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "max_x", 5))) { hasMaxX = TRUE; maxX = zval_get_double(z);}
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "min_y", 5))) { hasMinY = TRUE; minY = zval_get_double(z);}
+	if ((z = zend_hash_str_find(Z_ARRVAL_P(zopts), "max_y", 5))) { hasMaxY = TRUE; maxY = zval_get_double(z);}
+	{
+		BOOL ok = wbChartSetOptions(obj, title, xAxis, yAxis, padding, hasMinX, minX, hasMaxX, maxX, hasMinY, minY, hasMaxY, maxY);
+		if (title) efree(title);
+		if (xAxis) efree(xAxis);
+		if (yAxis) efree(yAxis);
+		RETURN_BOOL(ok);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_set_colors)
+{
+	zend_long pwbo;
+	zval *zpalette;
+	PWBOBJ obj;
+	HashTable *ht;
+	zval *z;
+	int i = 0, n;
+	COLORREF *colors;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(zpalette)
+	ZEND_PARSE_PARAMETERS_END();
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_FALSE;
+	obj = (PWBOBJ)pwbo;
+	if (obj->uClass != ChartControl)
+		RETURN_FALSE;
+	ht = Z_ARRVAL_P(zpalette);
+	n = zend_hash_num_elements(ht);
+	colors = n > 0 ? wbCalloc(n, sizeof(COLORREF)) : NULL;
+	ZEND_HASH_FOREACH_VAL(ht, z)
+	{
+		colors[i++] = (COLORREF)zval_get_long(z);
+	}
+	ZEND_HASH_FOREACH_END();
+	{
+		BOOL ok = wbChartSetColors(obj, colors, n);
+		if (colors) wbFree(colors);
+		RETURN_BOOL(ok);
+	}
+}
+
+ZEND_FUNCTION(wb_chart_redraw)
+{
+	zend_long pwbo;
+	PWBOBJ obj;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwbo)
+	ZEND_PARSE_PARAMETERS_END();
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_FALSE;
+	obj = (PWBOBJ)pwbo;
+	if (obj->uClass != ChartControl)
+		RETURN_FALSE;
+	RETURN_BOOL(wbChartRedraw(obj));
+}
