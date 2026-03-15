@@ -53,23 +53,32 @@ static LPTSTR wbChartDup(LPCTSTR psz)
 
 static void wbChartClearSeries(WBCHARTDATA *cd)
 {
-	int i, j;
 	if (!cd || !cd->series)
 		return;
-	for (i = 0; i < cd->seriesCount; i++)
-	{
-		wbChartFreeString(cd->series[i].name);
-		for (j = 0; j < cd->series[i].pointCount; j++)
-		{
-			wbChartFreeString(cd->series[i].points[j].xLabel);
-			wbChartFreeString(cd->series[i].points[j].label);
-		}
-		if (cd->series[i].points)
-			wbFree(cd->series[i].points);
-	}
-	wbFree(cd->series);
+	wbChartFreeSeriesBuffer(cd->series, cd->seriesCount);
 	cd->series = NULL;
 	cd->seriesCount = 0;
+}
+
+void wbChartFreeSeriesBuffer(WBCHARTSERIES *series, int count)
+{
+	int i, j;
+	if (!series)
+		return;
+	for (i = 0; i < count; i++)
+	{
+		wbChartFreeString(series[i].name);
+		if (series[i].points)
+		{
+			for (j = 0; j < series[i].pointCount; j++)
+			{
+				wbChartFreeString(series[i].points[j].xLabel);
+				wbChartFreeString(series[i].points[j].label);
+			}
+			wbFree(series[i].points);
+		}
+	}
+	wbFree(series);
 }
 
 static WBCHARTDATA *wbChartGetData(PWBOBJ pwbo)
@@ -430,20 +439,48 @@ BOOL wbChartDestroy(PWBOBJ pwbo)
 BOOL wbChartSetData(PWBOBJ pwbo, WBCHARTSERIES *series, int count)
 {
 	WBCHARTDATA *cd = wbChartGetData(pwbo);
-	int i;
+	int i, j;
 	if (!cd)
 		return FALSE;
 	wbChartClearSeries(cd);
 	if (count <= 0)
+	{
+		InvalidateRect(pwbo->hwnd, NULL, TRUE);
 		return TRUE;
+	}
+
 	cd->series = wbCalloc(count, sizeof(WBCHARTSERIES));
+	if (!cd->series)
+		return FALSE;
 	cd->seriesCount = count;
+
 	for (i = 0; i < count; i++)
 	{
-		cd->series[i] = series[i];
+		cd->series[i].name = wbChartDup(series[i].name);
+		cd->series[i].type = series[i].type;
+		cd->series[i].lineColor = series[i].lineColor;
+		cd->series[i].fillColor = series[i].fillColor;
+		cd->series[i].pointColor = series[i].pointColor;
+		cd->series[i].pointCount = series[i].pointCount;
+
+		if (series[i].pointCount > 0)
+		{
+			cd->series[i].points = wbCalloc(series[i].pointCount, sizeof(WBCHARTPOINT));
+			if (!cd->series[i].points)
+			{
+				wbChartClearSeries(cd);
+				return FALSE;
+			}
+			for (j = 0; j < series[i].pointCount; j++)
+			{
+				cd->series[i].points[j].x = series[i].points[j].x;
+				cd->series[i].points[j].y = series[i].points[j].y;
+				cd->series[i].points[j].xLabel = wbChartDup(series[i].points[j].xLabel);
+				cd->series[i].points[j].label = wbChartDup(series[i].points[j].label);
+			}
+		}
 	}
-	if (series)
-		wbFree(series);
+
 	InvalidateRect(pwbo->hwnd, NULL, TRUE);
 	return TRUE;
 }

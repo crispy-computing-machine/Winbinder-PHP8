@@ -2519,6 +2519,11 @@ static int wbChartTypeFromString(const char *type)
 	return -1;
 }
 
+static void wbPhpChartFreeSeriesBuffer(WBCHARTSERIES *series, int count)
+{
+	wbChartFreeSeriesBuffer(series, count);
+}
+
 ZEND_FUNCTION(wb_chart_set_data)
 {
 	zval *zseries;
@@ -2554,7 +2559,7 @@ ZEND_FUNCTION(wb_chart_set_data)
 		if (Z_TYPE_P(zv) != IS_ARRAY)
 		{
 			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series entry must be an array"));
-			RETURN_FALSE;
+			goto fail;
 		}
 		zname = zend_hash_str_find(Z_ARRVAL_P(zv), "name", sizeof("name") - 1);
 		zpoints = zend_hash_str_find(Z_ARRVAL_P(zv), "points", sizeof("points") - 1);
@@ -2562,14 +2567,14 @@ ZEND_FUNCTION(wb_chart_set_data)
 		if (!zpoints || Z_TYPE_P(zpoints) != IS_ARRAY)
 		{
 			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] missing valid points array"), i);
-			RETURN_FALSE;
+			goto fail;
 		}
 		series[i].name = zname && Z_TYPE_P(zname) == IS_STRING ? Utf82WideChar(Z_STRVAL_P(zname), 0) : Utf82WideChar("Series", 0);
 		series[i].type = (ztype && Z_TYPE_P(ztype) == IS_STRING) ? wbChartTypeFromString(Z_STRVAL_P(ztype)) : 0;
 		if (series[i].type < 0)
 		{
 			wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] has invalid type"), i);
-			RETURN_FALSE;
+			goto fail;
 		}
 		series[i].lineColor = NOCOLOR;
 		series[i].fillColor = NOCOLOR;
@@ -2596,7 +2601,7 @@ ZEND_FUNCTION(wb_chart_set_data)
 				if (!zx || !zy)
 				{
 					wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
-					RETURN_FALSE;
+					goto fail;
 				}
 				if (Z_TYPE_P(zx) == IS_STRING)
 				{
@@ -2612,7 +2617,7 @@ ZEND_FUNCTION(wb_chart_set_data)
 			else
 			{
 				wbError(TEXT("wb_chart_set_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
-				RETURN_FALSE;
+				goto fail;
 			}
 			j++;
 		}
@@ -2621,7 +2626,15 @@ ZEND_FUNCTION(wb_chart_set_data)
 	}
 	ZEND_HASH_FOREACH_END();
 
-	RETURN_BOOL(wbChartSetData(obj, series, count));
+	{
+		BOOL ok = wbChartSetData(obj, series, count);
+		wbPhpChartFreeSeriesBuffer(series, count);
+		RETURN_BOOL(ok);
+	}
+
+fail:
+	wbPhpChartFreeSeriesBuffer(series, count);
+	RETURN_FALSE;
 }
 
 ZEND_FUNCTION(wb_chart_set_options)

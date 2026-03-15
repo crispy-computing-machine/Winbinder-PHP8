@@ -546,6 +546,7 @@ BOOL RegisterChartControlClass(void);
 BOOL wbChartInit(PWBOBJ pwbo, LONG_PTR notifyMask);
 BOOL wbChartDestroy(PWBOBJ pwbo);
 BOOL wbChartSetData(PWBOBJ pwbo, WBCHARTSERIES *series, int count);
+void wbChartFreeSeriesBuffer(WBCHARTSERIES *series, int count);
 BOOL wbChartSetOptions(PWBOBJ pwbo, LPCTSTR title, LPCTSTR xAxis, LPCTSTR yAxis, int padding,
 	BOOL hasMinX, double minX, BOOL hasMaxX, double maxX, BOOL hasMinY, double minY, BOOL hasMaxY, double maxY);
 BOOL wbChartSetColors(PWBOBJ pwbo, COLORREF *palette, int count);
