@@ -56,7 +56,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 // Private
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
-static HBITMAP ConvertBitmapAlphaToColorKey(HBITMAP hbmSrc, COLORREF clKey, BOOL *pbHadAlpha);
+static HBITMAP ConvertBitmapAlphaToBackground(HBITMAP hbmSrc, COLORREF clBack, BOOL *pbHadAlpha);
 
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -2741,16 +2741,16 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 	HBRUSH hbr;
 	BITMAP bm;
 	BOOL bHadAlpha = FALSE;
-	COLORREF clAutoTransp = RGB(255, 0, 255);
 	COLORREF clMaskTransp = clTransp;
+	COLORREF clBackColor = GetSysColor(COLOR_BTNFACE);
 
 	if (clTransp == NOCOLOR)
 	{
-		hbmBitsPaint = ConvertBitmapAlphaToColorKey(hbmBits, clAutoTransp, &bHadAlpha);
+		hbmBitsPaint = ConvertBitmapAlphaToBackground(hbmBits, clBackColor, &bHadAlpha);
 		if (hbmBitsPaint && bHadAlpha)
 		{
 			bOwnPaintBitmap = TRUE;
-			clMaskTransp = clAutoTransp;
+			clMaskTransp = NOCOLOR;
 		}
 		else
 		{
@@ -2798,7 +2798,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 	return TRUE;
 }
 
-static HBITMAP ConvertBitmapAlphaToColorKey(HBITMAP hbmSrc, COLORREF clKey, BOOL *pbHadAlpha)
+static HBITMAP ConvertBitmapAlphaToBackground(HBITMAP hbmSrc, COLORREF clBack, BOOL *pbHadAlpha)
 {
 	BITMAP bm;
 	BITMAPINFO bmi;
@@ -2808,7 +2808,7 @@ static HBITMAP ConvertBitmapAlphaToColorKey(HBITMAP hbmSrc, COLORREF clKey, BOOL
 	int x, y;
 	HDC hdc;
 	BOOL bHasAlpha = FALSE;
-	BYTE keyR = GetRValue(clKey), keyG = GetGValue(clKey), keyB = GetBValue(clKey);
+	BYTE backR = GetRValue(clBack), backG = GetGValue(clBack), backB = GetBValue(clBack);
 
 	if (pbHadAlpha)
 		*pbHadAlpha = FALSE;
@@ -2867,24 +2867,28 @@ static HBITMAP ConvertBitmapAlphaToColorKey(HBITMAP hbmSrc, COLORREF clKey, BOOL
 
 			if (src[3] == 0)
 			{
-				dst[0] = keyB;
-				dst[1] = keyG;
-				dst[2] = keyR;
+				dst[0] = backB;
+				dst[1] = backG;
+				dst[2] = backR;
 				dst[3] = 0xFF;
 				bHasAlpha = TRUE;
 			}
-			else
+			else if (src[3] == 0xFF)
 			{
 				dst[0] = src[0];
 				dst[1] = src[1];
 				dst[2] = src[2];
 				dst[3] = 0xFF;
-				if (src[3] < 0xFF)
-					bHasAlpha = TRUE;
 			}
-
-			if (dst[0] == keyB && dst[1] == keyG && dst[2] == keyR && src[3] != 0)
-				dst[0] = (BYTE)((keyB == 255) ? 254 : 255);
+			else
+			{
+				BYTE a = src[3];
+				dst[0] = (BYTE)((src[0] * a + backB * (255 - a)) / 255);
+				dst[1] = (BYTE)((src[1] * a + backG * (255 - a)) / 255);
+				dst[2] = (BYTE)((src[2] * a + backR * (255 - a)) / 255);
+				dst[3] = 0xFF;
+				bHasAlpha = TRUE;
+			}
 		}
 	}
 
