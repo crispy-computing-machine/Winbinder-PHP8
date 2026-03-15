@@ -254,7 +254,7 @@ static BOOL wbChartHitTest(WBCHARTDATA *cd, RECT *rc, int mx, int my, int *outSe
 {
 	double minX, maxX, minY, maxY;
 	RECT plot = *rc;
-	int i;
+	int i, j;
 	double best = 1e20;
 	plot.left += cd->padding;
 	plot.top += cd->padding + 20;
