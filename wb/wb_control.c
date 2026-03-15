@@ -56,6 +56,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 // Private
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
+static HBITMAP ConvertBitmapAlphaToBackground(HBITMAP hbmSrc, COLORREF clBack, BOOL *pbHadAlpha);
 
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -1438,7 +1439,7 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 		return FALSE;
 
 	wbConvertLineBreaks(&pszText, pszSourceText);
-	
+
 
 	if (bTooltip)
 	{
@@ -2732,65 +2733,180 @@ For opaque bitmaps, set clTransp to NOCOLOR
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp)
 {
-	//	static HBITMAP hbm = NULL, hbmMask;
 	HBITMAP hbm, hbmMask = NULL, hbmOld;
+	HBITMAP hbmBitsPaint = hbmBits;
+	BOOL bOwnPaintBitmap = FALSE;
 	HDC hdc;
 	RECT rc;
 	HBRUSH hbr;
 	BITMAP bm;
+	BOOL bHadAlpha = FALSE;
+	COLORREF clMaskTransp = clTransp;
+	COLORREF clBackColor = GetSysColor(COLOR_BTNFACE);
 
-	//	if(clTransp == NOCOLOR) {
-	//		SendMessage(hwnd, bStatic ? STM_SETIMAGE : BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmBits);
-	//		return TRUE;
-	//	}
-
-	// Create an empty bitmap the same size as hwnd
+	if (clTransp == NOCOLOR)
+	{
+		hbmBitsPaint = ConvertBitmapAlphaToBackground(hbmBits, clBackColor, &bHadAlpha);
+		if (hbmBitsPaint && bHadAlpha)
+		{
+			bOwnPaintBitmap = TRUE;
+			clMaskTransp = NOCOLOR;
+		}
+		else
+		{
+			hbmBitsPaint = hbmBits;
+		}
+	}
 
 	GetClientRect(hwnd, &rc);
-
 	hbm = wbCreateBitmap(rc.right - rc.left, rc.bottom - rc.top, NULL, NULL);
 	hdc = wbCreateBitmapDC(hbm);
 
-	// Paint hbmBits with a mask
-
-	if (clTransp != NOCOLOR)
-		hbmMask = wbCreateMask(hbmBits, clTransp);
+	if (clMaskTransp != NOCOLOR)
+		hbmMask = wbCreateMask(hbmBitsPaint, clMaskTransp);
 	hbr = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	SelectObject(hdc, hbr);
 	SelectObject(hdc, GetStockObject(WHITE_PEN));
 	Rectangle(hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top);
-	GetObject(hbmBits, sizeof(BITMAP), (LPVOID)&bm);
-	if (clTransp == NOCOLOR)
+	GetObject(hbmBitsPaint, sizeof(BITMAP), (LPVOID)&bm);
+	if (clMaskTransp == NOCOLOR)
 	{
-		wbCopyPartialBits(hdc, hbmBits,
-						  ((rc.right - rc.left) - bm.bmWidth) / 2,
-						  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
-						  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+		wbCopyPartialBits(hdc, hbmBitsPaint,
+			((rc.right - rc.left) - bm.bmWidth) / 2,
+			((rc.bottom - rc.top) - bm.bmHeight) / 2,
+			bm.bmWidth, bm.bmHeight, 0, 0);
 	}
 	else
 	{
-		wbMaskPartialBits(hdc, hbmBits, hbmMask,
-						  ((rc.right - rc.left) - bm.bmWidth) / 2,
-						  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
-						  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+		wbMaskPartialBits(hdc, hbmBitsPaint, hbmMask,
+			((rc.right - rc.left) - bm.bmWidth) / 2,
+			((rc.bottom - rc.top) - bm.bmHeight) / 2,
+			bm.bmWidth, bm.bmHeight, 0, 0);
 	}
-
-	// Deletes old handle, if any
 
 	hbmOld = (HBITMAP)SendMessage(hwnd, bStatic ? STM_SETIMAGE : BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbm);
 	if (hbmOld)
 		DeleteObject(hbmOld);
 
-	// Cleanup
-
 	DeleteObject(hbr);
-	//	if(hbmMask && (clTransp != NOCOLOR))
 	if (hbmMask)
 		DeleteObject(hbmMask);
+	if (bOwnPaintBitmap)
+		DeleteObject(hbmBitsPaint);
 	DeleteDC(hdc);
 
 	return TRUE;
 }
+
+static HBITMAP ConvertBitmapAlphaToBackground(HBITMAP hbmSrc, COLORREF clBack, BOOL *pbHadAlpha)
+{
+	BITMAP bm;
+	BITMAPINFO bmi;
+	BYTE *pSrcBits;
+	void *pDstBits;
+	HBITMAP hbmDst;
+	int x, y;
+	HDC hdc;
+	BOOL bHasAlpha = FALSE;
+	BYTE backR = GetRValue(clBack), backG = GetGValue(clBack), backB = GetBValue(clBack);
+
+	if (pbHadAlpha)
+		*pbHadAlpha = FALSE;
+
+	if (!hbmSrc)
+		return NULL;
+
+	if (!GetObject(hbmSrc, sizeof(BITMAP), (LPVOID)&bm))
+		return NULL;
+
+	if (bm.bmBitsPixel != 32 || bm.bmWidth <= 0 || bm.bmHeight <= 0)
+		return NULL;
+
+	ZeroMemory(&bmi, sizeof(BITMAPINFO));
+	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmi.bmiHeader.biWidth = bm.bmWidth;
+	bmi.bmiHeader.biHeight = -bm.bmHeight;
+	bmi.bmiHeader.biPlanes = 1;
+	bmi.bmiHeader.biBitCount = 32;
+	bmi.bmiHeader.biCompression = BI_RGB;
+
+	pSrcBits = (BYTE *)wbMalloc((size_t)bm.bmWidth * bm.bmHeight * 4);
+	if (!pSrcBits)
+		return NULL;
+
+	hdc = CreateCompatibleDC(NULL);
+	if (!hdc)
+	{
+		wbFree(pSrcBits);
+		return NULL;
+	}
+
+	if (!GetDIBits(hdc, hbmSrc, 0, bm.bmHeight, pSrcBits, &bmi, DIB_RGB_COLORS))
+	{
+		DeleteDC(hdc);
+		wbFree(pSrcBits);
+		return NULL;
+	}
+
+	hbmDst = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &pDstBits, NULL, 0);
+	if (!hbmDst || !pDstBits)
+	{
+		DeleteDC(hdc);
+		wbFree(pSrcBits);
+		if (hbmDst)
+			DeleteObject(hbmDst);
+		return NULL;
+	}
+
+	for (y = 0; y < bm.bmHeight; y++)
+	{
+		for (x = 0; x < bm.bmWidth; x++)
+		{
+			BYTE *src = pSrcBits + (y * bm.bmWidth + x) * 4;
+			BYTE *dst = ((BYTE *)pDstBits) + (y * bm.bmWidth + x) * 4;
+
+			if (src[3] == 0)
+			{
+				dst[0] = backB;
+				dst[1] = backG;
+				dst[2] = backR;
+				dst[3] = 0xFF;
+				bHasAlpha = TRUE;
+			}
+			else if (src[3] == 0xFF)
+			{
+				dst[0] = src[0];
+				dst[1] = src[1];
+				dst[2] = src[2];
+				dst[3] = 0xFF;
+			}
+			else
+			{
+				BYTE a = src[3];
+				dst[0] = (BYTE)((src[0] * a + backB * (255 - a)) / 255);
+				dst[1] = (BYTE)((src[1] * a + backG * (255 - a)) / 255);
+				dst[2] = (BYTE)((src[2] * a + backR * (255 - a)) / 255);
+				dst[3] = 0xFF;
+				bHasAlpha = TRUE;
+			}
+		}
+	}
+
+	DeleteDC(hdc);
+	wbFree(pSrcBits);
+
+	if (pbHadAlpha)
+		*pbHadAlpha = bHasAlpha;
+
+	if (!bHasAlpha)
+	{
+		DeleteObject(hbmDst);
+		return NULL;
+	}
+
+	return hbmDst;
+}
+
 
 // Processing routine for Frame controls
 

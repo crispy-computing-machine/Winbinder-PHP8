@@ -24,6 +24,14 @@ is an icon library, <i>index</i> specifies the index of the image inside the fil
 function returns a large icon or cursor; if <i>param</i> is 1, it returns a small icon 
     or cursor; 
 if <i>param</i> is -1, the function returns the default icon or cursor.</p>
+<p>Accepted file extensions are matched exactly (case-insensitive):</p>
+<ul>
+<li>Icon/resource/cursor formats: <code>.ico</code>, <code>.icl</code>, <code>.dll</code>, <code>.exe</code>, <code>.cur</code>, <code>.ani</code></li>
+<li>Bitmap/raster formats (returned as bitmap handles): <code>.bmp</code>, <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.gif</code>, <code>.wbmp</code> (WBMP is decoded by WinBinder compatibility logic)</li>
+<li>Additional raster formats may work when a decoder is available in the running Windows build (for example <code>.webp</code>, <code>.xbm</code>, <code>.avif</code>).</li>
+</ul>
+<p>Raster decoding follows the same practical decoder availability model used by GD-backed workflows: support for optional formats depends on the runtime image codecs installed on the system.</p>
+<p>Example script: <a href="../examples/load_image_formats_frame.php"><code>load_image_formats_frame.php</code></a> creates test images and displays them in <code>Frame</code> controls using the <code>WBC_IMAGE</code> style and <a href="wb_set_image.html"><b>wb_set_image()</b></a>.</p>
 <p><font color="#CC6600"><b><img src="../images/icon_note.png" align="absmiddle" width="32" height="32" border="0">
 NOTE: The resulting image must be destroyed by a
 call to </b></font><a href="wb_destroy_image.html"><b>wb_destroy_image()</b></a><font color="#CC6600"><b>.</b></font></p>

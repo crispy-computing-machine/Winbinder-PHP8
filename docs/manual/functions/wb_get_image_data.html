@@ -26,6 +26,7 @@ of the given <i>image</i>. The <i>image</i> handle must have been obtained with
 <a href="wb_create_image.html"><b>wb_create_image()</b></a>, <a href="wb_create_mask.html"><b>wb_create_mask()</b></a> 
 or&nbsp;<a href="wb_load_image.html"><b>wb_load_image()</b></a>. Returns
 <code>TRUE</code> on success or&nbsp;<code>FALSE</code> if an error occurs.</p>
+<p><b>Important:</b> this is a bitmap-only function. Icon/cursor handles are rejected and the function returns <code>FALSE</code>/<code>NULL</code> on failure.</p>
 <p>If <i>compress4to3</i> is TRUE, every fourth byte
 of the original 32-bit data is skipped, yielding a RGB (24-bit) data string.
 This is required for image libraries such as FreeImage&nbsp;(click <a href="wb_create_image.html#freeimage">here</a>
