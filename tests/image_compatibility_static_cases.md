@@ -45,6 +45,6 @@ Given `hBmp = wb_load_image("fixtures/sample.png")`:
 
 ## Transparency behavior
 
-- For 32-bit PNG with alpha and `wb_set_image($frame, $img, NOCOLOR)`, alpha transparency should be preserved.
+- For 32-bit PNG with alpha and `wb_set_image($frame, $img, NOCOLOR)`, transparency should be visible (fully transparent pixels hidden).
 - For the same bitmap with `wb_set_image($frame, $img, 0x00FF00)`, color-key transparency should be applied using the provided RGB key.
 - ListView/TreeView/TabControl image lists should preserve 32-bit images when `transparentcolor` is `NOCOLOR`.

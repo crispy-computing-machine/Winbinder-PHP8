@@ -161,14 +161,14 @@ BOOL wbCreateTabControlImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COL
 		if (clTransparent != NOCOLOR)
 		{
 			hbmMask = wbCreateMask(hbmImage, clTransparent);
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32 | ILC_MASK, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
 			ImageList_Add(hi, hbmImage, hbmMask);
 			TabCtrl_SetImageList(pwbo->hwnd, hi);
 			DeleteObject(hbmMask);
 		}
 		else
 		{
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
 			ImageList_Add(hi, hbmImage, NULL);
 			TabCtrl_SetImageList(pwbo->hwnd, hi);
 		}

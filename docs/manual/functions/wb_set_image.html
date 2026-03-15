@@ -25,7 +25,7 @@ name.
 If a handle, it&nbsp;must have been obtained with <a href="wb_create_image.html"><b>wb_create_image()</b></a>,
 <a href="wb_create_mask.html"><b>wb_create_mask()</b></a> or&nbsp;<a href="wb_load_image.html"><b>wb_load_image()</b></a>.
 The optional parameter <i>transparentcolor</i> tells the function which color
-is to be considered transparent. The default is NOCOLOR (no color-key transparency). For 32-bit images with an alpha channel (for example PNG), WinBinder now preserves alpha blending when <i>transparentcolor</i> is NOCOLOR in controls that support bitmap painting. If <i>transparentcolor</i> is provided, color-key masking is used. <i>index</i>
+is to be considered transparent. The default is NOCOLOR (no explicit color key). For PNG/32-bit images with transparent pixels, WinBinder applies compatibility handling so fully transparent pixels can be treated as transparent even when no color key is provided. If <i>transparentcolor</i> is provided, color-key masking is used. <i>index</i>
 is used to select a specific image from a multi-image file (such as a DLL or
 executable).</p>
 
