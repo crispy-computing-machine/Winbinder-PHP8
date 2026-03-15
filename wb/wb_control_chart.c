@@ -439,47 +439,20 @@ BOOL wbChartDestroy(PWBOBJ pwbo)
 BOOL wbChartSetData(PWBOBJ pwbo, WBCHARTSERIES *series, int count)
 {
 	WBCHARTDATA *cd = wbChartGetData(pwbo);
-	int i, j;
 	if (!cd)
 		return FALSE;
+
 	wbChartClearSeries(cd);
-	if (count <= 0)
+
+	if (count <= 0 || !series)
 	{
 		InvalidateRect(pwbo->hwnd, NULL, TRUE);
 		return TRUE;
 	}
 
-	cd->series = wbCalloc(count, sizeof(WBCHARTSERIES));
-	if (!cd->series)
-		return FALSE;
+	/* Ownership transfer: caller hands over allocated series buffer to chart control. */
+	cd->series = series;
 	cd->seriesCount = count;
-
-	for (i = 0; i < count; i++)
-	{
-		cd->series[i].name = wbChartDup(series[i].name);
-		cd->series[i].type = series[i].type;
-		cd->series[i].lineColor = series[i].lineColor;
-		cd->series[i].fillColor = series[i].fillColor;
-		cd->series[i].pointColor = series[i].pointColor;
-		cd->series[i].pointCount = series[i].pointCount;
-
-		if (series[i].pointCount > 0)
-		{
-			cd->series[i].points = wbCalloc(series[i].pointCount, sizeof(WBCHARTPOINT));
-			if (!cd->series[i].points)
-			{
-				wbChartClearSeries(cd);
-				return FALSE;
-			}
-			for (j = 0; j < series[i].pointCount; j++)
-			{
-				cd->series[i].points[j].x = series[i].points[j].x;
-				cd->series[i].points[j].y = series[i].points[j].y;
-				cd->series[i].points[j].xLabel = wbChartDup(series[i].points[j].xLabel);
-				cd->series[i].points[j].label = wbChartDup(series[i].points[j].label);
-			}
-		}
-	}
 
 	InvalidateRect(pwbo->hwnd, NULL, TRUE);
 	return TRUE;

@@ -2628,7 +2628,8 @@ ZEND_FUNCTION(wb_chart_set_data)
 
 	{
 		BOOL ok = wbChartSetData(obj, series, count);
-		wbPhpChartFreeSeriesBuffer(series, count);
+		if (!ok)
+			wbPhpChartFreeSeriesBuffer(series, count);
 		RETURN_BOOL(ok);
 	}
 
