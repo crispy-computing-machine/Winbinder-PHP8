@@ -9,7 +9,7 @@ These manual/static cases validate `wb_load_image()` behavior and bitmap-only AP
 - `wb_load_image("fixtures/sample.jpeg")` should return a non-null bitmap handle.
 - `wb_load_image("fixtures/sample.gif")` should return a non-null bitmap handle.
 - `wb_load_image("fixtures/sample.bmp")` should return a non-null bitmap handle.
-- `wb_load_image("fixtures/sample.wbmp")` should return a non-null bitmap handle when decoder support exists.
+- `wb_load_image("fixtures/sample.wbmp")` should return a non-null bitmap handle.
 - Optional/decoder-dependent: `.webp`, `.xbm`, `.avif` should return bitmap handles when decoder support exists; otherwise return NULL with a decode error.
 
 ## Icon/cursor compatibility (unchanged behavior)

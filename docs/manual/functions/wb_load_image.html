@@ -27,7 +27,7 @@ if <i>param</i> is -1, the function returns the default icon or cursor.</p>
 <p>Accepted file extensions are matched exactly (case-insensitive):</p>
 <ul>
 <li>Icon/resource/cursor formats: <code>.ico</code>, <code>.icl</code>, <code>.dll</code>, <code>.exe</code>, <code>.cur</code>, <code>.ani</code></li>
-<li>Bitmap/raster formats (returned as bitmap handles): <code>.bmp</code>, <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.gif</code>, <code>.wbmp</code></li>
+<li>Bitmap/raster formats (returned as bitmap handles): <code>.bmp</code>, <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.gif</code>, <code>.wbmp</code> (WBMP is decoded by WinBinder compatibility logic)</li>
 <li>Additional raster formats may work when a decoder is available in the running Windows build (for example <code>.webp</code>, <code>.xbm</code>, <code>.avif</code>).</li>
 </ul>
 <p>Raster decoding follows the same practical decoder availability model used by GD-backed workflows: support for optional formats depends on the runtime image codecs installed on the system.</p>

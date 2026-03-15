@@ -47,6 +47,8 @@ static PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp);
 static BOOL CreateBMPFile(LPCTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC);
 static LPCTSTR GetFileExtension(LPCTSTR pszPath);
 static BOOL ExtEquals(LPCTSTR pszExt, LPCTSTR pszTarget);
+static BOOL ReadWBMPMultiByte(const BYTE *buffer, DWORD size, DWORD *offset, UINT *value);
+static HBITMAP LoadWBMPBitmap(LPCTSTR pszImageFile);
 static HBITMAP LoadRasterBitmapWIC(LPCTSTR pszImageFile);
 
 // External
@@ -355,10 +357,22 @@ HANDLE wbLoadImage(LPCTSTR pszImageFile, UINT64 nIndex, LPARAM lParam)
 
 		return LoadCursorFromFile(szFile);
 	}
+	else if (ExtEquals(pszExt, TEXT(".wbmp")))
+	{
+		HBITMAP hbm = LoadWBMPBitmap(szFile);
+
+		if (!hbm)
+		{
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Unsupported or invalid raster image format in file %s"), szFile);
+			return NULL;
+		}
+
+		return hbm;
+	}
 	else if (ExtEquals(pszExt, TEXT(".png")) || ExtEquals(pszExt, TEXT(".jpg")) ||
 			 ExtEquals(pszExt, TEXT(".jpeg")) || ExtEquals(pszExt, TEXT(".gif")) ||
-			 ExtEquals(pszExt, TEXT(".wbmp")) || ExtEquals(pszExt, TEXT(".webp")) ||
-			 ExtEquals(pszExt, TEXT(".xbm")) || ExtEquals(pszExt, TEXT(".avif")))
+			 ExtEquals(pszExt, TEXT(".webp")) || ExtEquals(pszExt, TEXT(".xbm")) ||
+			 ExtEquals(pszExt, TEXT(".avif")))
 	{
 		HBITMAP hbm = LoadRasterBitmapWIC(szFile);
 
@@ -404,6 +418,110 @@ static BOOL ExtEquals(LPCTSTR pszExt, LPCTSTR pszTarget)
 		return FALSE;
 
 	return (_wcsicmp(pszExt, pszTarget) == 0);
+}
+
+
+static BOOL ReadWBMPMultiByte(const BYTE *buffer, DWORD size, DWORD *offset, UINT *value)
+{
+	UINT out = 0;
+	BYTE ch;
+
+	if (!buffer || !offset || !value)
+		return FALSE;
+
+	do
+	{
+		if (*offset >= size)
+			return FALSE;
+
+		ch = buffer[(*offset)++];
+		out = (out << 7) | (ch & 0x7F);
+	} while (ch & 0x80);
+
+	*value = out;
+	return TRUE;
+}
+
+static HBITMAP LoadWBMPBitmap(LPCTSTR pszImageFile)
+{
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	DWORD fileSize = 0, bytesRead = 0, offset = 0;
+	BYTE *data = NULL;
+	UINT typeField = 0, fixHeader = 0, width = 0, height = 0;
+	UINT rowBytes, x, y;
+	BITMAPINFO bmi;
+	void *pvBits = NULL;
+	HBITMAP hbm = NULL;
+	BYTE *dst;
+
+	hFile = CreateFile(pszImageFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return NULL;
+
+	fileSize = GetFileSize(hFile, NULL);
+	if (fileSize == INVALID_FILE_SIZE || fileSize < 5)
+		goto cleanup;
+
+	data = (BYTE *)wbMalloc(fileSize);
+	if (!data)
+		goto cleanup;
+
+	if (!ReadFile(hFile, data, fileSize, &bytesRead, NULL) || bytesRead != fileSize)
+		goto cleanup;
+
+	if (!ReadWBMPMultiByte(data, fileSize, &offset, &typeField) ||
+		!ReadWBMPMultiByte(data, fileSize, &offset, &fixHeader) ||
+		!ReadWBMPMultiByte(data, fileSize, &offset, &width) ||
+		!ReadWBMPMultiByte(data, fileSize, &offset, &height))
+		goto cleanup;
+
+	if (typeField != 0 || fixHeader != 0 || width == 0 || height == 0)
+		goto cleanup;
+
+	rowBytes = (width + 7) / 8;
+	if ((DWORD)rowBytes * height > fileSize - offset)
+		goto cleanup;
+
+	ZeroMemory(&bmi, sizeof(BITMAPINFO));
+	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmi.bmiHeader.biWidth = (LONG)width;
+	bmi.bmiHeader.biHeight = -(LONG)height;
+	bmi.bmiHeader.biPlanes = 1;
+	bmi.bmiHeader.biBitCount = 32;
+	bmi.bmiHeader.biCompression = BI_RGB;
+
+	hbm = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, &pvBits, NULL, 0);
+	if (!hbm || !pvBits)
+		goto cleanup;
+
+	dst = (BYTE *)pvBits;
+	for (y = 0; y < height; y++)
+	{
+		const BYTE *row = data + offset + (y * rowBytes);
+		for (x = 0; x < width; x++)
+		{
+			BYTE mask = (BYTE)(0x80 >> (x % 8));
+			BOOL isBlack = (row[x / 8] & mask) != 0;
+			BYTE value = isBlack ? 0x00 : 0xFF;
+			UINT pos = (y * width + x) * 4;
+			dst[pos + 0] = value;
+			dst[pos + 1] = value;
+			dst[pos + 2] = value;
+			dst[pos + 3] = 0xFF;
+		}
+	}
+
+cleanup:
+	if (hFile != INVALID_HANDLE_VALUE)
+		CloseHandle(hFile);
+	if (data)
+		wbFree(data);
+	if (hbm && !pvBits)
+	{
+		DeleteObject(hbm);
+		hbm = NULL;
+	}
+	return hbm;
 }
 
 static HBITMAP LoadRasterBitmapWIC(LPCTSTR pszImageFile)
