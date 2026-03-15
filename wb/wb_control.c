@@ -56,6 +56,7 @@ HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 // Private
 
 static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLORREF clTransp);
+static BOOL BitmapHasAlpha(HBITMAP hbm);
 
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -925,7 +926,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 			HIMAGELIST hi;
 			static int nImages = 4;
 
-			hi = ImageList_Create(nWidth, nHeight, ILC_COLORDDB, nImages, 0);
+			hi = ImageList_Create(nWidth, nHeight, ILC_COLOR32, nImages, 0);
 			M_hiImageList = (LPARAM)hi; // Store ImageList in control
 		}
 		break;
@@ -2734,9 +2735,10 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 {
 	//	static HBITMAP hbm = NULL, hbmMask;
 	HBITMAP hbm, hbmMask = NULL, hbmOld;
-	HDC hdc;
+	HDC hdc, hdcSrc = NULL;
 	RECT rc;
 	HBRUSH hbr;
+	BLENDFUNCTION bf;
 	BITMAP bm;
 
 	//	if(clTransp == NOCOLOR) {
@@ -2760,12 +2762,36 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 	SelectObject(hdc, GetStockObject(WHITE_PEN));
 	Rectangle(hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top);
 	GetObject(hbmBits, sizeof(BITMAP), (LPVOID)&bm);
+	hdcSrc = CreateCompatibleDC(hdc);
+	if (hdcSrc)
+		SelectObject(hdcSrc, hbmBits);
 	if (clTransp == NOCOLOR)
 	{
-		wbCopyPartialBits(hdc, hbmBits,
-						  ((rc.right - rc.left) - bm.bmWidth) / 2,
-						  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
-						  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+		if (hdcSrc && BitmapHasAlpha(hbmBits))
+		{
+			bf.BlendOp = AC_SRC_OVER;
+			bf.BlendFlags = 0;
+			bf.SourceConstantAlpha = 255;
+			bf.AlphaFormat = AC_SRC_ALPHA;
+			AlphaBlend(hdc,
+				((rc.right - rc.left) - bm.bmWidth) / 2,
+				((rc.bottom - rc.top) - bm.bmHeight) / 2,
+				bm.bmWidth,
+				bm.bmHeight,
+				hdcSrc,
+				0,
+				0,
+				bm.bmWidth,
+				bm.bmHeight,
+				bf);
+		}
+		else
+		{
+			wbCopyPartialBits(hdc, hbmBits,
+							  ((rc.right - rc.left) - bm.bmWidth) / 2,
+							  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
+							  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+		}
 	}
 	else
 	{
@@ -2787,9 +2813,72 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 	//	if(hbmMask && (clTransp != NOCOLOR))
 	if (hbmMask)
 		DeleteObject(hbmMask);
+	if (hdcSrc)
+		DeleteDC(hdcSrc);
 	DeleteDC(hdc);
 
 	return TRUE;
+}
+
+static BOOL BitmapHasAlpha(HBITMAP hbm)
+{
+	BITMAP bm;
+	BITMAPINFO bmi;
+	BYTE *pBits;
+	int x, y;
+	HDC hdc;
+	BOOL bHasAlpha = FALSE;
+
+	if (!hbm)
+		return FALSE;
+
+	if (!GetObject(hbm, sizeof(BITMAP), (LPVOID)&bm))
+		return FALSE;
+
+	if (bm.bmBitsPixel != 32 || bm.bmWidth <= 0 || bm.bmHeight <= 0)
+		return FALSE;
+
+	ZeroMemory(&bmi, sizeof(BITMAPINFO));
+	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmi.bmiHeader.biWidth = bm.bmWidth;
+	bmi.bmiHeader.biHeight = -bm.bmHeight;
+	bmi.bmiHeader.biPlanes = 1;
+	bmi.bmiHeader.biBitCount = 32;
+	bmi.bmiHeader.biCompression = BI_RGB;
+
+	pBits = (BYTE *)wbMalloc((size_t)bm.bmWidth * bm.bmHeight * 4);
+	if (!pBits)
+		return FALSE;
+
+	hdc = CreateCompatibleDC(NULL);
+	if (!hdc)
+	{
+		wbFree(pBits);
+		return FALSE;
+	}
+
+	if (!GetDIBits(hdc, hbm, 0, bm.bmHeight, pBits, &bmi, DIB_RGB_COLORS))
+	{
+		DeleteDC(hdc);
+		wbFree(pBits);
+		return FALSE;
+	}
+
+	for (y = 0; y < bm.bmHeight && !bHasAlpha; y++)
+	{
+		for (x = 0; x < bm.bmWidth; x++)
+		{
+			if (pBits[(y * bm.bmWidth + x) * 4 + 3] != 0xFF)
+			{
+				bHasAlpha = TRUE;
+				break;
+			}
+		}
+	}
+
+	DeleteDC(hdc);
+	wbFree(pBits);
+	return bHasAlpha;
 }
 
 // Processing routine for Frame controls

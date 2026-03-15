@@ -75,14 +75,14 @@ BOOL wbCreateTreeViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 		if (clTransparent != NOCOLOR)
 		{
 			hbmMask = wbCreateMask(hbmImage, clTransparent);
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32 | ILC_MASK, nImages, 0);
 			ImageList_Add(hi, hbmImage, hbmMask);
 			TreeView_SetImageList(pwbo->hwnd, hi, TVSIL_NORMAL);
 			DeleteObject(hbmMask);
 		}
 		else
 		{
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32, nImages, 0);
 			ImageList_Add(hi, hbmImage, NULL);
 			TreeView_SetImageList(pwbo->hwnd, hi, TVSIL_NORMAL);
 		}

@@ -90,7 +90,7 @@ BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 		{
 			hbmMask = wbCreateMask(hbmImage, clTransparent);
 
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB | ILC_MASK, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32 | ILC_MASK, nImages, 0);
 			if (hi)
 			{
 				ImageList_Add(hi, hbmImage, hbmMask);
@@ -100,7 +100,7 @@ BOOL wbCreateListViewImageList(PWBOBJ pwbo, HBITMAP hbmImage, int nImages, COLOR
 		}
 		else
 		{
-			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLORDDB, nImages, 0);
+			hi = ImageList_Create(bm.bmWidth / nImages, bm.bmHeight, ILC_COLOR32, nImages, 0);
 			ImageList_Add(hi, hbmImage, NULL);
 			ListView_SetImageList(pwbo->hwnd, hi, LVSIL_SMALL);
 		}

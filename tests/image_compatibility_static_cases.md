@@ -41,3 +41,10 @@ Given `hBmp = wb_load_image("fixtures/sample.png")`:
 - `wb_get_image_data(hBmp)` should return a non-empty string.
 - `wb_rotate_image(hBmp, 90)` should return a non-null bitmap handle.
 - `wb_resize_image(hBmp, 32, 32)` should return a non-null bitmap handle.
+
+
+## Transparency behavior
+
+- For 32-bit PNG with alpha and `wb_set_image($frame, $img, NOCOLOR)`, alpha transparency should be preserved.
+- For the same bitmap with `wb_set_image($frame, $img, 0x00FF00)`, color-key transparency should be applied using the provided RGB key.
+- ListView/TreeView/TabControl image lists should preserve 32-bit images when `transparentcolor` is `NOCOLOR`.
