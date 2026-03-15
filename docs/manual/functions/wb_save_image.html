@@ -21,6 +21,7 @@ handle must have been obtained with <a href="wb_create_image.html"><b>wb_create_
 <a href="wb_create_mask.html"><b>wb_create_mask()</b></a> or&nbsp;<a href="wb_load_image.html"><b>wb_load_image()</b></a>. 
 Returns
 <code>TRUE</code> on success or&nbsp;<code>FALSE</code> if an error occurs.</p>
+<p><b>Important:</b> this is a bitmap-only function. If you pass an icon/cursor handle (for example from <code>.ico</code>, <code>.cur</code>, <code>.ani</code>, <code>.dll</code>, <code>.exe</code>, <code>.icl</code>), the function fails and returns <code>FALSE</code>.</p>
 
 <h1><b>See also</b></h1>
 <p><a href="wb_create_image.html"><b>wb_create_image()</b></a><b><br></b><a href="wb_create_mask.html"><b>wb_create_mask()</b></a><b><br></b><a href="wb_load_image.html"><b>wb_load_image()</b></a><b><br></b><a href="../reference/functions_category.html#image">Image functions</a></p>
