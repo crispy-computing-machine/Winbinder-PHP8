@@ -528,7 +528,7 @@ static HBITMAP LoadRasterBitmapWIC(LPCTSTR pszImageFile)
 {
 	static const GUID CLSID_WICImagingFactory_LOCAL = {0xCACAF262, 0x9370, 0x4615, {0xA1, 0x3B, 0x9F, 0x55, 0x39, 0xDA, 0x4C, 0x0A}};
 	static const GUID IID_IWICImagingFactory_LOCAL = {0xEC5EC8A9, 0xC395, 0x4314, {0x9C, 0x77, 0x54, 0xD7, 0xA9, 0x35, 0xFF, 0x70}};
-	static const GUID GUID_WICPixelFormat32bppBGRA_LOCAL = {0x6fddc324, 0x4e03, 0x4bfe, {0xb1, 0x85, 0x3d, 0x77, 0x76, 0x8d, 0xc9, 0x0f}};
+	static const GUID GUID_WICPixelFormat32bppPBGRA_LOCAL = {0x6fddc324, 0x4e03, 0x4bfe, {0xb1, 0x85, 0x3d, 0x77, 0x76, 0x8d, 0xc9, 0x0c}};
 	HRESULT hr;
 	IWICImagingFactory *pFactory = NULL;
 	IWICBitmapDecoder *pDecoder = NULL;
@@ -566,7 +566,7 @@ static HBITMAP LoadRasterBitmapWIC(LPCTSTR pszImageFile)
 		goto cleanup;
 
 	hr = pConverter->lpVtbl->Initialize(pConverter, (IWICBitmapSource *)pFrame,
-		&GUID_WICPixelFormat32bppBGRA_LOCAL, WICBitmapDitherTypeNone, NULL,
+		&GUID_WICPixelFormat32bppPBGRA_LOCAL, WICBitmapDitherTypeNone, NULL,
 		0.0f, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr))
 		goto cleanup;

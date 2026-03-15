@@ -2790,7 +2790,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 			wbCopyPartialBits(hdc, hbmBits,
 							  ((rc.right - rc.left) - bm.bmWidth) / 2,
 							  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
-							  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+							  bm.bmWidth, bm.bmHeight, 0, 0);
 		}
 	}
 	else
@@ -2798,7 +2798,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 		wbMaskPartialBits(hdc, hbmBits, hbmMask,
 						  ((rc.right - rc.left) - bm.bmWidth) / 2,
 						  ((rc.bottom - rc.top) - bm.bmHeight) / 2,
-						  rc.right - rc.left, rc.bottom - rc.top, 0, 0);
+						  bm.bmWidth, bm.bmHeight, 0, 0);
 	}
 
 	// Deletes old handle, if any
