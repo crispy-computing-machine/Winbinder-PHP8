@@ -2567,35 +2567,24 @@ static void wbPhpChartFreeSeriesBuffer(WBCHARTSERIES *series, int count)
 	wbChartFreeSeriesBuffer(series, count);
 }
 
-ZEND_FUNCTION(wb_set_chart_data)
+static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 {
-	zval *zseries;
-	zend_long pwbo;
-	PWBOBJ obj;
 	HashTable *htSeries;
 	zval *zSeriesEntry;
 	int seriesCount, i = 0;
 	WBCHARTSERIES *series = NULL;
 
-	ZEND_PARSE_PARAMETERS_START(2, 2)
-		Z_PARAM_LONG(pwbo)
-		Z_PARAM_ARRAY(zseries)
-	ZEND_PARSE_PARAMETERS_END();
-
-	if (!wbIsWBObj((void *)pwbo, TRUE))
-		RETURN_FALSE;
-	obj = (PWBOBJ)pwbo;
-	if (obj->uClass != ChartControl)
-		RETURN_FALSE;
+	if (!obj || obj->uClass != ChartControl || !zseries || Z_TYPE_P(zseries) != IS_ARRAY)
+		return FALSE;
 
 	htSeries = Z_ARRVAL_P(zseries);
 	seriesCount = zend_hash_num_elements(htSeries);
 	if (seriesCount <= 0)
-		RETURN_BOOL(wbChartSetData(obj, NULL, 0));
+		return wbChartSetData(obj, NULL, 0);
 
 	series = wbCalloc(seriesCount, sizeof(WBCHARTSERIES));
 	if (!series)
-		RETURN_FALSE;
+		return FALSE;
 
 	ZEND_HASH_FOREACH_VAL(htSeries, zSeriesEntry)
 	{
@@ -2605,42 +2594,36 @@ ZEND_FUNCTION(wb_set_chart_data)
 		int pointCount, j = 0;
 
 		if (Z_TYPE_P(zSeriesEntry) != IS_ARRAY)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series entry must be an array"));
 			goto fail;
-		}
 
 		zname = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "name", sizeof("name") - 1);
 		zpoints = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "points", sizeof("points") - 1);
 		ztype = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "type", sizeof("type") - 1);
 
 		if (!zpoints || Z_TYPE_P(zpoints) != IS_ARRAY)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] missing valid points array"), i);
 			goto fail;
-		}
 
 		series[i].name = (zname && Z_TYPE_P(zname) == IS_STRING) ? Utf82WideChar(Z_STRVAL_P(zname), Z_STRLEN_P(zname)) : Utf82WideChar("Series", 0);
 		series[i].type = (ztype && Z_TYPE_P(ztype) == IS_STRING) ? wbChartTypeFromString(Z_STRVAL_P(ztype)) : 0;
 		if (series[i].type < 0)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] has invalid type"), i);
 			goto fail;
-		}
+		series[i].lineColor = NOCOLOR;
+		series[i].fillColor = NOCOLOR;
+		series[i].pointColor = NOCOLOR;
 
 		htPoints = Z_ARRVAL_P(zpoints);
 		pointCount = zend_hash_num_elements(htPoints);
 		series[i].pointCount = pointCount;
 		series[i].points = pointCount > 0 ? wbCalloc(pointCount, sizeof(WBCHARTPOINT)) : NULL;
+		if (pointCount > 0 && !series[i].points)
+			goto fail;
 
 		ZEND_HASH_FOREACH_VAL(htPoints, zPoint)
 		{
-			zval *zx = NULL, *zy = NULL, *zl = NULL;
+			zval *zx, *zy, *zl;
+
 			if (Z_TYPE_P(zPoint) != IS_ARRAY)
-			{
-				wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
 				goto fail;
-			}
 
 			zx = zend_hash_str_find(Z_ARRVAL_P(zPoint), "x", sizeof("x") - 1);
 			zy = zend_hash_str_find(Z_ARRVAL_P(zPoint), "y", sizeof("y") - 1);
@@ -2651,10 +2634,7 @@ ZEND_FUNCTION(wb_set_chart_data)
 				zy = zend_hash_index_find(Z_ARRVAL_P(zPoint), 1);
 			}
 			if (!zx || !zy)
-			{
-				wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
 				goto fail;
-			}
 
 			if (Z_TYPE_P(zx) == IS_STRING)
 			{
@@ -2670,27 +2650,44 @@ ZEND_FUNCTION(wb_set_chart_data)
 			j++;
 		}
 		ZEND_HASH_FOREACH_END();
-
 		i++;
 	}
 	ZEND_HASH_FOREACH_END();
 
-	RETURN_BOOL(wbChartSetData(obj, series, seriesCount));
+	if (!wbChartSetData(obj, series, seriesCount))
+	{
+		wbPhpChartFreeSeriesBuffer(series, seriesCount);
+		return FALSE;
+	}
+	return TRUE;
 
 fail:
 	wbPhpChartFreeSeriesBuffer(series, seriesCount);
-	RETURN_FALSE;
+	return FALSE;
+}
+
+ZEND_FUNCTION(wb_set_chart_data)
+{
+	zend_long pwbo;
+	zval *zseries;
+	PWBOBJ obj;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(zseries)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		RETURN_FALSE;
+	obj = (PWBOBJ)pwbo;
+	RETURN_BOOL(wbPhpSetChartDataInternal(obj, zseries));
 }
 
 ZEND_FUNCTION(wb_chart_set_data)
 {
-	zval *zseries;
 	zend_long pwbo;
+	zval *zseries;
 	PWBOBJ obj;
-	HashTable *htSeries;
-	zval *zSeriesEntry;
-	int seriesCount, i = 0;
-	WBCHARTSERIES *series = NULL;
 
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(pwbo)
@@ -2700,101 +2697,7 @@ ZEND_FUNCTION(wb_chart_set_data)
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		RETURN_FALSE;
 	obj = (PWBOBJ)pwbo;
-	if (obj->uClass != ChartControl)
-		RETURN_FALSE;
-
-	htSeries = Z_ARRVAL_P(zseries);
-	seriesCount = zend_hash_num_elements(htSeries);
-	if (seriesCount <= 0)
-		RETURN_BOOL(wbChartSetData(obj, NULL, 0));
-
-	series = wbCalloc(seriesCount, sizeof(WBCHARTSERIES));
-	if (!series)
-		RETURN_FALSE;
-
-	ZEND_HASH_FOREACH_VAL(htSeries, zSeriesEntry)
-	{
-		zval *zname, *zpoints, *ztype;
-		HashTable *htPoints;
-		zval *zPoint;
-		int pointCount, j = 0;
-
-		if (Z_TYPE_P(zSeriesEntry) != IS_ARRAY)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series entry must be an array"));
-			goto fail;
-		}
-
-		zname = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "name", sizeof("name") - 1);
-		zpoints = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "points", sizeof("points") - 1);
-		ztype = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "type", sizeof("type") - 1);
-
-		if (!zpoints || Z_TYPE_P(zpoints) != IS_ARRAY)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] missing valid points array"), i);
-			goto fail;
-		}
-
-		series[i].name = (zname && Z_TYPE_P(zname) == IS_STRING) ? Utf82WideChar(Z_STRVAL_P(zname), Z_STRLEN_P(zname)) : Utf82WideChar("Series", 0);
-		series[i].type = (ztype && Z_TYPE_P(ztype) == IS_STRING) ? wbChartTypeFromString(Z_STRVAL_P(ztype)) : 0;
-		if (series[i].type < 0)
-		{
-			wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] has invalid type"), i);
-			goto fail;
-		}
-
-		htPoints = Z_ARRVAL_P(zpoints);
-		pointCount = zend_hash_num_elements(htPoints);
-		series[i].pointCount = pointCount;
-		series[i].points = pointCount > 0 ? wbCalloc(pointCount, sizeof(WBCHARTPOINT)) : NULL;
-
-		ZEND_HASH_FOREACH_VAL(htPoints, zPoint)
-		{
-			zval *zx = NULL, *zy = NULL, *zl = NULL;
-			if (Z_TYPE_P(zPoint) != IS_ARRAY)
-			{
-				wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
-				goto fail;
-			}
-
-			zx = zend_hash_str_find(Z_ARRVAL_P(zPoint), "x", sizeof("x") - 1);
-			zy = zend_hash_str_find(Z_ARRVAL_P(zPoint), "y", sizeof("y") - 1);
-			zl = zend_hash_str_find(Z_ARRVAL_P(zPoint), "label", sizeof("label") - 1);
-			if (!zx || !zy)
-			{
-				zx = zend_hash_index_find(Z_ARRVAL_P(zPoint), 0);
-				zy = zend_hash_index_find(Z_ARRVAL_P(zPoint), 1);
-			}
-			if (!zx || !zy)
-			{
-				wbError(TEXT("wb_set_chart_data"), MB_ICONWARNING, TEXT("Series[%d] point[%d] malformed"), i, j);
-				goto fail;
-			}
-
-			if (Z_TYPE_P(zx) == IS_STRING)
-			{
-				series[i].points[j].x = (double)j;
-				series[i].points[j].xLabel = Utf82WideChar(Z_STRVAL_P(zx), Z_STRLEN_P(zx));
-			}
-			else
-				series[i].points[j].x = zval_get_double(zx);
-
-			series[i].points[j].y = zval_get_double(zy);
-			if (zl && Z_TYPE_P(zl) == IS_STRING)
-				series[i].points[j].label = Utf82WideChar(Z_STRVAL_P(zl), Z_STRLEN_P(zl));
-			j++;
-		}
-		ZEND_HASH_FOREACH_END();
-
-		i++;
-	}
-	ZEND_HASH_FOREACH_END();
-
-	RETURN_BOOL(wbChartSetData(obj, series, seriesCount));
-
-fail:
-	wbPhpChartFreeSeriesBuffer(series, seriesCount);
-	RETURN_FALSE;
+	RETURN_BOOL(wbPhpSetChartDataInternal(obj, zseries));
 }
 
 ZEND_FUNCTION(wb_chart_set_options)
