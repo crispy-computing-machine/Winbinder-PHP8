@@ -2572,6 +2572,7 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 	HashTable *htSeries;
 	zval *zSeriesEntry;
 	int seriesCount, i = 0;
+	BOOL ok = TRUE;
 	WBCHARTSERIES *series = NULL;
 
 	if (!obj || obj->uClass != ChartControl || !zseries || Z_TYPE_P(zseries) != IS_ARRAY)
@@ -2594,19 +2595,30 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 		int pointCount, j = 0;
 
 		if (Z_TYPE_P(zSeriesEntry) != IS_ARRAY)
-			goto fail;
+		{
+			ok = FALSE;
+			break;
+		}
 
 		zname = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "name", sizeof("name") - 1);
 		zpoints = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "points", sizeof("points") - 1);
 		ztype = zend_hash_str_find(Z_ARRVAL_P(zSeriesEntry), "type", sizeof("type") - 1);
 
 		if (!zpoints || Z_TYPE_P(zpoints) != IS_ARRAY)
-			goto fail;
+		{
+			ok = FALSE;
+			break;
+		}
 
-		series[i].name = (zname && Z_TYPE_P(zname) == IS_STRING) ? Utf82WideChar(Z_STRVAL_P(zname), Z_STRLEN_P(zname)) : Utf82WideChar("Series", 0);
+		series[i].name = (zname && Z_TYPE_P(zname) == IS_STRING)
+			? Utf82WideChar(Z_STRVAL_P(zname), Z_STRLEN_P(zname))
+			: Utf82WideChar("Series", 0);
 		series[i].type = (ztype && Z_TYPE_P(ztype) == IS_STRING) ? wbChartTypeFromString(Z_STRVAL_P(ztype)) : 0;
 		if (series[i].type < 0)
-			goto fail;
+		{
+			ok = FALSE;
+			break;
+		}
 		series[i].lineColor = NOCOLOR;
 		series[i].fillColor = NOCOLOR;
 		series[i].pointColor = NOCOLOR;
@@ -2616,14 +2628,20 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 		series[i].pointCount = pointCount;
 		series[i].points = pointCount > 0 ? wbCalloc(pointCount, sizeof(WBCHARTPOINT)) : NULL;
 		if (pointCount > 0 && !series[i].points)
-			goto fail;
+		{
+			ok = FALSE;
+			break;
+		}
 
 		ZEND_HASH_FOREACH_VAL(htPoints, zPoint)
 		{
 			zval *zx, *zy, *zl;
 
 			if (Z_TYPE_P(zPoint) != IS_ARRAY)
-				goto fail;
+			{
+				ok = FALSE;
+				break;
+			}
 
 			zx = zend_hash_str_find(Z_ARRVAL_P(zPoint), "x", sizeof("x") - 1);
 			zy = zend_hash_str_find(Z_ARRVAL_P(zPoint), "y", sizeof("y") - 1);
@@ -2634,7 +2652,10 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 				zy = zend_hash_index_find(Z_ARRVAL_P(zPoint), 1);
 			}
 			if (!zx || !zy)
-				goto fail;
+			{
+				ok = FALSE;
+				break;
+			}
 
 			if (Z_TYPE_P(zx) == IS_STRING)
 			{
@@ -2650,9 +2671,19 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 			j++;
 		}
 		ZEND_HASH_FOREACH_END();
+
+		if (!ok)
+			break;
+
 		i++;
 	}
 	ZEND_HASH_FOREACH_END();
+
+	if (!ok)
+	{
+		wbPhpChartFreeSeriesBuffer(series, seriesCount);
+		return FALSE;
+	}
 
 	if (!wbChartSetData(obj, series, seriesCount))
 	{
@@ -2660,10 +2691,6 @@ static BOOL wbPhpSetChartDataInternal(PWBOBJ obj, zval *zseries)
 		return FALSE;
 	}
 	return TRUE;
-
-fail:
-	wbPhpChartFreeSeriesBuffer(series, seriesCount);
-	return FALSE;
 }
 
 ZEND_FUNCTION(wb_set_chart_data)
