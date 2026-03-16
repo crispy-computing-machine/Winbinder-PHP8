@@ -121,6 +121,7 @@ ZEND_FUNCTION(wb_create_statusbar_items);
 ZEND_FUNCTION(wb_get_text);
 ZEND_FUNCTION(wb_select_tab);
 ZEND_FUNCTION(wb_set_text);
+ZEND_FUNCTION(wb_set_chart_data);
 ZEND_FUNCTION(wb_chart_set_data);
 ZEND_FUNCTION(wb_chart_set_options);
 ZEND_FUNCTION(wb_chart_set_colors);
@@ -356,6 +357,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_create_statusbar_items,arginfo_wb_create_statusbar_items)
         ZEND_FE(wb_get_text,arginfo_wb_get_text)
         ZEND_FE(wb_set_text,arginfo_wb_set_text)
+        ZEND_FE(wb_set_chart_data,arginfo_wb_set_chart_data)
         ZEND_FE(wb_chart_set_data,arginfo_wb_chart_set_data)
         ZEND_FE(wb_chart_set_options,arginfo_wb_chart_set_options)
         ZEND_FE(wb_chart_set_colors,arginfo_wb_chart_set_colors)

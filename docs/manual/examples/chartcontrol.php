@@ -1,8 +1,8 @@
 <?php
 $win = wb_create_window(NULL, AppWindow, "ChartControl demo", WBC_CENTER, WBC_CENTER, 760, 480, WBC_NOTIFY);
-$chart = wb_create_control($win, ChartControl, "", 20, 20, 720, 380, 201, WBC_BORDER, WBC_CHART_POINT_HOVER | WBC_CHART_POINT_CLICK);
+$chart = wb_create_control($win, ChartControl, ["Quarter snapshot", "Month", "Value"], 20, 20, 720, 380, 201, WBC_BORDER, WBC_CHART_POINT_HOVER | WBC_CHART_POINT_CLICK);
 
-wb_chart_set_data($chart, [
+wb_set_chart_data($chart, [
     [
         'name' => 'Revenue',
         'type' => 'line',
@@ -18,13 +18,6 @@ wb_chart_set_data($chart, [
         'type' => 'scatter',
         'points' => [ [0, 10], [1, 16], [2, 12], [3, 20] ],
     ],
-]);
-
-wb_chart_set_options($chart, [
-    'title' => 'Quarter snapshot',
-    'x_label' => 'Month',
-    'y_label' => 'Value',
-    'padding' => 30,
 ]);
 
 wb_chart_set_colors($chart, [RGB(33, 150, 243), RGB(255, 99, 71), RGB(76, 175, 80)]);
