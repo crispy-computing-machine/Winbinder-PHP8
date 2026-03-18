@@ -534,7 +534,7 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		{
 			RECT rc; int i; int best = -1; double bestDist = 1e100;
 			double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
-			int mx = GET_X_LPARAM(lParam), my = GET_Y_LPARAM(lParam);
+			int mx = (int)(short)LOWORD(lParam), my = (int)(short)HIWORD(lParam);
 			TRACKMOUSEEVENT tme;
 			GetClientRect(hwnd, &rc);
 			if (!pData->bTracking)
