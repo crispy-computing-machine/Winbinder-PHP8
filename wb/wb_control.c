@@ -571,7 +571,7 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 							pData->pszTooltipText = wbMalloc(256 * sizeof(TCHAR));
 						if (!pData->pszTooltipText)
 							return 0;
-						wsprintf(pData->pszTooltipText, TEXT("%s: %.3f\n%s: %.3f"),
+						swprintf(pData->pszTooltipText, 256, TEXT("%s: %.3f\n%s: %.3f"),
 							pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"),
 							pData->pxData[best],
 							pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"),
