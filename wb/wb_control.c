@@ -132,10 +132,13 @@ static void ChartFreeData(PCHARTDATA pData)
 		wbFree(pData->pszXAxisLabel);
 	if (pData->pszYAxisLabel)
 		wbFree(pData->pszYAxisLabel);
+	if (pData->pszTooltipText)
+		wbFree(pData->pszTooltipText);
 	pData->pxData = NULL;
 	pData->pyData = NULL;
 	pData->pszXAxisLabel = NULL;
 	pData->pszYAxisLabel = NULL;
+	pData->pszTooltipText = NULL;
 	pData->nPoints = 0;
 }
 
@@ -558,19 +561,26 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			if (bestDist > 256.0) best = -1;
 			if (best != pData->nHoverIndex)
 			{
-				TCHAR tip[256];
 				pData->nHoverIndex = best;
 				InvalidateRect(hwnd, NULL, TRUE);
 				if (pData->hwndTooltip)
 				{
 					if (best >= 0)
 					{
-						wsprintf(tip, TEXT("%s: %.3f\n%s: %.3f"), pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"), pData->pxData[best], pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"), pData->pyData[best]);
+						if (!pData->pszTooltipText)
+							pData->pszTooltipText = wbMalloc(256 * sizeof(TCHAR));
+						if (!pData->pszTooltipText)
+							return 0;
+						wsprintf(pData->pszTooltipText, TEXT("%s: %.3f\n%s: %.3f"),
+							pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"),
+							pData->pxData[best],
+							pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"),
+							pData->pyData[best]);
 						pData->ti.cbSize = sizeof(TOOLINFO);
 						pData->ti.uFlags = TTF_TRACK | TTF_ABSOLUTE;
 						pData->ti.hwnd = hwnd;
 						pData->ti.uId = (UINT_PTR)hwnd;
-						pData->ti.lpszText = tip;
+						pData->ti.lpszText = pData->pszTooltipText;
 						SendMessage(pData->hwndTooltip, TTM_SETMAXTIPWIDTH, 0, 300);
 						SendMessage(pData->hwndTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&pData->ti);
 						SendMessage(pData->hwndTooltip, TTM_TRACKPOSITION, 0, MAKELPARAM(mx + 16, my + 24));
@@ -1167,6 +1177,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		pData->pszYAxisLabel = ChartDupText(pszTooltip);
 		pData->nChartType = WBC_CHART_LINE;
 		pData->nHoverIndex = -1;
+		pData->pszTooltipText = NULL;
 		pData->hwndTooltip = CreateToolTip(pwbo, TEXT(""));
 		if (pData->hwndTooltip)
 			pData->ti.cbSize = sizeof(TOOLINFO);

@@ -446,6 +446,7 @@ typedef struct
 	int nChartType;
 	int nHoverIndex;
 	HWND hwndTooltip;
+	LPTSTR pszTooltipText;
 	TOOLINFO ti;
 	BOOL bTracking;
 } CHARTDATA, *PCHARTDATA;
