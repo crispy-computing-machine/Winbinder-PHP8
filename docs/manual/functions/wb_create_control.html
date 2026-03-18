@@ -25,6 +25,8 @@ if one&nbsp;is not required). Most classes support tooltips. See the table in
 support them.</p>
 <p>Returns the handle of the newly created control or&nbsp;<code>NULL</code> or 
 zero if an error occurs.</p>
+<p><b>Chart caption format:</b> when <span class="code">ctlclass</span> is <span class="code">Chart</span>, pass <span class="code">caption</span> as <span class="code">array("X axis label", "Y axis label")</span>. Both labels must be strings.</p>
+
 <h1><b>Parameters</b></h1>
 <p><i><b>parent</b></i> is a handle to the WinBinder object that is the parent window.<br><i><b>ctlclass</b></i>
 is the class of the control or object&nbsp;to be created. Click <a href="../reference/classes_control.html">here</a> for a list of the available control
@@ -60,6 +62,7 @@ page.</p>
             &quot;Web site&quot;, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11),<br>), 
             0, 0, 16, 15, 0, 0, PATH_RES . &quot;toolbar.bmp&quot;);</p>
 </td></tr></table>
+<p class="code">$chart = wb_create_control($mainwin, Chart, array("Time", "Value"), 20, 90, 320, 180, 501);<br>wb_set_chart_data($chart, array(1,2,3,4), array(10,25,20,30), WBC_CHART_LINE);</p>
 
 <h1><b>See also</b></h1>
 <p><a href="wb_create_window.html"><b>wb_create_window</b></a><b><br><a href="wb_set_text.html">wb_set_text</a><br><a href="wb_set_value.html">wb_set_value</a><br></b><a href="../reference/classes_control.html">Control classes</a><br><a href="../reference/functions_category.html#control">Control functions</a><br><a href="../classes/tabcontrol.html">TabControl

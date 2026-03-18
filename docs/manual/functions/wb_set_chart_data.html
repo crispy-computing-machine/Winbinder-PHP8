@@ -1,0 +1,16 @@
+<html>
+<head><title>wb_set_chart_data</title><link rel="stylesheet" href="../help.css"></head>
+<body>
+<h2>wb_set_chart_data</h2>
+<p>bool <b>wb_set_chart_data</b>(int chart, array xData, array yData [, int chartType = WBC_CHART_LINE])</p>
+<p>Sets data for a <span class="code">Chart</span> control created with <span class="code">wb_create_control()</span>.</p>
+<h1>Parameters</h1>
+<p><b>chart</b>: chart control handle.</p>
+<p><b>xData</b>, <b>yData</b>: equal-length numeric arrays.</p>
+<p><b>chartType</b>: <span class="code">WBC_CHART_LINE</span>, <span class="code">WBC_CHART_BAR</span>, or <span class="code">WBC_CHART_SCATTER</span>.</p>
+<h1>Behavior</h1>
+<p>The chart repaints immediately. Hovering points/bars displays a tooltip in the format: <span class="code">xAxisLabel: x\nyAxisLabel: y</span>.</p>
+<h1>Example</h1>
+<p class="code">$chart = wb_create_control($win, Chart, array("Month", "Sales"), 20, 20, 400, 240);<br>wb_set_chart_data($chart, array(1,2,3,4), array(12.5, 16.0, 9.8, 20.1), WBC_CHART_BAR);<br>wb_refresh($chart);</p>
+<p>See full demo: <a href="../examples/chart_demo.php"><code>chart_demo.php</code></a>.</p>
+</body></html>

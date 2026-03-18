@@ -138,6 +138,7 @@ ZEND_FUNCTION(wb_set_splitter_position);
 ZEND_FUNCTION(wb_get_splitter_position);
 ZEND_FUNCTION(wb_set_splitter_panes);
 ZEND_FUNCTION(wb_set_splitter_minsize);
+ZEND_FUNCTION(wb_set_chart_data);
 ZEND_FUNCTION(wb_scintilla_set_text);
 ZEND_FUNCTION(wb_scintilla_get_text);
 ZEND_FUNCTION(wb_scintilla_append_text);
@@ -393,6 +394,7 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_get_splitter_position,arginfo_wb_get_splitter_position)
         ZEND_FE(wb_set_splitter_panes,arginfo_wb_set_splitter_panes)
         ZEND_FE(wb_set_splitter_minsize,arginfo_wb_set_splitter_minsize)
+        ZEND_FE(wb_set_chart_data,arginfo_wb_set_chart_data)
         ZEND_FE(wb_scintilla_set_text,arginfo_wb_scintilla_set_text)
         ZEND_FE(wb_scintilla_get_text,arginfo_wb_scintilla_get_text)
         ZEND_FE(wb_scintilla_append_text,arginfo_wb_scintilla_append_text)
@@ -571,6 +573,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "TabControl", TabControl)
 	WB_ZEND_CONST(LONG, "ToolBar", ToolBar)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
+	WB_ZEND_CONST(LONG, "Chart", Chart)
 	WB_ZEND_CONST(LONG, "ScintillaEdit", ScintillaEdit)
 	WB_ZEND_CONST(LONG, "Splitter", Splitter)
 	WB_ZEND_CONST(LONG, "Timer", Timer)
@@ -613,6 +616,9 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SPLIT_VERTICAL", WBC_SPLIT_VERTICAL)
 	WB_ZEND_CONST(LONG, "WBC_SPLIT_HORIZONTAL", WBC_SPLIT_HORIZONTAL)
 	WB_ZEND_CONST(LONG, "WBC_PANEL", WBC_PANEL)
+	WB_ZEND_CONST(LONG, "WBC_CHART_LINE", WBC_CHART_LINE)
+	WB_ZEND_CONST(LONG, "WBC_CHART_BAR", WBC_CHART_BAR)
+	WB_ZEND_CONST(LONG, "WBC_CHART_SCATTER", WBC_CHART_SCATTER)
 
 	// Notification message flags
 	WB_ZEND_CONST(LONG, "WBC_DBLCLICK", WBC_DBLCLICK)
