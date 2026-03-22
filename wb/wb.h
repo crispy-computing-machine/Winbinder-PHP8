@@ -123,6 +123,7 @@
 #define BROWSER_WINDOW_CLASS TEXT("wbHTMLWnd")
 #define IMAGE_BUTTON_CLASS TEXT("wbImageButton")
 #define SPLITTER_CLASS TEXT("wbSplitter")
+#define CHART_CLASS TEXT("wbChart")
 
 // Custom WinBinder messages
 #define WBWM_NOTIFYICON (WM_APP + 2)
@@ -203,6 +204,7 @@ enum
 	TabControl,
 	ToolBar,
 	TreeView,
+	Chart,
 	ScintillaEdit,
 	Timer,
 	Splitter,
@@ -310,6 +312,11 @@ enum
 
 // RTFEditBox
 #define WBC_RTF_TEXT 1
+
+// Chart types
+#define WBC_CHART_LINE 1
+#define WBC_CHART_BAR 2
+#define WBC_CHART_SCATTER 3
 
 // Windows standard identifiers
 
@@ -428,6 +435,22 @@ typedef struct
 	int nLastLevel;
 } TREEDATA, *PTREEDATA;
 
+typedef struct
+{ // chdt
+	DWORD dwMagic;
+	LPTSTR pszXAxisLabel;
+	LPTSTR pszYAxisLabel;
+	double *pxData;
+	double *pyData;
+	int nPoints;
+	int nChartType;
+	int nHoverIndex;
+	HWND hwndTooltip;
+	LPTSTR pszTooltipText;
+	TOOLINFO ti;
+	BOOL bTracking;
+} CHARTDATA, *PCHARTDATA;
+
 // Simplified font structure
 
 typedef struct
@@ -531,6 +554,7 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
 int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
 BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
+BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType);
 BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded);
 BOOL wbPanelToggle(PWBOBJ pwbo);
 BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon);

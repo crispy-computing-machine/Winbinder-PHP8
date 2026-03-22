@@ -25,6 +25,7 @@ message queue.</p>
 <p>Optional parameters <i>xpos</i>, <i>ypos</i>, <i>width</i> and&nbsp;<i>height</i> 
 will make the function invalidate and redraw only the&nbsp;specified part of 
 the screen or control.</p>
+<p>For <span class="code">Chart</span> controls, data updates performed by <span class="code">wb_set_chart_data()</span> are rendered in <span class="code">WM_PAINT</span>, so <span class="code">wb_refresh($chart)</span> can be used to force redraws.</p>
 <p>Returns
 <code>TRUE</code> on success or&nbsp;<code>FALSE</code> if an error occurs.</p>
 <h1><b>See also</b></h1>
