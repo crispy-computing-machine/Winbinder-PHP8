@@ -268,9 +268,17 @@ void *wbVlcCreatePlayer(PWBOBJ pwboHost)
 		args[nArgs++] = szPluginArg;
 
 	pPlayer->pInstance = g_vlc.libvlc_new(nArgs, args);
+
+	/* Some VLC runtimes reject/ignore plugin-path formatting depending on packaging.
+	 * Retry progressively with fewer options before failing hard. */
+	if (!pPlayer->pInstance && nArgs > 1)
+		pPlayer->pInstance = g_vlc.libvlc_new(1, args);
+	if (!pPlayer->pInstance)
+		pPlayer->pInstance = g_vlc.libvlc_new(0, NULL);
+
 	if (!pPlayer->pInstance)
 	{
-		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc_new() failed. Ensure libvlc.dll, libvlccore.dll and plugins are from the same architecture/runtime."));
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc_new() failed after fallback retries. Verify runtime/DLL compatibility and VLC plugin availability."));
 		wbFree(pPlayer);
 		return NULL;
 	}
