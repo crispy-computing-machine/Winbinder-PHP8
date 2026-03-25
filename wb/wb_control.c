@@ -623,8 +623,10 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 				TextOut(hdc, 6, 8, pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"), (int)wcslen(pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y")));
 				if (pData->nPoints > 0)
 				{
+					double avgY = pData->pyData[0];
 					double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
-					for (i = 1; i < pData->nPoints; i++) { minX = MIN(minX, pData->pxData[i]); maxX = MAX(maxX, pData->pxData[i]); minY = MIN(minY, pData->pyData[i]); maxY = MAX(maxY, pData->pyData[i]); }
+					for (i = 1; i < pData->nPoints; i++) { minX = MIN(minX, pData->pxData[i]); maxX = MAX(maxX, pData->pxData[i]); minY = MIN(minY, pData->pyData[i]); maxY = MAX(maxY, pData->pyData[i]); avgY += pData->pyData[i]; }
+					avgY /= (double)pData->nPoints;
 					if (maxX == minX) maxX = minX + 1.0; if (maxY == minY) maxY = minY + 1.0;
 					SelectObject(hdc, hSeries);
 					for (i = 0; i < pData->nPoints; i++)
@@ -648,6 +650,19 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 						else
 						{ Ellipse(hdc, px-3, py-3, px+3, py+3); }
 						if (i == pData->nHoverIndex) { HPEN hHover = CreatePen(PS_SOLID, 1, RGB(220,20,60)); HPEN old=(HPEN)SelectObject(hdc,hHover); Ellipse(hdc, px-5, py-5, px+5, py+5); SelectObject(hdc,old); DeleteObject(hHover);}
+					}
+					if (pData->bShowAverage)
+					{
+						TCHAR avgText[64];
+						int avgPy = plotBottom - (int)((avgY - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY));
+						HPEN hAvg = CreatePen(PS_DOT, 1, RGB(200, 80, 80));
+						HPEN hOld = (HPEN)SelectObject(hdc, hAvg);
+						MoveToEx(hdc, plotLeft, avgPy, NULL);
+						LineTo(hdc, plotRight, avgPy);
+						SelectObject(hdc, hOld);
+						DeleteObject(hAvg);
+						swprintf(avgText, 64, TEXT("AVG: %.3f"), avgY);
+						TextOut(hdc, plotRight - 100, MAX(plotTop, avgPy - 14), avgText, (int)wcslen(avgText));
 					}
 				}
 			}
@@ -1199,6 +1214,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		pData->pszXAxisLabel = ChartDupText(pszCaption);
 		pData->pszYAxisLabel = ChartDupText(pszTooltip);
 		pData->nChartType = WBC_CHART_LINE;
+		pData->bShowAverage = FALSE;
 		pData->nHoverIndex = -1;
 		pData->pszTooltipText = NULL;
 		pData->hwndTooltip = CreateToolTip(pwbo, TEXT(""));
@@ -2841,7 +2857,7 @@ BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2)
 	return TRUE;
 }
 
-BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType)
+BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType, int nShowAverage)
 {
 	PCHARTDATA pData;
 	double *pxNew;
@@ -2876,6 +2892,8 @@ BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int n
 	pData->pyData = pyNew;
 	pData->nPoints = nPoints;
 	pData->nChartType = nChartType;
+	if (nShowAverage >= 0)
+		pData->bShowAverage = nShowAverage ? TRUE : FALSE;
 	pData->nHoverIndex = -1;
 	if (pData->hwndTooltip)
 		SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);

@@ -325,18 +325,25 @@ ZEND_FUNCTION(wb_set_chart_data)
 	zend_long pwbo;
 	zval *zxData, *zyData;
 	zend_long chartType = WBC_CHART_LINE;
+	zend_bool showAverage = 0;
+	int showAverageOpt = -1;
+	int nargs;
 	HashTable *hx, *hy;
 	int nPoints, i = 0;
 	double *xVals, *yVals;
 	zval *val;
 
-	ZEND_PARSE_PARAMETERS_START(3, 4)
+	ZEND_PARSE_PARAMETERS_START(3, 5)
 		Z_PARAM_LONG(pwbo)
 		Z_PARAM_ARRAY(zxData)
 		Z_PARAM_ARRAY(zyData)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(chartType)
+		Z_PARAM_BOOL(showAverage)
 	ZEND_PARSE_PARAMETERS_END();
+	nargs = ZEND_NUM_ARGS();
+	if (nargs >= 5)
+		showAverageOpt = showAverage ? 1 : 0;
 
 	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != Chart)
 	{ RETURN_BOOL(FALSE); }
@@ -366,7 +373,7 @@ ZEND_FUNCTION(wb_set_chart_data)
 	} ZEND_HASH_FOREACH_END();
 
 	{
-		BOOL bOk = wbSetChartData((PWBOBJ)pwbo, xVals, yVals, nPoints, (int)chartType);
+		BOOL bOk = wbSetChartData((PWBOBJ)pwbo, xVals, yVals, nPoints, (int)chartType, showAverageOpt);
 		wbFree(xVals);
 		wbFree(yVals);
 		RETURN_BOOL(bOk);

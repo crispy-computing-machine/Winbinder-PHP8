@@ -444,6 +444,7 @@ typedef struct
 	double *pyData;
 	int nPoints;
 	int nChartType;
+	BOOL bShowAverage;
 	int nHoverIndex;
 	HWND hwndTooltip;
 	LPTSTR pszTooltipText;
@@ -554,7 +555,7 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
 int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
 BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
-BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType);
+BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType, int nShowAverage);
 BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded);
 BOOL wbPanelToggle(PWBOBJ pwbo);
 BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon);
