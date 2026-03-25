@@ -536,11 +536,14 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		if (pData && pData->nPoints > 0)
 		{
 			RECT rc; int i; int best = -1; double bestDist = 1e100;
+			int plotLeft = 70, plotTop = 20, plotRight, plotBottom;
 			double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
 			int mx = (int)(short)LOWORD(lParam), my = (int)(short)HIWORD(lParam);
 			POINT ptScreen;
 			TRACKMOUSEEVENT tme;
 			GetClientRect(hwnd, &rc);
+			plotRight = rc.right - 20;
+			plotBottom = rc.bottom - 35;
 			if (!pData->bTracking)
 			{
 				tme.cbSize = sizeof(TRACKMOUSEEVENT);
@@ -554,8 +557,8 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			if (maxX == minX) maxX = minX + 1.0; if (maxY == minY) maxY = minY + 1.0;
 			for (i = 0; i < pData->nPoints; i++)
 			{
-				double px = 50.0 + (pData->pxData[i] - minX) * (double)(MAX(1, (rc.right - rc.left) - 70)) / (maxX - minX);
-				double py = (rc.bottom - 35.0) - (pData->pyData[i] - minY) * (double)(MAX(1, (rc.bottom - rc.top) - 60)) / (maxY - minY);
+				double px = (double)plotLeft + (pData->pxData[i] - minX) * (double)MAX(1, plotRight - plotLeft) / (maxX - minX);
+				double py = (double)plotBottom - (pData->pyData[i] - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY);
 				double dx = px - mx, dy = py - my, dist = dx*dx + dy*dy;
 				if (dist < bestDist) { bestDist = dist; best = i; }
 			}
@@ -602,15 +605,18 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps; HDC hdc = BeginPaint(hwnd, &ps); RECT rc; int i;
+			int plotLeft = 70, plotTop = 20, plotRight, plotBottom;
 			HPEN hAxis = CreatePen(PS_SOLID, 1, RGB(80,80,80));
 			HPEN hSeries = CreatePen(PS_SOLID, 2, RGB(0,120,215));
 			HBRUSH hBack = CreateSolidBrush(RGB(255,255,255));
 			HBRUSH hBar = CreateSolidBrush(RGB(0,120,215));
 			GetClientRect(hwnd, &rc);
+			plotRight = rc.right - 20;
+			plotBottom = rc.bottom - 35;
 			FillRect(hdc, &rc, hBack);
 			SelectObject(hdc, hAxis);
-			MoveToEx(hdc, 50, 10, NULL); LineTo(hdc, 50, rc.bottom - 35);
-			MoveToEx(hdc, 50, rc.bottom - 35, NULL); LineTo(hdc, rc.right - 20, rc.bottom - 35);
+			MoveToEx(hdc, plotLeft, plotTop, NULL); LineTo(hdc, plotLeft, plotBottom);
+			MoveToEx(hdc, plotLeft, plotBottom, NULL); LineTo(hdc, plotRight, plotBottom);
 			if (pData)
 			{
 				TextOut(hdc, MAX(4, (rc.right / 2) - 40), rc.bottom - 20, pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"), (int)wcslen(pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X")));
@@ -623,12 +629,21 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 					SelectObject(hdc, hSeries);
 					for (i = 0; i < pData->nPoints; i++)
 					{
-						int px = 50 + (int)((pData->pxData[i] - minX) * (double)(MAX(1, (rc.right - rc.left) - 70)) / (maxX - minX));
-						int py = (rc.bottom - 35) - (int)((pData->pyData[i] - minY) * (double)(MAX(1, (rc.bottom - rc.top) - 60)) / (maxY - minY));
+						int px = plotLeft + (int)((pData->pxData[i] - minX) * (double)MAX(1, plotRight - plotLeft) / (maxX - minX));
+						int py = plotBottom - (int)((pData->pyData[i] - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY));
 						if (pData->nChartType == WBC_CHART_LINE)
 						{ if (i == 0) MoveToEx(hdc, px, py, NULL); else LineTo(hdc, px, py); Ellipse(hdc, px-2, py-2, px+2, py+2); }
 						else if (pData->nChartType == WBC_CHART_BAR)
-						{ RECT rb; int bw = MAX(3, ((rc.right-70)/MAX(1,pData->nPoints))/2); rb.left = px-bw; rb.top = py; rb.right = px+bw; rb.bottom = rc.bottom-35; FillRect(hdc, &rb, hBar); }
+						{
+							RECT rb;
+							int spacing = (pData->nPoints > 1) ? MAX(8, (plotRight - plotLeft) / (pData->nPoints - 1)) : MAX(12, plotRight - plotLeft);
+							int bw = MAX(3, MIN(20, spacing / 4));
+							rb.left = MAX(plotLeft + 1, px - bw);
+							rb.top = py;
+							rb.right = px + bw;
+							rb.bottom = plotBottom;
+							FillRect(hdc, &rb, hBar);
+						}
 						else
 						{ Ellipse(hdc, px-3, py-3, px+3, py+3); }
 						if (i == pData->nHoverIndex) { HPEN hHover = CreatePen(PS_SOLID, 1, RGB(220,20,60)); HPEN old=(HPEN)SelectObject(hdc,hHover); Ellipse(hdc, px-5, py-5, px+5, py+5); SelectObject(hdc,old); DeleteObject(hHover);}
