@@ -295,19 +295,6 @@ static void PanelNotifyParentResize(PWBOBJ pwbo)
 #define PANEL_COLLAPSED_HEIGHT 24
 #define PANEL_HEADER_ID_OFFSET 0x6000
 
-typedef struct
-{
-	DWORD dwMagic;
-	BOOL bExpanded;
-	int nExpandedHeight;
-	int nCollapsedHeight;
-	HWND hwndHeader;
-	LPTSTR pszHeader;
-	HANDLE hIcon;
-	UINT uIconType;
-	BOOL bOwnIcon;
-} PANELDATA, *PPANELDATA;
-
 static PPANELDATA PanelGetData(PWBOBJ pwbo)
 {
 	if (!pwbo || pwbo->uClass != Frame || !pwbo->lparam)
