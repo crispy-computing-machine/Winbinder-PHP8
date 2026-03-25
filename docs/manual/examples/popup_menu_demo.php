@@ -25,7 +25,7 @@ $popup = wb_create_popup_menu(array(
 ));
 
 // Optional icon: if the image exists, assign it to Copy
-$iconPath = __DIR__ . '/../images/icon_note.png';
+$iconPath = __DIR__ . '/../images/icon_stop.gif';
 if (file_exists($iconPath)) {
     $himg = wb_load_image($iconPath);
     if ($himg) {

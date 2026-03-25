@@ -49,6 +49,11 @@ function process_main($window, $id, $ctrl = 0, $param = 0)
         return;
     }
 
+    if ($id === IDCANCEL || $id === IDCLOSE) {
+        wb_destroy_window($window);
+        return;
+    }
+
     switch ($id) {
         case 1105: // Add
             $newText = trim(wb_get_text($txtSearch));

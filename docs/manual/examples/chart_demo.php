@@ -38,6 +38,7 @@ wb_main_loop();
 
 function apply_chart($chart, $chartType)
 {
+    global $status, $btnAvg;
     $ok = wb_set_chart_data($chart, $GLOBALS['chart_x'], $GLOBALS['chart_y'], $chartType, $GLOBALS['show_avg']);
     if ($ok) {
         wb_refresh($chart);
@@ -51,8 +52,8 @@ function apply_chart($chart, $chartType)
     }
 
     $avgLabel = $GLOBALS['show_avg'] ? 'ON' : 'OFF';
-    wb_set_text(wb_get_control(wb_get_parent($chart), 205), "Avg: {$avgLabel}");
-    wb_set_text(wb_get_control(wb_get_parent($chart), 301), "Type: {$typeLabel}\nAverage line: {$avgLabel}. Use Randomize to load fresh data.");
+    wb_set_text($btnAvg, "Avg: {$avgLabel}");
+    wb_set_text($status, "Type: {$typeLabel}\nAverage line: {$avgLabel}. Use Randomize to load fresh data.");
 }
 
 function randomize_data()

@@ -32,7 +32,7 @@ function process_filter_form($window, $id, $ctrl = null, $param1 = 0, $param2 = 
     $to = wb_get_control($window, 202);
     $status = wb_get_control($window, 401);
 
-    if ($id === IDCANCEL || $id === IDOK) {
+    if ($id === IDCANCEL || $id === IDCLOSE) {
         wb_destroy_window($window);
         return;
     }

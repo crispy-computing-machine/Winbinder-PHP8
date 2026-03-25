@@ -98,7 +98,7 @@ function process_main($window, $id, $ctrl = 0, $param1 = 0, $param2 = 0, $param3
 {
     $editor = wb_get_control($window, 101);
 
-    if ($id === IDCANCEL || $id === IDOK) {
+    if ($id === IDCANCEL || $id === IDCLOSE) {
         wb_destroy_window($window);
         return;
     }
