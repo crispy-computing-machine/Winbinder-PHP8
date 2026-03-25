@@ -42,3 +42,29 @@ Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
 
 # ⚠️ DO NOT USE IN PRODUCTION!
 # ⚠️ No warranty provided!
+
+VLC Example: configurable sample media path
+========================
+
+The complete VLC manual example lives at `docs/manual/examples/vlc_media_control_complete.php`.
+
+It resolves the initial media path in this order:
+
+1. Environment variable `WB_VLC_SAMPLE_MP4`
+2. First CLI argument (`$argv[1]`)
+3. Fallback default `C:/media/sample.mp4`
+
+Set the environment variable before running the example:
+
+```bat
+set WB_VLC_SAMPLE_MP4=D:\media\demo.mp4
+php docs/manual/examples/vlc_media_control_complete.php
+```
+
+Or pass a one-off file path on the command line:
+
+```bat
+php docs/manual/examples/vlc_media_control_complete.php D:\media\clip.mp4
+```
+
+If neither is provided, the example uses `C:/media/sample.mp4` and shows a status hint explaining that `WB_VLC_SAMPLE_MP4` can override it.
