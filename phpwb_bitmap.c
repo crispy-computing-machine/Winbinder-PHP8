@@ -14,6 +14,9 @@ ZEND wrapper for bitmap functions
 #include <math.h>
 #include "phpwb.h"
 
+extern BOOL IsBitmap(HANDLE handle);
+extern BOOL IsIcon(HANDLE handle);
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /**
@@ -71,6 +74,13 @@ ZEND_FUNCTION(wb_save_image)
 	if (!hbm){
 		RETURN_BOOL(FALSE);
 	}
+	if (!IsBitmap((HANDLE)hbm)) {
+		if (IsIcon((HANDLE)hbm))
+			wbError(TEXT("wb_save_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle; icon/cursor handles are not supported."));
+		else
+			wbError(TEXT("wb_save_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle."));
+		RETURN_BOOL(FALSE);
+	}
 
 	wcs = Utf82WideChar(s, s_len);
 
@@ -97,6 +107,14 @@ ZEND_FUNCTION(wb_rotate_image)
     if (!hbm) {
         RETURN_NULL();
     }
+
+	if (!IsBitmap((HANDLE)hbm)) {
+		if (IsIcon((HANDLE)hbm))
+			wbError(TEXT("wb_rotate_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle; icon/cursor handles are not supported."));
+		else
+			wbError(TEXT("wb_rotate_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle."));
+		RETURN_NULL();
+	}
 
     // Call the wbRotateBitmap function
     ret = wbRotateBitmap((HBITMAP)hbm, angle);
@@ -126,6 +144,14 @@ ZEND_FUNCTION(wb_resize_image)
     if (!hbm) {
         RETURN_NULL();
     }
+
+	if (!IsBitmap((HANDLE)hbm)) {
+		if (IsIcon((HANDLE)hbm))
+			wbError(TEXT("wb_resize_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle; icon/cursor handles are not supported."));
+		else
+			wbError(TEXT("wb_resize_image"), MB_ICONWARNING, TEXT("Expected a bitmap handle."));
+		RETURN_NULL();
+	}
 
     // Call the wbResizeBitmap function
     ret = wbResizeBitmap((HBITMAP)hbm, newWidth, newHeight);
@@ -182,6 +208,17 @@ ZEND_FUNCTION(wb_get_image_data)
 	ZEND_PARSE_PARAMETERS_END();
 
 	// lpBits long pointer to BYTE array
+	if (!hbm) {
+		RETURN_NULL();
+	}
+	if (!IsBitmap((HANDLE)hbm)) {
+		if (IsIcon((HANDLE)hbm))
+			wbError(TEXT("wb_get_image_data"), MB_ICONWARNING, TEXT("Expected a bitmap handle; icon/cursor handles are not supported."));
+		else
+			wbError(TEXT("wb_get_image_data"), MB_ICONWARNING, TEXT("Expected a bitmap handle."));
+		RETURN_NULL();
+	}
+
 	size = wbGetBitmapBits((HBITMAP)hbm, &lpBits, compress4to3);
 
 	if (!lpBits){

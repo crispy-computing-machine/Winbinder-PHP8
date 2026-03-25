@@ -93,6 +93,10 @@ BOOL SaveBitmap(LPCSTR filename, HBITMAP bmp, HDC hdc);
 HBITMAP CaptureScreen(LPCWSTR filename);
 char *ConvertBSTRToLPSTR(BSTR bstrIn);
 
+
+// Exported chart API
+ZEND_FUNCTION(wb_set_chart_data);
+
 // Time functions
 int get_system_timezone(char *tzchar);
 int time_offset();
