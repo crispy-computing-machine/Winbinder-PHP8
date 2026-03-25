@@ -538,6 +538,7 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			RECT rc; int i; int best = -1; double bestDist = 1e100;
 			double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
 			int mx = (int)(short)LOWORD(lParam), my = (int)(short)HIWORD(lParam);
+			POINT ptScreen;
 			TRACKMOUSEEVENT tme;
 			GetClientRect(hwnd, &rc);
 			if (!pData->bTracking)
@@ -579,12 +580,18 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 						pData->ti.cbSize = sizeof(TOOLINFO);
 						pData->ti.uFlags = TTF_TRACK | TTF_ABSOLUTE;
 						pData->ti.hwnd = hwnd;
-						pData->ti.uId = (UINT_PTR)hwnd;
+						pData->ti.uId = 0;
+						pData->ti.hinst = NULL;
+						GetClientRect(hwnd, &pData->ti.rect);
 						pData->ti.lpszText = pData->pszTooltipText;
 						SendMessage(pData->hwndTooltip, TTM_SETMAXTIPWIDTH, 0, 300);
 						SendMessage(pData->hwndTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&pData->ti);
-						SendMessage(pData->hwndTooltip, TTM_TRACKPOSITION, 0, MAKELPARAM(mx + 16, my + 24));
+						ptScreen.x = mx + 16;
+						ptScreen.y = my + 24;
+						ClientToScreen(hwnd, &ptScreen);
+						SendMessage(pData->hwndTooltip, TTM_TRACKPOSITION, 0, MAKELPARAM(ptScreen.x, ptScreen.y));
 						SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&pData->ti);
+						SendMessage(pData->hwndTooltip, TTM_POPUP, 0, 0);
 					}
 					else
 						SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);
@@ -1180,7 +1187,15 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		pData->pszTooltipText = NULL;
 		pData->hwndTooltip = CreateToolTip(pwbo, TEXT(""));
 		if (pData->hwndTooltip)
+		{
 			pData->ti.cbSize = sizeof(TOOLINFO);
+			pData->ti.uFlags = TTF_TRACK | TTF_ABSOLUTE;
+			pData->ti.hwnd = pwbo->hwnd;
+			pData->ti.uId = 0;
+			pData->ti.hinst = NULL;
+			GetClientRect(pwbo->hwnd, &pData->ti.rect);
+			pData->ti.lpszText = TEXT("");
+		}
 		pwbo->lparam = (LPARAM)pData;
 		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
 		break;
