@@ -43,28 +43,95 @@ Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
 # ⚠️ DO NOT USE IN PRODUCTION!
 # ⚠️ No warranty provided!
 
-VLC Example: configurable sample media path
+VLC / libVLC integration (VlcMediaControl)
 ========================
 
-The complete VLC manual example lives at `docs/manual/examples/vlc_media_control_complete.php`.
+WinBinder now includes a `VlcMediaControl` host control class for embedding libVLC video output.
 
-It resolves the initial media path in this order:
+Runtime requirements:
+- `libvlc.dll` must be available at runtime (PATH, app folder, or system search path).
+- VLC plugin/runtime DLLs from the same VLC distribution must also be present.
+- Keep a `plugins` directory next to `libvlc.dll` (or ensure VLC plugin-path is discoverable), otherwise video output modules may not load.
+- Architecture must match (`php.exe`, `php_winbinder.dll`, and VLC runtime all x86 or all x64).
 
-1. Environment variable `WB_VLC_SAMPLE_MP4`
-2. First CLI argument (`$argv[1]`)
-3. Fallback default `C:/media/sample.mp4`
+Graceful fallback behavior:
+- `wb_create_control(..., VlcMediaControl, ...)` still creates a plain host window even if VLC is missing.
+- `wb_vlc_is_available()` reports whether libVLC symbols were loaded successfully.
+- `wb_vlc_create_player()` returns `NULL` when VLC is unavailable; all other VLC APIs return `FALSE` for invalid/missing runtime.
 
-Set the environment variable before running the example:
+Minimal API:
+- `wb_vlc_is_available()`
+- `wb_vlc_create_player($vlcHostControl)` (any valid WinBinder object/window with a real HWND; `VlcMediaControl` is recommended)
+- `wb_vlc_destroy_player($vlcPlayer)`
+- `wb_vlc_set_media($vlcPlayer, $pathOrUrl)`
+- `wb_vlc_play($vlcPlayer)`, `wb_vlc_pause($vlcPlayer)`, `wb_vlc_stop($vlcPlayer)`
+- `wb_vlc_set_volume($vlcPlayer, $volume)` (`0..200`)
+- `wb_vlc_set_position($vlcPlayer, $position)` (`0.0..1.0`)
 
-```bat
-set WB_VLC_SAMPLE_MP4=D:\media\demo.mp4
-php docs/manual/examples/vlc_media_control_complete.php
+Callbacks / events:
+- VLC player state changes are dispatched to the window callback using control id + event code.
+- Event codes: `WBC_VLC_PLAYING`, `WBC_VLC_PAUSED`, `WBC_VLC_ENDED`, `WBC_VLC_ERROR`.
+
+Example usage (PHP)
+-------------------
+
+```php
+<?php
+
+function main_handler($window, $id, $ctrl, $lparam1, $lparam2, $lparam3) {
+    global $vlcHost;
+
+    if ($id === wb_get_id($vlcHost)) {
+        switch ($lparam1) {
+            case WBC_VLC_PLAYING:
+                echo "VLC: playing\n";
+                break;
+            case WBC_VLC_PAUSED:
+                echo "VLC: paused\n";
+                break;
+            case WBC_VLC_ENDED:
+                echo "VLC: ended\n";
+                break;
+            case WBC_VLC_ERROR:
+                echo "VLC: error\n";
+                break;
+        }
+    }
+
+    if ($id === IDOK) {
+        wb_destroy_window($window);
+    }
+
+    return 0;
+}
+
+$main = wb_create_window(NULL, AppWindow, "WinBinder + VLC", 100, 100, 900, 600, 0, WBC_NOTIFY);
+$vlcHost = wb_create_control($main, VlcMediaControl, "", 10, 10, 860, 500, 1001, 0, 0);
+$btnStop = wb_create_control($main, PushButton, "Stop", 10, 525, 80, 28, IDOK, 0);
+
+if (!wb_vlc_is_available()) {
+    wb_message_box($main, "VLC runtime not available (libvlc.dll missing or invalid).", "VLC", MB_ICONWARNING);
+    wb_main_loop();
+    exit;
+}
+
+$player = wb_vlc_create_player($vlcHost);
+if ($player) {
+    wb_vlc_set_media($player, "C:/media/sample.mp4"); // Or URL: "https://example.com/video.mp4"
+    wb_vlc_set_volume($player, 90);
+    wb_vlc_play($player);
+}
+
+wb_set_handler($main, "main_handler");
+wb_main_loop();
+
+if ($player) {
+    wb_vlc_destroy_player($player);
+}
 ```
 
-Or pass a one-off file path on the command line:
-
-```bat
-php docs/manual/examples/vlc_media_control_complete.php D:\media\clip.mp4
-```
-
-If neither is provided, the example uses `C:/media/sample.mp4` and shows a status hint explaining that `WB_VLC_SAMPLE_MP4` can override it.
+Notes:
+- Replace `C:/media/sample.mp4` with an existing file on your machine.
+- For URLs, VLC/network support must be present in your VLC runtime package.
+- If VLC is unavailable, the host control still exists but VLC APIs return `NULL`/`FALSE`.
+- If you only copied `libvlc.dll` + `libvlccore.dll`, also copy the matching `plugins` folder or video may not render.
