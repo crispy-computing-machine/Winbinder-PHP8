@@ -638,9 +638,10 @@ static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 							RECT rb;
 							int spacing = (pData->nPoints > 1) ? MAX(8, (plotRight - plotLeft) / (pData->nPoints - 1)) : MAX(12, plotRight - plotLeft);
 							int bw = MAX(3, MIN(20, spacing / 4));
-							rb.left = MAX(plotLeft + 1, px - bw);
+							int pxBar = MIN(plotRight - bw - 1, MAX(plotLeft + bw + 1, px));
+							rb.left = pxBar - bw;
 							rb.top = py;
-							rb.right = px + bw;
+							rb.right = pxBar + bw;
 							rb.bottom = plotBottom;
 							FillRect(hdc, &rb, hBar);
 						}
