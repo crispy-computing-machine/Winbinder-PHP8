@@ -155,7 +155,8 @@ static BOOL WbVlcBuildPluginArg(char *pszBuffer, size_t nBuffer)
 	TCHAR szDllPath[MAX_PATH_BUFFER];
 	TCHAR *pszLastSlash;
 	DWORD dwAttr;
-	char *pszUtf8;
+	char *pszUtf8 = NULL;
+	int nUtf8Len;
 
 	if (!pszBuffer || nBuffer < 32 || !g_vlc.hLib)
 		return FALSE;
@@ -176,12 +177,22 @@ static BOOL WbVlcBuildPluginArg(char *pszBuffer, size_t nBuffer)
 	if (dwAttr == INVALID_FILE_ATTRIBUTES || !(dwAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return FALSE;
 
-	pszUtf8 = WideChar2Utf8(szDllPath, NULL);
+	nUtf8Len = WideCharToMultiByte(CP_UTF8, 0, szDllPath, -1, NULL, 0, NULL, NULL);
+	if (nUtf8Len <= 0)
+		return FALSE;
+
+	pszUtf8 = (char *)wbMalloc((size_t)nUtf8Len);
 	if (!pszUtf8)
 		return FALSE;
 
+	if (WideCharToMultiByte(CP_UTF8, 0, szDllPath, -1, pszUtf8, nUtf8Len, NULL, NULL) <= 0)
+	{
+		wbFree(pszUtf8);
+		return FALSE;
+	}
+
 	snprintf(pszBuffer, nBuffer, "--plugin-path=%s", pszUtf8);
-	efree(pszUtf8);
+	wbFree(pszUtf8);
 	return TRUE;
 }
 
