@@ -61,7 +61,7 @@ Graceful fallback behavior:
 
 Minimal API:
 - `wb_vlc_is_available()`
-- `wb_vlc_create_player($vlcHostControl)`
+- `wb_vlc_create_player($vlcHostControl)` (any valid WinBinder object/window with a real HWND; `VlcMediaControl` is recommended)
 - `wb_vlc_destroy_player($vlcPlayer)`
 - `wb_vlc_set_media($vlcPlayer, $pathOrUrl)`
 - `wb_vlc_play($vlcPlayer)`, `wb_vlc_pause($vlcPlayer)`, `wb_vlc_stop($vlcPlayer)`

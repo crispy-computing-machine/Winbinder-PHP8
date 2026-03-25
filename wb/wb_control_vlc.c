@@ -244,11 +244,17 @@ void *wbVlcCreatePlayer(PWBOBJ pwboHost)
 	int nArgs = 0;
 	WBVLCPLAYER *pPlayer;
 
-	if (!pwboHost || !pwboHost->hwnd || pwboHost->uClass != VlcMediaControl)
+	if (!pwboHost || !pwboHost->hwnd || !IsWindow(pwboHost->hwnd))
+	{
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Invalid host control/window passed to wbVlcCreatePlayer"));
 		return NULL;
+	}
 
 	if (!WbVlcEnsureLoaded())
+	{
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc.dll was not loaded; VLC player is unavailable"));
 		return NULL;
+	}
 
 	pPlayer = wbCalloc(1, sizeof(WBVLCPLAYER));
 	if (!pPlayer)
@@ -264,6 +270,7 @@ void *wbVlcCreatePlayer(PWBOBJ pwboHost)
 	pPlayer->pInstance = g_vlc.libvlc_new(nArgs, args);
 	if (!pPlayer->pInstance)
 	{
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc_new() failed. Ensure libvlc.dll, libvlccore.dll and plugins are from the same architecture/runtime."));
 		wbFree(pPlayer);
 		return NULL;
 	}
@@ -271,6 +278,7 @@ void *wbVlcCreatePlayer(PWBOBJ pwboHost)
 	pPlayer->pPlayer = g_vlc.libvlc_media_player_new(pPlayer->pInstance);
 	if (!pPlayer->pPlayer)
 	{
+		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc_media_player_new() failed"));
 		g_vlc.libvlc_release(pPlayer->pInstance);
 		wbFree(pPlayer);
 		return NULL;

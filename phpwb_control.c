@@ -2444,7 +2444,7 @@ static PWBOBJ wbPhpGetVlcHostObj(zend_long pwbo)
 	PWBOBJ obj = (PWBOBJ)pwbo;
 	if (!wbIsWBObj((void *)pwbo, TRUE))
 		return NULL;
-	if (obj->uClass != VlcMediaControl)
+	if (!obj->hwnd || !IsWindow(obj->hwnd))
 		return NULL;
 	return obj;
 }
