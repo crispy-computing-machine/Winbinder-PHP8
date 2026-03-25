@@ -29,7 +29,7 @@ foreach ($fixtures as $ext => $base64) {
     file_put_contents($workdir . DIRECTORY_SEPARATOR . "sample.$ext", $bin);
 }
 
-$win = wb_create_window(NULL, AppWindow, "wb_load_image() raster format demo", WBC_CENTER, WBC_CENTER, 760, 220, WBC_NOTIFY);
+$win = wb_create_window(0, AppWindow, "wb_load_image() raster format demo", WBC_CENTER, WBC_CENTER, 760, 220, WBC_NOTIFY);
 $label = wb_create_control($win, Label, "Loaded images into WBC_IMAGE frames:", 10, 10, 720, 20, 1, WBC_VISIBLE);
 
 $formats = ['png', 'jpg', 'gif', 'bmp', 'wbmp'];

@@ -1,6 +1,6 @@
 <?php
 
-$main = wb_create_window(null, AppWindow, "Auto-reload on save", WBC_NOTIFY, 100, 100, 640, 360);
+$main = wb_create_window(0, AppWindow, "Auto-reload on save", WBC_NOTIFY, 100, 100, 640, 360);
 $log = wb_create_control($main, EditBox, "Watching...", 10, 10, 620, 280, 1001, WBC_READONLY | WBC_MULTILINE | WBC_BORDER);
 
 $watchPath = __DIR__;

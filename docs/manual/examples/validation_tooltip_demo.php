@@ -1,6 +1,6 @@
 <?php
 
-$win = wb_create_window(NULL, AppWindow, "Validation tooltip demo", WBC_CENTER, WBC_CENTER, 420, 180);
+$win = wb_create_window(0, AppWindow, "Validation tooltip demo", WBC_CENTER, WBC_CENTER, 420, 180);
 $label = wb_create_control($win, Label, "Email", 14, 20, 70, 20, 0, WBC_RIGHT);
 $input = wb_create_control($win, EditBox, "", 90, 16, 300, 24, 1001);
 $ok = wb_create_control($win, PushButton, "Validate", 90, 56, 90, 28, 1002);

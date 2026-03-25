@@ -4,7 +4,7 @@ define('ID_RUN', 1001);
 define('ID_CANCEL', 1002);
 define('ID_STATUS', 1003);
 
-$main = wb_create_window(NULL, AppWindow, 'Async task demo', WBC_CENTER, WBC_CENTER, 520, 220, WBC_NOTIFY, 0);
+$main = wb_create_window(0, AppWindow, 'Async task demo', WBC_CENTER, WBC_CENTER, 520, 220, WBC_NOTIFY, 0);
 $runBtn = wb_create_control($main, PushButton, 'Run task', 16, 16, 110, 28, ID_RUN, 0);
 $cancelBtn = wb_create_control($main, PushButton, 'Cancel', 132, 16, 110, 28, ID_CANCEL, 0);
 $status = wb_create_control($main, Label, 'Idle', 16, 58, 480, 120, ID_STATUS, WBC_BORDER);

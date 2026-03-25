@@ -8,7 +8,7 @@ class CollapsibleSettingsUI
 
     public function __construct($title, $x, $y, $width, $height)
     {
-        $this->window = wb_create_window(NULL, AppWindow, $title, $x, $y, $width, $height, WBC_NOTIFY, WBC_RESIZE);
+        $this->window = wb_create_window(0, AppWindow, $title, $x, $y, $width, $height, WBC_NOTIFY, WBC_RESIZE);
     }
 
     public function getWindow()

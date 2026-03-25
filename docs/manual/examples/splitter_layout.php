@@ -1,5 +1,5 @@
 <?php
-$mainwin = wb_create_window(NULL, AppWindow, "Splitter example app", WBC_CENTER, WBC_CENTER, 980, 640, WBC_NOTIFY, WBC_RESIZE);
+$mainwin = wb_create_window(0, AppWindow, "Splitter example app", WBC_CENTER, WBC_CENTER, 980, 640, WBC_NOTIFY, WBC_RESIZE);
 $split = wb_create_control($mainwin, Splitter, "", 0, 0, 980, 640, 1001, WBC_SPLIT_VERTICAL, 360);
 
 $paneLeft = wb_create_control($split, InvisibleArea, "", 0, 0, 320, 640, 1100, WBC_BORDER);

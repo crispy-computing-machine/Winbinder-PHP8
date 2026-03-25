@@ -10,7 +10,7 @@ const ID_POP_TOGGLE_CHECK = 1003;
 const ID_POP_TOGGLE_ENABLED = 1004;
 const ID_POP_EXIT = 1005;
 
-$win = wb_create_window(NULL, AppWindow, "Popup menu demo", 120, 120, 520, 320, WBC_NOTIFY, WBC_MOUSEDOWN);
+$win = wb_create_window(0, AppWindow, "Popup menu demo", 120, 120, 520, 320, WBC_NOTIFY, WBC_MOUSEDOWN);
 wb_create_control($win, Label, "Right-click anywhere in this window.", 14, 16, 360, 20, 0);
 wb_create_control($win, Label, "Paste starts disabled. Use 'Toggle Paste enabled' and 'Toggle checked item' to test state updates.", 14, 40, 470, 20, 0);
 
