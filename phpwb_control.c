@@ -208,6 +208,22 @@ static PWBOBJ wbPhpGetScintillaObj(zend_long pwbo)
 	return obj;
 }
 
+static BOOL wbPhpExtractChartLabels(zval *zcaption, TCHAR **ppXAxis, TCHAR **ppYAxis)
+{
+	zval *zx, *zy;
+	if (!zcaption || Z_TYPE_P(zcaption) != IS_ARRAY)
+		return FALSE;
+	if (zend_hash_num_elements(Z_ARRVAL_P(zcaption)) != 2)
+		return FALSE;
+	zx = zend_hash_index_find(Z_ARRVAL_P(zcaption), 0);
+	zy = zend_hash_index_find(Z_ARRVAL_P(zcaption), 1);
+	if (!zx || !zy || Z_TYPE_P(zx) != IS_STRING || Z_TYPE_P(zy) != IS_STRING)
+		return FALSE;
+	*ppXAxis = Utf82WideChar(Z_STRVAL_P(zx), Z_STRLEN_P(zx));
+	*ppYAxis = Utf82WideChar(Z_STRVAL_P(zy), Z_STRLEN_P(zy));
+	return TRUE;
+}
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 /* Creates a window control, menu, toolbar, status bar or accelerator. */
@@ -218,7 +234,7 @@ ZEND_FUNCTION(wb_create_control)
 	zend_long wbclass, x = WBC_CENTER, y = WBC_CENTER;
 	zend_long w = CW_USEDEFAULT, h = CW_USEDEFAULT, id = 32767, style = 0, param = 0, ntab = 0;
 	int nargs;
-	zval *zcaption;
+	zval *zcaption = NULL;
 	char *caption = "";
 	char *tooltip = "";
 
@@ -253,18 +269,40 @@ ZEND_FUNCTION(wb_create_control)
 		y = WBC_CENTER;
 	}
 
+	if (wbclass == Chart && (!zcaption || Z_TYPE_P(zcaption) != IS_ARRAY))
+	{
+		php_error_docref(NULL, E_WARNING, "Chart caption must be array [xAxisLabel, yAxisLabel]");
+		RETURN_NULL();
+	}
+
 	if (!wbIsWBObj((void *)pwboparent, TRUE)){
 		RETURN_NULL();
 	}
+	if (!zcaption)
+	{
+		RETURN_LONG((LONG_PTR)wbCreateControl((PWBOBJ)pwboparent, wbclass, wcsCaption, wcsTooltip, x, y, w, h, id, style, param, ntab));
+	}
+
 	// 2016_08_12 PHP 7 no longer has the same zval struct, let's not be complicated and use *macros*
 	// switch(zcaption->type) {
 	switch (Z_TYPE_P(zcaption))
 	{
 
 	case IS_ARRAY:
-		parse_array(zcaption, "ss", &caption, &tooltip);
-		wcsCaption = Utf82WideChar(caption, 0);
-		wcsTooltip = Utf82WideChar(tooltip, 0);
+		if (wbclass == Chart)
+		{
+			if (!wbPhpExtractChartLabels(zcaption, &wcsCaption, &wcsTooltip))
+			{
+				php_error_docref(NULL, E_WARNING, "Chart caption must be array [xAxisLabel, yAxisLabel] with both strings");
+				RETURN_NULL();
+			}
+		}
+		else
+		{
+			parse_array(zcaption, "ss", &caption, &tooltip);
+			wcsCaption = Utf82WideChar(caption, 0);
+			wcsTooltip = Utf82WideChar(tooltip, 0);
+		}
 		break;
 
 	case IS_STRING:
@@ -280,6 +318,66 @@ ZEND_FUNCTION(wb_create_control)
 
 	// Convert line breaks for the caption and tooltip
 	RETURN_LONG((LONG_PTR)wbCreateControl((PWBOBJ)pwboparent, wbclass, wcsCaption, wcsTooltip, x, y, w, h, id, style, param, ntab));
+}
+
+ZEND_FUNCTION(wb_set_chart_data)
+{
+	zend_long pwbo;
+	zval *zxData, *zyData;
+	zend_long chartType = WBC_CHART_LINE;
+	zend_bool showAverage = 0;
+	int showAverageOpt = -1;
+	int nargs;
+	HashTable *hx, *hy;
+	int nPoints, i = 0;
+	double *xVals, *yVals;
+	zval *val;
+
+	ZEND_PARSE_PARAMETERS_START(3, 5)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_ARRAY(zxData)
+		Z_PARAM_ARRAY(zyData)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(chartType)
+		Z_PARAM_BOOL(showAverage)
+	ZEND_PARSE_PARAMETERS_END();
+	nargs = ZEND_NUM_ARGS();
+	if (nargs >= 5)
+		showAverageOpt = showAverage ? 1 : 0;
+
+	if (!wbIsWBObj((void *)pwbo, TRUE) || ((PWBOBJ)pwbo)->uClass != Chart)
+	{ RETURN_BOOL(FALSE); }
+
+	hx = Z_ARRVAL_P(zxData);
+	hy = Z_ARRVAL_P(zyData);
+	if (zend_hash_num_elements(hx) != zend_hash_num_elements(hy) || zend_hash_num_elements(hx) == 0)
+	{ php_error_docref(NULL, E_WARNING, "xData and yData must have equal non-zero lengths"); RETURN_BOOL(FALSE); }
+
+	nPoints = (int)zend_hash_num_elements(hx);
+	xVals = wbMalloc(sizeof(double) * nPoints);
+	yVals = wbMalloc(sizeof(double) * nPoints);
+	if (!xVals || !yVals)
+		RETURN_BOOL(FALSE);
+
+	ZEND_HASH_FOREACH_VAL(hx, val)
+	{
+		if (Z_TYPE_P(val) != IS_LONG && Z_TYPE_P(val) != IS_DOUBLE) { wbFree(xVals); wbFree(yVals); php_error_docref(NULL, E_WARNING, "xData must contain only numeric values"); RETURN_BOOL(FALSE); }
+		xVals[i++] = zval_get_double(val);
+	} ZEND_HASH_FOREACH_END();
+
+	i = 0;
+	ZEND_HASH_FOREACH_VAL(hy, val)
+	{
+		if (Z_TYPE_P(val) != IS_LONG && Z_TYPE_P(val) != IS_DOUBLE) { wbFree(xVals); wbFree(yVals); php_error_docref(NULL, E_WARNING, "yData must contain only numeric values"); RETURN_BOOL(FALSE); }
+		yVals[i++] = zval_get_double(val);
+	} ZEND_HASH_FOREACH_END();
+
+	{
+		BOOL bOk = wbSetChartData((PWBOBJ)pwbo, xVals, yVals, nPoints, (int)chartType, showAverageOpt);
+		wbFree(xVals);
+		wbFree(yVals);
+		RETURN_BOOL(bOk);
+	}
 }
 
 ZEND_FUNCTION(wb_destroy_control)

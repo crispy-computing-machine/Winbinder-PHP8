@@ -51,6 +51,7 @@ BOOL IsBitmap(HANDLE handle);
 BOOL IsIcon(HANDLE handle);
 BOOL RegisterImageButtonClass(void);
 BOOL RegisterSplitterClass(void);
+BOOL RegisterChartClass(void);
 HWND CreateToolTip(PWBOBJ pwbo, LPCTSTR pszTooltip);
 
 // Private
@@ -59,6 +60,7 @@ static BOOL SetTransparentBitmap(HWND hwnd, HBITMAP hbmBits, BOOL bStatic, COLOR
 static HBITMAP ConvertBitmapAlphaToBackground(HBITMAP hbmSrc, COLORREF clBack, BOOL *pbHadAlpha);
 
 static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static LRESULT CALLBACK FrameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 static LRESULT CALLBACK EditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -87,6 +89,7 @@ typedef struct
 } SPLITTERDATA, *PSPLITTERDATA;
 
 #define SPLITTER_MAGIC 0x53504C54 /* 'SPLT' */
+#define CHART_MAGIC 0x43485254 /* 'CHRT' */
 
 #define PANEL_MAGIC 0x50414E4C /* 'PANL' */
 #define PANEL_COLLAPSED_HEIGHT 24
@@ -104,6 +107,49 @@ typedef struct
 	UINT uIconType;
 	BOOL bOwnIcon;
 } PANELDATA, *PPANELDATA;
+
+static LPTSTR ChartDupText(LPCTSTR pszText)
+{
+	UINT64 nLen;
+	LPTSTR pszCopy;
+	if (!pszText)
+		pszText = TEXT("");
+	nLen = wcslen(pszText);
+	pszCopy = wbMalloc((nLen + 1) * sizeof(TCHAR));
+	wcscpy(pszCopy, pszText);
+	return pszCopy;
+}
+
+static void ChartFreeData(PCHARTDATA pData)
+{
+	if (!pData)
+		return;
+	if (pData->pxData)
+		wbFree(pData->pxData);
+	if (pData->pyData)
+		wbFree(pData->pyData);
+	if (pData->pszXAxisLabel)
+		wbFree(pData->pszXAxisLabel);
+	if (pData->pszYAxisLabel)
+		wbFree(pData->pszYAxisLabel);
+	if (pData->pszTooltipText)
+		wbFree(pData->pszTooltipText);
+	pData->pxData = NULL;
+	pData->pyData = NULL;
+	pData->pszXAxisLabel = NULL;
+	pData->pszYAxisLabel = NULL;
+	pData->pszTooltipText = NULL;
+	pData->nPoints = 0;
+}
+
+static PCHARTDATA ChartGetData(PWBOBJ pwbo)
+{
+	if (!pwbo || pwbo->uClass != Chart || !pwbo->lparam)
+		return NULL;
+	if (((PCHARTDATA)pwbo->lparam)->dwMagic != CHART_MAGIC)
+		return NULL;
+	return (PCHARTDATA)pwbo->lparam;
+}
 
 static PPANELDATA PanelGetData(PWBOBJ pwbo)
 {
@@ -469,6 +515,165 @@ static LRESULT CALLBACK SplitterProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+static LRESULT CALLBACK ChartProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	PWBOBJ pwbo = (PWBOBJ)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	PCHARTDATA pData = pwbo ? ChartGetData(pwbo) : NULL;
+	switch (msg)
+	{
+	case WM_MOUSELEAVE:
+		if (pData && pData->nHoverIndex != -1)
+		{
+			pData->nHoverIndex = -1;
+			if (pData->hwndTooltip)
+				SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);
+			InvalidateRect(hwnd, NULL, TRUE);
+		}
+		if (pData)
+			pData->bTracking = FALSE;
+		return 0;
+	case WM_MOUSEMOVE:
+		if (pData && pData->nPoints > 0)
+		{
+			RECT rc; int i; int best = -1; double bestDist = 1e100;
+			int plotLeft = 70, plotTop = 20, plotRight, plotBottom;
+			double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
+			int mx = (int)(short)LOWORD(lParam), my = (int)(short)HIWORD(lParam);
+			POINT ptScreen;
+			TRACKMOUSEEVENT tme;
+			GetClientRect(hwnd, &rc);
+			plotRight = rc.right - 20;
+			plotBottom = rc.bottom - 35;
+			if (!pData->bTracking)
+			{
+				tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				tme.dwFlags = TME_LEAVE;
+				tme.hwndTrack = hwnd;
+				tme.dwHoverTime = 0;
+				TrackMouseEvent(&tme);
+				pData->bTracking = TRUE;
+			}
+			for (i = 1; i < pData->nPoints; i++) { minX = MIN(minX, pData->pxData[i]); maxX = MAX(maxX, pData->pxData[i]); minY = MIN(minY, pData->pyData[i]); maxY = MAX(maxY, pData->pyData[i]); }
+			if (maxX == minX) maxX = minX + 1.0; if (maxY == minY) maxY = minY + 1.0;
+			for (i = 0; i < pData->nPoints; i++)
+			{
+				double px = (double)plotLeft + (pData->pxData[i] - minX) * (double)MAX(1, plotRight - plotLeft) / (maxX - minX);
+				double py = (double)plotBottom - (pData->pyData[i] - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY);
+				double dx = px - mx, dy = py - my, dist = dx*dx + dy*dy;
+				if (dist < bestDist) { bestDist = dist; best = i; }
+			}
+			if (bestDist > 256.0) best = -1;
+			if (best != pData->nHoverIndex)
+			{
+				pData->nHoverIndex = best;
+				InvalidateRect(hwnd, NULL, TRUE);
+				if (pData->hwndTooltip)
+				{
+					if (best >= 0)
+					{
+						if (!pData->pszTooltipText)
+							pData->pszTooltipText = wbMalloc(256 * sizeof(TCHAR));
+						if (!pData->pszTooltipText)
+							return 0;
+						swprintf(pData->pszTooltipText, 256, TEXT("%s: %.3f\n%s: %.3f"),
+							pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"),
+							pData->pxData[best],
+							pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"),
+							pData->pyData[best]);
+						pData->ti.cbSize = sizeof(TOOLINFO);
+						pData->ti.uFlags = TTF_TRACK | TTF_ABSOLUTE;
+						pData->ti.hwnd = hwnd;
+						pData->ti.uId = 0;
+						pData->ti.hinst = NULL;
+						GetClientRect(hwnd, &pData->ti.rect);
+						pData->ti.lpszText = pData->pszTooltipText;
+						SendMessage(pData->hwndTooltip, TTM_SETMAXTIPWIDTH, 0, 300);
+						SendMessage(pData->hwndTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&pData->ti);
+						ptScreen.x = mx + 16;
+						ptScreen.y = my + 24;
+						ClientToScreen(hwnd, &ptScreen);
+						SendMessage(pData->hwndTooltip, TTM_TRACKPOSITION, 0, MAKELPARAM(ptScreen.x, ptScreen.y));
+						SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&pData->ti);
+						SendMessage(pData->hwndTooltip, TTM_POPUP, 0, 0);
+					}
+					else
+						SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);
+				}
+			}
+		}
+		return 0;
+	case WM_PAINT:
+		{
+			PAINTSTRUCT ps; HDC hdc = BeginPaint(hwnd, &ps); RECT rc; int i;
+			int plotLeft = 70, plotTop = 20, plotRight, plotBottom;
+			HPEN hAxis = CreatePen(PS_SOLID, 1, RGB(80,80,80));
+			HPEN hSeries = CreatePen(PS_SOLID, 2, RGB(0,120,215));
+			HBRUSH hBack = CreateSolidBrush(RGB(255,255,255));
+			HBRUSH hBar = CreateSolidBrush(RGB(0,120,215));
+			GetClientRect(hwnd, &rc);
+			plotRight = rc.right - 20;
+			plotBottom = rc.bottom - 35;
+			FillRect(hdc, &rc, hBack);
+			SelectObject(hdc, hAxis);
+			MoveToEx(hdc, plotLeft, plotTop, NULL); LineTo(hdc, plotLeft, plotBottom);
+			MoveToEx(hdc, plotLeft, plotBottom, NULL); LineTo(hdc, plotRight, plotBottom);
+			if (pData)
+			{
+				TextOut(hdc, MAX(4, (rc.right / 2) - 40), rc.bottom - 20, pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X"), (int)wcslen(pData->pszXAxisLabel ? pData->pszXAxisLabel : TEXT("X")));
+				TextOut(hdc, 6, 8, pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y"), (int)wcslen(pData->pszYAxisLabel ? pData->pszYAxisLabel : TEXT("Y")));
+				if (pData->nPoints > 0)
+				{
+					double avgY = pData->pyData[0];
+					double minX = pData->pxData[0], maxX = pData->pxData[0], minY = pData->pyData[0], maxY = pData->pyData[0];
+					for (i = 1; i < pData->nPoints; i++) { minX = MIN(minX, pData->pxData[i]); maxX = MAX(maxX, pData->pxData[i]); minY = MIN(minY, pData->pyData[i]); maxY = MAX(maxY, pData->pyData[i]); avgY += pData->pyData[i]; }
+					avgY /= (double)pData->nPoints;
+					if (maxX == minX) maxX = minX + 1.0; if (maxY == minY) maxY = minY + 1.0;
+					SelectObject(hdc, hSeries);
+					for (i = 0; i < pData->nPoints; i++)
+					{
+						int px = plotLeft + (int)((pData->pxData[i] - minX) * (double)MAX(1, plotRight - plotLeft) / (maxX - minX));
+						int py = plotBottom - (int)((pData->pyData[i] - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY));
+						if (pData->nChartType == WBC_CHART_LINE)
+						{ if (i == 0) MoveToEx(hdc, px, py, NULL); else LineTo(hdc, px, py); Ellipse(hdc, px-2, py-2, px+2, py+2); }
+						else if (pData->nChartType == WBC_CHART_BAR)
+						{
+							RECT rb;
+							int spacing = (pData->nPoints > 1) ? MAX(8, (plotRight - plotLeft) / (pData->nPoints - 1)) : MAX(12, plotRight - plotLeft);
+							int bw = MAX(3, MIN(20, spacing / 4));
+							int pxBar = MIN(plotRight - bw - 1, MAX(plotLeft + bw + 1, px));
+							rb.left = pxBar - bw;
+							rb.top = py;
+							rb.right = pxBar + bw;
+							rb.bottom = plotBottom;
+							FillRect(hdc, &rb, hBar);
+						}
+						else
+						{ Ellipse(hdc, px-3, py-3, px+3, py+3); }
+						if (i == pData->nHoverIndex) { HPEN hHover = CreatePen(PS_SOLID, 1, RGB(220,20,60)); HPEN old=(HPEN)SelectObject(hdc,hHover); Ellipse(hdc, px-5, py-5, px+5, py+5); SelectObject(hdc,old); DeleteObject(hHover);}
+					}
+					if (pData->bShowAverage)
+					{
+						TCHAR avgText[64];
+						int avgPy = plotBottom - (int)((avgY - minY) * (double)MAX(1, plotBottom - plotTop) / (maxY - minY));
+						HPEN hAvg = CreatePen(PS_DOT, 1, RGB(200, 80, 80));
+						HPEN hOld = (HPEN)SelectObject(hdc, hAvg);
+						MoveToEx(hdc, plotLeft, avgPy, NULL);
+						LineTo(hdc, plotRight, avgPy);
+						SelectObject(hdc, hOld);
+						DeleteObject(hAvg);
+						swprintf(avgText, 64, TEXT("AVG: %.3f"), avgY);
+						TextOut(hdc, plotRight - 100, MAX(plotTop, avgPy - 14), avgText, (int)wcslen(avgText));
+					}
+				}
+			}
+			DeleteObject(hAxis); DeleteObject(hSeries); DeleteObject(hBack); DeleteObject(hBar);
+			EndPaint(hwnd, &ps);
+			return 0;
+		}
+	}
+	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
 //----------------------------------------------------------- EXPORTED FUNCTIONS
 
 PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSourceCaption, LPCTSTR pszSourceTooltip,
@@ -732,6 +937,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 			dwStyle = WS_CHILD | WS_TABSTOP | nVisible;
 		break;
 
+	case Chart:
+		pszClass = CHART_CLASS;
+		dwStyle = WS_CHILD | WS_TABSTOP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | nVisible;
+		dwExStyle |= WS_EX_CLIENTEDGE;
+		break;
+
 	case ListView:
 		pszClass = WC_LISTVIEW;
 		dwStyle = WS_CHILD | WS_TABSTOP | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | nVisible;
@@ -993,6 +1204,35 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		CreateToolTip(pwbo, pszTooltip);
 		break;
 
+	case Chart:
+	{
+		PCHARTDATA pData = wbMalloc(sizeof(CHARTDATA));
+		if (!pData)
+			return NULL;
+		ZeroMemory(pData, sizeof(CHARTDATA));
+		pData->dwMagic = CHART_MAGIC;
+		pData->pszXAxisLabel = ChartDupText(pszCaption);
+		pData->pszYAxisLabel = ChartDupText(pszTooltip);
+		pData->nChartType = WBC_CHART_LINE;
+		pData->bShowAverage = FALSE;
+		pData->nHoverIndex = -1;
+		pData->pszTooltipText = NULL;
+		pData->hwndTooltip = CreateToolTip(pwbo, TEXT(""));
+		if (pData->hwndTooltip)
+		{
+			pData->ti.cbSize = sizeof(TOOLINFO);
+			pData->ti.uFlags = TTF_TRACK | TTF_ABSOLUTE;
+			pData->ti.hwnd = pwbo->hwnd;
+			pData->ti.uId = 0;
+			pData->ti.hinst = NULL;
+			GetClientRect(pwbo->hwnd, &pData->ti.rect);
+			pData->ti.lpszText = TEXT("");
+		}
+		pwbo->lparam = (LPARAM)pData;
+		SendMessage(pwbo->hwnd, WM_SETFONT, (WPARAM)hIconFont, 0);
+		break;
+	}
+
 	case Splitter:
 	{
 		PSPLITTERDATA pData = wbMalloc(sizeof(SPLITTERDATA));
@@ -1129,6 +1369,16 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 		if (pwbo->lparam)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
+	}
+	else if (pwbo->uClass == Chart && pwbo->lparam)
+	{
+		PCHARTDATA pData = ChartGetData(pwbo);
+		if (pData)
+		{
+			pData->dwMagic = 0;
+			ChartFreeData(pData);
+			wbFree((void *)pData);
+		}
 	}
 	else if (pwbo->uClass == Frame && pwbo->lparam)
 	{
@@ -2607,6 +2857,50 @@ BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2)
 	return TRUE;
 }
 
+BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType, int nShowAverage)
+{
+	PCHARTDATA pData;
+	double *pxNew;
+	double *pyNew;
+	if (!pwbo || pwbo->uClass != Chart || !IsWindow(pwbo->hwnd) || !xData || !yData || nPoints <= 0)
+		return FALSE;
+	pData = ChartGetData(pwbo);
+	if (!pData)
+		return FALSE;
+	if (nChartType != WBC_CHART_LINE && nChartType != WBC_CHART_BAR && nChartType != WBC_CHART_SCATTER)
+		nChartType = WBC_CHART_LINE;
+
+	pxNew = wbMalloc(sizeof(double) * nPoints);
+	pyNew = wbMalloc(sizeof(double) * nPoints);
+	if (!pxNew || !pyNew)
+	{
+		if (pxNew)
+			wbFree(pxNew);
+		if (pyNew)
+			wbFree(pyNew);
+		return FALSE;
+	}
+
+	memcpy(pxNew, xData, sizeof(double) * nPoints);
+	memcpy(pyNew, yData, sizeof(double) * nPoints);
+
+	if (pData->pxData)
+		wbFree(pData->pxData);
+	if (pData->pyData)
+		wbFree(pData->pyData);
+	pData->pxData = pxNew;
+	pData->pyData = pyNew;
+	pData->nPoints = nPoints;
+	pData->nChartType = nChartType;
+	if (nShowAverage >= 0)
+		pData->bShowAverage = nShowAverage ? TRUE : FALSE;
+	pData->nHoverIndex = -1;
+	if (pData->hwndTooltip)
+		SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);
+	InvalidateRect(pwbo->hwnd, NULL, TRUE);
+	return TRUE;
+}
+
 //------------------------------------------- FUNCTIONS PUBLIC TO WINBINDER ONLY
 
 BOOL IsIcon(HANDLE handle)
@@ -2660,6 +2954,27 @@ BOOL RegisterSplitterClass(void)
 	wc.lpszClassName = SPLITTER_CLASS;
 	wc.lpszMenuName = NULL;
 	wc.hCursor = LoadCursor(NULL, IDC_SIZEWE);
+	wc.hIcon = NULL;
+	wc.cbWndExtra = DLGWINDOWEXTRA;
+
+	if (!RegisterClass(&wc))
+		return FALSE;
+
+	return TRUE;
+}
+
+BOOL RegisterChartClass(void)
+{
+	WNDCLASS wc;
+
+	memset(&wc, 0, sizeof(WNDCLASS));
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = (WNDPROC)ChartProc;
+	wc.hInstance = hAppInstance;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszClassName = CHART_CLASS;
+	wc.lpszMenuName = NULL;
+	wc.hCursor = LoadCursor(NULL, IDC_CROSS);
 	wc.hIcon = NULL;
 	wc.cbWndExtra = DLGWINDOWEXTRA;
 
