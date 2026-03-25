@@ -135,3 +135,4 @@ Notes:
 - For URLs, VLC/network support must be present in your VLC runtime package.
 - If VLC is unavailable, the host control still exists but VLC APIs return `NULL`/`FALSE`.
 - If you only copied `libvlc.dll` + `libvlccore.dll`, also copy the matching `plugins` folder or video may not render.
+- On Windows, ensure VLC and PHP use compatible Visual C++ runtime dependencies (missing CRT can make `libvlc_new()` fail even when DLL bitness matches).
