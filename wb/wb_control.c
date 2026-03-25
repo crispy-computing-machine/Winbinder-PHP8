@@ -2828,6 +2828,8 @@ BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2)
 BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType)
 {
 	PCHARTDATA pData;
+	double *pxNew;
+	double *pyNew;
 	if (!pwbo || pwbo->uClass != Chart || !IsWindow(pwbo->hwnd) || !xData || !yData || nPoints <= 0)
 		return FALSE;
 	pData = ChartGetData(pwbo);
@@ -2835,23 +2837,32 @@ BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int n
 		return FALSE;
 	if (nChartType != WBC_CHART_LINE && nChartType != WBC_CHART_BAR && nChartType != WBC_CHART_SCATTER)
 		nChartType = WBC_CHART_LINE;
+
+	pxNew = wbMalloc(sizeof(double) * nPoints);
+	pyNew = wbMalloc(sizeof(double) * nPoints);
+	if (!pxNew || !pyNew)
+	{
+		if (pxNew)
+			wbFree(pxNew);
+		if (pyNew)
+			wbFree(pyNew);
+		return FALSE;
+	}
+
+	memcpy(pxNew, xData, sizeof(double) * nPoints);
+	memcpy(pyNew, yData, sizeof(double) * nPoints);
+
 	if (pData->pxData)
 		wbFree(pData->pxData);
 	if (pData->pyData)
 		wbFree(pData->pyData);
-	pData->pxData = wbMalloc(sizeof(double) * nPoints);
-	pData->pyData = wbMalloc(sizeof(double) * nPoints);
-	if (!pData->pxData || !pData->pyData)
-	{
-		if (pData->pxData) { wbFree(pData->pxData); pData->pxData = NULL; }
-		if (pData->pyData) { wbFree(pData->pyData); pData->pyData = NULL; }
-		return FALSE;
-	}
-	memcpy(pData->pxData, xData, sizeof(double) * nPoints);
-	memcpy(pData->pyData, yData, sizeof(double) * nPoints);
+	pData->pxData = pxNew;
+	pData->pyData = pyNew;
 	pData->nPoints = nPoints;
 	pData->nChartType = nChartType;
 	pData->nHoverIndex = -1;
+	if (pData->hwndTooltip)
+		SendMessage(pData->hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&pData->ti);
 	InvalidateRect(pwbo->hwnd, NULL, TRUE);
 	return TRUE;
 }
