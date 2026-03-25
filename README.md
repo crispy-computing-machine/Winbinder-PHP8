@@ -42,3 +42,31 @@ Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
 
 # ⚠️ DO NOT USE IN PRODUCTION!
 # ⚠️ No warranty provided!
+
+VLC / libVLC integration (VlcMediaControl)
+========================
+
+WinBinder now includes a `VlcMediaControl` host control class for embedding libVLC video output.
+
+Runtime requirements:
+- `libvlc.dll` must be available at runtime (PATH, app folder, or system search path).
+- VLC plugin/runtime DLLs from the same VLC distribution must also be present.
+- Architecture must match (`php.exe`, `php_winbinder.dll`, and VLC runtime all x86 or all x64).
+
+Graceful fallback behavior:
+- `wb_create_control(..., VlcMediaControl, ...)` still creates a plain host window even if VLC is missing.
+- `wb_vlc_is_available()` reports whether libVLC symbols were loaded successfully.
+- `wb_vlc_create_player()` returns `NULL` when VLC is unavailable; all other VLC APIs return `FALSE` for invalid/missing runtime.
+
+Minimal API:
+- `wb_vlc_is_available()`
+- `wb_vlc_create_player($vlcHostControl)`
+- `wb_vlc_destroy_player($vlcPlayer)`
+- `wb_vlc_set_media($vlcPlayer, $pathOrUrl)`
+- `wb_vlc_play($vlcPlayer)`, `wb_vlc_pause($vlcPlayer)`, `wb_vlc_stop($vlcPlayer)`
+- `wb_vlc_set_volume($vlcPlayer, $volume)` (`0..200`)
+- `wb_vlc_set_position($vlcPlayer, $position)` (`0.0..1.0`)
+
+Callbacks / events:
+- VLC player state changes are dispatched to the window callback using control id + event code.
+- Event codes: `WBC_VLC_PLAYING`, `WBC_VLC_PAUSED`, `WBC_VLC_ENDED`, `WBC_VLC_ERROR`.

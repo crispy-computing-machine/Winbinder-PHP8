@@ -167,6 +167,15 @@ ZEND_FUNCTION(wb_scintilla_calltip_cancel);
 ZEND_FUNCTION(wb_scintilla_set_whitespace_view);
 ZEND_FUNCTION(wb_scintilla_set_eol_view);
 ZEND_FUNCTION(wb_scintilla_show_php_autocomplete);
+ZEND_FUNCTION(wb_vlc_is_available);
+ZEND_FUNCTION(wb_vlc_create_player);
+ZEND_FUNCTION(wb_vlc_destroy_player);
+ZEND_FUNCTION(wb_vlc_set_media);
+ZEND_FUNCTION(wb_vlc_play);
+ZEND_FUNCTION(wb_vlc_pause);
+ZEND_FUNCTION(wb_vlc_stop);
+ZEND_FUNCTION(wb_vlc_set_volume);
+ZEND_FUNCTION(wb_vlc_set_position);
 
 // PHPWB_DRAW.C
 ZEND_FUNCTION(wb_get_pixel);
@@ -418,6 +427,15 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_scintilla_set_whitespace_view,arginfo_wb_scintilla_set_whitespace_view)
         ZEND_FE(wb_scintilla_set_eol_view,arginfo_wb_scintilla_set_eol_view)
         ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
+        ZEND_FE(wb_vlc_is_available,arginfo_wb_vlc_is_available)
+        ZEND_FE(wb_vlc_create_player,arginfo_wb_vlc_create_player)
+        ZEND_FE(wb_vlc_destroy_player,arginfo_wb_vlc_destroy_player)
+        ZEND_FE(wb_vlc_set_media,arginfo_wb_vlc_set_media)
+        ZEND_FE(wb_vlc_play,arginfo_wb_vlc_play)
+        ZEND_FE(wb_vlc_pause,arginfo_wb_vlc_pause)
+        ZEND_FE(wb_vlc_stop,arginfo_wb_vlc_stop)
+        ZEND_FE(wb_vlc_set_volume,arginfo_wb_vlc_set_volume)
+        ZEND_FE(wb_vlc_set_position,arginfo_wb_vlc_set_position)
 
         // PHPWB_CONTROL_LISTVIEW.C
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
@@ -564,6 +582,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "ToolBar", ToolBar)
 	WB_ZEND_CONST(LONG, "TreeView", TreeView)
 	WB_ZEND_CONST(LONG, "ScintillaEdit", ScintillaEdit)
+	WB_ZEND_CONST(LONG, "VlcMediaControl", VlcMediaControl)
 	WB_ZEND_CONST(LONG, "Splitter", Splitter)
 	WB_ZEND_CONST(LONG, "Timer", Timer)
 
@@ -621,6 +640,10 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "WBC_SCN_UPDATEUI", WBC_SCN_UPDATEUI)
 	WB_ZEND_CONST(LONG, "WBC_SCN_MARGINCLICK", WBC_SCN_MARGINCLICK)
 	WB_ZEND_CONST(LONG, "WBC_SCN_CHARADDED", WBC_SCN_CHARADDED)
+	WB_ZEND_CONST(LONG, "WBC_VLC_PLAYING", WBC_VLC_PLAYING)
+	WB_ZEND_CONST(LONG, "WBC_VLC_PAUSED", WBC_VLC_PAUSED)
+	WB_ZEND_CONST(LONG, "WBC_VLC_ENDED", WBC_VLC_ENDED)
+	WB_ZEND_CONST(LONG, "WBC_VLC_ERROR", WBC_VLC_ERROR)
 	WB_ZEND_CONST(LONG, "WBC_DTP_ISO", WBC_DTP_ISO)
 	WB_ZEND_CONST(LONG, "WBC_TASK_PROGRESS", WBC_TASK_PROGRESS)
 	WB_ZEND_CONST(LONG, "WBC_TASK_COMPLETE", WBC_TASK_COMPLETE)

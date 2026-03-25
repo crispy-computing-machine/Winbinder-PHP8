@@ -476,6 +476,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | nVisible;
 		break;
 
+	case VlcMediaControl:
+		pszClass = TEXT("STATIC");
+		dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SS_NOTIFY | nVisible;
+		dwExStyle = WS_EX_CLIENTEDGE;
+		break;
+
 	case CheckBox:
 		pszClass = TEXT("BUTTON");
 		dwStyle = WS_CHILD | WS_TABSTOP | BS_AUTOCHECKBOX | BS_NOTIFY | nVisible;
@@ -873,6 +879,10 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 		if (pwbo->lparam)
 			((PSPLITTERDATA)pwbo->lparam)->dwMagic = 0;
 		wbFree((void *)pwbo->lparam);
+	}
+	else if (pwbo->uClass == VlcMediaControl)
+	{
+		wbVlcDetachControl(pwbo);
 	}
 	else if (pwbo->uClass == DateTimePicker)
 	{

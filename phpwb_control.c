@@ -2438,4 +2438,114 @@ ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
 }
 
 
+
+static PWBOBJ wbPhpGetVlcHostObj(zend_long pwbo)
+{
+	PWBOBJ obj = (PWBOBJ)pwbo;
+	if (!wbIsWBObj((void *)pwbo, TRUE))
+		return NULL;
+	if (obj->uClass != VlcMediaControl)
+		return NULL;
+	return obj;
+}
+
+ZEND_FUNCTION(wb_vlc_is_available)
+{
+	ZEND_PARSE_PARAMETERS_NONE();
+	RETURN_BOOL(wbVlcIsAvailable());
+}
+
+ZEND_FUNCTION(wb_vlc_create_player)
+{
+	zend_long pwboHost;
+	PWBOBJ host;
+	void *player;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(pwboHost)
+	ZEND_PARSE_PARAMETERS_END();
+
+	host = wbPhpGetVlcHostObj(pwboHost);
+	if (!host)
+		RETURN_NULL();
+
+	player = wbVlcCreatePlayer(host);
+	if (!player)
+		RETURN_NULL();
+
+	RETURN_LONG((zend_long)player);
+}
+
+ZEND_FUNCTION(wb_vlc_destroy_player)
+{
+	zend_long player;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(player)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcDestroyPlayer((void *)player));
+}
+
+ZEND_FUNCTION(wb_vlc_set_media)
+{
+	zend_long player;
+	char *media;
+	size_t media_len;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(player)
+		Z_PARAM_STRING(media, media_len)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_BOOL(wbVlcSetMedia((void *)player, media));
+}
+
+ZEND_FUNCTION(wb_vlc_play)
+{
+	zend_long player;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(player)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcPlay((void *)player));
+}
+
+ZEND_FUNCTION(wb_vlc_pause)
+{
+	zend_long player;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(player)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcPause((void *)player));
+}
+
+ZEND_FUNCTION(wb_vlc_stop)
+{
+	zend_long player;
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_LONG(player)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcStop((void *)player));
+}
+
+ZEND_FUNCTION(wb_vlc_set_volume)
+{
+	zend_long player;
+	zend_long volume;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(player)
+		Z_PARAM_LONG(volume)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcSetVolume((void *)player, (int)volume));
+}
+
+ZEND_FUNCTION(wb_vlc_set_position)
+{
+	zend_long player;
+	double position;
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_LONG(player)
+		Z_PARAM_DOUBLE(position)
+	ZEND_PARSE_PARAMETERS_END();
+	RETURN_BOOL(wbVlcSetPosition((void *)player, (float)position));
+}
+
 //------------------------------------------------------------------ END OF FILE

@@ -1658,6 +1658,18 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         }
         break;
 
+        case WBWM_VLCSTATE:
+        {
+            PWBOBJ pwbobj;
+
+            pwbobj = wbGetWBObj(hwnd);
+            if (!pwbobj || !pwbobj->pszCallBackFn)
+                break;
+
+            CALL_CALLBACK((UINT64)wParam, (LONG_PTR)lParam, 0, 0);
+            return 0;
+        }
+
         case WBWM_IDAPP: // Custom WinBinder message
         {
             PWBOBJ pwbobj;

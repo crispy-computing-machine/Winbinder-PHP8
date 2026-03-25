@@ -505,6 +505,7 @@ BOOL wbEnd(void)
 		DeleteCriticalSection(&g_taskLock);
 		g_taskLockInit = FALSE;
 	}
+	wbVlcShutdown();
 	OleUninitialize();
 
 	return TRUE;

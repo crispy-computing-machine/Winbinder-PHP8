@@ -133,6 +133,7 @@
 #define WBWM_ENUM (WM_APP + 7)
 #define WBWM_HOOK (WM_APP + 8)
 #define WBWM_TASK (WM_APP + 9)
+#define WBWM_VLCSTATE (WM_APP + 10)
 
 // Async task callback notifications
 #define WBC_TASK_PROGRESS 0x00110000
@@ -204,11 +205,18 @@ enum
 	ToolBar,
 	TreeView,
 	ScintillaEdit,
+	VlcMediaControl,
 	Timer,
 	Splitter,
 };
 
 #define NUMCLASSES Splitter // Must be the last class
+
+// VLC state callback payloads (lParam1 in callback)
+#define WBC_VLC_PLAYING 1
+#define WBC_VLC_PAUSED 2
+#define WBC_VLC_ENDED 3
+#define WBC_VLC_ERROR 4
 
 // Style flags (parameter style of wb_create_window)
 
@@ -528,6 +536,18 @@ BOOL wbSetSplitterPosition(PWBOBJ pwbo, int nPosition, BOOL bFromRatio);
 int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
 BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
+
+BOOL wbVlcIsAvailable(void);
+void *wbVlcCreatePlayer(PWBOBJ pwboHost);
+BOOL wbVlcDestroyPlayer(void *pvPlayer);
+BOOL wbVlcSetMedia(void *pvPlayer, const char *pszMedia);
+BOOL wbVlcPlay(void *pvPlayer);
+BOOL wbVlcPause(void *pvPlayer);
+BOOL wbVlcStop(void *pvPlayer);
+BOOL wbVlcSetVolume(void *pvPlayer, int nVolume);
+BOOL wbVlcSetPosition(void *pvPlayer, float fPosition);
+BOOL wbVlcDetachControl(PWBOBJ pwboHost);
+void wbVlcShutdown(void);
 
 // WB_CONTROL_COMBO.C
 
