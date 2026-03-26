@@ -188,6 +188,19 @@ const WBC_MAX_IMAGELIST_IMAGES = 128;
 const WBC_SCLEX_HTML = 4;
 const WBC_SC_STYLE_DEFAULT = 32;
 const WBC_SC_STYLE_LINENUMBER = 33;
+const WBC_CHART_LINE = 1;
+const WBC_CHART_BAR = 2;
+const WBC_CHART_SCATTER = 3;
+const WBW_RECURSIVE = 1;
+const WBW_COALESCE = 2;
+const WBE_FILE_CREATED = 1;
+const WBE_FILE_MODIFIED = 2;
+const WBE_FILE_DELETED = 3;
+const WBE_FILE_RENAMED_OLD = 4;
+const WBE_FILE_RENAMED_NEW = 5;
+const WBT_SEVERITY_INFO = 0;
+const WBT_SEVERITY_WARN = 1;
+const WBT_SEVERITY_ERROR = 2;
 const PBS_MARQUEE = 8;
 const PBM_SETMARQUEE = 1034;
 const PBM_GETPOS = 1032;
@@ -5068,6 +5081,11 @@ function wb_set_position(int $wbObject, ?int $x = 0, ?int $y = 0): bool
 }
 
 /**
+ * Returns the position of a window or control.
+ *
+ * Coordinates are returned relative to the parent container by default.
+ * When $clientarea is TRUE, the returned rectangle refers to the client area.
+ *
  * @link https://crispy-computing-machine.github.io/Winbinder-Docs/functions/wb_get_position.html
  * @param int $wbObject
  * @param bool|null $clientarea
@@ -5410,6 +5428,25 @@ function wb_set_splitter_panes(int $splitter, int $pane1, int $pane2) : bool{}
 function wb_set_splitter_minsize(int $splitter, int $min_pane1, int $min_pane2) : bool{}
 
 /**
+ * Sets chart data for a Chart control.
+ *
+ * The Chart control requires matching X and Y data arrays. Optional chart type constants:
+ * - WBC_CHART_LINE
+ * - WBC_CHART_BAR
+ * - WBC_CHART_SCATTER
+ *
+ * The optional showAverage flag enables drawing an average guide when supported.
+ *
+ * @param int $chart
+ * @param array $xData
+ * @param array $yData
+ * @param int|null $chartType
+ * @param bool|null $showAverage
+ * @return bool
+ */
+function wb_set_chart_data(int $chart, array $xData, array $yData, ?int $chartType = WBC_CHART_LINE, ?bool $showAverage = null) : bool{}
+
+/**
  * No beep, timeout (ms) closes message box automatically
  * @param int $wbObject
  * @param string $message
@@ -5734,6 +5771,112 @@ function wb_scintilla_set_eol_view(int $wbObject, bool $enabled) : bool{}
 function wb_scintilla_show_php_autocomplete(int $wbObject, string $trigger) : bool{}
 
 /**
+ * Loads media into a VLC control.
+ *
+ * The control must be created with VLC support enabled in the extension build.
+ * When autoplay is TRUE, playback starts immediately after loading.
+ *
+ * @param int $wbObject
+ * @param string $path
+ * @param bool $autoplay
+ * @return bool
+ */
+function wb_vlc_set_media(int $wbObject, string $path, bool $autoplay = false) : bool{}
+
+/**
+ * Starts VLC playback for the specified control.
+ *
+ * @param int $wbObject
+ * @return bool
+ */
+function wb_vlc_play(int $wbObject) : bool{}
+
+/**
+ * Pauses VLC playback for the specified control.
+ *
+ * @param int $wbObject
+ * @return bool
+ */
+function wb_vlc_pause(int $wbObject) : bool{}
+
+/**
+ * Stops VLC playback for the specified control.
+ *
+ * @param int $wbObject
+ * @return bool
+ */
+function wb_vlc_stop(int $wbObject) : bool{}
+
+/**
+ * Seeks VLC playback to an absolute position in milliseconds.
+ *
+ * @param int $wbObject
+ * @param int $position_ms
+ * @return bool
+ */
+function wb_vlc_seek(int $wbObject, int $position_ms) : bool{}
+
+/**
+ * Gets current playback position in milliseconds.
+ *
+ * @param int $wbObject
+ * @return int
+ */
+function wb_vlc_get_time(int $wbObject) : int{}
+
+/**
+ * Gets media length in milliseconds.
+ *
+ * @param int $wbObject
+ * @return int
+ */
+function wb_vlc_get_length(int $wbObject) : int{}
+
+/**
+ * Sets playback position as a normalized float between 0.0 and 1.0.
+ *
+ * @param int $wbObject
+ * @param float $position
+ * @return bool
+ */
+function wb_vlc_set_position(int $wbObject, float $position) : bool{}
+
+/**
+ * Gets playback position as a normalized float between 0.0 and 1.0.
+ *
+ * @param int $wbObject
+ * @return float
+ */
+function wb_vlc_get_position(int $wbObject) : float{}
+
+/**
+ * Sets VLC volume.
+ *
+ * Typical VLC range is 0-200 where 100 is nominal.
+ *
+ * @param int $wbObject
+ * @param int $volume
+ * @return bool
+ */
+function wb_vlc_set_volume(int $wbObject, int $volume) : bool{}
+
+/**
+ * Gets VLC volume.
+ *
+ * @param int $wbObject
+ * @return int
+ */
+function wb_vlc_get_volume(int $wbObject) : int{}
+
+/**
+ * Returns whether VLC is currently playing media.
+ *
+ * @param int $wbObject
+ * @return bool
+ */
+function wb_vlc_is_playing(int $wbObject) : bool{}
+
+/**
  * Start monitoring path
  *
  * @param string $path
@@ -5760,6 +5903,10 @@ function wb_unwatch_path(int $watchId) : bool{}
 function wb_watch_poll(int $timeout = 0, int $maxEvents = 0) : array{}
 
 /**
+ * Starts a background task command associated with a WinBinder window/control.
+ *
+ * The returned task identifier can be used with wb_task_poll() and wb_task_cancel().
+ *
  * @param int $wbObject
  * @param string $command
  * @param int $estimated_ms
@@ -5780,6 +5927,8 @@ function wb_task_run(int $wbObject, string $command, int $estimated_ms = 0) : in
 function wb_task_poll(int $task_id) : ?array{}
 
 /**
+ * Cancels a task previously created with wb_task_run().
+ *
  * @param int $task_id
  * @return bool
  */
@@ -5821,12 +5970,16 @@ function wb_show_tooltip_balloon(int $wbObject, string $text, string|int|null $s
 function wb_hide_tooltip(int $wbObject) : bool{}
 
 /**
+ * Toggles the expanded/collapsed visual state of a panel control.
+ *
  * @param int $wbObject
  * @return bool
  */
 function wb_panel_toggle(int $wbObject) : bool{}
 
 /**
+ * Sets the title/header text (and optional icon) of a panel control.
+ *
  * @param int $wbObject
  * @param string $text
  * @param string|int|null $icon
@@ -5835,12 +5988,18 @@ function wb_panel_toggle(int $wbObject) : bool{}
 function wb_panel_set_header(int $wbObject, string $text, string|int|null $icon = '') : bool{}
 
 /**
+ * Creates a popup/context menu and returns its menu handle.
+ *
  * @param array $menu_items
  * @return int|null
  */
 function wb_create_popup_menu(array $menu_items) : ?int{}
 
 /**
+ * Displays a popup menu and returns the selected command identifier.
+ *
+ * If no item is selected, zero may be returned depending on flags and user action.
+ *
  * @param int $popup_menu
  * @param int $wbObjectParent
  * @param int|null $x
