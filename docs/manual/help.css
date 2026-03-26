@@ -1,15 +1,52 @@
 body { font-family:Verdana,sans-serif; font-size:10pt; margin-left: 20pt;}
 a {color:#0000FF};
 .code { font-family:'Courier New',Courier,monospace; font-size:10pt; color:#008040}
-code { font-family:'Courier New',Courier,monospace; font-size:10pt; color:#008040}
-pre { font-family:'Courier New',Courier,monospace; font-size:10pt; color:#008040}
-.php-highlight { font-family:Consolas,'Courier New',Courier,monospace; font-size:10pt; background:#f7f7f7; border:1px solid #d8d8d8; border-radius:6px; padding:10px; overflow:auto; line-height:1.4; color:#000; }
-.php-highlight .php-tag { color:#0000BB; }
-.php-highlight .php-keyword { color:#007700; font-weight:bold; }
-.php-highlight .php-string { color:#DD0000; }
-.php-highlight .php-variable { color:#0000BB; }
-.php-highlight .php-comment { color:#FF8000; font-style:italic; }
-.php-highlight .php-constant { color:#990099; }
+
+/* Inline code */
+code {
+  font-family:Consolas,'Courier New',Courier,monospace;
+  font-size:10pt;
+  color:#1f2937;
+  background:#f3f4f6;
+  border:1px solid #e5e7eb;
+  border-radius:4px;
+  padding:1px 4px;
+}
+
+/* Legacy preformatted blocks */
+pre {
+  font-family:Consolas,'Courier New',Courier,monospace;
+  font-size:10pt;
+  color:#e5e7eb;
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:6px;
+  padding:10px;
+  overflow:auto;
+  line-height:1.4;
+}
+
+/* Existing manual examples are usually wrapped in gray tables with <p><code>...</code></p> */
+table[bgcolor="#E0E0E0"] code {
+  display:block;
+  white-space:pre-wrap;
+  color:#e5e7eb;
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:6px;
+  padding:10px;
+  line-height:1.45;
+}
+
+/* Rich token classes (for progressively enhanced snippets) */
+.php-highlight { font-family:Consolas,'Courier New',Courier,monospace; font-size:10pt; background:#111827; border:1px solid #1f2937; border-radius:6px; padding:10px; overflow:auto; line-height:1.4; color:#e5e7eb; }
+.php-highlight .php-tag { color:#93c5fd; }
+.php-highlight .php-keyword { color:#c4b5fd; font-weight:bold; }
+.php-highlight .php-string { color:#86efac; }
+.php-highlight .php-variable { color:#f9a8d4; }
+.php-highlight .php-comment { color:#9ca3af; font-style:italic; }
+.php-highlight .php-constant { color:#fcd34d; }
+
 h1 { font-family:Verdana,serif; font-size:14px; color:#005050; padding-top:8pt; padding-bottom: 4pt; margin-left: -17pt;}
 h2 { font-family:Verdana,serif; font-size:18pt; margin-left: -17pt;}
 td { font-family:Verdana,sans-serif; font-size:8pt; }
