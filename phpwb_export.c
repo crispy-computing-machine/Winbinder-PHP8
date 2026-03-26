@@ -170,6 +170,18 @@ ZEND_FUNCTION(wb_scintilla_calltip_cancel);
 ZEND_FUNCTION(wb_scintilla_set_whitespace_view);
 ZEND_FUNCTION(wb_scintilla_set_eol_view);
 ZEND_FUNCTION(wb_scintilla_show_php_autocomplete);
+ZEND_FUNCTION(wb_vlc_set_media);
+ZEND_FUNCTION(wb_vlc_play);
+ZEND_FUNCTION(wb_vlc_pause);
+ZEND_FUNCTION(wb_vlc_stop);
+ZEND_FUNCTION(wb_vlc_seek);
+ZEND_FUNCTION(wb_vlc_get_time);
+ZEND_FUNCTION(wb_vlc_get_length);
+ZEND_FUNCTION(wb_vlc_set_position);
+ZEND_FUNCTION(wb_vlc_get_position);
+ZEND_FUNCTION(wb_vlc_set_volume);
+ZEND_FUNCTION(wb_vlc_get_volume);
+ZEND_FUNCTION(wb_vlc_is_playing);
 
 // PHPWB_DRAW.C
 ZEND_FUNCTION(wb_get_pixel);
@@ -423,9 +435,21 @@ zend_function_entry winbinder_functions[] =
         ZEND_FE(wb_scintilla_autocomplete_cancel,arginfo_wb_scintilla_autocomplete_cancel)
         ZEND_FE(wb_scintilla_calltip_show,arginfo_wb_scintilla_calltip_show)
         ZEND_FE(wb_scintilla_calltip_cancel,arginfo_wb_scintilla_calltip_cancel)
-        ZEND_FE(wb_scintilla_set_whitespace_view,arginfo_wb_scintilla_set_whitespace_view)
-        ZEND_FE(wb_scintilla_set_eol_view,arginfo_wb_scintilla_set_eol_view)
-        ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
+		ZEND_FE(wb_scintilla_set_whitespace_view,arginfo_wb_scintilla_set_whitespace_view)
+		ZEND_FE(wb_scintilla_set_eol_view,arginfo_wb_scintilla_set_eol_view)
+		ZEND_FE(wb_scintilla_show_php_autocomplete,arginfo_wb_scintilla_show_php_autocomplete)
+		ZEND_FE(wb_vlc_set_media,arginfo_wb_vlc_set_media)
+		ZEND_FE(wb_vlc_play,arginfo_wb_vlc_play)
+		ZEND_FE(wb_vlc_pause,arginfo_wb_vlc_pause)
+		ZEND_FE(wb_vlc_stop,arginfo_wb_vlc_stop)
+		ZEND_FE(wb_vlc_seek,arginfo_wb_vlc_seek)
+		ZEND_FE(wb_vlc_get_time,arginfo_wb_vlc_get_time)
+		ZEND_FE(wb_vlc_get_length,arginfo_wb_vlc_get_length)
+		ZEND_FE(wb_vlc_set_position,arginfo_wb_vlc_set_position)
+		ZEND_FE(wb_vlc_get_position,arginfo_wb_vlc_get_position)
+		ZEND_FE(wb_vlc_set_volume,arginfo_wb_vlc_set_volume)
+		ZEND_FE(wb_vlc_get_volume,arginfo_wb_vlc_get_volume)
+		ZEND_FE(wb_vlc_is_playing,arginfo_wb_vlc_is_playing)
 
         // PHPWB_CONTROL_LISTVIEW.C
         ZEND_FE(wb_create_listview_item,arginfo_wb_create_listview_item)
@@ -556,6 +580,7 @@ ZEND_MINIT_FUNCTION(winbinder)
 	WB_ZEND_CONST(LONG, "Frame", Frame)
 	WB_ZEND_CONST(LONG, "Gauge", Gauge)
 	WB_ZEND_CONST(LONG, "HTMLControl", HTMLControl)
+	WB_ZEND_CONST(LONG, "VLCPlayer", VLCPlayer)
 	WB_ZEND_CONST(LONG, "HyperLink", HyperLink)
 	WB_ZEND_CONST(LONG, "ImageButton", ImageButton)
 	WB_ZEND_CONST(LONG, "InvisibleArea", InvisibleArea)

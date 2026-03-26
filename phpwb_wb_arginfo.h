@@ -1090,3 +1090,43 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_task_cancel, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, task_id, IS_LONG, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_set_media, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, autoplay, _IS_BOOL, 0, "false")
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_play, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_wb_vlc_pause arginfo_wb_vlc_play
+#define arginfo_wb_vlc_stop arginfo_wb_vlc_play
+#define arginfo_wb_vlc_is_playing arginfo_wb_vlc_play
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_seek, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, position_ms, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_set_position, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, position, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_get_position, 0, 1, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_set_volume, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, volume, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_wb_vlc_get_volume, 0, 1, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wbObject, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_wb_vlc_get_time arginfo_wb_vlc_get_volume
+#define arginfo_wb_vlc_get_length arginfo_wb_vlc_get_volume

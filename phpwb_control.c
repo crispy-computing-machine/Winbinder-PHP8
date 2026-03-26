@@ -2601,5 +2601,34 @@ ZEND_FUNCTION(wb_scintilla_show_php_autocomplete)
 	RETURN_BOOL(TRUE);
 }
 
+ZEND_FUNCTION(wb_vlc_set_media)
+{
+	zend_long pwbo;
+	char *path = NULL;
+	size_t path_len = 0;
+	zend_bool autoplay = 0;
+	TCHAR *wcsPath;
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_LONG(pwbo)
+		Z_PARAM_STRING(path, path_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_BOOL(autoplay)
+	ZEND_PARSE_PARAMETERS_END();
+	wcsPath = Utf82WideChar(path, path_len);
+	RETURN_BOOL(wbVlcLoad((PWBOBJ)pwbo, wcsPath, autoplay ? TRUE : FALSE));
+}
+
+ZEND_FUNCTION(wb_vlc_play) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcPlay((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_pause) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcPause((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_stop) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcStop((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_seek) { zend_long pwbo, ms; ZEND_PARSE_PARAMETERS_START(2,2) Z_PARAM_LONG(pwbo) Z_PARAM_LONG(ms) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcSeek((PWBOBJ)pwbo, (LONG_PTR)ms)); }
+ZEND_FUNCTION(wb_vlc_get_time) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_LONG(wbVlcGetTime((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_get_length) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_LONG(wbVlcGetLength((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_set_position) { zend_long pwbo; double pos; ZEND_PARSE_PARAMETERS_START(2,2) Z_PARAM_LONG(pwbo) Z_PARAM_DOUBLE(pos) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcSetPosition((PWBOBJ)pwbo, pos)); }
+ZEND_FUNCTION(wb_vlc_get_position) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_DOUBLE(wbVlcGetPosition((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_set_volume) { zend_long pwbo, volume; ZEND_PARSE_PARAMETERS_START(2,2) Z_PARAM_LONG(pwbo) Z_PARAM_LONG(volume) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcSetVolume((PWBOBJ)pwbo, (int)volume)); }
+ZEND_FUNCTION(wb_vlc_get_volume) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_LONG(wbVlcGetVolume((PWBOBJ)pwbo)); }
+ZEND_FUNCTION(wb_vlc_is_playing) { zend_long pwbo; ZEND_PARSE_PARAMETERS_START(1,1) Z_PARAM_LONG(pwbo) ZEND_PARSE_PARAMETERS_END(); RETURN_BOOL(wbVlcIsPlaying((PWBOBJ)pwbo)); }
+
 
 //------------------------------------------------------------------ END OF FILE
