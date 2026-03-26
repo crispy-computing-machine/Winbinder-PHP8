@@ -208,9 +208,10 @@ enum
 	ScintillaEdit,
 	Timer,
 	Splitter,
+	VLCPlayer,
 };
 
-#define NUMCLASSES Splitter // Must be the last class
+#define NUMCLASSES VLCPlayer // Must be the last class
 
 // Style flags (parameter style of wb_create_window)
 
@@ -556,6 +557,18 @@ int wbGetSplitterPosition(PWBOBJ pwbo, BOOL bAsRatio);
 BOOL wbSetSplitterPanes(PWBOBJ pwbo, PWBOBJ pwboPane1, PWBOBJ pwboPane2);
 BOOL wbSetSplitterMinSizes(PWBOBJ pwbo, int nMinPane1, int nMinPane2);
 BOOL wbSetChartData(PWBOBJ pwbo, const double *xData, const double *yData, int nPoints, int nChartType, int nShowAverage);
+BOOL wbVlcLoad(PWBOBJ pwbo, LPCTSTR pszSource, BOOL bAutoPlay);
+BOOL wbVlcPlay(PWBOBJ pwbo);
+BOOL wbVlcPause(PWBOBJ pwbo);
+BOOL wbVlcStop(PWBOBJ pwbo);
+BOOL wbVlcSeek(PWBOBJ pwbo, LONG_PTR nPositionMs);
+LONG_PTR wbVlcGetTime(PWBOBJ pwbo);
+LONG_PTR wbVlcGetLength(PWBOBJ pwbo);
+BOOL wbVlcSetPosition(PWBOBJ pwbo, double fPosition);
+double wbVlcGetPosition(PWBOBJ pwbo);
+BOOL wbVlcSetVolume(PWBOBJ pwbo, int nVolume);
+int wbVlcGetVolume(PWBOBJ pwbo);
+BOOL wbVlcIsPlaying(PWBOBJ pwbo);
 BOOL wbPanelSetExpanded(PWBOBJ pwbo, BOOL bExpanded);
 BOOL wbPanelToggle(PWBOBJ pwbo);
 BOOL wbPanelSetHeader(PWBOBJ pwbo, LPCTSTR pszText, HANDLE hIcon, BOOL bOwnIcon);

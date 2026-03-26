@@ -108,6 +108,87 @@ typedef struct
 	BOOL bOwnIcon;
 } PANELDATA, *PPANELDATA;
 
+#define VLC_MAGIC 0x564C4331 /* VLC1 */
+
+typedef struct
+{
+	DWORD dwMagic;
+	HMODULE hLibVlc;
+	void *pInstance;
+	void *pMedia;
+	void *pPlayer;
+	void *(*fn_libvlc_new)(int, const char *const *);
+	void (*fn_libvlc_release)(void *);
+	void *(*fn_libvlc_media_new_path)(void *, const char *);
+	void (*fn_libvlc_media_release)(void *);
+	void *(*fn_libvlc_media_player_new_from_media)(void *);
+	void (*fn_libvlc_media_player_release)(void *);
+	int (*fn_libvlc_media_player_play)(void *);
+	void (*fn_libvlc_media_player_pause)(void *);
+	void (*fn_libvlc_media_player_stop)(void *);
+	void (*fn_libvlc_media_player_set_hwnd)(void *, void *);
+	void (*fn_libvlc_media_player_set_time)(void *, long long);
+	long long (*fn_libvlc_media_player_get_time)(void *);
+	long long (*fn_libvlc_media_player_get_length)(void *);
+	void (*fn_libvlc_media_player_set_position)(void *, float);
+	float (*fn_libvlc_media_player_get_position)(void *);
+	int (*fn_libvlc_audio_set_volume)(void *, int);
+	int (*fn_libvlc_audio_get_volume)(void *);
+	int (*fn_libvlc_media_player_is_playing)(void *);
+} WBVLC, *PWBVLC;
+
+static BOOL wbVlcResolve(PWBVLC pVlc)
+{
+#define WBVLC_BIND(name) do { pVlc->fn_##name = (void *)GetProcAddress(pVlc->hLibVlc, #name); if (!pVlc->fn_##name) return FALSE; } while (0)
+	WBVLC_BIND(libvlc_new);
+	WBVLC_BIND(libvlc_release);
+	WBVLC_BIND(libvlc_media_new_path);
+	WBVLC_BIND(libvlc_media_release);
+	WBVLC_BIND(libvlc_media_player_new_from_media);
+	WBVLC_BIND(libvlc_media_player_release);
+	WBVLC_BIND(libvlc_media_player_play);
+	WBVLC_BIND(libvlc_media_player_pause);
+	WBVLC_BIND(libvlc_media_player_stop);
+	WBVLC_BIND(libvlc_media_player_set_hwnd);
+	WBVLC_BIND(libvlc_media_player_set_time);
+	WBVLC_BIND(libvlc_media_player_get_time);
+	WBVLC_BIND(libvlc_media_player_get_length);
+	WBVLC_BIND(libvlc_media_player_set_position);
+	WBVLC_BIND(libvlc_media_player_get_position);
+	WBVLC_BIND(libvlc_audio_set_volume);
+	WBVLC_BIND(libvlc_audio_get_volume);
+	WBVLC_BIND(libvlc_media_player_is_playing);
+#undef WBVLC_BIND
+	return TRUE;
+}
+
+static PWBVLC wbVlcGetData(PWBOBJ pwbo)
+{
+	PWBVLC pVlc;
+	if (!pwbo || pwbo->uClass != VLCPlayer)
+		return NULL;
+	pVlc = (PWBVLC)pwbo->lparam;
+	if (!pVlc || pVlc->dwMagic != VLC_MAGIC)
+		return NULL;
+	return pVlc;
+}
+
+static char *wbVlcWideToUtf8(LPCTSTR pszText)
+{
+	int nBytes;
+	char *pszUtf8;
+	if (!pszText)
+		return NULL;
+	nBytes = WideCharToMultiByte(CP_UTF8, 0, pszText, -1, NULL, 0, NULL, NULL);
+	if (nBytes <= 0)
+		return NULL;
+	pszUtf8 = wbMalloc((size_t)nBytes);
+	if (!pszUtf8)
+		return NULL;
+	WideCharToMultiByte(CP_UTF8, 0, pszText, -1, pszUtf8, nBytes, NULL, NULL);
+	return pszUtf8;
+}
+
 static LPTSTR ChartDupText(LPCTSTR pszText)
 {
 	UINT64 nLen;
@@ -1028,6 +1109,12 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		dwStyle = WS_CHILD | nVisible;
 		break;
 
+	case VLCPlayer:
+		pszClass = TEXT("STATIC");
+		dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | nVisible;
+		dwExStyle |= WS_EX_CLIENTEDGE;
+		break;
+
 	default:
 		wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Unknown control class %d"), uWinBinderClass);
 		return NULL;
@@ -1063,6 +1150,38 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 	case HTMLControl:
 		EmbedBrowserObject(pwbo);
 		break;
+
+	case VLCPlayer:
+	{
+		PWBVLC pVlc = wbCalloc(1, sizeof(WBVLC));
+		const char *args[] = {"--no-video-title-show", "--quiet"};
+		if (!pVlc)
+			break;
+		pVlc->dwMagic = VLC_MAGIC;
+		pVlc->hLibVlc = LoadLibrary(TEXT("libvlc.dll"));
+		if (!pVlc->hLibVlc || !wbVlcResolve(pVlc))
+		{
+			if (pVlc->hLibVlc)
+				FreeLibrary(pVlc->hLibVlc);
+			wbFree(pVlc);
+			pwbo->lparam = 0;
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("Could not initialize VLCPlayer (libvlc.dll not found or incompatible)"));
+			break;
+		}
+		pVlc->pInstance = pVlc->fn_libvlc_new(2, args);
+		if (!pVlc->pInstance)
+		{
+			FreeLibrary(pVlc->hLibVlc);
+			wbFree(pVlc);
+			pwbo->lparam = 0;
+			wbError(TEXT(__FUNCTION__), MB_ICONWARNING, TEXT("libvlc_new failed for VLCPlayer"));
+			break;
+		}
+		pwbo->lparam = (LPARAM)pVlc;
+		if (pszCaption && *pszCaption)
+			wbVlcLoad(pwbo, pszCaption, FALSE);
+	}
+	break;
 
 	case RadioButton:
 	case CheckBox:
@@ -1348,6 +1467,46 @@ BOOL wbPanelToggle(PWBOBJ pwbo)
 	return wbPanelSetExpanded(pwbo, !pData->bExpanded);
 }
 
+BOOL wbVlcLoad(PWBOBJ pwbo, LPCTSTR pszSource, BOOL bAutoPlay)
+{
+	PWBVLC pVlc = wbVlcGetData(pwbo);
+	char *pszUtf8;
+	void *pMedia;
+	if (!pVlc || !pszSource || !*pszSource)
+		return FALSE;
+	pszUtf8 = wbVlcWideToUtf8(pszSource);
+	if (!pszUtf8)
+		return FALSE;
+	pMedia = pVlc->fn_libvlc_media_new_path(pVlc->pInstance, pszUtf8);
+	wbFree(pszUtf8);
+	if (!pMedia)
+		return FALSE;
+	if (pVlc->pMedia)
+		pVlc->fn_libvlc_media_release(pVlc->pMedia);
+	if (pVlc->pPlayer)
+		pVlc->fn_libvlc_media_player_release(pVlc->pPlayer);
+	pVlc->pMedia = pMedia;
+	pVlc->pPlayer = pVlc->fn_libvlc_media_player_new_from_media(pMedia);
+	if (!pVlc->pPlayer)
+		return FALSE;
+	pVlc->fn_libvlc_media_player_set_hwnd(pVlc->pPlayer, pwbo->hwnd);
+	if (bAutoPlay)
+		return pVlc->fn_libvlc_media_player_play(pVlc->pPlayer) == 0;
+	return TRUE;
+}
+
+BOOL wbVlcPlay(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? pVlc->fn_libvlc_media_player_play(pVlc->pPlayer) == 0 : FALSE; }
+BOOL wbVlcPause(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); if (!pVlc || !pVlc->pPlayer) return FALSE; pVlc->fn_libvlc_media_player_pause(pVlc->pPlayer); return TRUE; }
+BOOL wbVlcStop(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); if (!pVlc || !pVlc->pPlayer) return FALSE; pVlc->fn_libvlc_media_player_stop(pVlc->pPlayer); return TRUE; }
+BOOL wbVlcSeek(PWBOBJ pwbo, LONG_PTR nPositionMs) { PWBVLC pVlc = wbVlcGetData(pwbo); if (!pVlc || !pVlc->pPlayer) return FALSE; pVlc->fn_libvlc_media_player_set_time(pVlc->pPlayer, (long long)nPositionMs); return TRUE; }
+LONG_PTR wbVlcGetTime(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? (LONG_PTR)pVlc->fn_libvlc_media_player_get_time(pVlc->pPlayer) : -1; }
+LONG_PTR wbVlcGetLength(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? (LONG_PTR)pVlc->fn_libvlc_media_player_get_length(pVlc->pPlayer) : -1; }
+BOOL wbVlcSetPosition(PWBOBJ pwbo, double fPosition) { PWBVLC pVlc = wbVlcGetData(pwbo); if (!pVlc || !pVlc->pPlayer) return FALSE; pVlc->fn_libvlc_media_player_set_position(pVlc->pPlayer, (float)fPosition); return TRUE; }
+double wbVlcGetPosition(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? pVlc->fn_libvlc_media_player_get_position(pVlc->pPlayer) : -1.0; }
+BOOL wbVlcSetVolume(PWBOBJ pwbo, int nVolume) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? pVlc->fn_libvlc_audio_set_volume(pVlc->pPlayer, nVolume) == 0 : FALSE; }
+int wbVlcGetVolume(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? pVlc->fn_libvlc_audio_get_volume(pVlc->pPlayer) : -1; }
+BOOL wbVlcIsPlaying(PWBOBJ pwbo) { PWBVLC pVlc = wbVlcGetData(pwbo); return pVlc && pVlc->pPlayer ? pVlc->fn_libvlc_media_player_is_playing(pVlc->pPlayer) != 0 : FALSE; }
+
 /* Destroy a control created by wbCreateControl(). */
 
 BOOL wbDestroyControl(PWBOBJ pwbo)
@@ -1394,6 +1553,26 @@ BOOL wbDestroyControl(PWBOBJ pwbo)
 	{
 		if (pwbo->lparams[7])
 			wbFree((void *)pwbo->lparams[7]);
+	}
+	else if (pwbo->uClass == VLCPlayer && pwbo->lparam)
+	{
+		PWBVLC pVlc = wbVlcGetData(pwbo);
+		if (pVlc)
+		{
+			if (pVlc->pPlayer)
+			{
+				pVlc->fn_libvlc_media_player_stop(pVlc->pPlayer);
+				pVlc->fn_libvlc_media_player_release(pVlc->pPlayer);
+			}
+			if (pVlc->pMedia)
+				pVlc->fn_libvlc_media_release(pVlc->pMedia);
+			if (pVlc->pInstance)
+				pVlc->fn_libvlc_release(pVlc->pInstance);
+			if (pVlc->hLibVlc)
+				FreeLibrary(pVlc->hLibVlc);
+			pVlc->dwMagic = 0;
+			wbFree(pVlc);
+		}
 	}
 	return DestroyWindow(pwbo->hwnd);
 }
@@ -1746,6 +1925,9 @@ BOOL wbSetText(PWBOBJ pwbo, LPCTSTR pszSourceText, int nItem, BOOL bTooltip)
 			//				return DisplayHTMLPage(pwbo, pszText);
 			//			else
 			return DisplayHTMLString(pwbo, pszText);
+
+		case VLCPlayer:
+			return wbVlcLoad(pwbo, pszText, FALSE);
 
 		case StatusBar:
 			if (SendMessage(pwbo->hwnd, SB_GETPARTS, 0, 0) > 1)
