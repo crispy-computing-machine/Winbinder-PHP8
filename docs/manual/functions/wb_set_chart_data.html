@@ -1,17 +1,47 @@
 <html>
-<head><title>wb_set_chart_data</title><link rel="stylesheet" href="../help.css"></head>
+<head>
+<title>wb_set_chart_data</title>
+<link rel="stylesheet" href="../help.css">
+</head>
 <body>
 <h2>wb_set_chart_data</h2>
-<p>bool <b>wb_set_chart_data</b>(int chart, array xData, array yData [, int chartType = WBC_CHART_LINE [, bool showAverage = null]])</p>
-<p>Sets data for a <span class="code">Chart</span> control created with <span class="code">wb_create_control()</span>.</p>
+<p><b>bool wb_set_chart_data</b>(int chart, array xData, array yData [, int chartType = WBC_CHART_LINE [, bool showAverage = null]])</p>
+<p>Assigns X/Y data to a <a href="../reference/classes_control.html">Chart control</a> and redraws it.</p>
+
 <h1>Parameters</h1>
-<p><b>chart</b>: chart control handle.</p>
-<p><b>xData</b>, <b>yData</b>: equal-length numeric arrays.</p>
-<p><b>chartType</b>: <span class="code">WBC_CHART_LINE</span>, <span class="code">WBC_CHART_BAR</span>, or <span class="code">WBC_CHART_SCATTER</span>.</p>
-<p><b>showAverage</b>: when provided, toggles an average horizontal guide line based on all Y values.</p>
-<h1>Behavior</h1>
-<p>The chart repaints immediately. Hovering points/bars displays a tooltip in the format: <span class="code">xAxisLabel: x\nyAxisLabel: y</span>.</p>
+<p><b>chart</b>: Handle returned by <a href="wb_create_control.html">wb_create_control()</a> for a Chart control.</p>
+<p><b>xData</b>: Array of numeric X values.</p>
+<p><b>yData</b>: Array of numeric Y values. Must be the same length as <b>xData</b>.</p>
+<p><b>chartType</b>: One of <span class="code">WBC_CHART_LINE</span>, <span class="code">WBC_CHART_BAR</span>, or <span class="code">WBC_CHART_SCATTER</span>.</p>
+<p><b>showAverage</b>: Optional flag that enables/disables an average guide line (when supported).</p>
+
+<h1>Return value</h1>
+<p>Returns <span class="code">TRUE</span> on success, <span class="code">FALSE</span> on failure.</p>
+
 <h1>Example</h1>
-<p class="code">$chart = wb_create_control($win, Chart, array("Month", "Sales"), 20, 20, 400, 240);<br>wb_set_chart_data($chart, array(1,2,3,4), array(12.5, 16.0, 9.8, 20.1), WBC_CHART_BAR, true);<br>wb_refresh($chart);</p>
-<p>See full demo: <a href="../examples/chart_demo.php"><code>chart_demo.php</code></a>.</p>
-</body></html>
+<pre class="php-highlight"><span class="php-tag">&lt;?php</span>
+<span class="php-variable">$win</span> = wb_create_window(<span class="php-constant">NULL</span>, AppWindow, <span class="php-string">"Chart demo"</span>, 100, 100, 520, 360);
+<span class="php-variable">$chart</span> = wb_create_control(<span class="php-variable">$win</span>, Chart, <span class="php-keyword">array</span>(<span class="php-string">"Month"</span>, <span class="php-string">"Sales"</span>), 20, 20, 470, 260);
+
+wb_set_chart_data(
+    <span class="php-variable">$chart</span>,
+    <span class="php-keyword">array</span>(1, 2, 3, 4, 5, 6),
+    <span class="php-keyword">array</span>(12.5, 16.0, 9.8, 20.1, 18.2, 22.0),
+    <span class="php-constant">WBC_CHART_BAR</span>,
+    <span class="php-keyword">true</span>
+);
+
+wb_main_loop();
+</pre>
+
+<h1>Notes</h1>
+<p>For a full runnable sample, see <a href="../examples/chart_demo.php"><span class="code">examples/chart_demo.php</span></a>.</p>
+
+<h1>See also</h1>
+<p>
+<a href="wb_create_control.html">wb_create_control()</a><br>
+<a href="wb_refresh.html">wb_refresh()</a><br>
+<a href="../reference/constants.html">Constants reference</a>
+</p>
+</body>
+</html>

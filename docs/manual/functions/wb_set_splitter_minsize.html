@@ -1,5 +1,15 @@
 <html><head><title>wb_set_splitter_minsize</title><link rel="stylesheet" href="../help.css"></head><body>
 <h2>wb_set_splitter_minsize</h2>
-<p>bool <b>wb_set_splitter_minsize</b> (int splitter, int min_pane1, int min_pane2)</p>
-<p>Sets minimum pane sizes in pixels for a <a href="../classes/splitter.html">Splitter</a>.</p>
+<p><b>bool wb_set_splitter_minsize</b>(int splitter, int min_pane1, int min_pane2)</p>
+<p>Defines the minimum pane sizes in pixels for a Splitter control so users cannot drag the divider past usable bounds.</p>
+<h1>Parameters</h1>
+<p><b>splitter</b>: Splitter handle.</p>
+<p><b>min_pane1</b>: Minimum size for pane 1.</p>
+<p><b>min_pane2</b>: Minimum size for pane 2.</p>
+<h1>Example</h1>
+<pre class="php-highlight"><span class="php-tag">&lt;?php</span>
+wb_set_splitter_minsize(<span class="php-variable">$splitter</span>, 180, 220);
+</pre>
+<h1>See also</h1>
+<p><a href="wb_set_splitter_position.html">wb_set_splitter_position()</a><br><a href="wb_set_splitter_panes.html">wb_set_splitter_panes()</a></p>
 </body></html>
