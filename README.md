@@ -1,44 +1,40 @@
-WinBinder
-========================
-WinBinder - The native Windows binding for PHP 8.
+# WinBinder
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8) PHP 8 x64
+**Build native Windows desktop apps with PHP 8.4 (x86/x64).**
 
+WinBinder is an open-source extension that lets you create real Win32 GUI applications with plain PHP. You can ship lightweight desktop tools without switching to C/C++ or .NET.
 
-What is WinBinder?
-========================
+[![Build status](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)](https://ci.appveyor.com/api/projects/status/github/crispy-computing-machine/Winbinder?svg=true&branch=php8)
 
-WinBinder is an open source extension to PHP, the script programming language. It allows PHP programmers to easily build native Windows applications, producing quick and rewarding results with minimum effort. Even short scripts with a few dozen lines can generate a useful program, thanks to the power and flexibility of PHP.
+## Why WinBinder?
 
-[Docs](https://crispy-computing-machine.github.io/Winbinder-Docs/)
+- **Native Windows UI**: Use standard Windows controls and behavior.
+- **PHP-first development**: Build desktop apps in a language you already know.
+- **Fast iteration**: Small scripts can become useful internal tools quickly.
+- **Low overhead**: Great for utilities, admin tools, data-entry apps, and prototypes.
+- **Mature Win32 access**: Dialogs, windows, controls, drawing, and system integration.
+- **Open source**: Community-driven and easy to explore.
 
-[Examples](https://github.com/crispy-computing-machine/Winbinder-Examples)
+## PHP Compatibility
 
-[IDE Stub File](https://gist.github.com/crispy-computing-machine/ee4e94ba5e4870a7907535185af14ba0)
+- PHP 7.x ❌ unsupported
+- **PHP 8.4 ✅ supported (x86/x64)**
 
+For older PHP builds, check historical binaries on PECL.
 
-PHP Build Compatibility
-========================
-  - PHP 7.* ❌ (unsupported)
-  - PHP 8.4 ✅
-  
-(For older PHP version compatibility please see PECL website for old .dll's)
+## Start Here
 
-Latest Features & Updates
-========================
+- [Documentation](https://crispy-computing-machine.github.io/Winbinder-Docs/)
+- [Examples](https://github.com/crispy-computing-machine/Winbinder-Examples)
+- [Latest features](https://github.com/crispy-computing-machine/Winbinder/wiki/New-Features-Functions)
+- [IDE stub file](https://gist.github.com/crispy-computing-machine/ee4e94ba5e4870a7907535185af14ba0)
 
-[Wiki - New features!](https://github.com/crispy-computing-machine/Winbinder/wiki/New-Features-Functions)
+## Reporting Bugs
 
-Reporting Bugs
-========================
+Please open an issue on GitHub: [WinBinder Issues](https://github.com/crispy-computing-machine/Winbinder/issues)
 
-Report them via github [issues](https://github.com/crispy-computing-machine/Winbinder/issues).
+## About
 
-About
-========================
-Forked from [Wagy](https://github.com/wagy/WinBinder) for PHP7 support
+This project is a continuation of [Wagy/WinBinder](https://github.com/wagy/WinBinder), modernized for current PHP 8 support.
 
-**Updated for PHP 8 compatibility - I have no idea what I am doing, but it seems to work!**
-
-# ⚠️ DO NOT USE IN PRODUCTION!
-# ⚠️ No warranty provided!
+> No warranty is provided. Evaluate carefully before production use.
