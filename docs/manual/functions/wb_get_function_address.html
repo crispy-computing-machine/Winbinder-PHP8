@@ -44,23 +44,23 @@ inside DLLs. The loop starts from zero (&quot;@0&quot;) and ends when it reaches
 </h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Returns the number of seconds elapsed since the computer
+            <p><code class="php-highlight"><span class="php-comment">// Returns the number of seconds elapsed since the computer</span>
             started.</code></p>
-            <p><code>function get_ticks()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;static
-            $KERNEL = null;<br>&nbsp;&nbsp;&nbsp;&nbsp;static $GetTickCount
-            = null;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if($KERNEL === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$KERNEL
-            = wb_load_library(&quot;KERNEL&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;if($GetTickCount
-            === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$GetTickCount
-            = wb_get_function_address(&quot;GetTickCount&quot;, $KERNEL);<br>&nbsp;&nbsp;&nbsp;&nbsp;return
-            (int)(wb_call_function($GetTickCount) / 1000);<br>}</code></p>
+            <p><code class="php-highlight">function get_ticks()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;static
+            <span class="php-variable">$KERNEL</span> = null;<br>&nbsp;&nbsp;&nbsp;&nbsp;static <span class="php-variable">$GetTickCount</span>
+            = null;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$KERNEL</span> === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-variable">$KERNEL</span>
+            = wb_load_library(<span class="php-string">&quot;KERNEL&quot;</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$GetTickCount</span>
+            === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-variable">$GetTickCount</span>
+            = wb_get_function_address(<span class="php-string">&quot;GetTickCount&quot;</span>, <span class="php-variable">$KERNEL</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;return
+            (int)(wb_call_function(<span class="php-variable">$GetTickCount</span>) / 1000);<br>}</code></p>
 </td></tr>
 </table>
 <br>The mini-program below shows how to call a Windows function in a single
 PHP&nbsp;line.<br><br><table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>&lt;?<br>// Shows the current ANSI code-page identifier for the
-            operating system.<br><br>include &quot;../include/winbinder.php&quot;;<br><br>wb_message_box(0, &quot;ANSI code-page identifier: &quot;
-            . wb_call_function(wb_get_function_address(&quot;GetACP&quot;, wb_load_library(&quot;KERNEL&quot;))));</code></p>
+            <p><code class="php-highlight"><span class="php-tag">&lt;?</span><br><span class="php-comment">// Shows the current ANSI code-page identifier for the</span>
+            operating system.<br><br>include <span class="php-string">&quot;../include/winbinder.php&quot;</span>;<br><br>wb_message_box(0, <span class="php-string">&quot;ANSI code-page identifier: &quot;</span>
+            . wb_call_function(wb_get_function_address(<span class="php-string">&quot;GetACP&quot;</span>, wb_load_library(<span class="php-string">&quot;KERNEL&quot;</span>))));</code></p>
             <p><code>?&gt;</code></p>
 </td></tr>
 </table>

@@ -156,15 +156,15 @@ three possible types:</p>
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Open database<br><br>db_open_database(&quot;sample.db&quot;);<br><br>// Read
-            data from user whose identifier is 53<br><br>wb_set_text(wb_get_control($mainwin,
-            ID_USER), db_get_data(&quot;user&quot;, 53));<br><br>// Fill up
-            a list box with all user names<br><br>wb_set_text(wb_get_control($mainwin,
-            ID_USERS), db_get_data(&quot;user&quot;, null, &quot;name&quot;));</code></p>
-            <p><code>// Display all users that are over 18 in a ListView<br><br>$itemlist
-            = wb_get_control($window, ID_USERLIST);<br>$fields = array(&quot;id&quot;,&quot;name&quot;,&quot;phone&quot;,&quot;address&quot;);<br>$item_data
-            = db_get_data(&quot;user&quot;, null, $fields, &quot;age &gt; 18&quot;);<br>wb_set_text($itemlist,
-            $fields);<br>wb_create_items($itemlist, $item_data, true);</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Open database</span><br><br>db_open_database(<span class="php-string">&quot;sample.db&quot;</span>);<br><br><span class="php-comment">// Read</span>
+            data from user whose identifier is 53<br><br>wb_set_text(wb_get_control(<span class="php-variable">$mainwin</span>,
+            ID_USER), db_get_data(<span class="php-string">&quot;user&quot;</span>, 53));<br><br><span class="php-comment">// Fill up</span>
+            a list box with all user names<br><br>wb_set_text(wb_get_control(<span class="php-variable">$mainwin</span>,
+            ID_USERS), db_get_data(<span class="php-string">&quot;user&quot;</span>, null, <span class="php-string">&quot;name&quot;</span>));</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Display all users that are over 18 in a ListView</span><br><br><span class="php-variable">$itemlist</span>
+            = wb_get_control(<span class="php-variable">$window</span>, ID_USERLIST);<br><span class="php-variable">$fields</span> = array(<span class="php-string">&quot;id&quot;</span>,<span class="php-string">&quot;name&quot;</span>,<span class="php-string">&quot;phone&quot;</span>,<span class="php-string">&quot;address&quot;</span>);<br><span class="php-variable">$item_data</span>
+            = db_get_data(<span class="php-string">&quot;user&quot;</span>, null, <span class="php-variable">$fields</span>, <span class="php-string">&quot;age &gt; 18&quot;</span>);<br>wb_set_text(<span class="php-variable">$itemlist</span>,
+            <span class="php-variable">$fields</span>);<br>wb_create_items(<span class="php-variable">$itemlist</span>, <span class="php-variable">$item_data</span>, true);</code></p>
 </td></tr>
 </table>
 <br>

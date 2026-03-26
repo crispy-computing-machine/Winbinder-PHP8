@@ -47,17 +47,17 @@ or &quot;HKEY_DYN_DATA&quot;</p>
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Creates or sets various values<br><br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;String value&quot;, &quot;1234&quot;);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;Integer value&quot;, 1234);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;Floating-point value&quot;, 1.234);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;&quot;, &quot;The default&quot;);</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Creates or sets various values</span><br><br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;String value&quot;</span>, <span class="php-string">&quot;1234&quot;</span>);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;Integer value&quot;</span>, 1234);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;Floating-point value&quot;</span>, 1.234);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;&quot;</span>, <span class="php-string">&quot;The default&quot;</span>);</code></p>
             <p><code>// Delete the new entries</code></p>
-            <p><code>wb_set_registry_key(&quot;HKCU&quot;, &quot;Software\\WinBinder&quot;,
-            &quot;String value&quot;, null);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;Integer value&quot;);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;Floating-point value&quot;);<br>wb_set_registry_key(&quot;HKCU&quot;,
-            &quot;Software\\WinBinder&quot;, &quot;&quot;);</code></p>
+            <p><code class="php-highlight">wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>, <span class="php-string">&quot;Software\\WinBinder&quot;</span>,
+            <span class="php-string">&quot;String value&quot;</span>, null);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;Integer value&quot;</span>);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;Floating-point value&quot;</span>);<br>wb_set_registry_key(<span class="php-string">&quot;HKCU&quot;</span>,
+            <span class="php-string">&quot;Software\\WinBinder&quot;</span>, <span class="php-string">&quot;&quot;</span>);</code></p>
 </td></tr>
 </table>
 <br>

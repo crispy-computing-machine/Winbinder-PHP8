@@ -69,19 +69,19 @@ area used to drag a borderless window with the mouse.</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p class="code"><code>define(&quot;WIDTH&quot;, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;480);<br>define(&quot;HEIGHT&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;320);<br><br>//
+            <p class="code"><code class="php-highlight">define(<span class="php-string">&quot;WIDTH&quot;</span>, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;480);<br>define(<span class="php-string">&quot;HEIGHT&quot;</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;320);<br><br><span class="php-comment">//</span>
             Example 1: Create a window and set the area that can be dragged 
-            (title area)<br><br>$win1 = wb_create_window(NULL,
-            NakedWindow, APPNAME, WIDTH, HEIGHT);<br>wb_set_area($win1, WBC_TITLE,
-            0, 0, WIDTH, 86); &nbsp;// Set title area</code></p>
-            <p class="code"><code>// Example 2: create a window that can be 
+            (title area)<br><br><span class="php-variable">$win1</span> = wb_create_window(NULL,
+            NakedWindow, APPNAME, WIDTH, HEIGHT);<br>wb_set_area(<span class="php-variable">$win1</span>, WBC_TITLE,
+            0, 0, WIDTH, 86); &nbsp;<span class="php-comment">// Set title area</span></code></p>
+            <p class="code"><code class="php-highlight"><span class="php-comment">// Example 2: create a window that can be </span>
             resized 
             vertically, but not horizontally<br><br></code>$win2 = 
-            wb_create_window(NULL, ResizableWindow, APPNAME <code>, WIDTH, HEIGHT); 
-            // Create window<br></code>wb_set_area($win2, 
-            WBC_MINSIZE, 0, 0, WIDTH, 400); &nbsp;&nbsp;&nbsp;<code>// Set minimum 
+            wb_create_window(NULL, ResizableWindow, APPNAME <code class="php-highlight">, WIDTH, HEIGHT); 
+            <span class="php-comment">// Create window</span><br></code>wb_set_area($win2, 
+            WBC_MINSIZE, 0, 0, WIDTH, 400); &nbsp;&nbsp;&nbsp;<code class="php-highlight"><span class="php-comment">// Set minimum </span>
             width and minimum height</code><br>wb_set_area($win2, WBC_MAXSIZE, 
-            0, 0, WIDTH, 0); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// <code>Set maximum 
+            0, 0, WIDTH, 0); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// <code class="php-highlight">Set maximum 
             width and no height limit</code></p>
 </td></tr>
 </table>

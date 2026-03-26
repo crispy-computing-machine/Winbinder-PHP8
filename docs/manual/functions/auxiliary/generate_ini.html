@@ -16,10 +16,10 @@ of the INI string. To parse an INI string into an array, use <a href="parse_ini.
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>$inifile = &quot;app.ini&quot;;<br>$config = parse_ini(file_get_contents($inifile));<br>$config[&quot;Settings&quot;][&quot;defaultpath&quot;]
-            = dirname(__FILE__);<br>$initext = generate_ini($config, &quot;;
-            Configuration&nbsp;file\r\n&quot;);<br>file_put_contents($inifile,
-            $initext);&nbsp;</code></p>
+            <p><code class="php-highlight"><span class="php-variable">$inifile</span> = <span class="php-string">&quot;app.ini&quot;</span>;<br><span class="php-variable">$config</span> = parse_ini(file_get_contents(<span class="php-variable">$inifile</span>));<br><span class="php-variable">$config</span>[<span class="php-string">&quot;Settings&quot;</span>][<span class="php-string">&quot;defaultpath&quot;</span>]
+            = dirname(__FILE__);<br><span class="php-variable">$initext</span> = generate_ini(<span class="php-variable">$config</span>, &quot;;
+            Configuration&nbsp;file\r\n&quot;);<br>file_put_contents(<span class="php-variable">$inifile</span>,
+            <span class="php-variable">$initext</span>);&nbsp;</code></p>
 </td></tr>
 </table><br>
 

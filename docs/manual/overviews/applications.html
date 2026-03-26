@@ -25,39 +25,39 @@ Creating applications
 two button controls. The comments show the required steps.</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>&lt;?<br>include &quot;../include/winbinder.php&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Location of WinBinder library<br><br>// STEP 1: Create main window<br><br>$mainwin = wb_create_window(NULL, AppWindow, &quot;Five steps&quot;, 320, 240);
+<p><code class="php-highlight"><span class="php-tag">&lt;?</span><br>include <span class="php-string">&quot;../include/winbinder.php&quot;</span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Location of WinBinder library<br><br><span class="php-comment">// STEP 1: Create main window</span><br><br><span class="php-variable">$mainwin</span> = wb_create_window(NULL, AppWindow, <span class="php-string">&quot;Five steps&quot;</span>, 320, 240);
 
-<br><br>// STEP 2: Create controls for the main window &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Geometry data        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id
+<br><br><span class="php-comment">// STEP 2: Create controls for the main window &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Geometry data        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Id</span>
 
-<br><br>wb_create_control($mainwin, PushButton, &quot;Button 1&quot;,  &nbsp;&nbsp;50, 70, 80, 22,     &nbsp;&nbsp;&nbsp;&nbsp;101);
-<br>wb_create_control($mainwin, PushButton, &quot;Button 2&quot;, &nbsp;180, 70, 80, 22,     &nbsp;&nbsp;&nbsp;&nbsp;102);
+<br><br>wb_create_control(<span class="php-variable">$mainwin</span>, PushButton, <span class="php-string">&quot;Button 1&quot;</span>,  &nbsp;&nbsp;50, 70, 80, 22,     &nbsp;&nbsp;&nbsp;&nbsp;101);
+<br>wb_create_control(<span class="php-variable">$mainwin</span>, PushButton, <span class="php-string">&quot;Button 2&quot;</span>, &nbsp;180, 70, 80, 22,     &nbsp;&nbsp;&nbsp;&nbsp;102);
 
-<br><br>// STEP 3: Create a handler function to process the controls (see below).
+<br><br><span class="php-comment">// STEP 3: Create a handler function to process the controls (see below).</span>
 <br>
 
-<br>// STEP 4: Assign the handler function to the main window.
+<br><span class="php-comment">// STEP 4: Assign the handler function to the main window.</span>
 
-<br><br>wb_set_handler($mainwin, &quot;process_main&quot;);
+<br><br>wb_set_handler(<span class="php-variable">$mainwin</span>, <span class="php-string">&quot;process_main&quot;</span>);
 
-<br><br>// STEP 5: Enter application loop
+<br><br><span class="php-comment">// STEP 5: Enter application loop</span>
 <br>
 
 <br>wb_main_loop();
 
-<br><br>// The handler function from step 3
+<br><br><span class="php-comment">// The handler function from step 3</span>
 
-<br><br>function process_main($window, $id)<br>{<br> &nbsp;&nbsp;&nbsp;&nbsp;switch($id) {
+<br><br>function process_main(<span class="php-variable">$window</span>, <span class="php-variable">$id</span>)<br>{<br> &nbsp;&nbsp;&nbsp;&nbsp;switch(<span class="php-variable">$id</span>) {
 
         <br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 101:
         <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 102:
-            <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_message_box($window, &quot;Button #$id was pressed.&quot;);
+            <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_message_box(<span class="php-variable">$window</span>, <span class="php-string">&quot;Button #$id was pressed.&quot;</span>);
             <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
 
-        <br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case IDCLOSE: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      // The
+        <br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case IDCLOSE: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      <span class="php-comment">// The</span>
 constant IDCLOSE is predefined
-            <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_destroy_window($window);
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Destroy the window<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+            <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_destroy_window(<span class="php-variable">$window</span>);
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Destroy the window</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
     <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code></p>
             <p><code>?&gt;</code></p>
 </td></tr>

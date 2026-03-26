@@ -42,7 +42,7 @@ The parameter <i>info</i> is not case-sensitive.</p>
             <p>&quot;appmemory&quot;</p>
         </td>
         <td width="394">
-            <p>The total memory used by the application¹</p>
+            <p>The total memory used by the applicationÂ¹</p>
         </td>
         <td width="50">
             <p>integer</p>
@@ -375,12 +375,12 @@ The parameter <i>info</i> is not case-sensitive.</p>
         </td>
     </tr>
 </table>
-<p>¹ For &quot;appmemory&quot;, the function will always return 0 in Windows 
-98 or Windows Me.</p>
-<p>If <i>info</i> is not one of the above values, a warning message will be
-displayed and the function will return <code>NULL</code>.</p>
-<h1><img src="../images/icon_tip.png" align="absmiddle" width="29" height="28" border="0">
-Tips</h1>
+            <p><code class="php-highlight"><span class="php-comment">// Get font data values</span><br><br><span class="php-variable">$sfnt</span> = explode(<span class="php-string">&quot; &quot;</span>,
+            wb_get_system_info(<span class="php-string">&quot;systemfont&quot;</span>));<br><span class="php-variable">$sysfont</span> = wb_create_font(<span class="php-variable">$sfnt</span>[0],
+            <span class="php-variable">$sfnt</span>[1], BLACK, constant(strtoupper(<span class="php-string">&quot;FTA_$sfnt[2]&quot;</span>)));&nbsp;</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Get screen dimensions</span><br><br><span class="php-variable">$dim</span> = explode(<span class="php-string">&quot; &quot;</span>,
+            wb_get_system_info(<span class="php-string">&quot;screenarea&quot;</span>));<br>wb_message_box(null,
+            <span class="php-string">&quot;Screen dimensions are $dim[2] x $dim[3] pixels.&quot;</span>);</code></p>
 <p>In certain cases where the return value is a string with several sub-strings,
 use the <b>explode()</b> function to separate values. Examples:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >

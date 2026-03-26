@@ -45,15 +45,15 @@ If <i>param</i> is null or not used, the default font is used.</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
             <p><code>// Obtain and print out various dimensions</code></p>
-            <p class="code"><code>define(&quot;PATH_RES&quot;, &quot;../resources/&quot;);<br><br>//
-            Get bitmap dimensions<br><br>print_r(wb_get_size(PATH_RES . &quot;toolbar.bmp&quot;));<br>$img
-            = wb_load_image(PATH_RES . &quot;toolbar.bmp&quot;);<br>print_r(wb_get_size($img));<br><br>//
-            Get icon dimensions<br><br>$img = wb_load_image(PATH_RES . &quot;ttf.ico&quot;);<br>print_r(wb_get_size($img));<br>print_r(wb_get_size(PATH_RES
-            . &quot;ttf.ico&quot;));<br><br>// Get window dimensions<br><br>$mainwin
-            = wb_create_window(NULL, PopupWindow, &quot;Tests&quot;, 530, 320);<br>print_r(wb_get_size($mainwin));<br><br>//
-            Get control dimensions<br><br>$label = wb_create_control($mainwin,
-            Label, &quot;&quot;, 10, 20, 120, 20);<br>print_r(wb_get_size($frame));<br><br>//
-            Get column widths of a ListView<br><br>print_r(wb_get_size($list,
+            <p class="code"><code class="php-highlight">define(<span class="php-string">&quot;PATH_RES&quot;</span>, <span class="php-string">&quot;../resources/&quot;</span>);<br><br><span class="php-comment">//</span>
+            Get bitmap dimensions<br><br>print_r(wb_get_size(PATH_RES . <span class="php-string">&quot;toolbar.bmp&quot;</span>));<br><span class="php-variable">$img</span>
+            = wb_load_image(PATH_RES . <span class="php-string">&quot;toolbar.bmp&quot;</span>);<br>print_r(wb_get_size(<span class="php-variable">$img</span>));<br><br><span class="php-comment">//</span>
+            Get icon dimensions<br><br><span class="php-variable">$img</span> = wb_load_image(PATH_RES . <span class="php-string">&quot;ttf.ico&quot;</span>);<br>print_r(wb_get_size(<span class="php-variable">$img</span>));<br>print_r(wb_get_size(PATH_RES
+            . <span class="php-string">&quot;ttf.ico&quot;</span>));<br><br><span class="php-comment">// Get window dimensions</span><br><br><span class="php-variable">$mainwin</span>
+            = wb_create_window(NULL, PopupWindow, <span class="php-string">&quot;Tests&quot;</span>, 530, 320);<br>print_r(wb_get_size(<span class="php-variable">$mainwin</span>));<br><br><span class="php-comment">//</span>
+            Get control dimensions<br><br><span class="php-variable">$label</span> = wb_create_control(<span class="php-variable">$mainwin</span>,
+            Label, <span class="php-string">&quot;&quot;</span>, 10, 20, 120, 20);<br>print_r(wb_get_size(<span class="php-variable">$frame</span>));<br><br><span class="php-comment">//</span>
+            Get column widths of a ListView<br><br>print_r(wb_get_size(<span class="php-variable">$list</span>,
             true));<br></code></p>
             <p class="code"><code>// Get the size of a text string, in pixels</code></p>
             <p class="code">print_r(wb_get_size(wb_get_text(wb_get_control($window, 

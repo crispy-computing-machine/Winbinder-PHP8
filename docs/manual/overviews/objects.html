@@ -17,7 +17,8 @@ WinBinder,Objects
 SetWindowLong (Windows API function)-->
 <h2>WinBinder objects</h2>
 <p>Windows uses handles of type HWND to refer to most GUI objects. Since handles are 32-bit
-pointers that are unique to each window, it would be tempting to use them asPHP 
+pointers that are unique to each window, it would be tempting to use them as
+PHP 
 variables to refer to controls. However, this approach is not ideal for
 the following reasons:</p>
 <ul>
@@ -33,28 +34,28 @@ copy of the WBOBJ definition in
 WB.H:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// WinBinder object (window, control, or menu), stored 
+            <p><code class="php-highlight"><span class="php-comment">// WinBinder object (window, control, or menu), stored </span>
             with SetWindowLong() / GWL_USERDATA</code></p>
-            <p><code>typedef struct _wbo {<br>&nbsp;&nbsp;&nbsp;&nbsp;HWND hwnd;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Control or window handle<br>&nbsp;&nbsp;&nbsp;&nbsp;UINT id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Control identifier<br>&nbsp;&nbsp;&nbsp;&nbsp;UINT uClass;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Object class<br>&nbsp;&nbsp;&nbsp;&nbsp;int item;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Item index<br>&nbsp;&nbsp;&nbsp;&nbsp;int subitem;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Sub-item index<br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD style;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            WinBinder style<br>&nbsp;&nbsp;&nbsp;&nbsp;struct _wbo *parent;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Parent window<br>&nbsp;&nbsp;&nbsp;&nbsp;LPTSTR pszCallBackFn;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Callback function<br>&nbsp;&nbsp;&nbsp;&nbsp;LPTSTR pszCallBackObj;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
-            Object for callback method<br>&nbsp;&nbsp;&nbsp;&nbsp;LPARAM lparam;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            <p><code class="php-highlight">typedef struct _wbo {<br>&nbsp;&nbsp;&nbsp;&nbsp;HWND hwnd;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Control or window handle<br>&nbsp;&nbsp;&nbsp;&nbsp;UINT id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Control identifier<br>&nbsp;&nbsp;&nbsp;&nbsp;UINT uClass;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Object class<br>&nbsp;&nbsp;&nbsp;&nbsp;int item;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Item index<br>&nbsp;&nbsp;&nbsp;&nbsp;int subitem;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Sub-item index<br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD style;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            WinBinder style<br>&nbsp;&nbsp;&nbsp;&nbsp;struct _wbo *parent;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Parent window<br>&nbsp;&nbsp;&nbsp;&nbsp;LPTSTR pszCallBackFn;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Callback function<br>&nbsp;&nbsp;&nbsp;&nbsp;LPTSTR pszCallBackObj;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
+            Object for callback method<br>&nbsp;&nbsp;&nbsp;&nbsp;LPARAM lparam;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             User-defined parameter<br>&nbsp;&nbsp;&nbsp;&nbsp;LONG 
-            lparams[8];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            lparams[8];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             General-purpose parameter array<br>&nbsp;&nbsp;&nbsp;&nbsp;RECT 
-            rcTitle;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            rcTitle;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             Title area<br>&nbsp;&nbsp;&nbsp;&nbsp;AREA 
-            arMin;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            arMin;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             Minimum window area<br>&nbsp;&nbsp;&nbsp;&nbsp;AREA 
-            arMax;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            arMax;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             Maximum window area<br>&nbsp;&nbsp;&nbsp;&nbsp;HBITMAP 
-            pbuffer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            pbuffer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             Screen buffer for container windows<br>} WBOBJ, *PWBOBJ;</code></p>
 </td></tr>
 </table>
@@ -88,7 +89,8 @@ and&nbsp;</b><a href="../classes/tabcontrol.html"><b>tab controls</b></a>. There
 the following rule must be observed:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td bgcolor="#FFFFCC">
-<p><b><img src="../images/icon_warning.gif" align="absmiddle" width="32" height="32" border="0">WARNING: 
+<p><b><img src="../images/icon_warning.gif" align="absmiddle" width="32" height="32" border="0">
+WARNING: 
 You should not try to use a&nbsp;</b><a href="../classes/frame.html"><b>frame</b></a><b> 
             (or any other control class except for a tab control) as a container 
             for other controls.</b></p>
@@ -104,9 +106,9 @@ callback function.</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
             <p><code>// Declare constants for the WBOBJ&nbsp;structure</code></p>
-            <p><code>define(&quot;WBOBJ&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Vhwnd/Vid/Vuclass/litem/lsubitem/Vstyle/Vparent/Vhandler/Vlparam/V8lparams/Vpbuffer&quot;);<br>define(&quot;WBOBJ_RAW&quot;,&nbsp;&nbsp;&nbsp;&quot;V3l2V13&quot;);<br>define(&quot;WBOBJ_SIZE&quot;,&nbsp;&nbsp;72);<br><br>$wbobj = unpack(WBOBJ, wb_peek($window, WBOBJ_SIZE));<br>$hwnd 
-            = $wbobj[&quot;hwnd&quot;];<br><br>echo &quot;The handle 
-            for this window is $hwnd.&quot;;</code></p>
+            <p><code class="php-highlight">define(<span class="php-string">&quot;WBOBJ&quot;</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-string">&quot;Vhwnd/Vid/Vuclass/litem/lsubitem/Vstyle/Vparent/Vhandler/Vlparam/V8lparams/Vpbuffer&quot;</span>);<br>define(<span class="php-string">&quot;WBOBJ_RAW&quot;</span>,&nbsp;&nbsp;&nbsp;<span class="php-string">&quot;V3l2V13&quot;</span>);<br>define(<span class="php-string">&quot;WBOBJ_SIZE&quot;</span>,&nbsp;&nbsp;72);<br><br><span class="php-variable">$wbobj</span> = unpack(WBOBJ, wb_peek(<span class="php-variable">$window</span>, WBOBJ_SIZE));<br><span class="php-variable">$hwnd</span> 
+            = <span class="php-variable">$wbobj</span>[<span class="php-string">&quot;hwnd&quot;</span>];<br><br>echo &quot;The handle 
+            for this window is <span class="php-variable">$hwnd</span>.&quot;;</code></p>
 </td></tr>
 </table>
 <h1>See also</h1>
@@ -115,5 +117,7 @@ classes</a><br><a href="window_messages.html">Window messages
     and events</a><br></p>
 <p>&nbsp;</p>
 </body>
+
+</html>
 
 </html>

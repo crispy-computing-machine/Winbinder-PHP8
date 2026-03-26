@@ -23,8 +23,8 @@ a boolean is returned: <span class="code">TRUE</span> if the function is success
 <p>Multiple values are returned as arrays. For example:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>$size_array = wb_get_size($tabctrl);<br><br>// This call returns an associative
-array of two values<br>// For example, if the position is (100, 200) it will
+<p><code class="php-highlight"><span class="php-variable">$size_array</span> = wb_get_size(<span class="php-variable">$tabctrl</span>);<br><br><span class="php-comment">// This call returns an associative</span>
+array of two values<br><span class="php-comment">// For example, if the position is (100, 200) it will</span>
 return:<br><br>Array<br>(<br>&nbsp;&nbsp;&nbsp;&nbsp;[x] =&gt; 100<br>&nbsp;&nbsp;&nbsp;&nbsp;[y]
 =&gt; 200<br>)</code></p>
 </td></tr>
@@ -39,10 +39,10 @@ affected. This makes Windows programming much
 simpler than usual. For example, see the code below:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>wb_set_text($PushButton, &quot;OK&quot;) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Sets the text of a button<br>wb_set_text($ComboBox, &quot;Item 1\nItem
-            2\nItem 3&quot;)&nbsp;&nbsp;// Creates items on a combo box<br>wb_set_text($TabControl,
-            &quot;Tab 1\nTab 2\nTab 3&quot;) &nbsp;&nbsp;// Creates tabs on
+<p><code class="php-highlight">wb_set_text(<span class="php-variable">$PushButton</span>, <span class="php-string">&quot;OK&quot;</span>) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Sets the text of a button<br>wb_set_text(<span class="php-variable">$ComboBox</span>, &quot;Item 1\nItem
+            2\nItem 3&quot;)&nbsp;&nbsp;<span class="php-comment">// Creates items on a combo box</span><br>wb_set_text(<span class="php-variable">$TabControl</span>,
+            <span class="php-string">&quot;Tab 1\nTab 2\nTab 3&quot;</span>) &nbsp;&nbsp;<span class="php-comment">// Creates tabs on</span>
             a tab control</code></p>
 </td></tr>
 </table>
@@ -51,11 +51,11 @@ are used abundantly in WinBinder.
 For example:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// The first call to wb_message_box() will display a default
+            <p><code class="php-highlight"><span class="php-comment">// The first call to wb_message_box() will display a default</span>
             title and an OK button.<br></code></p>
-            <p><code>wb_message_box($window,
-            &quot;Press OK to start.&quot;);<br>wb_message_box($window,
-            &quot;Are your sure?&quot;, &quot;Question&quot;, WBC_YESNO);<br></code></p>
+            <p><code class="php-highlight">wb_message_box(<span class="php-variable">$window</span>,
+            <span class="php-string">&quot;Press OK to start.&quot;</span>);<br>wb_message_box(<span class="php-variable">$window</span>,
+            <span class="php-string">&quot;Are your sure?&quot;</span>, <span class="php-string">&quot;Question&quot;</span>, WBC_YESNO);<br></code></p>
 </td></tr>
 </table>
 <p>Another important way to reduce code size and ease maintenance is trying 
@@ -63,9 +63,9 @@ to use the value returned from one function as a parameter for another function
 whenever possible. For example:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>wb_set_text(wb_get_control($seldlg, ID_FONTS), get_folder_files($dir));<br>wb_set_enabled(wb_get_control($seldlg, ID_FONTS),
-            wb_message_box($window,
-            &quot;Are your sure?&quot;, &quot;Question&quot;, WBC_YESNO));</code></p>
+<p><code class="php-highlight">wb_set_text(wb_get_control(<span class="php-variable">$seldlg</span>, ID_FONTS), get_folder_files(<span class="php-variable">$dir</span>));<br>wb_set_enabled(wb_get_control(<span class="php-variable">$seldlg</span>, ID_FONTS),
+            wb_message_box(<span class="php-variable">$window</span>,
+            <span class="php-string">&quot;Are your sure?&quot;</span>, <span class="php-string">&quot;Question&quot;</span>, WBC_YESNO));</code></p>
 </td></tr>
 </table>
 <h1><b>Following PHP conventions</b></h1>
@@ -73,7 +73,7 @@ whenever possible. For example:</p>
 follow some common PHP conventions, written or not. For example, the function calls</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>wb_get_system_info(&quot;ospath&quot;)<br>wb_get_system_info(&quot;systempath&quot;)</code></p>
+<p><code class="php-highlight">wb_get_system_info(<span class="php-string">&quot;ospath&quot;</span>)<br>wb_get_system_info(<span class="php-string">&quot;systempath&quot;</span>)</code></p>
 </td></tr>
 </table>
 <p>will always return a <b>/</b> or <b>\</b> character appended to them because this

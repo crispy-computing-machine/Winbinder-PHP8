@@ -12,7 +12,7 @@ Scratchpad-->
 <font color="#CC6600"><b>NOTE:</b></font><b> These are rough notes. They will be moved from here sooner or later.</b></p>
 
 <hr>
-<h1>Running WinBinder — some notes <font color="red">(must be reviewed — must
+<h1>Running WinBinder â€” some notes <font color="red">(must be reviewed â€” must
 give credit where appropriate)</font></h1>
 <p><b>Associating the PHPW extension with WinBinder</b></p>
 <p>To run WinBinder scripts for Windows Explorer, you have to associate .phpw files with php-win.exe.
@@ -49,7 +49,7 @@ a text file with Notepad or whatever</li>
     <li>Place the
 following lines in it:</li>
 </ol>
-<p><code>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.phpw]<br>@=&quot;phpw_auto_file&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file]<br>@=&quot;PHP Winbinder App&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell]<br>@=&quot;open&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\open]<br>@=&quot;Run Winbinder App&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\open\command]<br>@=&quot;\&quot;C:\\PHP\\WinBinder\\PHP\\PHP4\\php-win.exe\&quot; \&quot;%1\&quot;&quot;</code></p>
+<p><code class="php-highlight">[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.phpw]<br>@=&quot;phpw_auto_file&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file]<br>@=&quot;PHP Winbinder App&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell]<br>@=&quot;open&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\open]<br>@=&quot;Run Winbinder App&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\open\command]<br>@=&quot;\&quot;C:\\PHP\\WinBinder\\PHP\\PHP4\\php-win.exe\&quot; \&quot;%1\&quot;&quot;</code></p>
 <p>Be sure to change the line C:\\PHP\\WinBinder\\PHP.... &nbsp;to the path
 where you have your php-win.exe. &nbsp;&nbsp;Also take note of the extra \'s...
 just like when you have to escape slashes and quotes (a la addslashes()) in
@@ -65,10 +65,10 @@ shell\edit)</p>
 appears in the right-click menu for PHPW files.</p>
 <p>Example... to add &quot;Edit PHPW With Notepad&quot; you'd add the following
 lines to what's already above (at the end probably):</p>
-<p><code>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\edit]<br>@=&quot;Edit Winbinder App with Notepad&quot;<br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\edit\command]<br>@=&quot;%SystemRoot%\\system32\\NOTEPAD.EXE\&quot; \&quot;%1\&quot;</code></p>
+<p><code class="php-highlight">[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\edit]<br>@=<span class="php-string">&quot;Edit Winbinder App with Notepad&quot;</span><br>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell\edit\command]<br>@=<span class="php-string">&quot;%SystemRoot%\\system32\\NOTEPAD.EXE\&quot;</span> \<span class="php-string">&quot;%1\&quot;</span></code></p>
 <p>And if you wanted to make this &quot;edit with notepad&quot; the default
 double-click action, you'd change the one entry above to be the following:</p>
-<p><code>[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell]<br>@=&quot;edit&quot;</code></p>
+<p><code class="php-highlight">[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\phpw_auto_file\shell]<br>@=<span class="php-string">&quot;edit&quot;</span></code></p>
 <p>Now you will see &quot;Edit Winbinder App with Notepad&quot; appear in bold
 on the right-click menu.</p>
 <p>Once you get everything in your .REG file, just double click on it and it'll
@@ -98,7 +98,7 @@ lets you set the default double-click action, not alternate edit/open/etc. actio
 </ul>
 <hr>
 <h1>Minimum structure for distribution:</h1>
-<pre>	D:
+<pre class="php-highlight">	D:
 	+------ phpcode
 	|       +------ include
 	|       |       *.php
@@ -137,14 +137,14 @@ boxes, but this is not currently possible. There are some workarounds, though:
     <p>1) Pass the position of an item to <b>db_get_id()</b> to obtain its identifier.
 In this case you must not change the
 order in which the items appear on your combo / list box.</DIV>
-<p><code>$val = db_get_id($table, wb_get_selected($combobox));</code></p>
+<p><code class="php-highlight"><span class="php-variable">$val</span> = db_get_id(<span class="php-variable">$table</span>, wb_get_selected(<span class="php-variable">$combobox</span>));</code></p>
 <DIV>
     <p>2) Call <b>wb_get_data()</b> to get the id of an element based on its name. This
 works well as long as you don't have repeated names among the elements. In this
     case you can sort the items in the control.</DIV>
-<p><code>$sel = wb_get_text($combobox);<br>$data = db_get_data($table, null,
-&quot;name&quot;);<br>$sel_index = (int)array_search($sel, $data);<br>$val =
-db_get_data($table, $sel_index,&nbsp;&quot;id&quot;);<br></code></p>
+<p><code class="php-highlight"><span class="php-variable">$sel</span> = wb_get_text(<span class="php-variable">$combobox</span>);<br><span class="php-variable">$data</span> = db_get_data(<span class="php-variable">$table</span>, null,
+<span class="php-string">&quot;name&quot;</span>);<br><span class="php-variable">$sel_index</span> = (int)array_search(<span class="php-variable">$sel</span>, <span class="php-variable">$data</span>);<br><span class="php-variable">$val</span> =
+db_get_data(<span class="php-variable">$table</span>, <span class="php-variable">$sel_index</span>,&nbsp;<span class="php-string">&quot;id&quot;</span>);<br></code></p>
 <p>3) For each item, append a series of tab characters, then the
 item id. The id's will be hidden from view but they will be there so you can
 access them directly (using a simple filter or regular expression). In this
@@ -155,51 +155,51 @@ some of the OOi features, but don't want to convert your entire code, you may
 temporarily convert your non-ooi objects (like your main window), so you'll
 be able to use it. Check out the example below:<br>&nbsp;<table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>&lt;?<BR>define(&quot;wbpath&quot;, &quot;../&quot;);<BR>require wbpath .
-&quot;/include/winbinder.php&quot;;<BR>require wbpath .
-&quot;/include/ooi.inc.php&quot;;<BR><BR>/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Create the main
-window<BR>**/<BR>$mainwin&nbsp; = wb_create_window (NULL, AppWindow, &quot;Sample
-WB<BR>Application&quot;, 320, 240);<BR>wb_set_handler($mainwin,
-&quot;pc_main&quot;);<BR><BR>/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To create the WbComboBox widget, you'll need an
-OOi object as<BR>parent window.<BR>**/<BR>$ooi_mainwin = new
-WbAppWindow($mainwin);<BR><BR>/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As you have the OOi Main Window, you
+            <p><code class="php-highlight"><span class="php-tag">&lt;?</span><BR>define(<span class="php-string">&quot;wbpath&quot;</span>, <span class="php-string">&quot;../&quot;</span>);<BR>require wbpath .
+<span class="php-string">&quot;/include/winbinder.php&quot;</span>;<BR>require wbpath .
+<span class="php-string">&quot;/include/ooi.inc.php&quot;</span>;<BR><BR><span class="php-comment">/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Create the main
+window<BR>**/</span><BR><span class="php-variable">$mainwin</span>&nbsp; = wb_create_window (NULL, AppWindow, &quot;Sample
+WB<BR>Application&quot;, 320, 240);<BR>wb_set_handler(<span class="php-variable">$mainwin</span>,
+<span class="php-string">&quot;pc_main&quot;</span>);<BR><BR><span class="php-comment">/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To create the WbComboBox widget, you'll need an
+OOi object as<BR>parent window.<BR>**/</span><BR><span class="php-variable">$ooi_mainwin</span> = new
+WbAppWindow(<span class="php-variable">$mainwin</span>);<BR><BR><span class="php-comment">/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; As you have the OOi Main Window, you
 can add the 'ComboBox' itself.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Parameters are:<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 $parent ($ooi_mainwin)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $position_left<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 $position_top<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $width<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $height (after
 drop-downed)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array($options)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 $id<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $style<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $lparam<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; You may add the options later
-if you prefer.<BR>**/<BR>$combobox = new
-WbComboBox($ooi_mainwin, 10, 10, 100, 100);<BR>$combobox-&gt;id =
-0x100;<BR>$combobox-&gt;addOption(&quot;br&quot;,
-&quot;Brazil&quot;);<BR>$combobox-&gt;addOption(&quot;us&quot;, &quot;United
-States&quot;);<BR>$combobox-&gt;addOption(&quot;value1&quot;, &quot;Text number
-1&quot;);<BR>$combobox-&gt;addOption(&quot;who&quot;, &quot;Who let the dogs
-out&quot;);<BR><BR>/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; By using the OOi, you may also sort your combobox,
-and maintain the values<BR>**/<BR>$combobox-&gt;sort();<BR><BR>/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; So,
+if you prefer.<BR>**/</span><BR><span class="php-variable">$combobox</span> = new
+WbComboBox(<span class="php-variable">$ooi_mainwin</span>, 10, 10, 100, 100);<BR><span class="php-variable">$combobox</span>-&gt;id =
+0x100;<BR><span class="php-variable">$combobox</span>-&gt;addOption(<span class="php-string">&quot;br&quot;</span>,
+<span class="php-string">&quot;Brazil&quot;</span>);<BR><span class="php-variable">$combobox</span>-&gt;addOption(<span class="php-string">&quot;us&quot;</span>, <span class="php-string">&quot;United
+States&quot;</span>);<BR><span class="php-variable">$combobox</span>-&gt;addOption(<span class="php-string">&quot;value1&quot;</span>, <span class="php-string">&quot;Text number
+1&quot;</span>);<BR><span class="php-variable">$combobox</span>-&gt;addOption(<span class="php-string">&quot;who&quot;</span>, <span class="php-string">&quot;Who let the dogs
+out&quot;</span>);<BR><BR><span class="php-comment">/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; By using the OOi, you may also sort your combobox,
+and maintain the values<BR>**/</span><BR><span class="php-variable">$combobox</span>-&gt;sort();<BR><BR><span class="php-comment">/**<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; So,
 you want to continue using your non-OOi
-codes...<BR>**/<BR>wb_create_control($mainwin, Label, &quot;I'm just a label...&quot;, 5,
-30, 150, 20);<BR><BR>wb_main_loop();<BR><BR>function pc_main($window,
-$id){<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; global $combobox;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if($id ==
-$combobox-&gt;id){<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo &quot;Combobox hit!\n&quot;;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-echo &quot;Selected value: &quot; . $combobox-&gt;selectedValue . &quot;\n&quot;;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-echo &quot;Selected text:&nbsp; &quot; . $combobox-&gt;selectedDesc&nbsp; . &quot;\n&quot;;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-echo &quot;===================\n&quot;;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if($id ==
-IDCLOSE)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wb_destroy_window($window);<BR>}<BR>?&gt;</code>&nbsp;</p>
+codes...<BR>**/</span><BR>wb_create_control(<span class="php-variable">$mainwin</span>, Label, <span class="php-string">&quot;I'm just a label...&quot;</span>, 5,
+30, 150, 20);<BR><BR>wb_main_loop();<BR><BR>function pc_main(<span class="php-variable">$window</span>,
+<span class="php-variable">$id</span>){<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; global <span class="php-variable">$combobox</span>;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(<span class="php-variable">$id</span> ==
+<span class="php-variable">$combobox</span>-&gt;id){<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo <span class="php-string">&quot;Combobox hit!\n&quot;</span>;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+echo <span class="php-string">&quot;Selected value: &quot;</span> . <span class="php-variable">$combobox</span>-&gt;selectedValue . <span class="php-string">&quot;\n&quot;</span>;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+echo <span class="php-string">&quot;Selected text:&nbsp; &quot;</span> . <span class="php-variable">$combobox</span>-&gt;selectedDesc&nbsp; . <span class="php-string">&quot;\n&quot;</span>;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+echo <span class="php-string">&quot;===================\n&quot;</span>;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(<span class="php-variable">$id</span> ==
+IDCLOSE)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wb_destroy_window(<span class="php-variable">$window</span>);<BR>}<BR><span class="php-tag">?&gt;</span></code>&nbsp;</p>
 </td></tr>
 </table><DIV>
     <p>When the functionality is implemented in the future you may use an associative array instead:<br>&nbsp;</DIV>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p><code>wb_set_text($combobox, array(<br>&nbsp;&nbsp;&quot;value1&quot; =&gt;
-&quot;Text 1&quot;,<br>&nbsp;&nbsp;&quot;value2&quot; =&gt; &quot;Text 2&quot;,<br>&nbsp;&nbsp;&quot;value3&quot;
-=&gt; &quot;Text 3&quot;<br>&nbsp;));</code></p>
+<p><code class="php-highlight">wb_set_text(<span class="php-variable">$combobox</span>, array(<br>&nbsp;&nbsp;<span class="php-string">&quot;value1&quot;</span> =&gt;
+<span class="php-string">&quot;Text 1&quot;</span>,<br>&nbsp;&nbsp;<span class="php-string">&quot;value2&quot;</span> =&gt; <span class="php-string">&quot;Text 2&quot;</span>,<br>&nbsp;&nbsp;<span class="php-string">&quot;value3&quot;</span>
+=&gt; <span class="php-string">&quot;Text 3&quot;</span><br>&nbsp;));</code></p>
 <p>or</p>
-<p><code>wb_set_value($combobox, array(<br>&nbsp;&nbsp;&quot;value1&quot; =&gt;
-&quot;Text 1&quot;,<br>&nbsp;&nbsp;&quot;value2&quot; =&gt; &quot;Text 2&quot;,<br>&nbsp;&nbsp;&quot;value3&quot;
-=&gt; &quot;Text 3&quot;<br>&nbsp;));</code></p>
+<p><code class="php-highlight">wb_set_value(<span class="php-variable">$combobox</span>, array(<br>&nbsp;&nbsp;<span class="php-string">&quot;value1&quot;</span> =&gt;
+<span class="php-string">&quot;Text 1&quot;</span>,<br>&nbsp;&nbsp;<span class="php-string">&quot;value2&quot;</span> =&gt; <span class="php-string">&quot;Text 2&quot;</span>,<br>&nbsp;&nbsp;<span class="php-string">&quot;value3&quot;</span>
+=&gt; <span class="php-string">&quot;Text 3&quot;</span><br>&nbsp;));</code></p>
 </td></tr>
 </table><p>In this case, <b>wb_get_value()</b> will return the item value instead of its index as it does today:</p>
-<p><code>$val = wb_get_value($combobox);</code></p>
+<p><code class="php-highlight"><span class="php-variable">$val</span> = wb_get_value(<span class="php-variable">$combobox</span>);</code></p>
 
 <hr>
 <h1>Adding new styles to existing controls (for C developers)</h1>
@@ -208,13 +208,13 @@ horizontal scroll bar in edit controls. However, it is easy to add a custom flag
 controls. In
 this specific case, create the new flag in <SPAN
 style="FONT-WEIGHT: bold">wb.h</SPAN>:&nbsp;</SPAN>
-<p><code>#define WBC_HSCROLL 0x00008000 &nbsp;&nbsp;&nbsp;// This value is not
+<p><code class="php-highlight">#define WBC_HSCROLL 0x00008000 &nbsp;&nbsp;&nbsp;<span class="php-comment">// This value is not</span>
 used</code><p><SPAN class=postbody>Note that the value above is an unused value.
 You may reutilize a value, however, which is the recommended practice. First
 you have to make sure it will not conflict with existing flags. In this example
 you could safely use </SPAN>0x00010000 (WBC_CHECKBOXES) instead of 0x00008000
-because edit controls with check boxes do not make sense. So the line becomes:<p><code>#define WBC_HSCROLL 0x00010000
-&nbsp;&nbsp;&nbsp;// This value is being reutilized (preferred practice)</code>
+because edit controls with check boxes do not make sense. So the line becomes:<p><code class="php-highlight">#define WBC_HSCROLL 0x00010000
+&nbsp;&nbsp;&nbsp;<span class="php-comment">// This value is being reutilized (preferred practice)</span></code>
 <p><SPAN class=postbody>Then add some extra code to
 verify the flag in file <SPAN
 style="FONT-WEIGHT: bold">wb_control.c</SPAN>,
@@ -223,22 +223,22 @@ style="FONT-WEIGHT: bold">wbCreateControl</SPAN></SPAN><SPAN
 style="FONT-WEIGHT: bold"><b>:<br></b></SPAN></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <pre>case EditBox:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;                         // Inside the first 'switch' statement <BR>&nbsp; &nbsp; pszClass = &quot;EDIT&quot;;&nbsp; &nbsp;                        // Existing code<BR>&nbsp; &nbsp; dwStyle = WS_CHILD | WS_TABSTOP | nVisible;  // Existing code<BR>if(BITTEST(dwWBStyle, WBC_HSCROLL))&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;     // &lt;-- insert this line <BR>&nbsp; &nbsp; dwStyle |= WS_HSCROLL;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;    // &lt;-- and this one <BR>&nbsp; &nbsp; // ....<br>    break;                                       // Existing code&nbsp;</pre>
+            <pre class="php-highlight">case EditBox:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;                         // Inside the first 'switch' statement <BR>&nbsp; &nbsp; pszClass = &quot;EDIT&quot;;&nbsp; &nbsp;                        // Existing code<BR>&nbsp; &nbsp; dwStyle = WS_CHILD | WS_TABSTOP | nVisible;  // Existing code<BR>if(BITTEST(dwWBStyle, WBC_HSCROLL))&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;     // &lt;-- insert this line <BR>&nbsp; &nbsp; dwStyle |= WS_HSCROLL;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;    // &lt;-- and this one <BR>&nbsp; &nbsp; // ....<br>    break;                                       // Existing code&nbsp;</pre>
 </td></tr>
 </table><SPAN class=postbody><br>... and export it as a new PHP constant in <SPAN
 style="FONT-WEIGHT: bold">phpwb_export.c</SPAN>:</SPAN>
-<pre>WB_ZEND_CONST(LONG, &quot;WBC_SCROLL&quot;, WBC_HSCROLL)</pre>
+<pre class="php-highlight">WB_ZEND_CONST(LONG, &quot;WBC_SCROLL&quot;, WBC_HSCROLL)</pre>
 <p>Now you may use the new
 constant together with <b>WBC_MULTILINE</b>
 inside your PHP code:
 </p>
-<p><code>wb_create_control($win, EditBox, &quot;This edit box has a
+<p><code class="php-highlight">wb_create_control(<span class="php-variable">$win</span>, EditBox, &quot;This edit box has a
 horizontal scroll bar&quot;, 20, 20, 160, 70, ID_EDIT, WBC_MULTILINE | WBC_HSCROLL);</code><SPAN class=postbody><BR><BR>A more proper
 implementation should check if <SPAN
 style="FONT-WEIGHT: bold">WBC_MULTILINE</SPAN> is also set:</SPAN></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <pre>case EditBox:                                           // Inside the first 'switch' statement <br>    // ....
+            <pre class="php-highlight">case EditBox:                                           // Inside the first 'switch' statement <br>    // ....
     if(BITTEST(dwWBStyle, WBC_MULTILINE)) {<br>        if(BITTEST(dwWBStyle, WBC_READONLY))
             dwStyle |= WS_VSCROLL | ES_MULTILINE;
         else
@@ -306,7 +306,7 @@ multimedia type/stream etc.) into memory with wb_load_mm(), play it or do
 whatever is needed with it (still in memory), then free the memory allocated
 to it. Because WinBinder is not object-oriented (without the OOi layer),
 simply setting it to NULL won't do the job. Here:&nbsp;</p>
-<p><code>$snd = wb_load_mm(&quot;test.wav&quot;); // Load a copy of the media file into memory<br>$length = wb_get_sound_info($snd, &quot;length&quot;);<br>// etc...<br>wm_play_mm($snd);<br>wb_destroy_mm($snd); // This will deallocate the memory</code></p>
+<p><code class="php-highlight"><span class="php-variable">$snd</span> = wb_load_mm(<span class="php-string">&quot;test.wav&quot;</span>); <span class="php-comment">// Load a copy of the media file into memory</span><br><span class="php-variable">$length</span> = wb_get_sound_info(<span class="php-variable">$snd</span>, <span class="php-string">&quot;length&quot;</span>);<br><span class="php-comment">// etc...</span><br>wm_play_mm(<span class="php-variable">$snd</span>);<br>wb_destroy_mm(<span class="php-variable">$snd</span>); <span class="php-comment">// This will deallocate the memory</span></code></p>
 <p>The function <b>wb_destroy_mm()</b> would simply call a wbDestroyMM(). This one,
 in turn, would simply check if the pointer passed to it is valid. If yes, just
 call eFree() to liberate the memory allocated with <b>wb_load_mm()</b>.</p>
@@ -319,8 +319,8 @@ Not yet implemented!</font></b></p>
 newline-separated string. For example:</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>//The following examples are equivalent:<br><br>wb_set_text($tabctrl, array(&quot;First&quot;, &quot;Second&quot;,
-&quot;Third&quot;));<br>wb_set_text($tabctrl, &quot;First\r\nSecond\r\nThird&quot;);<br>wb_set_text($tabctrl, &quot;First\nSecond\nThird&quot;);<br>wb_set_text($tabctrl, &quot;First\rSecond\rThird&quot;);</code></p>
+            <p><code class="php-highlight"><span class="php-comment">//The following examples are equivalent:</span><br><br>wb_set_text(<span class="php-variable">$tabctrl</span>, array(<span class="php-string">&quot;First&quot;</span>, <span class="php-string">&quot;Second&quot;</span>,
+<span class="php-string">&quot;Third&quot;</span>));<br>wb_set_text(<span class="php-variable">$tabctrl</span>, <span class="php-string">&quot;First\r\nSecond\r\nThird&quot;</span>);<br>wb_set_text(<span class="php-variable">$tabctrl</span>, <span class="php-string">&quot;First\nSecond\nThird&quot;</span>);<br>wb_set_text(<span class="php-variable">$tabctrl</span>, <span class="php-string">&quot;First\rSecond\rThird&quot;</span>);</code></p>
 </td></tr>
 </table><p>are equivalent and produce the same results. Note that CR/LF, LF, and CR may
 be used interchangeably to designate a newline.</p>

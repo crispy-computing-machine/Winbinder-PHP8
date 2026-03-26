@@ -41,15 +41,15 @@ looks for the following files, in order:</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Returns the number of seconds elapsed since the computer
+            <p><code class="php-highlight"><span class="php-comment">// Returns the number of seconds elapsed since the computer</span>
             started.</code></p>
-            <p><code>function get_ticks()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;static
-            $KERNEL = null;<br>&nbsp;&nbsp;&nbsp;&nbsp;static $GetTickCount
-            = null;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if($KERNEL === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$KERNEL
-            = wb_load_library(&quot;KERNEL&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;if($GetTickCount
-            === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$GetTickCount
-            = wb_get_function_address(&quot;GetTickCount&quot;, $KERNEL);<br>&nbsp;&nbsp;&nbsp;&nbsp;return
-            (int)(wb_call_function($GetTickCount) / 1000);<br>}</code></p>
+            <p><code class="php-highlight">function get_ticks()<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;static
+            <span class="php-variable">$KERNEL</span> = null;<br>&nbsp;&nbsp;&nbsp;&nbsp;static <span class="php-variable">$GetTickCount</span>
+            = null;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$KERNEL</span> === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-variable">$KERNEL</span>
+            = wb_load_library(<span class="php-string">&quot;KERNEL&quot;</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$GetTickCount</span>
+            === null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-variable">$GetTickCount</span>
+            = wb_get_function_address(<span class="php-string">&quot;GetTickCount&quot;</span>, <span class="php-variable">$KERNEL</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;return
+            (int)(wb_call_function(<span class="php-variable">$GetTickCount</span>) / 1000);<br>}</code></p>
 </td></tr>
 </table>
 

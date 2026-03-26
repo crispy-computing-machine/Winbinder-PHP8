@@ -29,16 +29,16 @@ allowed per application and it must be on the main window.</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// A very simple digital clock<br><br>define(&quot;ID_APP_TIMER&quot;,&nbsp;&nbsp;201);<br><br>$mainwin
-            = wb_create_window(NULL, PopupWindow, date(&quot;h:i:s A&quot;),
-            120, 0);<br>wb_set_handler($mainwin, &quot;process_main&quot;);<br>wb_create_timer($mainwin,
-            ID_APP_TIMER, 1000); &nbsp;&nbsp;&nbsp;&nbsp;// One second interval<br>wb_main_loop();<br><br>function
-            process_main($window, $id)<br>{<br>&nbsp;&nbsp;&nbsp;switch($id)
-            {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case ID_APP_TIMER:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Show the current time in hours, minutes and seconds<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_set_text($window,
-            date(&quot;h:i:s A&quot;));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</code></p>
-            <p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case IDCLOSE:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_destroy_window($window);<br>
+            <p><code class="php-highlight"><span class="php-comment">// A very simple digital clock</span><br><br>define(<span class="php-string">&quot;ID_APP_TIMER&quot;</span>,&nbsp;&nbsp;201);<br><br><span class="php-variable">$mainwin</span>
+            = wb_create_window(NULL, PopupWindow, date(<span class="php-string">&quot;h:i:s A&quot;</span>),
+            120, 0);<br>wb_set_handler(<span class="php-variable">$mainwin</span>, <span class="php-string">&quot;process_main&quot;</span>);<br>wb_create_timer(<span class="php-variable">$mainwin</span>,
+            ID_APP_TIMER, 1000); &nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// One second interval</span><br>wb_main_loop();<br><br>function
+            process_main(<span class="php-variable">$window</span>, <span class="php-variable">$id</span>)<br>{<br>&nbsp;&nbsp;&nbsp;switch(<span class="php-variable">$id</span>)
+            {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case ID_APP_TIMER:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Show the current time in hours, minutes and seconds<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_set_text(<span class="php-variable">$window</span>,
+            date(<span class="php-string">&quot;h:i:s A&quot;</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;</code></p>
+            <p><code class="php-highlight">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case IDCLOSE:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_destroy_window(<span class="php-variable">$window</span>);<br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code></p>
 </td></tr>
 </table>

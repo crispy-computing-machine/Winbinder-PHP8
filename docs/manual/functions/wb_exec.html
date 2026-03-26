@@ -65,30 +65,30 @@ can be used as <i>param</i>:</p>
         </td>
         <td width="404">
             <p>Ignore the <b>.phpw</b> extension and treat <i>command</i> as
-            any other string, shell-executing it&nbsp;¹ </p>
-        </td>
-    </tr>
-</table>
-<p><font size="1">¹ Usually, shell-executing a <b>.phpw</b> script will usually
-run it in windowed mode, unless the user has changed the .phpw association in
-Windows.</font></p>
-<p><b><font color="#CC6600"><img src="../images/icon_note.png" align="absmiddle" width="32" height="32" border="0">
-NOTE: </font></b>Only <b>.phpw</b> is considered to be a WinBinder script. This
-means the <b>.php</b> extension will not be detected by <b>wb_exec()</b> and
-
-will be shell-executed normally.</p>
-<h1><b>Examples</b></h1>
-<table border="0" bgcolor="#E0E0E0" cellpadding="5" >
-<tr><td>
-            <p><code>// Several methods of running WinBinder scripts<br><br>wb_exec(&quot;app.phpw&quot;);
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Run a WinBinder script in the same mode as the calling process<br><br>wb_exec(&quot;app.phpw&quot;,
-            &quot;W&quot;); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Run a WinBinder script in windowed mode<br>wb_exec(&quot;app.phpw&quot;,
-            &quot;windowed&quot;); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Any word
-            beginning with &quot;W&quot; will do the same<br><br>wb_exec(&quot;app.phpw&quot;,
-            &quot;C&quot;); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Run a WinBinder script in console mode<br>wb_exec(&quot;app.phpw&quot;,
+            <p><code class="php-highlight"><span class="php-comment">// Several methods of running WinBinder scripts</span><br><br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>);
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Run a WinBinder script in the same mode as the calling process<br><br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>,
+            <span class="php-string">&quot;W&quot;</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Run a WinBinder script in windowed mode<br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>,
+            <span class="php-string">&quot;windowed&quot;</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Any word</span>
+            beginning with <span class="php-string">&quot;W&quot;</span> will do the same<br><br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>,
+            <span class="php-string">&quot;C&quot;</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Run a WinBinder script in console mode<br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>,
+            <span class="php-string">&quot;console&quot;</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Any</span>
+            word beginning with <span class="php-string">&quot;C&quot;</span> will do the same<br></code>
+            <p><code class="php-highlight">wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>, <span class="php-string">&quot;O&quot;</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Shell-execute the file instead of treating it like a script<br>wb_exec(<span class="php-string">&quot;app.phpw&quot;</span>,
+            <span class="php-string">&quot;open&quot;</span>); &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Any word beginning with <span class="php-string">&quot;O&quot;</span> will do the same<br></code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Execute an application</span><br><br>wb_exec(<span class="php-string">&quot;app.exe&quot;</span>);<br>wb_exec(<span class="php-string">&quot;cmd&quot;</span>);                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Opens a console window</span><br><br><span class="php-comment">// Open a</span>
+            web application<br><br>wb_exec(&quot;http:<span class="php-comment">//winbinder.org/&quot;);</span>
+            &nbsp;&nbsp;<span class="php-comment">// Open browser</span><br>wb_exec(<span class="php-string">&quot;mailto:bill.gates@microsoft.com&quot;</span>);
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// E-mail client</span><br><br><span class="php-comment">// Open a non-executable</span>
+            file<br><br>wb_exec(wb_find_file(<span class="php-string">&quot;notepad.exe&quot;</span>), __FILE__); <span class="php-comment">// Use</span>
+            Notepad<br>wb_exec(__FILE__); &nbsp;                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Use</span>
+            the associated app<br><br><span class="php-comment">// Open a help file</span><br><br>wb_exec(wb_find_file(<span class="php-string">&quot;help/windows.chm&quot;</span>));<br>wb_exec(wb_find_file(<span class="php-string">&quot;hh.exe&quot;</span>),
+            <span class="php-string">&quot;winbinder.chm::manual/what_is.html&quot;</span>); &nbsp;<span class="php-comment">//</span>
+            A help topic<br><br><span class="php-comment">// Open a folder</span><br><br>wb_exec(<span class="php-string">&quot;&quot;</span>);                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Open the current folder</span><br>wb_exec(wb_get_system_info(<span class="php-string">&quot;fontpath&quot;</span>));         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Open the OS font folder</span></code></td></tr>
             &quot;console&quot;); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Any
             word beginning with &quot;C&quot; will do the same<br></code>
             <p><code>wb_exec(&quot;app.phpw&quot;, &quot;O&quot;); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//

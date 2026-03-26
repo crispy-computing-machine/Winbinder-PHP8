@@ -32,16 +32,16 @@ is also the auto-incrementing primary key. Default is &quot;id&quot;.<br><i>vala
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Create table<br>
+            <p><code class="php-highlight"><span class="php-comment">// Create table</span><br>
 							<br>
-							echo &quot;We create mytable with 2 records&quot;;<br>
-							$fn = array(&quot;name&quot;, &quot;what&quot;, &quot;OK&quot;); // fieldnames <br>
-							$fv[] = array(&quot;villa&quot;, &quot; would like to live in&quot;, &quot;0&quot;); // valarray <br>
-							$fv[] = array(&quot;appartmenthouse&quot;, &quot; there we are&quot;, &quot;true&quot;); <br>
-							$fa = array(&quot;text&quot;, &quot;longtext&quot;, &quot;bool&quot;); // fieldattributs <br>
-							$res = db_create_table(&quot;mytable&quot;, $fn, $fa, &quot;id&quot;, $fv); <br>
-							if ($res)<br>
-							 { echo &quot;mytable created with 2 records&quot;; } </code></p>
+							echo <span class="php-string">&quot;We create mytable with 2 records&quot;</span>;<br>
+							<span class="php-variable">$fn</span> = array(<span class="php-string">&quot;name&quot;</span>, <span class="php-string">&quot;what&quot;</span>, <span class="php-string">&quot;OK&quot;</span>); <span class="php-comment">// fieldnames </span><br>
+							<span class="php-variable">$fv</span>[] = array(<span class="php-string">&quot;villa&quot;</span>, <span class="php-string">&quot; would like to live in&quot;</span>, <span class="php-string">&quot;0&quot;</span>); <span class="php-comment">// valarray </span><br>
+							<span class="php-variable">$fv</span>[] = array(<span class="php-string">&quot;appartmenthouse&quot;</span>, <span class="php-string">&quot; there we are&quot;</span>, <span class="php-string">&quot;true&quot;</span>); <br>
+							<span class="php-variable">$fa</span> = array(<span class="php-string">&quot;text&quot;</span>, <span class="php-string">&quot;longtext&quot;</span>, <span class="php-string">&quot;bool&quot;</span>); <span class="php-comment">// fieldattributs </span><br>
+							<span class="php-variable">$res</span> = db_create_table(<span class="php-string">&quot;mytable&quot;</span>, <span class="php-variable">$fn</span>, <span class="php-variable">$fa</span>, <span class="php-string">&quot;id&quot;</span>, <span class="php-variable">$fv</span>); <br>
+							if (<span class="php-variable">$res</span>)<br>
+							 { echo <span class="php-string">&quot;mytable created with 2 records&quot;</span>; } </code></p>
 </td></tr>
 </table>
 <br>

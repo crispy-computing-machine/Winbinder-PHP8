@@ -60,7 +60,7 @@ Each item can be a string or an array. Possible values for each item are:</p>
         </td>
     </tr>
 </table>
-<p>Menu items can be enabled/disabled with the generic APIs: first retrieve an item object with <code>wb_get_control($menu, $id)</code>, then call <code>wb_set_enabled($item, $enabled)</code> (or <code>wb_get_enabled($item)</code>).
+<p>Menu items can be enabled/disabled with the generic APIs: first retrieve an item object with <code class="php-highlight">wb_get_control(<span class="php-variable">$menu</span>, <span class="php-variable">$id</span>)</code>, then call <code class="php-highlight">wb_set_enabled(<span class="php-variable">$item</span>, <span class="php-variable">$enabled</span>)</code> (or <code class="php-highlight">wb_get_enabled(<span class="php-variable">$item</span>)</code>).
 You can also provide <code>WBC_DISABLED</code> as the 6th element in a menu item array to create it disabled.</p>
 <p>A menu item is an array that contains the following elements:</p>
 <p><i>Identifier:</i> The integer value associated with the menu item.<br><i>Caption:</i>
@@ -75,7 +75,7 @@ A string like &quot;Ctrl+S&quot;, &quot;Alt+Ctrl+Shift+F12&quot;, &quot;F1&quot;
 for more information.</p>
 <h1>Example</h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
-<tr><td><pre>// Create main menu
+<tr><td><pre class="php-highlight">// Create main menu
 $mainmenu = wb_create_control($mainwin, Menu, array( 
    &quot;&amp;File&quot;, 
        array(ID_NEW,     &quot;&amp;New\tCtrl+N&quot;,     &quot;&quot;, PATH_RES . &quot;menu_new.bmp&quot;,  &quot;Ctrl+N&quot;),

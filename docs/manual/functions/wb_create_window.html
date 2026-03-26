@@ -38,20 +38,20 @@ zero if an error occurs.</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>$mainwin = wb_create_window(NULL, AppWindow, &quot;WinBinder&quot;,
+            <p><code class="php-highlight"><span class="php-variable">$mainwin</span> = wb_create_window(NULL, AppWindow, <span class="php-string">&quot;WinBinder&quot;</span>,
             WBC_CENTER, WBC_CENTER, 640, 480, WBC_INVISIBLE | WBC_NOTIFY, WBC_DBLCLICK
-            | WBC_GETFOCUS);<br><br>// Additional code here<br><br>/* Main window
-            processing */<br>function process_main($window, $id, $ctrl=0, $param=0)<br>{<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;global $statusbar;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;if($param
-            == WBC_GETFOCUS) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_set_text($statusbar,
-            &quot;Control $id received the focus.&quot;);<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;
-            &nbsp;&nbsp;&nbsp;// This is necessary to avoid unexpected behavior<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;switch($id)
+            | WBC_GETFOCUS);<br><br><span class="php-comment">// Additional code here</span><br><br><span class="php-comment">/* Main window
+            processing */</span><br>function process_main(<span class="php-variable">$window</span>, <span class="php-variable">$id</span>, <span class="php-variable">$ctrl</span>=0, <span class="php-variable">$param</span>=0)<br>{<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;global <span class="php-variable">$statusbar</span>;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$param</span>
+            == WBC_GETFOCUS) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wb_set_text(<span class="php-variable">$statusbar</span>,
+            <span class="php-string">&quot;Control $id received the focus.&quot;</span>);<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;
+            &nbsp;&nbsp;&nbsp;<span class="php-comment">// This is necessary to avoid unexpected behavior</span><br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;switch(<span class="php-variable">$id</span>)
             {<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case ID_ITEMLIST:<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($param
-            == WBC_DBLCLICK)<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;process_main($window,
-            ID_EDITITEM, 0);<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update_controls($window);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(<span class="php-variable">$param</span>
+            == WBC_DBLCLICK)<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;process_main(<span class="php-variable">$window</span>,
+            ID_EDITITEM, 0);<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update_controls(<span class="php-variable">$window</span>);<br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Additional processing
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Additional processing</span>
             here<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code></p>
 </td></tr>
 </table>
@@ -64,10 +64,10 @@ the <i>style</i> parameter. All operations will be&nbsp;handled automatically.</
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>$mainwin = wb_create_window(NULL, 100, &quot;Collapsible
+            <p><code class="php-highlight"><span class="php-variable">$mainwin</span> = wb_create_window(NULL, 100, &quot;Collapsible
             window&quot;, WBC_CENTER, WBC_CENTER, 320, 240, WBC_INVISIBLE
-            | WBC_TASKBAR);<br>// Create window controls<br>wb_set_visible($mainwin,
-            true); &nbsp;&nbsp;&nbsp;// Make window visible</code></p>
+            | WBC_TASKBAR);<br><span class="php-comment">// Create window controls</span><br>wb_set_visible(<span class="php-variable">$mainwin</span>,
+            true); &nbsp;&nbsp;&nbsp;<span class="php-comment">// Make window visible</span></code></p>
 </td></tr>
 </table>
 <h1><b>See also</b></h1>

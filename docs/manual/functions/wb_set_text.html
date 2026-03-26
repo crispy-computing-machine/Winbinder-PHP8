@@ -361,16 +361,16 @@ window title and/or the window tooltip. All classes support tooltips. For explic
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-<p class="code"><code>wb_set_text($PushButton1, &quot;OK&quot;) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Changes the text of a button<br>wb_set_text($PushButton1, array(&quot;OK&quot;, 
-            null)) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
+<p class="code"><code class="php-highlight">wb_set_text(<span class="php-variable">$PushButton1</span>, <span class="php-string">&quot;OK&quot;</span>) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Changes the text of a button<br>wb_set_text(<span class="php-variable">$PushButton1</span>, array(<span class="php-string">&quot;OK&quot;</span>, 
+            null)) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
             This does the same<br></code>wb_set_text($PushButton1, array(null, 
-            &quot;Accept changes&quot;'));<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 
+            &quot;Accept changes&quot;'));<code class="php-highlight">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// </span>
             Changes only the tooltip<br></code>wb_set_text($PushButton2, array(&quot;Cancel&quot;, 
-            &quot;Ignore changes&quot;));<code>&nbsp;&nbsp;&nbsp;// This sets 
-            both at once<br><br>wb_set_text($ComboBox, &quot;Item 1\nItem
-            2\nItem 3&quot;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Creates items on a combo box<br>wb_set_text($TabControl,
-            &quot;Tab 1\nTab 2\nTab 3&quot;) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Creates tabs on
+            &quot;Ignore changes&quot;));<code class="php-highlight">&nbsp;&nbsp;&nbsp;<span class="php-comment">// This sets </span>
+            both at once<br><br>wb_set_text(<span class="php-variable">$ComboBox</span>, &quot;Item 1\nItem
+            2\nItem 3&quot;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Creates items on a combo box</span><br>wb_set_text(<span class="php-variable">$TabControl</span>,
+            <span class="php-string">&quot;Tab 1\nTab 2\nTab 3&quot;</span>) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// Creates tabs on</span>
             a tab control<br></code></p>
 </td></tr>
 </table>

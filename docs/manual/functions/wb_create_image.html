@@ -61,22 +61,22 @@ in the distribution.</p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
             <p><code>&lt;?</code></p>
-            <p><code>// Use the FreeImage library to display a JPEG image<br>//
-            NOTE: This kind of application does not need a window handler function<br><br>include_once(&quot;../include/winbinder.php&quot;);<br>include_once(&quot;../include/fi/freeimage.inc.php&quot;);<br><br>//
-            Create main window<br><br>$mainwin = wb_create_window(NULL, PopupWindow,
-            &quot;DIB&quot;, WBC_CENTER, WBC_CENTER, 175, 160, 0, 0);<br></code></p>
-            <p><code>// Perform the conversion<br><br>$filename = &quot;../resources/cassini.jpg&quot;;<br>$dib
-            = FreeImage_Load(FIF_JPEG, $filename, 0); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Open JPEG image file<br>$width = FreeImage_GetWidth($dib); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Get its dimensions<br>$height = FreeImage_GetHeight($dib);<br>$bmp
-            = wb_create_image($width, $height, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Create a WinBinder handle to it<br> &nbsp;&nbsp;FreeImage_GetInfoHeader($dib),<br>
-            &nbsp;&nbsp;FreeImage_GetBits($dib));<br>FreeImage_Unload($dib);
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
-            Release FreeImage handler<br><br>// Create control with image on
-            it<br><br>$frame = wb_create_control($mainwin, Frame, &quot;&quot;,
-            20, 20, $width, $height, 101, WBC_IMAGE);<br>wb_set_image($frame,
-            $bmp);<br>wb_destroy_image($bmp);<br><br>wb_main_loop();</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Use the FreeImage library to display a JPEG image</span><br><span class="php-comment">//</span>
+            NOTE: This kind of application does not need a window handler function<br><br>include_once(<span class="php-string">&quot;../include/winbinder.php&quot;</span>);<br>include_once(<span class="php-string">&quot;../include/fi/freeimage.inc.php&quot;</span>);<br><br><span class="php-comment">//</span>
+            Create main window<br><br><span class="php-variable">$mainwin</span> = wb_create_window(NULL, PopupWindow,
+            <span class="php-string">&quot;DIB&quot;</span>, WBC_CENTER, WBC_CENTER, 175, 160, 0, 0);<br></code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Perform the conversion</span><br><br><span class="php-variable">$filename</span> = <span class="php-string">&quot;../resources/cassini.jpg&quot;</span>;<br><span class="php-variable">$dib</span>
+            = FreeImage_Load(FIF_JPEG, <span class="php-variable">$filename</span>, 0); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Open JPEG image file<br><span class="php-variable">$width</span> = FreeImage_GetWidth(<span class="php-variable">$dib</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Get its dimensions<br><span class="php-variable">$height</span> = FreeImage_GetHeight(<span class="php-variable">$dib</span>);<br><span class="php-variable">$bmp</span>
+            = wb_create_image(<span class="php-variable">$width</span>, <span class="php-variable">$height</span>, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Create a WinBinder handle to it<br> &nbsp;&nbsp;FreeImage_GetInfoHeader(<span class="php-variable">$dib</span>),<br>
+            &nbsp;&nbsp;FreeImage_GetBits(<span class="php-variable">$dib</span>));<br>FreeImage_Unload(<span class="php-variable">$dib</span>);
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Release FreeImage handler<br><br><span class="php-comment">// Create control with image on</span>
+            it<br><br><span class="php-variable">$frame</span> = wb_create_control(<span class="php-variable">$mainwin</span>, Frame, <span class="php-string">&quot;&quot;</span>,
+            20, 20, <span class="php-variable">$width</span>, <span class="php-variable">$height</span>, 101, WBC_IMAGE);<br>wb_set_image(<span class="php-variable">$frame</span>,
+            <span class="php-variable">$bmp</span>);<br>wb_destroy_image(<span class="php-variable">$bmp</span>);<br><br>wb_main_loop();</code></p>
             <p><code>?&gt;</code></p>
 </td></tr>
 </table>

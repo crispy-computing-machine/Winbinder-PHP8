@@ -33,28 +33,28 @@ otherwise.<br></p>
 		<p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-					<p><code>// 1. Open SQWLite database<br><br>
-						include &quot;db_common.inc.php&quot;;<br>
+					<p><code class="php-highlight"><span class="php-comment">// 1. Open SQWLite database</span><br><br>
+						include <span class="php-string">&quot;db_common.inc.php&quot;</span>;<br>
 
-					define(&quot;WB_DATABASE&quot;, &quot;SQLite&quot;);<br>
+					define(<span class="php-string">&quot;WB_DATABASE&quot;</span>, <span class="php-string">&quot;SQLite&quot;</span>);<br>
 
-					define(&quot;PATH_DATA&quot;, &quot;C:\winbinder\myApp\&quot;);
-					$database = &quot;sample&quot;; <br>
-							<br>$dbhnd = db_open_database($database, PATH_DATA);<br>
-							// opens the database c:\winbinder\myApp\SQLite_sample.db<br>
+					define(<span class="php-string">&quot;PATH_DATA&quot;</span>, <span class="php-string">&quot;C:\winbinder\myApp\&quot;</span>);
+					<span class="php-variable">$database</span> = <span class="php-string">&quot;sample&quot;</span>; <br>
+							<br><span class="php-variable">$dbhnd</span> = db_open_database(<span class="php-variable">$database</span>, PATH_DATA);<br>
+							<span class="php-comment">// opens the database c:\winbinder\myApp\SQLite_sample.db</span><br>
 
 					<br>
 
-					// 2. Open MySQL database<br><br>
-							include &quot;db_common.inc.php&quot;;<br>
+					<span class="php-comment">// 2. Open MySQL database</span><br><br>
+							include <span class="php-string">&quot;db_common.inc.php&quot;</span>;<br>
 
-					define(&quot;APPPREFIX&quot;, &quot;myDB_&quot;);<br>
+					define(<span class="php-string">&quot;APPPREFIX&quot;</span>, <span class="php-string">&quot;myDB_&quot;</span>);<br>
 
-					define(&quot;WB_DATABASE&quot;, &quot;mySQL&quot;);<br>$database = &quot;test&quot;; <br>
+					define(<span class="php-string">&quot;WB_DATABASE&quot;</span>, <span class="php-string">&quot;mySQL&quot;</span>);<br><span class="php-variable">$database</span> = <span class="php-string">&quot;test&quot;</span>; <br>
 							<br>
 
-					db_open_database($database, $server = &quot;192.168.168.133&quot;, $username = &quot;root&quot;, $password = &quot;&quot;);<br>// opens the database test on server 192.168.168.133 with user root and no password <br>
-							// all tables will have a prefix myDB_ not seen by the application<br>
+					db_open_database(<span class="php-variable">$database</span>, <span class="php-variable">$server</span> = <span class="php-string">&quot;192.168.168.133&quot;</span>, <span class="php-variable">$username</span> = <span class="php-string">&quot;root&quot;</span>, <span class="php-variable">$password</span> = <span class="php-string">&quot;&quot;</span>);<br><span class="php-comment">// opens the database test on server 192.168.168.133 with user root and no password </span><br>
+							<span class="php-comment">// all tables will have a prefix myDB_ not seen by the application</span><br>
 						</code></p>
 				</td></tr>
 </table>

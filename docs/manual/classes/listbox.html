@@ -17,7 +17,7 @@ List boxes
 To create a list box use the <a href="../functions/wb_create_control.html"><b>wb_create_control()</b></a> function using 
 <span class="code">ListBox</span> as the 
 <i>class</i> parameter.<h1>Creating list boxes</h1>
-<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre class="php-highlight">
 // Create an empty list box
 
 wb_create_item($window, ListBox, &quot;&quot;, 10, 10, 100, 90, ID_LIST);
@@ -26,7 +26,7 @@ wb_create_item($window, ListBox, &quot;&quot;, 10, 10, 100, 90, ID_LIST);
 <p>After creating the list box, you can assign values to the control in several ways:</p>
 <p>1) By creating an array to store the item names and using <a href="../functions/wb_set_text.html"><b>wb_set_text()</b></a> 
 to assign them to the control:</p>
-<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre class="php-highlight">
 $a_list = array(&quot;Line1&quot;, &quot;Line2&quot;, &quot;Line3&quot;, &quot;Line4&quot;);
 
 // Assign values to list box control<br>wb_set_text(wb_get_control($window, ID_LIST), $a_list);
@@ -34,12 +34,12 @@ $a_list = array(&quot;Line1&quot;, &quot;Line2&quot;, &quot;Line3&quot;, &quot;L
 
 <p>2) By assigning it a string with items separated by a line break (<b>\n</b>) 
 or line feed/line break sequence: (<b>\r\n</b>):</p>
-<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre class="php-highlight">
 $s_list = &quot;Line1\nLine2\nLine3&quot;;       \\ Or &quot;Line1\r\nLine2\r\nLine3&quot;<br><br>// Assign values to list box control<br>wb_set_text(wb_get_control($window, ID_LIST), $s_list);
 </pre></td></tr></table>
 
 <p>3) By including the desired items when creating a control:</p>
-<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre>
+<table border="0" bgcolor="#E0E0E0" cellpadding="5"><tr><td><pre class="php-highlight">
 wb_create_item($window, ListBox, &quot;Line1\nLine2\nLine3&quot;, 10, 10, 100, 90, ID_LIST);
 </pre></td></tr></table>
 

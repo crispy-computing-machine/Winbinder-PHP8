@@ -92,7 +92,7 @@ are listed in the table below.</p>
     </tr>
     <tr>
         <td width="157">
-            <p>HANDLE¹</p>
+            <p>HANDLEÂ¹</p>
         </td>
         <td width="147">
             <p>void *</p>
@@ -204,37 +204,37 @@ are listed in the table below.</p>
     </tr>
 </table>
 
-<br><font size="1">¹ Note: Most Windows and GDI handles,
-like HINSTANCE, HWND, HACCEL, HBITMAP, HICON etc.&nbsp;are 32-bit handles and should
-be packed identically.</font>
-<h1>Defining constants</h1>
-<p>Up to three constants are needed for each structure. The best way is to define
-them in advance to improve code readability. For example, the Windows API documentation defines a MEMORYSTATUS structure that is passed
-to the <b>GlobalMemoryStatus()</b> function to retrieve information&nbsp;about
-the  system memory.&nbsp;The definition is as follows:</p>
-            <p><code>typedef struct _MEMORYSTATUS {<br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
-            dwLength; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// sizeof(MEMORYSTATUS)
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwMemoryLoad; &nbsp;&nbsp;&nbsp;//
-            percent of memory in use <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwTotalPhys;
-            &nbsp;&nbsp;&nbsp;&nbsp;// bytes of physical memory <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
-            dwAvailPhys; &nbsp;&nbsp;&nbsp;&nbsp;// free physical memory bytes
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwTotalPageFile; // bytes of paging
-            file <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwAvailPageFile; // free
-            bytes of paging file <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwTotalVirtual;
-            &nbsp;// user bytes of address space <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
-            dwAvailVirtual; &nbsp;// free user bytes <br>} MEMORYSTATUS;</code></p>
-<p>Because the structure consists of eight DWORDs, we can create a constant
-to format the structure like this:</p>
-            <p><code>define(&quot;MEMORYSTATUS_RAW&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&quot;VVVVVVVV&quot;);<br></code></p>
-<p>or</p>
-            <p><code>define(&quot;MEMORYSTATUS_RAW&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&quot;V8&quot;);</code></p>
-<p>This is enough to pass the structure to the function. To retrieve the structure,
-however, we need a different structure so that <b>unpack()</b> function can
-return an associative array with the field names:</p>
-            <p><code>define(&quot;MEMORYSTATUS&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Vlen/Vmemload/Vphys/Vavailphys/Vpagefile/Vavailpagefile/Vvirtual/Vavailvirtual&quot;)<br></code></p>
-<p>Finally, because we must also pass the size of the structure, we define another
-constant:</p>
-<p><code>define(&quot;MEMORYSTATUS_SIZE&quot;,&nbsp;&nbsp;&nbsp;8
+            <p><code class="php-highlight">typedef struct _MEMORYSTATUS {<br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
+            dwLength; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// sizeof(MEMORYSTATUS)</span>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwMemoryLoad; &nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// bytes of physical memory </span><br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
+            dwAvailPhys; &nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">// free physical memory bytes</span>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwTotalPageFile; <span class="php-comment">// bytes of paging</span>
+            file <br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD dwAvailPageFile; <span class="php-comment">// free</span>
+            &nbsp;<span class="php-comment">// user bytes of address space </span><br>&nbsp;&nbsp;&nbsp;&nbsp;DWORD
+            dwAvailVirtual; &nbsp;<span class="php-comment">// free user bytes </span><br>} MEMORYSTATUS;</code></p>
+            <p><code class="php-highlight">define(<span class="php-string">&quot;MEMORYSTATUS_RAW&quot;</span>,&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-string">&quot;VVVVVVVV&quot;</span>);<br></code></p>
+            <p><code class="php-highlight">define(<span class="php-string">&quot;MEMORYSTATUS&quot;</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-string">&quot;Vlen/Vmemload/Vphys/Vavailphys/Vpagefile/Vavailpagefile/Vvirtual/Vavailvirtual&quot;</span>)<br></code></p>
+<p><code class="php-highlight">define(<span class="php-string">&quot;MEMORYSTATUS_SIZE&quot;</span>,&nbsp;&nbsp;&nbsp;8
+            <p><code class="php-highlight"><span class="php-tag">&lt;?</span><br>include <span class="php-string">&quot;../include/winbinder.php&quot;</span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Location of WinBinder library<br><br><span class="php-comment">// STEP 1: Load the DLL that</span>
+            contains the function<br><br><span class="php-variable">$KERNEL</span> = wb_load_library(<span class="php-string">&quot;KERNEL&quot;</span>);<br><br><span class="php-comment">//</span>
+            STEP 2: Get function address<br><br><span class="php-variable">$fgms</span> = wb_get_function_address(<span class="php-string">&quot;GlobalMemoryStatus&quot;</span>,
+            <span class="php-variable">$KERNEL</span>);<br><br><span class="php-comment">// STEP 3: Declare constants for all structures</span><br><br>define(<span class="php-string">&quot;MEMORYSTATUS&quot;</span>,
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-string">&quot;Vlen/Vmemload/Vphys/Vavailphys/Vpagefile/Vavailpagefile/Vvirtual/Vavailvirtual&quot;</span>);<br>define(<span class="php-string">&quot;MEMORYSTATUS_RAW&quot;</span>,
+            &nbsp;&nbsp;&nbsp;<span class="php-string">&quot;V8&quot;</span>);<br>define(<span class="php-string">&quot;MEMORYSTATUS_SIZE&quot;</span>,
+            &nbsp;&nbsp;8 * 4);<br><br><span class="php-comment">// STEP 4: Create function that uses</span>
+            <span class="php-variable">$KERNEL</span>, <span class="php-variable">$fgms</span>;<br>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-variable">$val</span> = pack(MEMORYSTATUS_RAW,
+            MEMORYSTATUS_SIZE,0,0,0,0,0,0,0);<br>&nbsp;&nbsp;&nbsp;&nbsp;wb_call_function(<span class="php-variable">$fgms</span>,
+            array(<span class="php-variable">$val</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;return unpack(MEMORYSTATUS,
+            <span class="php-variable">$val</span>);<br>}<br>&nbsp;<br><span class="php-comment">// STEP 5: Use the newly declared PHP function</span>
+            as any other regular PHP function.<br>&nbsp;<br><span class="php-variable">$mem</span> = GlobalMemoryStatus();<br><span class="php-variable">$report</span>
+            = &nbsp;<span class="php-string">&quot;Total RAM is &quot;</span> . sprintf(<span class="php-string">&quot;%.2f&quot;</span>, (<span class="php-variable">$mem</span>[<span class="php-string">&quot;phys&quot;</span>]
+            / (1024 * 1024))) . <span class="php-string">&quot; MB, &quot;</span> . <span class="php-variable">$mem</span>[<span class="php-string">&quot;memload&quot;</span>]
+            . <span class="php-string">&quot;% used&quot;</span>;<br>wb_message_box(null, <span class="php-variable">$report</span>);</code></p>
+            <p><code class="php-highlight"><span class="php-tag">&lt;?</span><br><span class="php-comment">// Shows the current ANSI code-page identifier for the</span>
+            operating system.<br><br>include <span class="php-string">&quot;../include/winbinder.php&quot;</span>;<br><br>wb_message_box(0, <span class="php-string">&quot;ANSI code-page identifier: &quot;</span>
+            . wb_call_function(wb_get_function_address(<span class="php-string">&quot;GetACP&quot;</span>, wb_load_library(<span class="php-string">&quot;KERNEL&quot;</span>))));</code></p>
             * 4);</code></p>
 <h1>Examples</h1>
 <p>The example below shows how to create a new PHP function that calls a Windows

@@ -14,7 +14,7 @@ Fonts-->
 <p>Creates a new font. <i>name</i> is the font name, <i>height</i> is its height
 in points (not pixels), and <i>color</i> is a RGB color value. <i>flags</i>
 can be a combination of the following values:</p>
-<p><code>FTA_NORMAL<br>FTA_REGULAR<br>FTA_BOLD<br>FTA_ITALIC<br>FTA_UNDERLINE<br>FTA_STRIKEOUT</code></p>
+<p><code class="php-highlight">FTA_NORMAL<br>FTA_REGULAR<br>FTA_BOLD<br>FTA_ITALIC<br>FTA_UNDERLINE<br>FTA_STRIKEOUT</code></p>
 <p>Constants of <code>FTA_NORMAL</code>&nbsp;and <code>FTA_REGULAR</code>&nbsp;mean
 the same thing and are defined as zero.</p>
 <p>The function returns an integer value that is the font identifier.</p>
@@ -27,9 +27,9 @@ parameter is not implemented yet.</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Create a font, and use it to change the look of a Label
-            control<br>$font = wb_create_font(&quot;Arial&quot;, 14, BLACK,
-            FTA_BOLD);<br>wb_set_font($label, $font);</code></p>
+            <p><code class="php-highlight"><span class="php-comment">// Create a font, and use it to change the look of a Label</span>
+            control<br><span class="php-variable">$font</span> = wb_create_font(<span class="php-string">&quot;Arial&quot;</span>, 14, BLACK,
+            FTA_BOLD);<br>wb_set_font(<span class="php-variable">$label</span>, <span class="php-variable">$font</span>);</code></p>
 </td></tr>
 </table>
 <br>

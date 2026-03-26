@@ -76,17 +76,17 @@ db_edit_record-->
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Edit value of &quot;name&quot; in 3. record in mytable<br>
+            <p><code class="php-highlight"><span class="php-comment">// Edit value of &quot;name&quot; in 3. record in mytable</span><br>
 							<br>
 
-							$fn = &quot;name&quot;);<br>
+							<span class="php-variable">$fn</span> = <span class="php-string">&quot;name&quot;</span>);<br>
 
-							$fv = &quot;shed&quot;;<br>
+							<span class="php-variable">$fv</span> = <span class="php-string">&quot;shed&quot;</span>;<br>
 
-							$res = db_edit_record(&quot;mytable&quot;,3, $fn, $fv);<br>
+							<span class="php-variable">$res</span> = db_edit_record(<span class="php-string">&quot;mytable&quot;</span>,3, <span class="php-variable">$fn</span>, <span class="php-variable">$fv</span>);<br>
 
 
-							echo (&quot;id is $res &quot;); </code></p>
+							echo (<span class="php-string">&quot;id is $res &quot;</span>); </code></p>
 </td></tr>
 </table>
 <br>

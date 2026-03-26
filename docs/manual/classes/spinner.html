@@ -33,12 +33,12 @@ manually on the edit box.</p>
 <h1><b>Example</b></h1>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>// Create the edit box first<br><br>wb_create_control($mainwin,
-            EditBox, &quot;0&quot;, 340, 45, 35, 21, IDC_EDITBOX, WBC_VISIBLE
-            | WBC_ENABLED | WBC_NUMBER);<br><br>// Then create the spinner.
-            This is enough to make they work together<br><br>wb_create_control($mainwin,
-            Spinner, &quot;&quot;, &nbsp;378, 45, 16, 21, IDC_SPINNER, WBC_VISIBLE
-            | WBC_ENABLED | WBC_GROUP);<br><br>// Set the spinner range<br><br>wb_set_value(wb_get_control($mainwin,
+            <p><code class="php-highlight"><span class="php-comment">// Create the edit box first</span><br><br>wb_create_control(<span class="php-variable">$mainwin</span>,
+            EditBox, <span class="php-string">&quot;0&quot;</span>, 340, 45, 35, 21, IDC_EDITBOX, WBC_VISIBLE
+            | WBC_ENABLED | WBC_NUMBER);<br><br><span class="php-comment">// Then create the spinner.</span>
+            This is enough to make they work together<br><br>wb_create_control(<span class="php-variable">$mainwin</span>,
+            Spinner, <span class="php-string">&quot;&quot;</span>, &nbsp;378, 45, 16, 21, IDC_SPINNER, WBC_VISIBLE
+            | WBC_ENABLED | WBC_GROUP);<br><br><span class="php-comment">// Set the spinner range</span><br><br>wb_set_value(wb_get_control(<span class="php-variable">$mainwin</span>,
             IDC_SPINNER),&nbsp;null, -50, 50);&nbsp;</code></p>
 </td></tr>
 </table>

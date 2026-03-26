@@ -27,7 +27,7 @@ monitoring the keyboard and mouse.</p>
 function will monitor the application's foreground window. An optional <i>pause</i> value, in milliseconds, can be passed to the function to provide accurate time
 delays. The default is 0 ms (no pause). The following constants are accepted in the <i>flags</i> argument to specify
 the events that will be monitored:</p>
-<p><code>WBC_MOUSEDOWN<br>WBC_MOUSEUP<br>WBC_KEYDOWN<br>WBC_KEYUP<br></code></p>
+<p><code class="php-highlight">WBC_MOUSEDOWN<br>WBC_MOUSEUP<br>WBC_KEYDOWN<br>WBC_KEYUP<br></code></p>
 <p>The default is <code>WBC_KEYDOWN</code>. Note that if you set <i>flags</i>
 to zero,&nbsp;the function will not monitor any keyboard or mouse button events.</p>
 <h1>Return values</h1>
@@ -60,21 +60,21 @@ to zero,&nbsp;the function will not monitor any keyboard or mouse button events.
             <p>Mouse button pressed</p>
         </td>
         <td width="440">
-            <p>A double word (LONG) with the mouse button code¹ in the low-order
-            word and WBC_MOUSEDOWN in the high-order word</p>
-        </td>
-    </tr>
-    <tr>
-        <td width="120">
+            <p><code class="php-highlight">for(<span class="php-variable">$i</span> = 0; <span class="php-variable">$i</span> &lt; <span class="php-variable">$many</span>; <span class="php-variable">$i</span>++) {<br> &nbsp;&nbsp;&nbsp;&nbsp;do_lengthy_operation();<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;if(wb_wait() == 27) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Check for ESC key<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(wb_message_box(<span class="php-variable">$mainwin</span>,
+            <span class="php-string">&quot;Are you sure you want to stop?&quot;</span>, APPNAME, WBC_YESNO))<br>
+            <p><code class="php-highlight"><span class="php-comment">// Some code</span><br>wb_wait(<span class="php-variable">$mainwin</span>, 5000, WBC_KEYDOWN); &nbsp;&nbsp;&nbsp;<span class="php-comment">//</span>
+            Halt execution for 5 seconds or until a key is pressed<br><span class="php-comment">// Some</span>
             <p>Mouse button released</p>
         </td>
         <td width="440">
-            <p>A double word (LONG) with the mouse button code¹ in the low-order
+            <p>A double word (LONG) with the mouse button codeÂ¹ in the low-order
             word and WBC_MOUSEUP in the high-order word</p>
         </td>
     </tr>
 </table>
-<p><font size="1">¹ The mouse button code&nbsp;is: 1 for left button, 2 for
+<p><font size="1">Â¹ The mouse button code&nbsp;is: 1 for left button, 2 for
 middle button, 3 for right button.</font></p>
 <p>If you monitor the return value, you may provide action based on the specific
 key or mouse button that generated the event.</p>

@@ -36,16 +36,16 @@ to another format like PNG, JPEG, or GIF using a foreign library. For more infor
 <p><b>Example</b></p>
 <table border="0" bgcolor="#E0E0E0" cellpadding="5" >
 <tr><td>
-            <p><code>&lt;?<br><br>// This example has no main window: it is
-            a console application<br><br>include_once(&quot;../include/winbinder.php&quot;);<br>include_once(&quot;../include/fi/freeimage.inc.php&quot;);<br><br>//
-            Create a true-color bitmap and draw something on it<br><br>$bmp
-            = wb_create_image(120, 20);<br>wb_draw_rect($bmp, 0, 0, 120, 20,
-            0xA0F0E0);<br>$font = wb_create_font(&quot;Arial&quot;, 8);<br>wb_draw_text($bmp,
-            &quot;This is a test image.&quot;, 0, 0, 120, 20, $font, WBC_CENTER);<br><br>//
-            Copy the bitmap color data to a DIB and save it as a PNG file<br><br>$pixeldata
-            = wb_get_image_data($bmp, true);<br>$dib = FreeImage_Allocate(120,
-            20, 24);<br>wb_poke(FreeImage_GetBits($dib), $pixeldata);<br>FreeImage_Save(FIF_PNG,
-            $dib, &quot;test.png&quot;);<br><br>// Cleanup<br><br>wb_destroy_image($bmp);<br>FreeImage_Unload($dib);<br><br>?&gt;</code></p>
+            <p><code class="php-highlight"><span class="php-tag">&lt;?</span><br><br><span class="php-comment">// This example has no main window: it is</span>
+            a console application<br><br>include_once(<span class="php-string">&quot;../include/winbinder.php&quot;</span>);<br>include_once(<span class="php-string">&quot;../include/fi/freeimage.inc.php&quot;</span>);<br><br><span class="php-comment">//</span>
+            Create a true-color bitmap and draw something on it<br><br><span class="php-variable">$bmp</span>
+            = wb_create_image(120, 20);<br>wb_draw_rect(<span class="php-variable">$bmp</span>, 0, 0, 120, 20,
+            0xA0F0E0);<br><span class="php-variable">$font</span> = wb_create_font(<span class="php-string">&quot;Arial&quot;</span>, 8);<br>wb_draw_text(<span class="php-variable">$bmp</span>,
+            <span class="php-string">&quot;This is a test image.&quot;</span>, 0, 0, 120, 20, <span class="php-variable">$font</span>, WBC_CENTER);<br><br><span class="php-comment">//</span>
+            Copy the bitmap color data to a DIB and save it as a PNG file<br><br><span class="php-variable">$pixeldata</span>
+            = wb_get_image_data(<span class="php-variable">$bmp</span>, true);<br><span class="php-variable">$dib</span> = FreeImage_Allocate(120,
+            20, 24);<br>wb_poke(FreeImage_GetBits(<span class="php-variable">$dib</span>), <span class="php-variable">$pixeldata</span>);<br>FreeImage_Save(FIF_PNG,
+            <span class="php-variable">$dib</span>, <span class="php-string">&quot;test.png&quot;</span>);<br><br><span class="php-comment">// Cleanup</span><br><br>wb_destroy_image(<span class="php-variable">$bmp</span>);<br>FreeImage_Unload(<span class="php-variable">$dib</span>);<br><br><span class="php-tag">?&gt;</span></code></p>
 </td></tr>
 </table><br>
 
