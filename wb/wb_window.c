@@ -370,6 +370,8 @@ PWBOBJ wbCreateWindow(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszCapt
 	if (BITTEST(dwWBStyle, WBC_TOP))
 		SetWindowPos(pwbo->hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
+	wbApplyColorSchemeToWindow(pwbo->hwnd);
+
 	return pwbo;
 }
 
@@ -1588,6 +1590,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         case WM_CTLCOLORSTATIC: // For static controls and others
         case WM_CTLCOLORBTN:	// For pushbuttons
         case WM_CTLCOLORDLG:
+        case WM_CTLCOLORSCROLLBAR:
         {
             HWND hCtrl;
             PWBOBJ pwbobj;
