@@ -41,6 +41,7 @@
 
 HFONT hIconFont = NULL;
 HWND hCurrentDlg = NULL;
+WBCOLORSCHEME g_wbColorScheme = {FALSE, NOCOLOR, NOCOLOR, NOCOLOR, NULL, NULL, TEXT("")};
 
 // Local
 
@@ -98,6 +99,7 @@ static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DW
 static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam);
 static void wbTaskCleanup(void);
 BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value);
+static BOOL CALLBACK wbInvalidateWindowProc(HWND hwnd, LPARAM lParam);
 
 BOOL bScintillaAvailable = FALSE;
 
@@ -149,6 +151,60 @@ static DWORD WatchNotifyFilter(void)
 			   FILE_NOTIFY_CHANGE_LAST_WRITE |
 			   FILE_NOTIFY_CHANGE_CREATION |
 			   FILE_NOTIFY_CHANGE_SIZE;
+}
+
+BOOL wbSetGlobalColorScheme(const WBCOLORSCHEME *pScheme)
+{
+	WBCOLORSCHEME scheme = {FALSE, NOCOLOR, NOCOLOR, NOCOLOR, NULL, NULL, TEXT("")};
+
+	if (pScheme)
+	{
+		scheme.enabled = pScheme->enabled;
+		scheme.backgroundColor = pScheme->backgroundColor;
+		scheme.textColor = pScheme->textColor;
+		scheme.borderColor = pScheme->borderColor;
+		if (pScheme->backgroundImagePath[0])
+			lstrcpyn(scheme.backgroundImagePath, pScheme->backgroundImagePath, MAX_PATH_BUFFER);
+	}
+
+	if (g_wbColorScheme.hBackgroundBrush)
+	{
+		DeleteObject(g_wbColorScheme.hBackgroundBrush);
+		g_wbColorScheme.hBackgroundBrush = NULL;
+	}
+	if (g_wbColorScheme.hBackgroundImage)
+	{
+		DeleteObject(g_wbColorScheme.hBackgroundImage);
+		g_wbColorScheme.hBackgroundImage = NULL;
+	}
+
+	g_wbColorScheme = scheme;
+
+	if (g_wbColorScheme.enabled && g_wbColorScheme.backgroundColor != NOCOLOR)
+		g_wbColorScheme.hBackgroundBrush = CreateSolidBrush(g_wbColorScheme.backgroundColor);
+
+	if (g_wbColorScheme.enabled && g_wbColorScheme.backgroundImagePath[0])
+	{
+		HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, g_wbColorScheme.backgroundImagePath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+		if (!hBitmap)
+			return FALSE;
+		g_wbColorScheme.hBackgroundImage = hBitmap;
+	}
+
+	EnumWindows(wbInvalidateWindowProc, 0);
+	return TRUE;
+}
+
+static BOOL CALLBACK wbInvalidateWindowProc(HWND hwnd, LPARAM lParam)
+{
+	PWBOBJ pwbo = wbGetWBObj(hwnd);
+	(void)lParam;
+
+	if (pwbo)
+	{
+		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_FRAME | RDW_UPDATENOW);
+	}
+	return TRUE;
 }
 
 static void WatchNormalizePath(LPTSTR dst, UINT dstLen, LPCTSTR src)

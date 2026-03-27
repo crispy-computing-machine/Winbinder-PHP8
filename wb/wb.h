@@ -500,6 +500,19 @@ extern COLORREF clrTabs;	   // Color for tab control backgrounds
 extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
 extern BOOL bScintillaAvailable;
 
+typedef struct _WBCOLORSCHEME
+{
+	BOOL enabled;
+	COLORREF backgroundColor;
+	COLORREF textColor;
+	COLORREF borderColor;
+	HBRUSH hBackgroundBrush;
+	HBITMAP hBackgroundImage;
+	TCHAR backgroundImagePath[MAX_PATH_BUFFER];
+} WBCOLORSCHEME;
+
+extern WBCOLORSCHEME g_wbColorScheme;
+
 //------------------------------------------------------------ PUBLIC PROTOTYPES
 
 // WB_BITMAP.C
@@ -731,6 +744,7 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
 UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs);
 BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode);
 BOOL wbTaskCancel(UINT64 taskId);
+BOOL wbSetGlobalColorScheme(const WBCOLORSCHEME *pScheme);
 int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs);
 BOOL wbUnwatchPath(int nWatchId);
 UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx);

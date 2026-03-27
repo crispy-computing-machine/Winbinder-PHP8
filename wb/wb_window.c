@@ -1587,6 +1587,7 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORSTATIC: // For static controls and others
         case WM_CTLCOLORBTN:	// For pushbuttons
+        case WM_CTLCOLORDLG:
         {
             HWND hCtrl;
             PWBOBJ pwbobj;
@@ -1605,6 +1606,19 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
             if (pFont && pFont->color != NOCOLOR)
                 SetTextColor((HDC)wParam, pFont->color);
+
+            if (g_wbColorScheme.enabled)
+            {
+                if (g_wbColorScheme.textColor != NOCOLOR)
+                    SetTextColor((HDC)wParam, g_wbColorScheme.textColor);
+
+                if (g_wbColorScheme.backgroundColor != NOCOLOR)
+                {
+                    SetBkColor((HDC)wParam, g_wbColorScheme.backgroundColor);
+                    if (g_wbColorScheme.hBackgroundBrush)
+                        return (LRESULT)g_wbColorScheme.hBackgroundBrush;
+                }
+            }
 
             if (hbrTabs)
             { // Not for versions under Windows XP
@@ -1625,6 +1639,44 @@ static LRESULT CALLBACK DefaultWBProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             }
             break;
         }
+
+        case WM_ERASEBKGND:
+        {
+            PWBOBJ pwbo = wbGetWBObj(hwnd);
+
+            if (g_wbColorScheme.enabled && pwbo)
+            {
+                RECT rc;
+                HDC hdc = (HDC)wParam;
+                GetClientRect(hwnd, &rc);
+
+                if (g_wbColorScheme.hBackgroundImage)
+                {
+                    HDC memdc = CreateCompatibleDC(hdc);
+                    BITMAP bmp;
+                    HGDIOBJ oldbmp;
+                    GetObject(g_wbColorScheme.hBackgroundImage, sizeof(BITMAP), &bmp);
+                    oldbmp = SelectObject(memdc, g_wbColorScheme.hBackgroundImage);
+                    StretchBlt(hdc, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
+                               memdc, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+                    SelectObject(memdc, oldbmp);
+                    DeleteDC(memdc);
+                }
+                else if (g_wbColorScheme.hBackgroundBrush)
+                {
+                    FillRect(hdc, &rc, g_wbColorScheme.hBackgroundBrush);
+                }
+
+                if (pwbo->uClass <= ToolDialog && g_wbColorScheme.borderColor != NOCOLOR)
+                {
+                    HBRUSH hbrBorder = CreateSolidBrush(g_wbColorScheme.borderColor);
+                    FrameRect(hdc, &rc, hbrBorder);
+                    DeleteObject(hbrBorder);
+                }
+                return 1;
+            }
+        }
+        break;
 
         case WM_TIMER:
 

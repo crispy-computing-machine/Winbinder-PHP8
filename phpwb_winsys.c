@@ -150,6 +150,54 @@ ZEND_FUNCTION(wb_set_cursor)
 	RETURN_BOOL(wbSetCursor((PWBOBJ)pwbo, pszCursorName, hCursor));
 }
 
+ZEND_FUNCTION(wb_set_color_scheme)
+{
+	zval *zoptions;
+	HashTable *options;
+	zval *entry;
+	WBCOLORSCHEME scheme = {FALSE, NOCOLOR, NOCOLOR, NOCOLOR, NULL, NULL, TEXT("")};
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_ARRAY(zoptions)
+	ZEND_PARSE_PARAMETERS_END();
+
+	options = HASH_OF(zoptions);
+	if (!options)
+		RETURN_BOOL(FALSE);
+
+	entry = zend_hash_str_find(options, "enabled", sizeof("enabled") - 1);
+	if (entry)
+		scheme.enabled = zend_is_true(entry);
+	else
+		scheme.enabled = TRUE;
+
+	entry = zend_hash_str_find(options, "background_color", sizeof("background_color") - 1);
+	if (entry && Z_TYPE_P(entry) == IS_LONG)
+		scheme.backgroundColor = (COLORREF)Z_LVAL_P(entry);
+
+	entry = zend_hash_str_find(options, "text_color", sizeof("text_color") - 1);
+	if (entry && Z_TYPE_P(entry) == IS_LONG)
+		scheme.textColor = (COLORREF)Z_LVAL_P(entry);
+
+	entry = zend_hash_str_find(options, "border_color", sizeof("border_color") - 1);
+	if (entry && Z_TYPE_P(entry) == IS_LONG)
+		scheme.borderColor = (COLORREF)Z_LVAL_P(entry);
+
+	entry = zend_hash_str_find(options, "background_image", sizeof("background_image") - 1);
+	if (entry && Z_TYPE_P(entry) == IS_STRING)
+	{
+		TCHAR *wszImagePath = Utf82WideChar(Z_STRVAL_P(entry), Z_STRLEN_P(entry));
+		if (wszImagePath)
+		{
+			MakeWinPath(wszImagePath);
+			lstrcpyn(scheme.backgroundImagePath, wszImagePath, MAX_PATH_BUFFER);
+			wbFree(wszImagePath);
+		}
+	}
+
+	RETURN_BOOL(wbSetGlobalColorScheme(&scheme));
+}
+
 /*
 ZEND_FUNCTION(wb_load_media)
 {
