@@ -1384,6 +1384,7 @@ PWBOBJ wbCreateControl(PWBOBJ pwboParent, UINT64 uWinBinderClass, LPCTSTR pszSou
 		RegisterControlInTab(pwboParent, pwbo, id, nTab);
 
 	SetWindowLongPtr(pwbo->hwnd, GWLP_USERDATA, (LONG_PTR)pwbo);
+	wbApplyColorSchemeToWindow(pwbo->hwnd);
 
 	return pwbo;
 }

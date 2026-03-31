@@ -41,6 +41,7 @@
 
 HFONT hIconFont = NULL;
 HWND hCurrentDlg = NULL;
+WBCOLORSCHEME g_wbColorScheme = {FALSE, NOCOLOR, NOCOLOR, NOCOLOR, NULL, NULL, TEXT("")};
 
 // Local
 
@@ -98,6 +99,9 @@ static void wbTaskPostEvent(WB_ASYNC_TASK *task, int eventCode, int progress, DW
 static DWORD WINAPI wbTaskThreadProc(LPVOID lpParam);
 static void wbTaskCleanup(void);
 BOOL wbTaskDequeueEvent(HWND hwndTarget, UINT64 *taskId, int *eventCode, int *progress, DWORD *value);
+static BOOL CALLBACK wbInvalidateWindowProc(HWND hwnd, LPARAM lParam);
+static BOOL CALLBACK wbApplyColorSchemeChildEnumProc(HWND hwnd, LPARAM lParam);
+static void wbApplyColorSchemeToHwnd(HWND hwnd);
 
 BOOL bScintillaAvailable = FALSE;
 
@@ -149,6 +153,162 @@ static DWORD WatchNotifyFilter(void)
 			   FILE_NOTIFY_CHANGE_LAST_WRITE |
 			   FILE_NOTIFY_CHANGE_CREATION |
 			   FILE_NOTIFY_CHANGE_SIZE;
+}
+
+BOOL wbSetGlobalColorScheme(const WBCOLORSCHEME *pScheme)
+{
+	WBCOLORSCHEME scheme = {FALSE, NOCOLOR, NOCOLOR, NOCOLOR, NULL, NULL, TEXT("")};
+
+	if (pScheme)
+	{
+		scheme.enabled = pScheme->enabled;
+		scheme.backgroundColor = pScheme->backgroundColor;
+		scheme.textColor = pScheme->textColor;
+		scheme.borderColor = pScheme->borderColor;
+		if (pScheme->backgroundImagePath[0])
+			lstrcpyn(scheme.backgroundImagePath, pScheme->backgroundImagePath, MAX_PATH_BUFFER);
+	}
+
+	if (g_wbColorScheme.hBackgroundBrush)
+	{
+		DeleteObject(g_wbColorScheme.hBackgroundBrush);
+		g_wbColorScheme.hBackgroundBrush = NULL;
+	}
+	if (g_wbColorScheme.hBackgroundImage)
+	{
+		DeleteObject(g_wbColorScheme.hBackgroundImage);
+		g_wbColorScheme.hBackgroundImage = NULL;
+	}
+
+	g_wbColorScheme = scheme;
+
+	if (g_wbColorScheme.enabled && g_wbColorScheme.backgroundColor != NOCOLOR)
+		g_wbColorScheme.hBackgroundBrush = CreateSolidBrush(g_wbColorScheme.backgroundColor);
+
+	if (g_wbColorScheme.enabled && g_wbColorScheme.backgroundImagePath[0])
+	{
+		HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, g_wbColorScheme.backgroundImagePath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+		if (!hBitmap)
+			return FALSE;
+		g_wbColorScheme.hBackgroundImage = hBitmap;
+	}
+
+	EnumWindows(wbInvalidateWindowProc, 0);
+	return TRUE;
+}
+
+static BOOL CALLBACK wbInvalidateWindowProc(HWND hwnd, LPARAM lParam)
+{
+	PWBOBJ pwbo = wbGetWBObj(hwnd);
+	(void)lParam;
+
+	if (pwbo)
+	{
+		wbApplyColorSchemeToWindow(hwnd);
+		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_FRAME | RDW_UPDATENOW);
+	}
+	return TRUE;
+}
+
+void wbApplyColorSchemeToWindow(HWND hwnd)
+{
+	if (!hwnd || !IsWindow(hwnd))
+		return;
+
+	wbApplyColorSchemeToHwnd(hwnd);
+	EnumChildWindows(hwnd, wbApplyColorSchemeChildEnumProc, 0);
+}
+
+static BOOL CALLBACK wbApplyColorSchemeChildEnumProc(HWND hwnd, LPARAM lParam)
+{
+	(void)lParam;
+	wbApplyColorSchemeToHwnd(hwnd);
+	return TRUE;
+}
+
+static void wbApplyColorSchemeToHwnd(HWND hwnd)
+{
+	TCHAR szClass[64];
+	COLORREF bg;
+	COLORREF fg;
+	BOOL applyBg;
+	BOOL applyFg;
+
+	if (!hwnd || !IsWindow(hwnd))
+		return;
+
+	GetClassName(hwnd, szClass, 63);
+	bg = g_wbColorScheme.enabled ? g_wbColorScheme.backgroundColor : GetSysColor(COLOR_WINDOW);
+	fg = g_wbColorScheme.enabled ? g_wbColorScheme.textColor : GetSysColor(COLOR_WINDOWTEXT);
+	applyBg = g_wbColorScheme.enabled ? (g_wbColorScheme.backgroundColor != NOCOLOR) : TRUE;
+	applyFg = g_wbColorScheme.enabled ? (g_wbColorScheme.textColor != NOCOLOR) : TRUE;
+
+	if (!_wcsicmp(szClass, WC_LISTVIEW))
+	{
+		if (applyBg)
+		{
+			SendMessage(hwnd, LVM_SETBKCOLOR, 0, bg);
+			SendMessage(hwnd, LVM_SETTEXTBKCOLOR, 0, bg);
+		}
+		if (applyFg)
+			SendMessage(hwnd, LVM_SETTEXTCOLOR, 0, fg);
+	}
+	else if (!_wcsicmp(szClass, WC_TREEVIEW))
+	{
+		if (applyBg)
+			SendMessage(hwnd, TVM_SETBKCOLOR, 0, bg);
+		if (applyFg)
+			SendMessage(hwnd, TVM_SETTEXTCOLOR, 0, fg);
+	}
+	else if (!_wcsicmp(szClass, TOOLBARCLASSNAME))
+	{
+		if (applyBg)
+			SendMessage(hwnd, TB_SETBKCOLOR, 0, bg);
+		if (applyFg)
+			SendMessage(hwnd, TB_SETTEXTCOLOR, 0, fg);
+	}
+	else if (!_wcsicmp(szClass, STATUSCLASSNAME))
+	{
+		if (applyBg)
+			SendMessage(hwnd, SB_SETBKCOLOR, 0, bg);
+	}
+	else if (!_wcsicmp(szClass, WC_TABCONTROL))
+	{
+		if (applyBg)
+			SendMessage(hwnd, TCM_SETBKCOLOR, 0, bg);
+	}
+	else if (!_wcsicmp(szClass, PROGRESS_CLASS))
+	{
+		if (applyBg)
+			SendMessage(hwnd, PBM_SETBKCOLOR, 0, bg);
+		SendMessage(hwnd, PBM_SETBARCOLOR, 0, g_wbColorScheme.enabled && g_wbColorScheme.borderColor != NOCOLOR ? g_wbColorScheme.borderColor : RGB(0, 120, 215));
+	}
+	else if (!_wcsicmp(szClass, MONTHCAL_CLASS))
+	{
+		if (applyBg)
+		{
+			SendMessage(hwnd, MCM_SETCOLOR, MCSC_MONTHBK, bg);
+			SendMessage(hwnd, MCM_SETCOLOR, MCSC_BACKGROUND, bg);
+		}
+		if (applyFg)
+		{
+			SendMessage(hwnd, MCM_SETCOLOR, MCSC_TEXT, fg);
+			SendMessage(hwnd, MCM_SETCOLOR, MCSC_TITLETEXT, fg);
+		}
+	}
+	else if (!_wcsicmp(szClass, DATETIMEPICK_CLASS))
+	{
+		if (applyBg)
+			SendMessage(hwnd, DTM_SETMCCOLOR, MCSC_MONTHBK, bg);
+		if (applyFg)
+			SendMessage(hwnd, DTM_SETMCCOLOR, MCSC_TEXT, fg);
+	}
+	else if (!_wcsicmp(szClass, RICHEDITCONTROL) || !_wcsicmp(szClass, L"Edit"))
+	{
+		if (applyBg)
+			SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, bg);
+	}
+	InvalidateRect(hwnd, NULL, TRUE);
 }
 
 static void WatchNormalizePath(LPTSTR dst, UINT dstLen, LPCTSTR src)

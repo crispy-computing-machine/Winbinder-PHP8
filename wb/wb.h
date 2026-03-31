@@ -92,6 +92,29 @@
 #define LVIS_CHECKED 0x2000
 #endif
 
+// Compatibility message constants that may be absent in older SDK headers
+#ifndef CCM_FIRST
+#define CCM_FIRST 0x2000
+#endif
+#ifndef CCM_SETBKCOLOR
+#define CCM_SETBKCOLOR (CCM_FIRST + 1)
+#endif
+#ifndef CCM_SETTEXTCOLOR
+#define CCM_SETTEXTCOLOR (CCM_FIRST + 2)
+#endif
+#ifndef TB_SETBKCOLOR
+#define TB_SETBKCOLOR (CCM_SETBKCOLOR)
+#endif
+#ifndef TB_SETTEXTCOLOR
+#define TB_SETTEXTCOLOR (CCM_SETTEXTCOLOR)
+#endif
+#ifndef TCM_SETBKCOLOR
+#define TCM_SETBKCOLOR (CCM_SETBKCOLOR)
+#endif
+#ifndef EM_SETBKGNDCOLOR
+#define EM_SETBKGNDCOLOR (WM_USER + 67)
+#endif
+
 // Other constants
 #define MAX_TABS 16				 // Maximum number of tabs in a TabControl
 #define MAX_TABCONTROLS 512		 // Maximum number of controls in a TabControl
@@ -500,6 +523,19 @@ extern COLORREF clrTabs;	   // Color for tab control backgrounds
 extern HBRUSH hbrTabs;		   // Brush for tab control backgrounds
 extern BOOL bScintillaAvailable;
 
+typedef struct _WBCOLORSCHEME
+{
+	BOOL enabled;
+	COLORREF backgroundColor;
+	COLORREF textColor;
+	COLORREF borderColor;
+	HBRUSH hBackgroundBrush;
+	HBITMAP hBackgroundImage;
+	TCHAR backgroundImagePath[MAX_PATH_BUFFER];
+} WBCOLORSCHEME;
+
+extern WBCOLORSCHEME g_wbColorScheme;
+
 //------------------------------------------------------------ PUBLIC PROTOTYPES
 
 // WB_BITMAP.C
@@ -731,6 +767,8 @@ BOOL wbSetCursor(PWBOBJ pwbo, LPCTSTR pszCursor, HANDLE handle);
 UINT64 wbTaskRun(PWBOBJ pwboTarget, LPCTSTR pszCommand, UINT64 estimatedMs);
 BOOL wbTaskPoll(UINT64 taskId, int *pStatus, int *pProgress, DWORD *pExitCode, DWORD *pErrorCode);
 BOOL wbTaskCancel(UINT64 taskId);
+BOOL wbSetGlobalColorScheme(const WBCOLORSCHEME *pScheme);
+void wbApplyColorSchemeToWindow(HWND hwnd);
 int wbWatchPath(LPCTSTR pszPath, BOOL bRecursive, DWORD dwDebounceMs);
 BOOL wbUnwatchPath(int nWatchId);
 UINT64 wbWatchPoll(DWORD dwTimeoutMs, void (*event_cb)(int watchId, int eventType, const TCHAR *basePath, const TCHAR *relativePath, DWORD tickCount, void *ctx), void *ctx);

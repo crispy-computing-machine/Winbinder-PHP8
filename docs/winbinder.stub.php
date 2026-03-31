@@ -3439,6 +3439,23 @@ function wb_set_accel_table(int $wbObject, array $accel): bool
 }
 
 /**
+ * Set a global color scheme that is applied to windows and controls.
+ *
+ * Supported options:
+ * - enabled (bool): enable/disable custom scheme (default true when called)
+ * - background_color (int): RGB color integer for control/window backgrounds
+ * - text_color (int): RGB color integer for control/window text
+ * - border_color (int): RGB color integer for window client border
+ * - background_image (string): path to a BMP image used as window background
+ *
+ * @param array $options
+ * @return bool
+ */
+function wb_set_color_scheme(array $options): bool
+{
+}
+
+/**
  * Get current clipboard contents.
  *
  * @return string|null
