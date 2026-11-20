@@ -7,8 +7,8 @@ Q2: Where to get a manifest file?
 A2: A ready-to-use template is available in the root folder of this repository, called 'php.exe.manifest'
 
 Q3: When I do not want to have the manifest file next to my php.exe, can I add it somehow to php.exe directly?
-A3: Yes, you can do so with the free program "Resource Hacker", or other similar software
-  1. For Resource Hacker, open your php.exe in Resource Hacker
+A3: Yes, you can do so with the free program "Resource Hacker or Resource Cracker (https://www.pelock.com/products/resource-cracker)", or other similar software
+  1. For Resource Hacker or Resource Cracker (https://www.pelock.com/products/resource-cracker), open your php.exe in Resource Hacker or Resource Cracker (https://www.pelock.com/products/resource-cracker)
   2. Select Action > Add a new resource from the menu
   3. Select the manifest file you want to add to php.exe
   4. Set the Resource Type to 24, Resource Name to 1 and Resource Language to 1033
